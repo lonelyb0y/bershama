@@ -186,9 +186,14 @@ summarise() {
   fi
 
   # TAP: the plan line gives the expected count, ok/not ok give the results.
-  planned="$(grep -oE '^1\.\.[0-9]+' "$outfile" | tail -1 | tr -d '1.')" || true
-  passed="$(grep -cE '^ok ' "$outfile" || true)"
-  failed="$(grep -cE '^not ok ' "$outfile" || true)"
+  # Leading whitespace is expected -- see the note in suite_passed() above, and
+  # these patterns must stay in step with the ones there.
+  #
+  # The plan number is what follows "1..", not the first run of digits on the
+  # line, so the leading "1" has to be stripped explicitly.
+  planned="$(grep -oE '^[[:space:]]*1\.\.[0-9]+' "$outfile" | tail -1 | sed -E 's/^.*1\.\.//')" || true
+  passed="$(grep -cE '^[[:space:]]*ok [0-9]+' "$outfile" || true)"
+  failed="$(grep -cE '^[[:space:]]*not ok [0-9]+' "$outfile" || true)"
 
   if [ -n "$planned" ] || [ "$passed" -gt 0 ] || [ "$failed" -gt 0 ]; then
     printf '%s of %s assertions, %s failed' \
@@ -212,24 +217,44 @@ for f in "$REPO_ROOT"/supabase/tests/*.test.sql; do
   # asserting nothing while the build says it passed. An empty or TAP-less
   # result is a failure, always, and the raw output is dumped so the reason is
   # visible.
+  #
+  # The patterns tolerate leading whitespace because psql renders a returned TAP
+  # line in an aligned column, which prefixes it with a space:
+  #
+  #                            ok
+  #   ----------------------------------------------------------
+  #    ok 5 - the private schema is not reachable by client roles
+  #   (1 row)
+  #
+  #   plan
+  #   -------
+  #    1..23
+  #
+  # So "1..23" is " 1..23" and "ok 5" is " ok 5" in captured output. A digit is
+  # required after "ok" so the bare column header "ok" is not counted as a
+  # result.
   suite_passed() {
     local outfile="$1" engine="$2"
-    local planned
-
-    planned="$(grep -oE '^1\.\.[0-9]+' "$outfile" | tail -1)" || true
+    local planned failed
 
     if [ "$engine" = "shim" ]; then
-      # The shim prints a plan line and a summary; absence of either means the
-      # file did not really run.
-      grep -qE 'ran [0-9]+ of [0-9]+ assertions' "$outfile" && return 0
+      # The shim aborts on the first failed assertion and prints a summary line;
+      # absence of that means the file did not really run.
+      grep -qE 'ran [0-9]+ of [0-9]+ assertions, 0 failed' "$outfile" && return 0
       return 1
     fi
 
-    # Real pgTAP: a TAP plan line plus at least one result.
-    if [ -z "$planned" ]; then
-      return 1
-    fi
-    grep -qE '^(not )?ok ' "$outfile" && return 0
+    # Real pgTAP: a failed assertion is reported as a "not ok" line and the
+    # script still EXITS 0. Exit status therefore cannot detect a failing suite,
+    # which is exactly why pg_prove and `supabase test db` parse TAP rather than
+    # trusting the exit code. Any "not ok" is a failure, full stop.
+    failed="$(grep -cE '^[[:space:]]*not ok [0-9]+' "$outfile" || true)"
+    [ "$failed" -eq 0 ] || return 1
+
+    planned="$(grep -cE '^[[:space:]]*1\.\.[0-9]+' "$outfile" || true)"
+    [ "$planned" -gt 0 ] || return 1
+
+    grep -qE '^[[:space:]]*ok [0-9]+' "$outfile" && return 0
     return 1
   }
 
