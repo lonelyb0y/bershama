@@ -76,34 +76,17 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
-    services:
-      # A real PostgreSQL, because the tests exercise real RLS behaviour. The
-      # postgres service image is configured but the script initialises its own
-      # throwaway cluster, so this is here for the pgtap extension rather than
-      # for the connection: installing pgTAP is what lets the suites run against
-      # the real library instead of the compatibility shim.
-      postgres:
-        image: postgres:17
-        env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: postgres
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U postgres"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
+    # No `services:` block on purpose. scripts/verify-db.sh initialises its own
+    # throwaway cluster in /tmp and tears it down afterwards, so a service
+    # container would be a database nothing connects to: roughly 20 seconds of CI
+    # time and a health check that proves nothing. The client tools are still
+    # needed, because the script shells out to initdb/pg_ctl/psql.
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install PostgreSQL client tools and pgTAP
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            postgresql-client-17 \
-            postgresql-17-pgtap
+      - name: Set up PostgreSQL
+        uses: ./.github/actions/setup-postgres
 
       - name: Apply migrations and run suites
         run: ./scripts/verify-db.sh
@@ -128,12 +111,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install PostgreSQL client and pgTAP
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            postgresql-client-17 \
-            postgresql-17-pgtap
+      - name: Set up PostgreSQL
+        uses: ./.github/actions/setup-postgres
 
       - name: Break a policy and confirm the suite catches it
         run: |

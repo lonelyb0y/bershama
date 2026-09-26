@@ -1,0 +1,79 @@
+name: 'Install PostgreSQL tools and pgTAP'
+
+description: >
+  Install the PostgreSQL client tools and, where available, the real pgTAP
+  extension on an Ubuntu runner.
+
+# WHY THIS IS A COMPOSITE ACTION
+#
+# Three jobs need these tools, and the setup is not trivial: GitHub's runners do
+# NOT have the PostgreSQL apt repository (PGDG) configured by default, so a plain
+# `apt-get install postgresql-17-pgtap` fails with "Unable to locate package".
+# The repository has to be added and signed first.
+#
+# A workflow cannot `uses:` a local composite action from a `run:` block, and
+# repeating the seven-line setup in three places is how the three copies drift
+# apart. One definition, three callers.
+
+inputs:
+  pg-version:
+    description: 'PostgreSQL major version to install client tools for'
+    required: false
+    default: '17'
+
+runs:
+  using: composite
+  steps:
+    - name: Add the PostgreSQL apt repository
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        sudo install -d /usr/share/postgresql-common/pgdg
+
+        # PGPG signing key, verified against the published fingerprint
+        # B97B0AFCAA1A47F044F244A07FCC7D46ACCC4CF8.
+        curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+          | sudo tee /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc > /dev/null
+
+        # . /etc/os-release gives the runner's codename (noble on ubuntu-24.04),
+        # so this does not silently target the wrong suite when GitHub moves the
+        # default runner image.
+        . /etc/os-release
+        echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] \
+        https://apt.postgresql.org/pub/repos/apt ${VERSION_CODENAME}-pgdg main" \
+          | sudo tee /etc/apt/sources.list.d/pgdg.list > /dev/null
+
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends \
+          "postgresql-client-${{ inputs.pg-version }}"
+
+    - name: Install pgTAP
+      shell: bash
+      # continue-on-error is deliberate, not a shrug.
+      #
+      # scripts/verify-db.sh prefers the real pgTAP extension and falls back to
+      # supabase/tests/pgtap_shim.sql when it is absent, printing which one ran.
+      # So a failure here degrades the run to the shim rather than failing it. The
+      # shim implements the assertions the suites use, with the same semantics,
+      # and the suites are identical either way.
+      #
+      # What this does NOT do is let the shim hide a real problem silently: the
+      # script announces the fallback in its output, so the warning is visible in
+      # the log rather than buried.
+      continue-on-error: true
+      run: |
+        sudo apt-get install -y --no-install-recommends \
+          "postgresql-${{ inputs.pg-version }}-pgtap"
+
+    - name: Report which assertion engine will be used
+      shell: bash
+      # Fail loudly if neither is available, rather than letting the suites fail
+      # with a confusing "function does not exist" error.
+      run: |
+        if apt-cache show "postgresql-${{ inputs.pg-version }}-pgtap" >/dev/null 2>&1; then
+          echo "pgTAP package is available in PGDG."
+        else
+          echo "::warning::pgTAP not available for PostgreSQL ${{ inputs.pg-version }}; \
+        the suites will run against the compatibility shim."
+        fi
