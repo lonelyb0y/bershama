@@ -204,26 +204,69 @@ for f in "$REPO_ROOT"/supabase/tests/*.test.sql; do
   name="$(basename "$f")"
   TOTAL=$((TOTAL + 1))
 
+  # A suite that reports nothing has NOT passed.
+  #
+  # This check exists because the alternative is the worst possible harness
+  # failure: psql exits 0, the output is empty, and a naive "did psql succeed?"
+  # test reports the suite as green. That is how a security suite ends up
+  # asserting nothing while the build says it passed. An empty or TAP-less
+  # result is a failure, always, and the raw output is dumped so the reason is
+  # visible.
+  suite_passed() {
+    local outfile="$1" engine="$2"
+    local planned
+
+    planned="$(grep -oE '^1\.\.[0-9]+' "$outfile" | tail -1)" || true
+
+    if [ "$engine" = "shim" ]; then
+      # The shim prints a plan line and a summary; absence of either means the
+      # file did not really run.
+      grep -qE 'ran [0-9]+ of [0-9]+ assertions' "$outfile" && return 0
+      return 1
+    fi
+
+    # Real pgTAP: a TAP plan line plus at least one result.
+    if [ -z "$planned" ]; then
+      return 1
+    fi
+    grep -qE '^(not )?ok ' "$outfile" && return 0
+    return 1
+  }
+
   # Each suite is its own transaction: pgTAP suites begin/rollback internally, and
   # a failure in one must not leave state behind for the next.
   if [ "$USE_SHIM" -eq 1 ]; then
     psql -q -v ON_ERROR_STOP=1 \
       -c "set search_path = public, pgtap_shim;" \
       -c "select pgtap_shim._reset();" >/dev/null 2>&1 || true
+
     if psql -q -v ON_ERROR_STOP=1 \
         -c "set search_path = public, pgtap_shim;" \
-        -f "$f" >"$PGDATA_DIR/test.out" 2>&1; then
+        -f "$f" >"$PGDATA_DIR/test.out" 2>&1 && suite_passed "$PGDATA_DIR/test.out" shim; then
       ok "$name — $(summarise "$PGDATA_DIR/test.out" shim)"
     else
       printf '\033[1;31m  FAIL\033[0m %s\n' "$name" >&2
+      printf '         %s bytes of output; a passing suite must report its plan and results\n' \
+        "$(wc -c <"$PGDATA_DIR/test.out" | tr -d ' ')" >&2
       cat "$PGDATA_DIR/test.out" >&2
       FAILED=$((FAILED + 1))
     fi
   else
-    if psql -q -v ON_ERROR_STOP=1 -f "$f" >"$PGDATA_DIR/test.out" 2>&1; then
+    # No -q here, and client_min_messages lowered.
+    #
+    # pgTAP reports each assertion to the client rather than returning it as a
+    # result set, so anything that suppresses messages or result formatting can
+    # hide the entire run. Dropping -q and pinning the message level to info
+    # means the output is the same regardless of the caller's environment, and
+    # suite_passed() above catches the case where it is still not.
+    if PGOPTIONS='-c client_min_messages=info' \
+       psql -X -v ON_ERROR_STOP=1 -f "$f" >"$PGDATA_DIR/test.out" 2>&1 \
+       && suite_passed "$PGDATA_DIR/test.out" pgtap; then
       ok "$name — $(summarise "$PGDATA_DIR/test.out" pgtap)"
     else
       printf '\033[1;31m  FAIL\033[0m %s\n' "$name" >&2
+      printf '         %s bytes of output; expected a TAP plan line and results\n' \
+        "$(wc -c <"$PGDATA_DIR/test.out" | tr -d ' ')" >&2
       cat "$PGDATA_DIR/test.out" >&2
       FAILED=$((FAILED + 1))
     fi
