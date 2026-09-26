@@ -1,0 +1,119 @@
+{
+  "common": {
+    "appName": "PharmaFlow",
+    "loading": "Loading…",
+    "error": "Something went wrong",
+    "retry": "Try again",
+    "save": "Save",
+    "cancel": "Cancel",
+    "search": "Search",
+    "signOut": "Sign out",
+    "language": "Language",
+    "english": "English",
+    "arabic": "Arabic"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "inventory": "Inventory",
+    "batches": "Batches",
+    "expiry": "Expiry",
+    "requisitions": "Requisitions",
+    "deliveries": "Deliveries",
+    "routes": "Routes",
+    "alerts": "Alerts",
+    "catalogue": "Catalogue",
+    "analytics": "Analytics",
+    "audit": "Audit log"
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "email": "Email address",
+    "password": "Password",
+    "invalidCredentials": "Incorrect email or password.",
+    "inviteOnly": "PharmaFlow is invite-only. Ask your administrator for an invitation.",
+    "sessionExpired": "Your session expired. Please sign in again.",
+    "welcome": "Welcome back, {name}"
+  },
+  "roles": {
+    "TENANT_ADMIN": "Administrator",
+    "WAREHOUSE_MANAGER": "Warehouse manager",
+    "DISPATCHER": "Dispatcher",
+    "PHARMACY_MANAGER": "Pharmacy manager",
+    "DISTRIBUTOR": "Driver",
+    "ANALYST": "Analyst"
+  },
+  "inventory": {
+    "onHand": "On hand",
+    "reserved": "Reserved",
+    "available": "Available",
+    "lotNumber": "Lot number",
+    "expiryDate": "Expiry date",
+    "daysToExpiry": "{days} days",
+    "expired": "Expired",
+    "expiringSoon": "Expiring soon",
+    "noStock": "No stock recorded",
+    "product": "Product",
+    "batch": "Batch",
+    "location": "Location"
+  },
+  "requisitions": {
+    "new": "New requisition",
+    "status": {
+      "DRAFT": "Draft",
+      "SUBMITTED": "Submitted",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "ALLOCATED": "Allocated",
+      "DISPATCHED": "Dispatched",
+      "IN_TRANSIT": "In transit",
+      "DELIVERED": "Delivered",
+      "CANCELLED": "Cancelled",
+      "CLOSED": "Closed"
+    }
+  },
+  "delivery": {
+    "trips": "Trips",
+    "stops": "Stops",
+    "startTrip": "Start trip",
+    "arrive": "Arrived",
+    "deliver": "Confirm delivery",
+    "fail": "Report problem",
+    "recipientName": "Received by",
+    "signature": "Signature",
+    "photo": "Photo",
+    "offline": "You are offline. Your work is saved and will sync automatically."
+  },
+  "alerts": {
+    "lowStock": "Low stock",
+    "nearExpiry": "Expiring soon",
+    "expired": "Expired",
+    "orderOverdue": "Order overdue",
+    "deliveryFailed": "Delivery failed",
+    "acknowledge": "Acknowledge",
+    "resolve": "Resolve",
+    "none": "No active alerts"
+  },
+  "m0": {
+    "title": "PharmaFlow",
+    "subtitle": "Pharmaceutical supply chain",
+    "milestone": "Milestone M0 · Foundation",
+    "status": "Milestone status",
+    "tech": "Technology",
+    "security": "Security model",
+    "signedInAs": "Signed in as {name}",
+    "role": "Role",
+    "tenant": "Organisation",
+    "notSignedIn": "Not signed in",
+    "signInToVerify": "Sign in to verify the session and tenant isolation.",
+    "demoAccounts": "Demo accounts",
+    "setupPending": "Local database not started yet. Run 'make db' to bring it up.",
+    "currency": "Currency",
+    "vatRate": "VAT rate",
+    "minShelfLife": "Minimum shelf life",
+    "comingSoon": "Coming in a later milestone",
+    "offlineQueue": "{count} change(s) waiting to sync",
+    "online": "Online",
+    "offline": "Offline"
+  }
+}

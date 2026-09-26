@@ -1,0 +1,163 @@
+name: CI
+
+# Two jobs that can run in parallel, plus a required gate.
+#
+#   web        lint, typecheck, unit tests, production build
+#   database   migrations applied and the pgTAP suites run
+#
+# The database job deliberately does NOT use the Supabase CLI or Docker. It runs
+# the real migrations and the real test files against a plain PostgreSQL service
+# via scripts/verify-db.sh. That keeps the security-critical SQL testable in any
+# environment and means a policy mistake fails the build in seconds rather than
+# after a Docker image pulls.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Cancel superseded runs on the same branch. A push while a PR is open should not
+# burn CI minutes re-running work whose result nobody is waiting for.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  web:
+    name: Web (lint, types, tests, build)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm --filter @pharmaflow/web lint
+
+      - name: Typecheck
+        run: pnpm --filter @pharmaflow/web typecheck
+
+      - name: Unit tests
+        run: pnpm --filter @pharmaflow/web test
+
+      # The build needs these to exist, but the values are irrelevant: the build
+      # compiles the code and prerenders static routes, and the authenticated
+      # pages render dynamically. Nothing in the build can talk to a real
+      # database, and the build must never be able to.
+      - name: Build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_build_placeholder
+          SUPABASE_SECRET_KEY: sb_secret_build_placeholder
+        run: pnpm --filter @pharmaflow/web build
+
+      # Runs last because it is the most expensive scan. A leaked key in a pull
+      # request is exactly the case this exists for, and finding it after the
+      # build still blocks the merge.
+      - name: Secret scan
+        run: make secrets
+
+  database:
+    name: Database (migrations + RLS suites)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    services:
+      # A real PostgreSQL, because the tests exercise real RLS behaviour. The
+      # postgres service image is configured but the script initialises its own
+      # throwaway cluster, so this is here for the pgtap extension rather than
+      # for the connection: installing pgTAP is what lets the suites run against
+      # the real library instead of the compatibility shim.
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install PostgreSQL client tools and pgTAP
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            postgresql-client-17 \
+            postgresql-17-pgtap
+
+      - name: Apply migrations and run suites
+        run: ./scripts/verify-db.sh
+
+  # Proves the isolation suites can actually fail.
+  #
+  # A security test that cannot fail is worse than no test, because it is reported
+  # as coverage. This job removes a tenant_id check from a policy, confirms the
+  # suite FAILS, and restores the file. If a future change accidentally weakens
+  # a policy, or someone "fixes" a suite into always passing, this job is what
+  # notices.
+  #
+  # It is not a required status check because it is a meta-check about the tests
+  # rather than about the product, and it would fail for reasons that are not
+  # always a real regression.
+  mutation:
+    name: Verify the RLS suites can fail
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install PostgreSQL client and pgTAP
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            postgresql-client-17 \
+            postgresql-17-pgtap
+
+      - name: Break a policy and confirm the suite catches it
+        run: |
+          set -euo pipefail
+
+          POLICY=supabase/migrations/20260101000002_identity.sql
+          cp "$POLICY" /tmp/policy.backup
+
+          # Replace the tenant scoping on the profiles read policy with a
+          # deliberately wrong `true`, which is the classic RLS mistake: a policy
+          # that authenticates but forgets to scope to the tenant.
+          sed -i "s|using (id = (select auth.uid()));|using (true);|" "$POLICY"
+
+          echo "--- running the suite against the weakened policy (expect failure) ---"
+          if ./scripts/verify-db.sh 55434 > /tmp/mutated.log 2>&1; then
+            echo "::error::the RLS suite passed against a policy that leaks all profiles."
+            echo "The suite is not testing tenant isolation. Refusing to pass."
+            exit 1
+          fi
+
+          echo "--- suite correctly failed. Relevant output: ---"
+          grep -E "FAILED|tenant|profiles" /tmp/mutated.log | head -10 || true
+
+          cp /tmp/policy.backup "$POLICY"
+          echo "--- policy restored; confirming the suite passes again ---"
+          ./scripts/verify-db.sh 55434 > /dev/null
+          echo "OK: the suites detect a broken policy and pass on a correct one."

@@ -1,0 +1,216 @@
+# PharmaFlow
+
+Pharmaceutical supply chain platform for a medicine distribution company.
+Batch-level inventory with lot and expiry control, requisitions, live delivery
+tracking, and an audit trail that survives an auditor.
+
+Built for an operator in Egypt: bilingual English/Arabic with full RTL, EGP
+denominated, WHO GDP-aligned batch traceability.
+
+**Status: milestone M0/M1 (foundation and identity).** Inventory, requisitions
+and delivery tracking are not built yet. See [Roadmap](#roadmap).
+
+---
+
+## The problem
+
+A distributor moving medicine from a warehouse to pharmacies has to answer four
+questions continuously:
+
+1. **What do I have?** By batch, not just by product. Panadol lot A123 expires in
+   March; lot B456 expires in November. A quantity without a lot number is
+   useless.
+2. **What is about to expire?** Stock that expires in a pharmacy's back room is a
+   write-off the distributor ends up paying for.
+3. **What did each pharmacy ask for, and did it arrive?**
+4. **Where are my drivers right now?**
+
+Paper and spreadsheets answer these questions a week late. This answers them now,
+and records every movement in a form that survives scrutiny.
+
+## Design principles
+
+These shaped more decisions than the feature list did.
+
+**The ledger is append-only.** Every stock movement is an immutable row.
+Corrections are new compensating rows, never edits. A batch is never hard
+deleted — only moved between `RELEASED`, `QUARANTINED` and `RECALLED`, always
+with a reason. This is what makes the history defensible, and it is enforced by a
+database trigger rather than by discipline.
+
+**Money is never a float.** Every amount is an integer count of piastres
+(1 EGP = 100), from the database column to the rendered string. Division happens
+once, at display time. A ledger that has passed through a float will eventually
+disagree with physical stock by one piastre, and "the system says we are 0.01
+short" is not an answer you can give a pharmacist.
+
+**The database enforces who you are.** Supabase Row Level Security, not
+application middleware. A bug in a request handler cannot leak another
+company's stock, because the query itself returns nothing. The tenant id is
+never read from a URL or a header — it comes from the session, inside the
+database.
+
+**Privileged code lives where the client cannot reach it.** A `SECURITY DEFINER`
+function runs with the privileges of its owner, which on Supabase means
+`postgres` with `BYPASSRLS`. Put one in an exposed schema and any signed-in user
+can call it as the superuser. All of them live in a `private` schema that the
+Data API cannot see; clients call thin `SECURITY INVOKER` wrappers in `api`.
+
+**Arabic is not a translation layer.** `dir` is derived from the locale, spacing
+uses logical properties, and the layout mirrors. Numbers stay Latin even on
+Arabic pages, because a pharmacist reads an expiry date off a carton and types it
+into a search box.
+
+**Offline is the normal case for a driver.** Not a feature to add later.
+
+## Architecture
+
+```
+Browser ──► Next.js 16 (Vercel) ──► Supabase
+              React 19, RTL             ├─ Postgres 17  ← the whole domain model
+              Server Components         ├─ Auth        ← credentials, tokens
+                                          ├─ RLS         ← authorization
+              (TypeScript)               ├─ Storage     ← POD photos, signatures
+                                          └─ pg_cron     ← alerts, reconciliation
+```
+
+There is **no custom API server**. Supabase provides the REST surface, and the
+business logic is Postgres functions — which is the right tool here, because the
+logic is fundamentally about maintaining invariants across rows (a stock balance
+that must equal the sum of its ledger, a FEFO allocation that must skip
+quarantined lots). Enforcing those invariants inside the same transaction that
+writes the rows is the entire point.
+
+### Repository layout
+
+```
+pharmaflow/
+├── apps/web/                 Next.js app (admin, pharmacy, distributor)
+│   └── src/
+│       ├── app/[locale]/     one route group per locale, three per role
+│       ├── i18n/             routing, messages (en/ar)
+│       ├── lib/              supabase clients, session, types, formatters
+│       └── middleware.ts     session refresh + locale negotiation
+├── supabase/
+│   ├── migrations/           the schema, in order. Source of truth.
+│   ├── tests/                pgTAP suites + the no-Docker harness
+│   └── seed.sql              local demo data
+├── scripts/verify-db.sh      migrations + suites, no Docker required
+├── docs/                     architecture, ADRs, runbook
+└── Makefile                  every task
+```
+
+## Getting started
+
+Requires Node 22, pnpm, and the Supabase CLI. Docker is optional.
+
+```bash
+make install          # dependencies
+make env              # .env.local from the template, mode 600
+make doctor           # what is and is not available
+make db               # local Supabase stack (needs Docker)
+make dev              # http://localhost:3000
+```
+
+### Without Docker
+
+`make verify` runs every check, including the database ones, against a plain
+PostgreSQL. Migrations and tests are identical in both paths — only the harness
+differs.
+
+```bash
+make verify           # lint + typecheck + unit tests + secret scan + migrations + suites + build
+```
+
+## Verifying it works
+
+```bash
+make check            # fast: lint, types, unit tests, secret scan
+make test-db          # migrations applied, 30 RLS assertions
+make build            # production build
+```
+
+The database suite is the one that matters most. It proves that:
+
+- an anonymous request can read nothing
+- a user cannot see another tenant's rows
+- a user cannot escalate their own role
+- a failed escalation leaves both role and tenant unchanged
+- a user can update their own profile (and only their own)
+- every public table has RLS enabled
+- `anon` holds no write grant on any public table
+- `authenticated` cannot INSERT into any public table directly
+- no `SECURITY DEFINER` function sits in an exposed schema
+- every `private` SECURITY DEFINER function pins its `search_path`
+- the audit log rejects `UPDATE` and `DELETE`
+
+There is a CI job that deliberately breaks a policy to confirm the suite fails. A
+security test that cannot fail is worse than none, because it is reported as
+coverage.
+
+## Demo accounts
+
+Created by `supabase/seed.sql`, never by a migration, so they cannot reach a
+hosted project. Password for all three: `PharmaFlow#2026`
+
+| Email | Role | Lands on |
+|---|---|---|
+| `admin@demo.local` | `TENANT_ADMIN` | Control tower |
+| `pharmacy@demo.local` | `PHARMACY_MANAGER` | Pharmacy portal |
+| `driver@demo.local` | `DISTRIBUTOR` | Driver app |
+
+## Roadmap
+
+Each milestone ends in something a real user could be put in front of.
+
+| | Scope | Status |
+|---|---|---|
+| **M0** | Repository, toolchain, CI, i18n/RTL foundation | done |
+| **M1** | Tenancy, roles, RLS, invite-only auth, audit log | done |
+| **M2** | Products, batches, locations, stock ledger, reconciliation | next |
+| **M3** | Requisitions, approval, FEFO allocation | planned |
+| **M4** | Trips, driver PWA offline, e-signature POD, live map | planned |
+| **M5** | Alerts, dashboards, analytics | planned |
+| **M6** | Go-live gate (see below) | planned |
+
+Deliberately deferred: purchase orders and GRN, invoicing and ETA e-invoicing,
+cold-chain sensors, forecasting, React Native.
+
+### Before real use
+
+M6 is not a formality. Two things must change before a distributor's stock or
+revenue flows through this:
+
+- **Supabase Pro ($25/mo).** The free tier pauses projects after 7 days of low
+  activity, and — more seriously — provides **no downloadable database backup**.
+  A system of record for batch numbers and expiry dates, with no backup you can
+  export or restore, is not recoverable. This is the one I would not defer.
+- **Vercel Pro ($20/mo).** Vercel's Hobby plan is restricted to non-commercial
+  personal use by its terms. Hosting a distributor's live business on it is a
+  breach, not a free tier.
+
+A restore drill is also part of M6: a backup nobody has restored from is not a
+backup.
+
+## Documentation
+
+- [docs/architecture.md](docs/architecture.md) — system design in detail
+- [docs/data-model.md](docs/data-model.md) — tables, columns, invariants
+- [docs/security.md](docs/security.md) — threat model and controls
+- [docs/supabase-dev.md](docs/supabase-dev.md) — local development, both paths
+- [docs/runbook.md](docs/runbook.md) — operating it, and what to do when it breaks
+- [docs/adr/](docs/adr/) — decisions and why
+
+## License
+
+AGPL-3.0-only.
+
+The product is inspired by Open mSupply and ERPNext, both of which are
+copyleft-licensed; nothing was copied from either. The reason for AGPL rather
+than a permissive license is that this software moves medicine and records an
+audit trail. Anyone running a modified version as a service owes its users the
+source of that version. Health-sector buyers read that as a commitment; a
+permissive license would read as an absence of one.
+
+Product name and branding are PharmaFlow's own. No mSupply or ERPNext names or
+assets appear anywhere in this repository.

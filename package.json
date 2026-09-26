@@ -1,0 +1,24 @@
+{
+  "name": "pharmaflow",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Pharmaceutical supply chain platform: batch-level inventory, expiry control, requisitions, and live delivery tracking.",
+  "license": "AGPL-3.0-only",
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "pnpm@12.6.0",
+  "scripts": {
+    "dev": "pnpm --filter @pharmaflow/web dev",
+    "build": "pnpm --filter @pharmaflow/web build",
+    "start": "pnpm --filter @pharmaflow/web start",
+    "lint": "pnpm --filter @pharmaflow/web lint",
+    "typecheck": "pnpm --filter @pharmaflow/web typecheck",
+    "test": "pnpm --filter @pharmaflow/web test",
+    "e2e": "playwright test",
+    "e2e:install": "playwright install --with-deps chromium"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0"
+  }
+}

@@ -1,0 +1,29 @@
+packages:
+  - 'apps/*'
+  - 'tests/*'
+
+# pnpm blocks dependency lifecycle scripts by default, which is correct: a
+# postinstall script is arbitrary code execution. These are the native-compiled
+# packages the Next.js / SWC / file-watcher toolchain needs in order to run at
+# all. This is an explicit per-package allowlist, not a blanket approval, so a
+# newly added transitive dependency with a postinstall script still gets blocked.
+allowBuilds:
+  '@parcel/watcher': true
+  '@swc/core': true
+  esbuild: true
+  sharp: true
+  unrs-resolver: true
+
+# pnpm's supply-chain policy refuses packages published within the last 24 hours,
+# on the theory that a just-published version is the window in which a
+# compromised release would be caught. This is a good default and is left on.
+#
+# These three were pinned to "latest" at project creation and landed inside that
+# window. They are excluded by exact version, not by name, so a future publish of
+# a different version of any of them is still subject to the age check. The
+# lockfile additionally pins integrity hashes, so the reviewed bits are what
+# actually install. Review and drop this section as the versions age out.
+minimumReleaseAgeExclude:
+  - '@tanstack/query-core@5.104.0'
+  - '@tanstack/react-query@5.104.0'
+  - 'react-hook-form@7.89.0'

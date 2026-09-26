@@ -1,0 +1,138 @@
+'use client';
+
+// Sign-in form.
+//
+// Sign-in goes through supabase.auth.signInWithPassword, not a custom endpoint.
+// Supabase Auth owns the credential store, the token rotation and the refresh
+// flow; reimplementing any of that would mean handling passwords ourselves, which
+// is exactly the kind of decision that goes wrong in ways nobody notices until an
+// incident.
+//
+// RLS is what limits what this session can reach. A valid password grants a
+// session, and the session's authority is decided entirely by policies in the
+// database — not by anything in this file.
+//
+// This uses the BROWSER client. Sign-in is an interactive client-side operation,
+// and the server client cannot be imported here: it depends on next/headers and
+// pulling that into a client component fails the build.
+
+import { useState, useTransition } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
+
+import { getSupabaseBrowserClient } from '@/lib/supabase/client';
+import { asWhoAmI } from '@/lib/mappers';
+import { useRouter } from '@/i18n/routing';
+import { homeRouteForRole } from '@/lib/roles';
+import type { AppRole } from '@/lib/types';
+
+export function LoginForm() {
+  const t = useTranslations('auth');
+  const router = useRouter();
+  const locale = useLocale();
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+
+  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError(null);
+
+    const supabase = getSupabaseBrowserClient();
+
+    const { data: signIn, error: signInError } =
+      await supabase.auth.signInWithPassword({ email, password });
+
+    if (signInError || !signIn?.user) {
+      // Deliberately vague. Distinguishing "no such user" from "wrong password"
+      // turns the form into an account-enumeration oracle.
+      setError(t('invalidCredentials'));
+      return;
+    }
+
+    // The role decides the destination, and it is read from the database rather
+    // than from anything the client sent. Asking the server for the role after
+    // sign-in means a tampered client cannot route itself somewhere privileged;
+    // the route guard re-checks it anyway.
+    const { data: sessionData } = await supabase
+      .schema('api')
+      .rpc('whoami')
+      .maybeSingle();
+
+    const role = (asWhoAmI(sessionData)?.role ?? 'ANALYST') as AppRole;
+
+    startTransition(() => {
+      router.replace(`/${locale}${homeRouteForRole(role)}`);
+      router.refresh();
+    });
+  }
+
+  return (
+    <form onSubmit={onSubmit} className="space-y-4" noValidate>
+      <div>
+        <label
+          htmlFor="email"
+          className="block text-sm font-medium"
+        >
+          {t('email')}
+        </label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          // dir="ltr" on the field itself: an email address is always
+          // left-to-right, and letting it inherit an RTL container reorders the
+          // @ and the domain in a way that looks like a typo.
+          dir="ltr"
+          autoComplete="email"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="mt-1 w-full rounded-lg border bg-transparent px-3 py-2 text-sm"
+        />
+      </div>
+
+      <div>
+        <label htmlFor="password" className="block text-sm font-medium">
+          {t('password')}
+        </label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          dir="ltr"
+          autoComplete="current-password"
+          required
+          minLength={12}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="mt-1 w-full rounded-lg border bg-transparent px-3 py-2 text-sm"
+        />
+      </div>
+
+      {error ? (
+        // role="alert" so a screen reader announces the failure immediately
+        // rather than leaving the user wondering why nothing happened.
+        <p
+          role="alert"
+          className="rounded-lg border border-[var(--color-stock-critical)]/40 bg-[var(--color-stock-critical)]/10 px-3 py-2 text-sm"
+        >
+          {error}
+        </p>
+      ) : null}
+
+      <button
+        type="submit"
+        disabled={isPending}
+        className="w-full rounded-lg bg-[var(--color-brand-600)] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[var(--color-brand-700)] disabled:opacity-60"
+      >
+        {isPending ? '…' : t('signIn')}
+      </button>
+
+      <p className="text-[color:var(--text-muted)] text-center text-xs">
+        {t('inviteOnly')}
+      </p>
+    </form>
+  );
+}

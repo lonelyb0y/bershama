@@ -1,0 +1,117 @@
+@import 'tailwindcss';
+
+/*
+ * Design tokens.
+ *
+ * Defined as CSS custom properties rather than only Tailwind theme values so the
+ * same tokens can be read from a chart, a printed delivery note, or an inline
+ * style without a JavaScript lookup. Direction-aware via logical properties
+ * (padding-inline, margin-inline) so a single stylesheet serves both LTR and RTL
+ * without a mirrored duplicate.
+ */
+@theme {
+  /* Families come from next/font as CSS variables, so the woff2 files are
+     self-hosted and no request reaches Google at runtime. */
+  --font-latin: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-arabic: var(--font-plex-arabic), var(--font-inter), ui-sans-serif, sans-serif;
+
+  --color-brand-50: oklch(0.97 0.02 195);
+  --color-brand-100: oklch(0.93 0.04 195);
+  --color-brand-500: oklch(0.65 0.13 195);
+  --color-brand-600: oklch(0.58 0.14 195);
+  --color-brand-700: oklch(0.5 0.13 195);
+
+  /* Expiry severity. These four states are the visual language of the whole
+     product: a warehouse operator should recognise an at-risk batch from colour
+     alone, before reading a single number. */
+  --color-stock-ok: oklch(0.65 0.15 150);
+  --color-stock-warning: oklch(0.75 0.15 75);
+  --color-stock-critical: oklch(0.65 0.2 35);
+  --color-stock-expired: oklch(0.5 0.19 20);
+}
+
+:root {
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surface: oklch(0.16 0.005 260);
+    --surface-raised: oklch(0.21 0.006 260);
+    --border: oklch(0.3 0.008 260);
+    --text: oklch(0.96 0.002 260);
+    --text-muted: oklch(0.72 0.01 260);
+  }
+}
+
+:root {
+  --surface: oklch(0.99 0.002 260);
+  --surface-raised: oklch(1 0 0);
+  --border: oklch(0.9 0.004 260);
+  --text: oklch(0.2 0.008 260);
+  --text-muted: oklch(0.5 0.01 260);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    /* Logical property: the scrollbar sits on the correct side in RTL without a
+       separate rule. */
+    scrollbar-gutter: stable;
+  }
+
+  body {
+    background-color: var(--surface);
+    color: var(--text);
+    /*
+     * Drivers use this one-handed in a moving vehicle. Never disable zoom, and
+     * keep tap targets at the 44px accessibility minimum: a mis-tap that
+     * confirms the wrong delivery is worse than a large target.
+     */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /*
+   * Numbers are the densest content in the product (quantities, prices, dates,
+   * lot codes). Tabular figures keep columns aligned so a 100 vs 1 discrepancy
+   * in a stock count is visible rather than hidden by proportional spacing.
+   */
+  .tabular,
+  table,
+  [data-numeric] {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum';
+  }
+
+  /* Expiry severity bands. Applied by class so the colour logic lives in one
+     place and a screen-reader-friendly label is always paired with it. Colour
+     alone is never the only signal. */
+  .expiry-ok {
+    color: var(--color-stock-ok);
+  }
+  .expiry-warning {
+    color: var(--color-stock-warning);
+  }
+  .expiry-critical {
+    color: var(--color-stock-critical);
+  }
+  .expiry-expired {
+    color: var(--color-stock-expired);
+  }
+
+  /* Respect a user's reduced-motion preference. The live driver map animates
+     continuously, which is genuinely uncomfortable for some people. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}

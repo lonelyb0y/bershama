@@ -1,0 +1,119 @@
+{
+  "common": {
+    "appName": "فارما فلو",
+    "loading": "جاري التحميل…",
+    "error": "حدث خطأ ما",
+    "retry": "إعادة المحاولة",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "search": "بحث",
+    "signOut": "تسجيل الخروج",
+    "language": "اللغة",
+    "english": "الإنجليزية",
+    "arabic": "العربية"
+  },
+  "nav": {
+    "dashboard": "لوحة التحكم",
+    "inventory": "المخزون",
+    "batches": "التشكيلات",
+    "expiry": "الصلاحية",
+    "requisitions": "الطلبات",
+    "deliveries": "التوصيلات",
+    "routes": "المسارات",
+    "alerts": "التنبيهات",
+    "catalogue": "الكتالوج",
+    "analytics": "التحليلات",
+    "audit": "سجل التدقيق"
+  },
+  "auth": {
+    "signIn": "تسجيل الدخول",
+    "signOut": "تسجيل الخروج",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
+    "inviteOnly": "فارما فلو يعمل بنظام الدعوات فقط. يرجى طلب دعوة من المسؤول.",
+    "sessionExpired": "انتهت جلستك. يرجى تسجيل الدخول مرة أخرى.",
+    "welcome": "أهلاً بعودتك، {name}"
+  },
+  "roles": {
+    "TENANT_ADMIN": "مسؤول النظام",
+    "WAREHOUSE_MANAGER": "مدير المستودع",
+    "DISPATCHER": "منسق التوصيل",
+    "PHARMACY_MANAGER": "مدير الصيدلية",
+    "DISTRIBUTOR": "مندوب التوصيل",
+    "ANALYST": "محلل"
+  },
+  "inventory": {
+    "onHand": "المتوفر",
+    "reserved": "المحجوز",
+    "available": "القابل للتوريد",
+    "lotNumber": "رقم التشغيلة",
+    "expiryDate": "تاريخ الصلاحية",
+    "daysToExpiry": "{days} يوم",
+    "expired": "منتهي الصلاحية",
+    "expiringSoon": "قارب على الانتهاء",
+    "noStock": "لا يوجد مخزون مسجل",
+    "product": "الصنف",
+    "batch": "التشغيلة",
+    "location": "الموقع"
+  },
+  "requisitions": {
+    "new": "طلب جديد",
+    "status": {
+      "DRAFT": "مسودة",
+      "SUBMITTED": "تم الإرسال",
+      "APPROVED": "تمت الموافقة",
+      "REJECTED": "مرفوض",
+      "ALLOCATED": "تم التخصيص",
+      "DISPATCHED": "تم الشحن",
+      "IN_TRANSIT": "في الطريق",
+      "DELIVERED": "تم التسليم",
+      "CANCELLED": "ملغي",
+      "CLOSED": "مغلق"
+    }
+  },
+  "delivery": {
+    "trips": "الرحلات",
+    "stops": "المحطات",
+    "startTrip": "بدء الرحلة",
+    "arrive": "الوصول",
+    "deliver": "تأكيد التسليم",
+    "fail": "الإبلاغ عن مشكلة",
+    "recipientName": "استلمه",
+    "signature": "التوقيع",
+    "photo": "صورة",
+    "offline": "أنت غير متصل بالإنترنت. تم حفظ عملك وسيتم إرساله تلقائياً."
+  },
+  "alerts": {
+    "lowStock": "مخزون منخفض",
+    "nearExpiry": "قارب على الانتهاء",
+    "expired": "منتهي الصلاحية",
+    "orderOverdue": "طلب متأخر",
+    "deliveryFailed": "فشل التوصيل",
+    "acknowledge": "تم الاطلاع",
+    "resolve": "تم الحل",
+    "none": "لا توجد تنبيهات نشطة"
+  },
+  "m0": {
+    "title": "فارما فلو",
+    "subtitle": "إدارة سلسلة إمداد الأدوية",
+    "milestone": "المرحلة M0 · الأساس",
+    "status": "حالة المرحلة",
+    "tech": "التقنيات",
+    "security": "نموذج الأمان",
+    "signedInAs": "مسجل الدخول باسم {name}",
+    "role": "الصلاحية",
+    "tenant": "الجهة",
+    "notSignedIn": "غير مسجل الدخول",
+    "signInToVerify": "سجل الدخول للتحقق من الجلسة وعزل البيانات",
+    "demoAccounts": "حسابات تجريبية",
+    "setupPending": "لم يتم تشغيل قاعدة البيانات المحلية بعد. نفّذ 'make db' لتشغيلها.",
+    "currency": "العملة",
+    "vatRate": "نسبة الضريبة",
+    "minShelfLife": "أقل مدة صلاحية",
+    "comingSoon": "متاح في مرحلة لاحقة",
+    "offlineQueue": "{count} تغيير في انتظار المزامنة",
+    "online": "متصل",
+    "offline": "غير متصل"
+  }
+}
