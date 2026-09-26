@@ -144,6 +144,62 @@ log "Running test suites"
 FAILED=0
 TOTAL=0
 
+# Summarise a suite from its output, whatever engine produced it.
+#
+# The shim prints "ran N of M assertions, K failed". Real pgTAP prints TAP:
+#
+#   1..23
+#   ok 1 - anon cannot read tenants
+#   not ok 5 - a user cannot escalate their own role
+#
+# so a grep for the shim's wording matches nothing against the real extension.
+#
+# That was not a cosmetic difference. Under `set -e`, a command substitution that
+# yields a non-zero status aborts the script, so a grep that found no match
+# killed the run at that point -- before the failure branch could print anything.
+# The suites could have been failing and the log would have shown a bare
+# "exit code 1" with no reason at all, which is exactly what happened in CI.
+#
+# Hence: `|| true` on every substitution, and a summary that understands both
+# formats. A missing summary now falls back to the raw tail so the output is
+# still informative.
+summarise() {
+  local outfile="$1" engine="$2"
+  local planned passed failed
+
+  if [ "$engine" = "shim" ]; then
+    # The shim aborts on the first failed assertion, so there is at most one.
+    local n
+    n="$(grep -oE 'ran [0-9]+ of [0-9]+ assertions, [0-9]+ failed' "$outfile" | tail -1)" || true
+    if [ -n "$n" ]; then
+      printf '%s' "$n"
+      return 0
+    fi
+    # An aborting shim run has no summary, but it does name the assertion and
+    # the reason, which is the part worth showing.
+    local detail
+    detail="$(grep -oE 'FAILED #[0-9]+: .*' "$outfile" | head -1)" || true
+    if [ -n "$detail" ]; then
+      printf 'aborted at %s' "$detail"
+      return 0
+    fi
+  fi
+
+  # TAP: the plan line gives the expected count, ok/not ok give the results.
+  planned="$(grep -oE '^1\.\.[0-9]+' "$outfile" | tail -1 | tr -d '1.')" || true
+  passed="$(grep -cE '^ok ' "$outfile" || true)"
+  failed="$(grep -cE '^not ok ' "$outfile" || true)"
+
+  if [ -n "$planned" ] || [ "$passed" -gt 0 ] || [ "$failed" -gt 0 ]; then
+    printf '%s of %s assertions, %s failed' \
+      "$((passed + failed))" "${planned:-$((passed + failed))}" "$failed"
+  else
+    # Nothing recognisable: show the tail rather than an empty summary, so a
+    # syntax error or a missing function is still visible.
+    printf 'no TAP output; last line was: %s' "$(tail -1 "$outfile")"
+  fi
+}
+
 for f in "$REPO_ROOT"/supabase/tests/*.test.sql; do
   name="$(basename "$f")"
   TOTAL=$((TOTAL + 1))
@@ -157,8 +213,7 @@ for f in "$REPO_ROOT"/supabase/tests/*.test.sql; do
     if psql -q -v ON_ERROR_STOP=1 \
         -c "set search_path = public, pgtap_shim;" \
         -f "$f" >"$PGDATA_DIR/test.out" 2>&1; then
-      summary=$(grep -oE 'ran [0-9]+ of [0-9]+ assertions, [0-9]+ failed' "$PGDATA_DIR/test.out" | tail -1)
-      ok "$name — $summary"
+      ok "$name — $(summarise "$PGDATA_DIR/test.out" shim)"
     else
       printf '\033[1;31m  FAIL\033[0m %s\n' "$name" >&2
       cat "$PGDATA_DIR/test.out" >&2
@@ -166,8 +221,7 @@ for f in "$REPO_ROOT"/supabase/tests/*.test.sql; do
     fi
   else
     if psql -q -v ON_ERROR_STOP=1 -f "$f" >"$PGDATA_DIR/test.out" 2>&1; then
-      summary=$(grep -oE 'ran [0-9]+ of [0-9]+ assertions, [0-9]+ failed' "$PGDATA_DIR/test.out" | tail -1)
-      ok "$name — $summary"
+      ok "$name — $(summarise "$PGDATA_DIR/test.out" pgtap)"
     else
       printf '\033[1;31m  FAIL\033[0m %s\n' "$name" >&2
       cat "$PGDATA_DIR/test.out" >&2
