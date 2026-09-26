@@ -38,11 +38,54 @@ cleanup() {
 }
 trap cleanup EXIT
 
-command -v initdb >/dev/null || die "initdb not found. Install PostgreSQL."
-command -v psql    >/dev/null || die "psql not found. Install PostgreSQL."
+# ── locate the PostgreSQL binaries ───────────────────────────────────────────
+#
+# initdb and pg_ctl are SERVER binaries. They live in
+# /usr/lib/postgresql/<major>/bin on Debian/Ubuntu, which is not on PATH on a
+# bare machine, and a `postgresql-client-N` install does not include them at all.
+# That mistake was made once in this project's CI and cost a run.
+#
+# So: check PATH first, then fall back to the versioned install directories.
+# Handling it here as well as in CI means a developer on an unusual system gets
+# a working setup rather than a "not found" error with no explanation.
+
+require_pg_bin() {
+  local bin="$1"
+
+  if command -v "$bin" >/dev/null 2>&1; then
+    return 0
+  fi
+
+  # Highest version first, so a machine with several installed uses the newest.
+  local candidate
+  for candidate in $(ls -d /usr/lib/postgresql/*/bin 2>/dev/null | sort -Vr); do
+    if [ -x "$candidate/$bin" ]; then
+      PATH="$candidate:$PATH"
+      export PATH
+      return 0
+    fi
+  done
+
+  # pg_wrapper style locations, e.g. /usr/pgsql-17/bin on RHEL-family systems.
+  for candidate in $(ls -d /usr/pgsql-*/bin 2>/dev/null | sort -Vr); do
+    if [ -x "$candidate/$bin" ]; then
+      PATH="$candidate:$PATH"
+      export PATH
+      return 0
+    fi
+  done
+
+  die "$bin not found. Install the PostgreSQL SERVER package (not just the
+       client): it provides initdb and pg_ctl under /usr/lib/postgresql/<major>/bin."
+}
+
+for required_bin in initdb pg_ctl psql; do
+  require_pg_bin "$required_bin"
+done
 
 # ── 1. throwaway cluster ─────────────────────────────────────────────────────
 log "Initialising a throwaway PostgreSQL cluster on port $PORT"
+log "  using $(initdb --version)"
 initdb -D "$PGDATA_DIR" -U postgres --auth=trust -E UTF8 --locale=C >/dev/null 2>&1
 pg_ctl -D "$PGDATA_DIR" -o "-p $PORT -k $SOCKET_DIR" -l "$PGDATA_DIR/pg.log" -w start >/dev/null
 ok "cluster up"

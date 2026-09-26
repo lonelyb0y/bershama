@@ -31,7 +31,7 @@ runs:
 
         sudo install -d /usr/share/postgresql-common/pgdg
 
-        # PGPG signing key, verified against the published fingerprint
+        # PGDG signing key, verified against the published fingerprint
         # B97B0AFCAA1A47F044F244A07FCC7D46ACCC4CF8.
         curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc \
           | sudo tee /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc > /dev/null
@@ -45,8 +45,68 @@ runs:
           | sudo tee /etc/apt/sources.list.d/pgdg.list > /dev/null
 
         sudo apt-get update
-        sudo apt-get install -y --no-install-recommends \
-          "postgresql-client-${{ inputs.pg-version }}"
+
+    - name: Install the PostgreSQL server
+      shell: bash
+      # The SERVER package, not postgresql-client-N.
+      #
+      # scripts/verify-db.sh needs initdb and pg_ctl, and those are server
+      # binaries. Verified against the PGDG Contents index for noble-pgdg:
+      #
+      #   usr/lib/postgresql/17/bin/initdb   -> database/postgresql-17
+      #   usr/lib/postgresql/17/bin/pg_ctl    -> database/postgresql-17
+      #   usr/bin/psql                         -> database/postgresql-client-common
+      #
+      # Installing only postgresql-client-17 is the mistake: it provides psql and
+      # the dump tools, and the script then fails with "initdb not found" after
+      # everything appears to have installed correctly.
+      #
+      # It also pulls in postgresql-client-17 and postgresql-client-common as
+      # dependencies, so psql is covered.
+      #
+      # DEBIAN_FRONTEND=noninteractive matters: the postinst offers to create a
+      # cluster interactively, and a prompt in CI hangs the job until it times
+      # out. We do not use that cluster -- the script makes its own throwaway one
+      # -- so there is nothing to answer.
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        sudo -E apt-get install -y --no-install-recommends \
+          "postgresql-${{ inputs.pg-version }}"
+
+    - name: Verify the required binaries and publish the PATH
+      shell: bash
+      # Fail here with a clear message rather than letting the script report
+      # "initdb not found" twenty lines later.
+      #
+      # /usr/lib/postgresql/N/bin is NOT on PATH by default on a bare runner.
+      # Two mechanisms are needed, and they serve different steps:
+      #
+      #   local export   so THIS step can check the binaries
+      #   $GITHUB_PATH   so the caller's later steps (verify-db.sh) also see them
+      #
+      # A composite action's shell is its own process, so a local `export PATH`
+      # alone would stop at the end of this step and the calling job would go on
+      # to fail with "initdb not found" despite a clean setup step.
+      run: |
+        set -euo pipefail
+        PGVER="${{ inputs.pg-version }}"
+        PGBIN="/usr/lib/postgresql/${PGVER}/bin"
+
+        if [ -d "$PGBIN" ]; then
+          echo "${PGBIN}" >> "$GITHUB_PATH"
+        fi
+        export PATH="${PGBIN}:${PATH}"
+
+        for bin in initdb pg_ctl psql; do
+          if ! command -v "$bin" >/dev/null 2>&1; then
+            echo "::error::$bin is not on PATH after installing postgresql-${PGVER}"
+            exit 1
+          fi
+          echo "  found $bin -> $(command -v "$bin")"
+        done
+
+        echo "initdb reports version: $(initdb --version)"
 
     - name: Install pgTAP
       shell: bash
