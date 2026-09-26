@@ -124,19 +124,55 @@ jobs:
           # Replace the tenant scoping on the profiles read policy with a
           # deliberately wrong `true`, which is the classic RLS mistake: a policy
           # that authenticates but forgets to scope to the tenant.
+          #
+          # The pattern must stay in step with the migration. If someone rewrites
+          # that policy, a silent no-op sed would leave the suite passing against
+          # an intact policy, and this job would report "the suite is not testing
+          # tenant isolation" -- a true-sounding but completely wrong conclusion.
+          # So the mutation is verified before the suite is run.
           sed -i "s|using (id = (select auth.uid()));|using (true);|" "$POLICY"
 
+          if ! grep -qF 'using (true);' "$POLICY"; then
+            echo "::error::the mutation did not apply."
+            echo "The sed pattern no longer matches $POLICY."
+            echo "Update this job to match the current policy text."
+            exit 1
+          fi
+          echo "--- mutation applied: ---"
+          git --no-pager diff --stat -- "$POLICY" || true
+          grep -nF 'using (true);' "$POLICY" | sed 's/^/    /'
+
+          # Which assertion engine this run will use. The suites behave the same
+          # either way, but the two engines report differently, so it is worth
+          # knowing which produced a given result.
           echo "--- running the suite against the weakened policy (expect failure) ---"
           if ./scripts/verify-db.sh 55434 > /tmp/mutated.log 2>&1; then
             echo "::error::the RLS suite passed against a policy that leaks all profiles."
             echo "The suite is not testing tenant isolation. Refusing to pass."
+            echo "--- verify-db.sh output follows ---"
+            tail -40 /tmp/mutated.log
             exit 1
           fi
 
-          echo "--- suite correctly failed. Relevant output: ---"
-          grep -E "FAILED|tenant|profiles" /tmp/mutated.log | head -10 || true
+          echo "--- suite correctly failed. Proof from the output: ---"
+          grep -nE "FAILED|not ok|cannot see|assertions" /tmp/mutated.log | head -10 || true
+          echo "--- full output follows ---"
+          tail -30 /tmp/mutated.log
 
           cp /tmp/policy.backup "$POLICY"
+
+          # Restoring has to be verified too, or a botched restore turns the
+          # second run into a third false alarm.
+          if ! grep -qF 'using (id = (select auth.uid()));' "$POLICY"; then
+            echo "::error::the policy was not restored correctly."
+            exit 1
+          fi
+
           echo "--- policy restored; confirming the suite passes again ---"
-          ./scripts/verify-db.sh 55434 > /dev/null
+          ./scripts/verify-db.sh 55434 > /tmp/restored.log 2>&1 || {
+            echo "::error::the suite failed after the policy was restored."
+            tail -40 /tmp/restored.log
+            exit 1
+          }
+          grep -E "assertions" /tmp/restored.log | sed 's/^/    /' || true
           echo "OK: the suites detect a broken policy and pass on a correct one."
