@@ -255,7 +255,18 @@ language plpgsql
 security definer
 set search_path = ''
 as $$
+declare
+  v_tenant uuid;
 begin
+  -- The row's own tenant, so that seeds, migrations and cron jobs -- which have no
+  -- session -- can still be audited. For an authenticated caller RLS has already
+  -- established that the row's tenant is the caller's, so this cannot be used to
+  -- attribute a row to the wrong tenant.
+  v_tenant := case
+    when tg_op = 'DELETE' then (to_jsonb(old) ->> 'tenant_id')::uuid
+    else (to_jsonb(new) ->> 'tenant_id')::uuid
+  end;
+
   perform private.write_audit(
     p_action      := tg_table_name || '.' || lower(tg_op),
     p_entity_type := tg_table_name,
@@ -264,7 +275,8 @@ begin
                        else new.id::text
                      end,
     p_before      := case when tg_op in ('UPDATE', 'DELETE') then to_jsonb(old) end,
-    p_after       := case when tg_op in ('INSERT', 'UPDATE') then to_jsonb(new) end
+    p_after       := case when tg_op in ('INSERT', 'UPDATE') then to_jsonb(new) end,
+    p_tenant_id   := v_tenant
   );
   return coalesce(new, old);
 end;
@@ -273,7 +285,8 @@ $$;
 comment on function private.audit_row_change() is
   'Generic AFTER INSERT/UPDATE/DELETE audit trigger. SECURITY DEFINER because '
   'private.write_audit() is itself SECURITY DEFINER and the trigger must run for '
-  'the client role.';
+  'the client role. Takes the tenant from the row so unauthenticated contexts '
+  '(seed, migration, cron) are still auditable.';
 
 create trigger facilities_audit
   after insert or update on public.facilities
