@@ -78,6 +78,13 @@ jobs:
       - name: Error-code drift
         run: make drift
 
+      # The typed client is how the app calls every api.* function, so a renamed
+      # argument has to be a compile error rather than a PostgREST error on a
+      # stock movement in production. `make types` regenerates the file but
+      # nothing forced anyone to run it; this does.
+      - name: Generated types match the api schema
+        run: make api-types
+
   database:
     name: Database (migrations + RLS suites)
     runs-on: ubuntu-latest

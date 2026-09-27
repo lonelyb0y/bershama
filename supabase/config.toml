@@ -10,7 +10,17 @@ enabled = true
 port = 54321
 # Schemas to expose in your API. Tables, views and stored procedures in this schema will get API
 # endpoints. `public` and `graphql_public` schemas are included by default.
-schemas = ["public", "graphql_public"]
+# `api` is here so `supabase gen types` emits its function signatures. Every
+# privileged stock and batch operation lives in that schema, and a type file
+# without them is a type file that describes none of the writes the application
+# actually makes -- which is how an argument rename gets through to a runtime
+# error instead of a compile error.
+#
+# This affects the PostgREST endpoint surface and type generation, not
+# privileges: grants are still explicit per function in 0011 and the
+# rls_coverage suite asserts that no unlisted function is reachable. `private` is
+# deliberately absent, and must stay absent.
+schemas = ["public", "graphql_public", "api"]
 # Extra schemas to add to the search_path of every request.
 extra_search_path = ["public", "extensions"]
 # The maximum number of rows returns from a view, table, or stored procedure. Limits payload size
