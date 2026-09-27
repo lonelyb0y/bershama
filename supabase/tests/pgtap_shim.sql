@@ -154,23 +154,20 @@ returns text
 language sql
 as $$ select pgtap_shim._bump(p_got is distinct from p_want, p_msg) $$;
 
--- Not in the subset originally implemented, but a real pgTAP function and one
--- worth having: asserting a nullable column was populated is not the same
--- assertion as "the value is not NULL" written by hand, because this fails with a
--- readable message and shows what it actually got.
-create or replace function pgtap_shim.is_not_null(
-  p_got anyelement, p_msg text default null
-)
-returns text
-language sql
-as $$ select pgtap_shim._bump(p_got is not null, p_msg) $$;
-
-create or replace function pgtap_shim.is_null(
-  p_got anyelement, p_msg text default null
-)
-returns text
-language sql
-as $$ select pgtap_shim._bump(p_got is null, p_msg) $$;
+-- is_null / is_not_null are DELIBERATELY NOT PROVIDED.
+--
+-- They were here, and a suite used them, and the suite passed locally against this
+-- shim while failing in CI against real pgTAP, which has no such functions. A
+-- shim that offers more than the real thing is a trap: it lets a suite use a
+-- function that does not exist where it matters, and the failure only appears on
+-- the one machine that runs the extension.
+--
+-- Use ok(<expr> is null, ...) instead, which both engines have.
+--
+-- The same reasoning applies to results_eq: real pgTAP compares by TYPE, while
+-- this shim casts everything to text. A suite passing here can still fail there.
+-- `scripts/check-assertions.sh` catches that statically, and every results_eq
+-- target is cast to text for exactly this reason.
 
 create or replace function pgtap_shim.fail(p_msg text default null)
 returns text

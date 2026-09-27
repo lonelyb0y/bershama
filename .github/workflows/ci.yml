@@ -88,6 +88,13 @@ jobs:
       - name: Set up PostgreSQL
         uses: ./.github/actions/setup-postgres
 
+      # Before the suites, and reported separately. A suite that uses an
+      # assertion pgTAP lacks, or a comparison whose type is inferred
+      # differently, passes against the shim and fails here with a message that
+      # looks like a schema bug. Naming the cause is the whole point.
+      - name: Check assertion portability
+        run: python3 scripts/check-assertions.py
+
       - name: Apply migrations and run suites
         run: ./scripts/verify-db.sh
 

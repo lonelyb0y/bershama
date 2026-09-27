@@ -130,7 +130,7 @@ select lives_ok(
 );
 
 select results_eq(
-  $sql$select qty_on_hand from public.stock_balances
+  $sql$select qty_on_hand::text from public.stock_balances
     where location_id = 'a3000000-0000-4000-8000-000000000001'
       and product_id  = 'a4000000-0000-4000-8000-000000000001'
       and batch_id    = 'a5000000-0000-4000-8000-000000000001'$sql$,
@@ -153,7 +153,7 @@ select lives_ok(
 );
 
 select results_eq(
-  $sql$select qty_on_hand from public.stock_balances
+  $sql$select qty_on_hand::text from public.stock_balances
     where batch_id = 'a5000000-0000-4000-8000-000000000001'$sql$,
   array['200'],
   'the balance reflects the issue'
@@ -209,7 +209,7 @@ select is(
 -- A refused movement must change nothing. Asserted after the refusal rather than
 -- assuming it.
 select results_eq(
-  $sql$select qty_on_hand from public.stock_balances
+  $sql$select qty_on_hand::text from public.stock_balances
     where batch_id = 'a5000000-0000-4000-8000-000000000001'$sql$,
   array['200'],
   'the refused oversell left the balance unchanged'
@@ -274,7 +274,7 @@ select lives_ok(
 );
 
 select results_eq(
-  $sql$select qty_on_hand from public.stock_balances
+  $sql$select qty_on_hand::text from public.stock_balances
     where batch_id = 'a5000000-0000-4000-8000-000000000001'$sql$,
   array['195'],
   'the adjustment moved the balance by exactly its delta'
@@ -428,15 +428,14 @@ select results_eq(
   'the release took effect'
 );
 
-select is_not_null(
-  (select released_by from public.batches where lot_number = 'LOT-NEW')::text,
+select ok(
+  (select released_by from public.batches where lot_number = 'LOT-NEW') is not null,
   'the release recorded who released it'
 );
 
 -- The GDP release record is the point of a release: an accountable name and time.
-select is(
+select ok(
   (select released_at is not null from public.batches where lot_number = 'LOT-NEW'),
-  true,
   'the release recorded when it happened'
 );
 
@@ -470,7 +469,7 @@ select results_eq(
 -- sitting in sellable locations, and FEFO is then one missed filter from shipping
 -- something a regulator has withdrawn.
 select results_eq(
-  $sql$select sb.qty_on_hand from public.stock_balances sb
+  $sql$select sb.qty_on_hand::text from public.stock_balances sb
     where sb.location_id = 'a3000000-0000-4000-8000-000000000002'
       and sb.batch_id = 'a5000000-0000-4000-8000-000000000001'$sql$,
   array['195'],
@@ -478,7 +477,7 @@ select results_eq(
 );
 
 select results_eq(
-  $sql$select sb.qty_on_hand from public.stock_balances sb
+  $sql$select sb.qty_on_hand::text from public.stock_balances sb
     where sb.location_id = 'a3000000-0000-4000-8000-000000000001'
       and sb.batch_id = 'a5000000-0000-4000-8000-000000000001'$sql$,
   array['0'],
@@ -535,14 +534,14 @@ select lives_ok(
 );
 
 select results_eq(
-  $sql$select expiry_band from public.v_expiry_report
+  $sql$select expiry_band::text from public.v_expiry_report
     where lot_number = 'LOT-2' and location_id = 'a3000000-0000-4000-8000-000000000001'$sql$,
   array['WARNING'],
   'a batch expiring in 60 days is banded WARNING'
 );
 
 select results_eq(
-  $sql$select expiry_band from public.v_expiry_report
+  $sql$select expiry_band::text from public.v_expiry_report
     where lot_number = 'LOT-1' and location_id = 'a3000000-0000-4000-8000-000000000002'$sql$,
   array['OK'],
   'the quarantined recalled batch, expiring in ~400 days, is banded OK'
