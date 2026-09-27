@@ -26,7 +26,7 @@
 
 begin;
 
-select plan(74);
+select plan(82);
 
 -- ── a helper to read a raised error's structured detail ─────────────────────
 --
@@ -504,6 +504,79 @@ select lives_ok(
   'a recalled batch can be moved to quarantine'
 );
 
+-- ── a transfer must not consume the batch ──────────────────────────────────
+--
+-- move_stock() posts the outbound row first, so between the two rows the batch
+-- holds nothing anywhere. If a transfer were allowed to mark a batch DEPLETED, the
+-- stock would arrive at the destination with the status stuck at DEPLETED, and no
+-- later release of that batch would be possible. A first version of
+-- post_stock_movement() had exactly that bug, found by the seed data rather than
+-- by a test, which is the worst place to find one.
+
+-- Self-contained: LOT-2 is stocked here rather than relying on what an earlier
+-- section happened to leave behind. By this point LOT-1 has been recalled, so a
+-- transfer of it would correctly fail with insufficient_stock.
+select lives_ok(
+  $sql$select api.receive_stock(
+      'a3000000-0000-4000-8000-000000000001', 'a4000000-0000-4000-8000-000000000001',
+      'a5000000-0000-4000-8000-000000000002', 20, 4400)$sql$,
+  'stock is available to move'
+);
+
+select lives_ok(
+  $sql$select api.transfer_stock(
+      'a3000000-0000-4000-8000-000000000001', 'a3000000-0000-4000-8000-000000000003',
+      'a4000000-0000-4000-8000-000000000001', 'a5000000-0000-4000-8000-000000000002',
+      5, 'PUTAWAY', 'moved to cold')$sql$,
+  'stock can be moved between locations'
+);
+
+select results_eq(
+  $sql$select status::text from public.batches where id = 'a5000000-0000-4000-8000-000000000002'$sql$,
+  array['RELEASED'],
+  'a transfer leaves the batch RELEASED, not DEPLETED'
+);
+
+-- The move is two ledger rows sharing a reference, and the total is conserved.
+select is(
+  (select count(*) from public.stock_ledger
+    where batch_id = 'a5000000-0000-4000-8000-000000000002'
+      and reference_type = 'transfer'
+      and reference_id = (select min(reference_id) from public.stock_ledger
+                           where batch_id = 'a5000000-0000-4000-8000-000000000002'
+                             and reference_type = 'transfer'))::int,
+  2,
+  'a transfer is recorded as two ledger rows'
+);
+
+select results_eq(
+  $sql$select sb.qty_on_hand::text from public.stock_balances sb
+    where sb.location_id = 'a3000000-0000-4000-8000-000000000003'
+      and sb.batch_id = 'a5000000-0000-4000-8000-000000000002'$sql$,
+  array['5'],
+  'the stock arrived at the destination'
+);
+
+-- Moving more than the source holds is refused, and the destination is untouched.
+select throws_ok(
+  $sql$select api.transfer_stock(
+      'a3000000-0000-4000-8000-000000000001', 'a3000000-0000-4000-8000-000000000003',
+      'a4000000-0000-4000-8000-000000000001', 'a5000000-0000-4000-8000-000000000002',
+      9999, 'PUTAWAY')$sql$,
+  'P0001', 'insufficient_stock',
+  'a transfer of more than the source holds is refused'
+);
+
+-- Moving to the same place is nonsense, not a no-op.
+select throws_ok(
+  $sql$select api.transfer_stock(
+      'a3000000-0000-4000-8000-000000000001', 'a3000000-0000-4000-8000-000000000001',
+      'a4000000-0000-4000-8000-000000000001', 'a5000000-0000-4000-8000-000000000002',
+      1, 'PUTAWAY')$sql$,
+  'P0001', 'same_location_transfer',
+  'a transfer to the same location is refused'
+);
+
 -- ── the ledger is append-only, for every role ───────────────────────────────
 
 select throws_ok(
@@ -614,13 +687,21 @@ select is(
   'search reports the same total on hand as the balances hold'
 );
 
--- And that total spans locations: a product split across two shelves is one
--- catalogue row, not two.
-select is(
+-- And that the product really is spread across several locations, which is what
+-- makes "one row per product" a meaningful claim rather than an accident of the
+-- fixture. Asserted as a floor: the exact number depends on the movements run
+-- earlier, and the property under test is that search collapses them into one row
+-- regardless of how many there are.
+select ok(
   (select count(*) from public.stock_balances
-    where product_id = 'a4000000-0000-4000-8000-000000000001' and qty_on_hand > 0)::int,
-  2,
-  'the product really is spread across two locations'
+    where product_id = 'a4000000-0000-4000-8000-000000000001' and qty_on_hand > 0)::int >= 2,
+  'the product really is spread across two or more locations'
+);
+
+select is(
+  (select count(*) from api.search_products('Panadol', null, 100, 0))::int,
+  1,
+  'and the catalogue still shows it as a single row'
 );
 
 -- Deterministic pagination: the same page twice is the same rows, and the total
@@ -662,13 +743,19 @@ select is_empty(
 
 -- Corrupt a balance with owner rights -- the one thing the design says cannot
 -- happen through the application -- and prove the detector notices.
+--
+-- Scoped to ONE location. This batch now holds stock in more than one place, and
+-- reconciliation reports per balance key, so a batch-scoped query returns several
+-- rows and no single value to assert against.
 update public.stock_balances
    set qty_on_hand = qty_on_hand + 7
- where batch_id = 'a5000000-0000-4000-8000-000000000002';
+ where batch_id    = 'a5000000-0000-4000-8000-000000000002'
+   and location_id = 'a3000000-0000-4000-8000-000000000003';
 
 select results_eq(
   $$select drift::text from private.reconcile_stock_balances()
-    where batch_id = 'a5000000-0000-4000-8000-000000000002'$$,
+    where batch_id    = 'a5000000-0000-4000-8000-000000000002'
+      and location_id = 'a3000000-0000-4000-8000-000000000003'$$,
   array['7'],
   'reconciliation detects a corrupted balance'
 );
@@ -714,7 +801,8 @@ select results_eq(
 -- Repair the corruption so the rollback leaves nothing to think about.
 update public.stock_balances
    set qty_on_hand = qty_on_hand - 7
- where batch_id = 'a5000000-0000-4000-8000-000000000002';
+ where batch_id    = 'a5000000-0000-4000-8000-000000000002'
+   and location_id = 'a3000000-0000-4000-8000-000000000003';
 
 select is_empty(
   $$select * from private.reconcile_stock_balances()$$,

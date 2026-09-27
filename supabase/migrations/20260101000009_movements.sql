@@ -195,9 +195,17 @@ begin
   returning id into v_ledger_id;
 
   -- A DEPLETED batch is finished business, and marking it here means a nightly
-  -- sweep is not needed to keep the catalogue honest. Guarded so only a movement
-  -- that could have emptied the batch does it.
-  if p_qty_delta < 0 then
+  -- sweep is not needed to keep the catalogue honest.
+  --
+  -- Only for movements that genuinely CONSUME. A transfer is excluded, and the
+  -- exclusion is load-bearing: move_stock() posts the outbound row first, so for
+  -- the instant between the two rows the batch holds nothing anywhere. Without
+  -- this guard a transfer permanently marked its batch DEPLETED -- the stock then
+  -- arrived at the destination while the status stayed DEPLETED, and no later
+  -- release of that batch was possible because DEPLETED -> RELEASED is not a legal
+  -- transition. Stock had moved; nothing had been consumed.
+  if p_qty_delta < 0
+     and p_txn_type in ('ISSUE', 'DISPENSE', 'WRITE_OFF', 'COUNT_LOSS', 'RECALL_QUARANTINE') then
     update public.batches b
        set status = 'DEPLETED'
      where b.id = p_batch_id
@@ -409,6 +417,22 @@ begin
     p_reason_code  => p_reason_code,
     p_notes        => p_notes
   );
+
+  -- Belt and braces against the transient-empty window. The guard in
+  -- post_stock_movement already excludes transfers from DEPLETED marking, but a
+  -- batch that was genuinely empty before a transfer in is now not, and if some
+  -- other path ever marked it DEPLETED the stock would be sitting in a location
+  -- that FEFO refuses to allocate. Cheap to be certain.
+  update public.batches b
+     set status = 'RELEASED'
+   where b.id = p_batch_id
+     and b.status = 'DEPLETED'
+     and exists (
+       select 1 from public.stock_balances sb
+       where sb.tenant_id = private.current_tenant_id()
+         and sb.batch_id = p_batch_id
+         and sb.qty_on_hand - sb.qty_reserved > 0
+     );
 
   return 0;
 end;
