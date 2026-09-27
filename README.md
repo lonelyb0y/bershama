@@ -127,11 +127,11 @@ make verify           # lint + typecheck + unit tests + secret scan + migrations
 
 ```bash
 make check      # fast: lint, types, unit tests, secret scan, assertion portability
-make test-db    # migrations applied, 115 pgTAP assertions
+make test-db    # migrations applied, 160 pgTAP assertions
 make verify     # everything CI runs
 ```
 
-**115 pgTAP assertions** and **18 table-level smoke checks** at the last green run.
+**160 pgTAP assertions** and **18 table-level smoke checks** at the last green run.
 
 The two database suites deliberately cover different ground, and both are needed:
 
