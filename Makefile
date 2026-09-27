@@ -162,8 +162,12 @@ assertions: ## Check the pgTAP suites are portable between pgTAP and the shim
 drift: ## Check the client error mapper against the codes the database raises
 	python3 scripts/check-error-codes.py
 
+.PHONY: api-types
+api-types: ## Check the generated TS types against the api schema
+	python3 scripts/check-api-types.py
+
 .PHONY: check
-check: lint typecheck test secrets assertions drift ## Fast checks, no database needed
+check: lint typecheck test secrets assertions drift api-types ## Fast checks, no database needed
 
 .PHONY: verify
 verify: check test-db build ## Everything CI runs
