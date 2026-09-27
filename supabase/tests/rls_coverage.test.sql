@@ -13,7 +13,7 @@
 
 begin;
 
-select plan(7);
+select plan(9);
 
 -- ── every public table has RLS enabled ──────────────────────────────────────
 
@@ -41,10 +41,31 @@ select is_empty(
 -- dangerous one specifically: no client may INSERT a row directly. Every
 -- insert goes through an api.* function that validates and audits it.
 --
--- UPDATE/DELETE are intentionally not asserted here. Those are governed by RLS
--- policies per table (e.g. tenants has no UPDATE policy at all, while
--- invitations has one restricted to TENANT_ADMIN). A blanket "no update grant"
--- rule would forbid a legitimate, policy-guarded operation.
+-- ── no client INSERT outside the catalogue allow-list ───────────────────────
+-- Grants and policies are different gates and both are needed:
+--
+--   grants    decide whether an operation is possible at all
+--   policies  decide which rows it applies to
+--
+-- Adding a policy does NOT remove a grant. Supabase gives new `public` tables
+-- full insert/update/delete to anon and authenticated, so the revoke-then-grant
+-- step in each migration is what actually closes the door.
+--
+-- The allow-list below is deliberate, and the direction of the rule matters:
+-- a table must be ADDED to this list to become client-writable. A new table in
+-- `public` therefore fails this test until someone deliberately decides it may
+-- be written directly, which is fail-closed.
+--
+--   facilities, storage_locations, products
+--       Ordinary catalogue CRUD. The cross-row invariants do not exist here, and
+--       an AFTER trigger writes the audit entry, so a direct write is safe and
+--       keeps the create/edit forms simple.
+--
+-- Everything NOT on the list is written only through an api.* function:
+--   tenants, profiles, invitations   identity, audited through functions
+--   stock_ledger, stock_balances     the ledger and its materialisation
+--   alert_events                     written by private.* jobs
+--   audit_logs                       written by private.write_audit()
 --
 -- anon should hold nothing at all on tenant data.
 
@@ -68,8 +89,30 @@ select is_empty(
   where n.nspname = 'public'
     and c.relkind in ('r', 'p')
     and has_table_privilege('authenticated', c.oid, 'insert')
+    and c.relname <> all (array[
+      'facilities', 'storage_locations', 'products'
+    ])
   $$,
-  'authenticated cannot INSERT directly into any public table'
+  'authenticated can INSERT only into the allow-listed catalogue tables'
+);
+
+-- The critical tables that exist in M1 are also asserted by name, so the
+-- allow-list above cannot quietly grow to cover them. "Not on the list" and
+-- "specifically forbidden" are different claims, and only the second survives
+-- someone adding a table to the list in a hurry.
+--
+-- stock_ledger, stock_balances and alert_events arrive in M2 and are asserted in
+-- inventory_grants.test.sql, once they exist. Referencing them here would fail
+-- this suite on a clean M1 database.
+select ok(
+  not has_table_privilege('authenticated', 'public.audit_logs', 'insert,update,delete')
+    and not has_table_privilege('anon', 'public.audit_logs', 'insert,update,delete'),
+  'no client role can write the audit log'
+);
+
+select ok(
+  not has_table_privilege('authenticated', 'public.tenants', 'insert,update,delete'),
+  'no client role can write the tenant record'
 );
 
 -- ── a direct client insert into the audit log is impossible ────────────────
