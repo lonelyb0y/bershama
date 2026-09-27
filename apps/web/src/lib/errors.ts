@@ -139,6 +139,14 @@ const MESSAGES = {
     ar: () => 'لا يوجد موقع حجر في هذه الجهة. أنشئ موقع حجر قبل استلام البضاعة.',
   },
 
+  // stocktake
+  counted_quantity_invalid: {
+    en: ({ counted_qty }: ErrorDetail) =>
+      `A counted quantity of ${counted_qty} is not possible. Re-count this line; if the shelf really is empty, enter 0.`,
+    ar: ({ counted_qty }: ErrorDetail) =>
+      `الكمية المُحصاة ${counted_qty} غير ممكنة. أعد عد هذا السطر، وإذا كانت الرفوف فارغة فعلاً فأدخل 0.`,
+  },
+
   // corrections
   reason_code_required: {
     en: () => 'Choose a reason. An unexplained difference in stock is not a correction.',
@@ -189,6 +197,7 @@ export const knownCodes: readonly string[] = [
   'recall_reason_required',
   'quarantine_reason_required',
   'no_quarantine_location',
+  'counted_quantity_invalid',
   'reason_code_required',
   'insufficient_role',
   'not_authenticated',

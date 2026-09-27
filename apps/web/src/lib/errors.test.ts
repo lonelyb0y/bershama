@@ -150,6 +150,7 @@ describe('the mapper and the migrations agree', () => {
       'recall_reason_required',
       'quarantine_reason_required',
       'no_quarantine_location',
+      'counted_quantity_invalid',
       'reason_code_required',
       'insufficient_role',
       'not_authenticated',

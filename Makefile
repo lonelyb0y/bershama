@@ -154,6 +154,14 @@ secrets: ## Fail if a Supabase secret key appears in anything git would commit
 	 rm -f .secrets-scan-files.tmp; \
 	 echo "No secret keys committable."
 
+.PHONY: assertions
+assertions: ## Check the pgTAP suites are portable between pgTAP and the shim
+	python3 scripts/check-assertions.py
+
+.PHONY: drift
+drift: ## Check the client error mapper against the codes the database raises
+	python3 scripts/check-error-codes.py
+
 .PHONY: check
 check: lint typecheck test secrets assertions drift ## Fast checks, no database needed
 

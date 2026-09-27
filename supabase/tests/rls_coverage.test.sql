@@ -185,6 +185,7 @@ select is_empty(
       -- stock and batch writes (M2); each calls private.require_inventory_write()
       'receive_stock', 'issue_stock', 'adjust_stock', 'write_off_stock',
       'transfer_stock',
+      'stock_take',
       'release_batch', 'quarantine_batch', 'recall_batch', 'create_batch'
     ])
   $$,
