@@ -2,10 +2,22 @@
 -- 0004_api_surface.sql
 -- The client-callable function surface.
 --
--- Every function here is SECURITY INVOKER, meaning it runs as the calling role
--- (authenticated) and is therefore bound by RLS like any other statement. The
--- wrappers exist so the client has a small, stable, auditable set of entry
--- points, while the real logic lives in `private` where it cannot be reached.
+-- READ functions are SECURITY INVOKER: they run as the calling role, so RLS
+-- applies to every row they touch. That is what makes them safe.
+--
+-- WRITE functions are SECURITY DEFINER, and this is not a convenience.
+-- `private` has no USAGE grant to client roles -- that is the whole point of the
+-- schema split -- so a SECURITY INVOKER wrapper physically cannot call a
+-- private.* function. It fails with "permission denied for schema private" before
+-- its first line of logic runs. A write wrapper therefore has to be DEFINER to
+-- reach the privileged code, which means the wrapper ITSELF is the security
+-- boundary: it must check the caller's role and scope every read and write to
+-- private.current_tenant_id(). None of these functions may be written as though
+-- it were merely a passthrough.
+--
+-- The alternative -- granting USAGE on `private` to authenticated -- would make
+-- every privileged function directly callable by any signed-in client, which is
+-- the total loss of isolation the schema split exists to prevent.
 --
 -- Anything in this file that performs a privileged write must delegate to
 -- private.* and still respect the caller's tenant. Getting a function's
@@ -60,7 +72,7 @@ comment on function api.whoami() is
 create or replace function api.update_tenant_settings(p_patch jsonb)
 returns public.tenants
 language plpgsql
-security invoker
+security definer
 set search_path = ''
 as $$
 declare
@@ -108,7 +120,7 @@ create or replace function api.update_my_profile(
 )
 returns public.profiles
 language plpgsql
-security invoker
+security definer
 set search_path = ''
 as $$
 declare
@@ -157,7 +169,7 @@ $$;
 create or replace function api.touch()
 returns void
 language sql
-security invoker
+security definer
 set search_path = ''
 as $$ select private.touch_last_seen() $$;
 

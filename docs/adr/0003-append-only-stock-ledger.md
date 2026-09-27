@@ -1,6 +1,6 @@
 # 0003. Append-only stock ledger with materialised balances
 
-Status: Accepted
+Status: Accepted — **amended during M2**, see the Amendment below.
 
 ## Context
 
@@ -34,11 +34,15 @@ actor, and a timestamp.
 - The ledger is not client-writable. `post_stock_movement()` is the only writer.
 
 **`stock_balances`** is a materialisation keyed by
-`(tenant_id, location_id, product_id, batch_id)`, written in the same
-transaction as the ledger row. Never written independently.
+`(tenant_id, location_id, product_id, batch_id)`, maintained by an
+`AFTER INSERT` trigger on the ledger rather than by the movement function.
 
-**`reconcile_stock_balances()`** runs nightly, rebuilds the balances from the
-ledger, and raises a `CRITICAL` alert on any difference.
+*(Amended during M2 — the original wording was "written in the same transaction as
+the ledger row. Never written independently." See the Amendment below.)*
+
+**`reconcile_stock_balances()`** runs nightly, compares the balances against the
+sum of the ledger, and raises a `CRITICAL` alert on any difference. It detects; it
+does not repair. *(Amended during M2.)*
 
 **In-transit is a location.** Dispatching moves stock to a virtual
 `IN_TRANSIT` location rather than deleting it. A delivery moves it to the
@@ -48,6 +52,38 @@ the distributor's problem if it expires in the van.
 
 Batches are never hard-deleted. Only state transitions —
 `RELEASED ⇄ QUARANTINED`, and `RECALLED` with a reason.
+
+## Amendment: the balance is maintained by a trigger, not by the function
+
+Recorded during M2.
+
+The original decision had `post_stock_movement()` write both the ledger row and the
+balance. That is two steps a function has to remember to perform in sequence, and
+a future second writer — a data fix, a migration, an import — becomes a way for
+them to disagree. The nightly reconciliation was then a genuine repair path, which
+sounds like a feature and is really a second source of truth.
+
+The amendment: the function inserts **one** ledger row, and an `AFTER INSERT`
+trigger on `stock_ledger` maintains the balance. A movement and its balance update
+are the same event. There is no client grant on `stock_balances`, and
+`post_stock_movement()` does not touch it, so **no code path writes a balance
+without a ledger row** and "the balance disagrees with the ledger" stops being a
+reachable state.
+
+Reconciliation consequently changed role. It is now a **detector**: it can find a
+problem, never cause one. That is the more valuable property for a system whose
+balances are the subject of a regulatory inspection — "we prove it every night" is
+a stronger claim than "we fix it every night", and a detector that also repairs can
+hide the fact that something was wrong at all.
+
+One implementation note, because the obvious version of the trigger is wrong:
+`insert ... on conflict do update` is **not** usable here. Postgres evaluates a
+CHECK constraint against the candidate insert row *before* the conflict arbiter
+decides to update, so a negative delta against an existing key fails
+`qty_on_hand >= 0` on the insert candidate even though the updated value would be
+legal. Every outbound movement was refused; only the first receipt worked. The
+trigger updates first and inserts only when nothing matched, with a
+`unique_violation` handler for the concurrent-first-movement race.
 
 ## Consequences
 

@@ -64,35 +64,38 @@ Postgres, not mocks: a mock cannot tell you that a policy is wrong.
 
 Four schemas, and the split is a security boundary rather than tidiness.
 
-| Schema | Contains | Exposed to the Data API |
+| Schema | Contents | Exposed to the Data API |
 |---|---|---|
 | `auth` | Supabase-managed credentials | yes (managed) |
 | `public` | Tables, views, RLS policies | yes |
-| `api` | Thin `SECURITY INVOKER` wrappers | yes, deliberately |
+| `api` | Client wrappers: reads `INVOKER`, **writes `DEFINER`** | yes, deliberately |
 | `private` | `SECURITY DEFINER` implementations, helpers | **no** |
 
-A `SECURITY DEFINER` function executes with the privileges of its owner. On
-Supabase the owner is `postgres`, which carries `BYPASSRLS`. Supabase also
-exposes every schema listed in the project's API settings to the Data API.
+A `SECURITY DEFINER` function executes with the privileges of its owner, which on
+Supabase means `postgres` with `BYPASSRLS`, and Supabase exposes every schema in the
+project's API settings. A privileged function in an exposed schema is therefore a
+function any signed-in user can call as the superuser.
 
-Therefore: a `SECURITY DEFINER` function in an exposed schema is a function any
-signed-in user can call as the superuser. Not a misconfiguration to fix later —
-it is a total loss of tenant isolation, and it looks exactly like working code.
+The read/write split inside `api` is not a preference. `private` has no `USAGE`
+grant to client roles, so an `INVOKER` wrapper cannot reach `private.*` at all — a
+write wrapper has to be `DEFINER` to do its job, which makes the wrapper itself the
+security boundary. Each one checks the caller's role and scopes to
+`private.current_tenant_id()`. Full reasoning and costs in
+[ADR 0002](adr/0002-rls-and-privileged-functions.md).
 
-The mitigation is structural rather than procedural:
+`rls_coverage.test.sql` enforces the shape: no `SECURITY DEFINER` function in
+`public`, and the ones in `api` must be on a fail-closed allow-list.
 
-- `private` is `revoke`d from `anon` and `authenticated` in the first migration.
-- Every `private` function sets `search_path = ''` and schema-qualifies every
-  name inside it, so a caller cannot shadow an identifier and inherit the
-  function owner's privileges.
-- `revoke execute ... from public`, then grant per function.
-- A CI suite fails the build if a `SECURITY DEFINER` function ever appears in
-  `public` or `api`, or if a `private` one loses its pinned `search_path`.
+Views get the same treatment: Postgres creates them `security definer` by default,
+so a view over a protected table hands out every row the policies withheld. Every
+view here is `with (security_invoker = true)`.
 
-Views get the same treatment: Postgres creates them `security definer` by
-default, so a view over a protected table hands out every row the policies
-withheld. Any view in an exposed schema is declared
-`with (security_invoker = true)`.
+A view is also a privilege-bearing object. Revoking the default `PUBLIC` grant
+without adding `authenticated` back does not hide it, it breaks it — every `SELECT`
+fails with `permission denied for view`, which looks nothing like a permissions
+problem. So the read views and their base tables carry explicit `SELECT` grants,
+with RLS as the gate for reads and no write grant at all on the ledger or the
+balance.
 
 ## Authorization
 
@@ -128,6 +131,32 @@ Clients hold **no** `INSERT` on any public table. Every write goes through an
 `api.*` function that validates it and writes the audit entry in the same
 transaction. `stock_ledger`, `stock_balances` and `audit_logs` are not
 client-writable at all.
+
+## Errors carry codes, not sentences
+
+Movement functions raise a stable error **code** as the message, with the parameters
+in `detail` as JSON:
+
+```sql
+raise exception using errcode = 'P0001',
+                      message  = 'insufficient_stock',
+                      detail   = json_build_object('available', 12, 'requested', 40)::text;
+```
+
+The client maps the code to a localised string. This is not stylistic: the UI is
+bilingual, and an English sentence inside a `raise` cannot be translated. Recovering
+a number by parsing prose is how a translated UI ends up showing the wrong number.
+
+The `message` stays English for the logs, because logs are who reads them. Tests
+assert the **code** and never the prose.
+
+The codes in use: `insufficient_stock`, `batch_not_released`, `batch_expired`,
+`batch_product_mismatch`, `batch_not_found`, `location_not_found`,
+`duplicate_lot_number`, `invalid_expiry_date`, `shelf_life_implausible`,
+`reason_code_required`, `recall_reason_required`, `quantity_must_be_positive`,
+`same_location_transfer`, `cannot_release_expired_batch`,
+`illegal_batch_transition`, `quarantine_reason_required`,
+`no_quarantine_location`, `insufficient_role`, `zero_quantity_movement`.
 
 ## Roles
 

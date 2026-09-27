@@ -7,8 +7,9 @@ tracking, and an audit trail that survives an auditor.
 Built for an operator in Egypt: bilingual English/Arabic with full RTL, EGP
 denominated, WHO GDP-aligned batch traceability.
 
-**Status: milestone M0/M1 (foundation and identity).** Inventory, requisitions
-and delivery tracking are not built yet. See [Roadmap](#roadmap).
+**Status: milestones M0, M1 and M2 (foundation, identity, inventory core).** The
+catalogue, batches and append-only stock ledger are built and tested. The CRUD
+screens, requisitions and delivery tracking are not. See [Roadmap](#roadmap).
 
 ---
 
@@ -125,28 +126,55 @@ make verify           # lint + typecheck + unit tests + secret scan + migrations
 ## Verifying it works
 
 ```bash
-make check            # fast: lint, types, unit tests, secret scan
-make test-db          # migrations applied, 30 RLS assertions
-make build            # production build
+make check      # fast: lint, types, unit tests, secret scan, assertion portability
+make test-db    # migrations applied, 115 pgTAP assertions
+make verify     # everything CI runs
 ```
 
-The database suite is the one that matters most. It proves that:
+**115 pgTAP assertions** and **18 table-level smoke checks** at the last green run.
+
+The two database suites deliberately cover different ground, and both are needed:
+
+| | What it can prove | What it cannot |
+|---|---|---|
+| `scripts/ledger-smoke.sh` | The `AFTER INSERT` trigger maintains the balance with **no session and no function involved**; a refused movement records nothing | Anything about roles |
+| `supabase/tests/*.test.sql` | That a `DISTRIBUTOR` is refused; that cross-tenant ids are *invisible* rather than merely forbidden | That the trigger works independently of the function |
+
+The security assertions that matter most:
 
 - an anonymous request can read nothing
-- a user cannot see another tenant's rows
-- a user cannot escalate their own role
-- a failed escalation leaves both role and tenant unchanged
-- a user can update their own profile (and only their own)
-- every public table has RLS enabled
-- `anon` holds no write grant on any public table
-- `authenticated` cannot INSERT into any public table directly
-- no `SECURITY DEFINER` function sits in an exposed schema
-- every `private` SECURITY DEFINER function pins its `search_path`
-- the audit log rejects `UPDATE` and `DELETE`
+- a user cannot see another tenant's rows, facilities, products or batches
+- a user cannot escalate their own role, and a failed attempt leaves both the role
+  and the tenant unchanged
+- a `DISTRIBUTOR` can read the catalogue but cannot receive stock or release a batch
+- a user can update their own profile, and only their own
+- every public table has RLS; `anon` holds no write grant anywhere
+- `authenticated` can INSERT only into an allow-list of catalogue tables — and a
+  **new table fails the build** until someone adds it deliberately
+- no client can write the ledger, the balance, the audit log or the tenant
+- no `SECURITY DEFINER` function sits in `public`, and the ones in `api` are
+  allow-listed
+- the ledger rejects `UPDATE` and `DELETE` for every role including the owner
+- a balance is exactly the sum of its ledger
+- a recall **moves** the stock into quarantine rather than only changing a label
+- reconciliation detects a deliberately corrupted balance without duplicating alerts
 
-There is a CI job that deliberately breaks a policy to confirm the suite fails. A
-security test that cannot fail is worse than none, because it is reported as
-coverage.
+There is a CI job that deliberately breaks a policy to confirm the suites can
+fail. A security test that cannot fail is worse than none, because it is reported
+as coverage. It runs on pull requests as well as pushes.
+
+### One thing that is easy to get wrong
+
+The local harness prefers real pgTAP and falls back to a shim. They differ in ways
+that fail *silently*: pgTAP has functions the shim does not, and pgTAP's
+`results_eq` compares by type where the shim casts to text. A suite can be green
+locally and red in CI on nothing but which engine ran it.
+
+`scripts/check-assertions.py` catches that statically, on every machine: every
+assertion must be a real pgTAP function, every comparison must have an explicit
+cast on at least one side, and the shim must offer nothing pgTAP lacks. It is wired
+into `make check` and into CI ahead of the suites, so a portability problem is
+reported as itself rather than as a mysterious schema failure.
 
 ## Demo accounts
 
@@ -167,7 +195,7 @@ Each milestone ends in something a real user could be put in front of.
 |---|---|---|
 | **M0** | Repository, toolchain, CI, i18n/RTL foundation | done |
 | **M1** | Tenancy, roles, RLS, invite-only auth, audit log | done |
-| **M2** | Products, batches, locations, stock ledger, reconciliation | next |
+| **M2** | Products, batches, locations, stock ledger, reconciliation | schema + tests done, UI in progress |
 | **M3** | Requisitions, approval, FEFO allocation | planned |
 | **M4** | Trips, driver PWA offline, e-signature POD, live map | planned |
 | **M5** | Alerts, dashboards, analytics | planned |

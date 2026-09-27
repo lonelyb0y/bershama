@@ -1,6 +1,6 @@
 # 0002. The `private` / `api` / `public` schema split
 
-Status: Accepted
+Status: Accepted — **amended during M2**, see the Amendment below.
 
 ## Context
 
@@ -66,6 +66,39 @@ The wrappers exist so the client has a small, stable, auditable surface. Each on
 is a thin function that delegates to `private`, so the RLS policy still governs
 who may call it.
 
+## Amendment: the `api` wrappers are DEFINER where they write
+
+Recorded during M2, because implementation contradicted the original decision and
+the implementation is right.
+
+The original decision was that every `api` function is `SECURITY INVOKER`, so that
+"RLS applies to everything the wrapper reads." That is correct for **reads** and it
+is what `api.search_products`, `api.get_product` and `api.get_batch_stock` do.
+
+It cannot work for **writes**, and the reason is structural rather than a matter of
+taste: `private` carries no `USAGE` grant to client roles — that is the entire point
+of the schema split. An `INVOKER` wrapper executes as `authenticated` and therefore
+**cannot call a `private.*` function at all**. Every write path died with
+`permission denied for schema private` before reaching any logic.
+
+The alternative — granting `USAGE` on `private` to `authenticated` — is the one
+thing this ADR exists to prevent: every privileged function becomes directly
+callable by any signed-in client, which is a total loss of tenant isolation.
+
+So a write wrapper must be `SECURITY DEFINER` in order to reach the code that
+validates its input. **That makes the wrapper itself the security boundary**, and
+every one of them does its own authorisation in this order:
+
+1. `private.require_inventory_write()` — refuses a role that may not move stock
+2. `private.current_tenant_id()` — scope, resolved from the session, never from input
+3. the `private` implementation, which re-checks the tenant on every row it touches
+
+`rls_coverage.test.sql` enforces the split: no `SECURITY DEFINER` function may
+appear in `public`, and the ones in `api` must be on an explicit allow-list. The
+list is fail-closed, so a new DEFINER wrapper fails the build until someone decides
+on purpose that it belongs in an exposed schema — which is the moment to ask
+whether it does.
+
 ## Consequences
 
 ### Positive
@@ -82,11 +115,14 @@ who may call it.
 
 - **An extra hop.** Every privileged operation is a wrapper calling into
   `private`. Slightly more code, one more layer to read.
-- **The wrapper must be careful.** A wrapper marked `SECURITY INVOKER` runs as the
-  caller, which is correct, but a future edit that changes it to `DEFINER` for
-  convenience would reintroduce the whole problem. The coverage test catches
-  placement, not the invoker/definer flag on a function in `api`, so this relies
-  on review.
+- **A write wrapper is now a security boundary in its own right.** It runs as
+  `postgres`, so RLS no longer backstops it; the role check and tenant scoping
+  inside the function are the only thing standing between a signed-in user and the
+  data. A wrapper copied without its `require_inventory_write()` call is a
+  privilege escalation. The coverage test catches an unlisted DEFINER function but
+  cannot catch a listed one whose check was deleted, so this still relies on review
+  — which is why the check is the first line of every wrapper rather than a
+  convention stated once in a comment.
 - **Schema proliferation.** Four schemas for a small system. Justified by the
   boundary, but it is complexity bought deliberately.
 - **`api` must be added to the project's exposed schema list** on a hosted

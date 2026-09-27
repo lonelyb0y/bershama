@@ -67,6 +67,17 @@ create policy "admins and auditors read audit log"
   );
 
 -- ── audit writer ────────────────────────────────────────────────────────────
+--
+-- p_tenant_id is an explicit override for contexts where there is no session:
+-- the seed script, a migration, a pg_cron job. Without it, a catalogue write
+-- outside an authenticated request produced a NULL tenant_id and failed the
+-- NOT NULL constraint on audit_logs, which made seeds and background jobs
+-- impossible rather than merely un-attributed.
+--
+-- When the session does exist, the tenant comes from the session and NOT from the
+-- row being audited. RLS has already established that they match, so using the
+-- session is the safer default: a bug that let a row from another tenant through
+-- is recorded against the caller's tenant rather than laundered.
 
 create or replace function private.write_audit(
   p_action      text,
@@ -74,26 +85,44 @@ create or replace function private.write_audit(
   p_entity_id   text default null,
   p_before      jsonb default null,
   p_after       jsonb default null,
-  p_request_id  uuid default null
+  p_request_id  uuid default null,
+  p_tenant_id   uuid default null
 )
 returns void
-language sql
+language plpgsql
 security definer
 set search_path = ''
 as $$
+declare
+  v_tenant uuid := coalesce(p_tenant_id, private.current_tenant_id());
+begin
+  if v_tenant is null then
+    raise exception using
+      errcode = 'P0001',
+      message = 'audit_context_missing',
+      detail  = json_build_object(
+        'action',      p_action,
+        'entity_type', p_entity_type,
+        'hint',        'no session and no p_tenant_id supplied'
+      )::text;
+  end if;
+
   insert into public.audit_logs (
     tenant_id, actor_user_id, actor_label, actor_role,
     action, entity_type, entity_id, before, after, request_id
   )
   values (
-    (select private.current_tenant_id()),
+    v_tenant,
     (select auth.uid()),
     (select p.full_name from public.profiles p where p.id = (select auth.uid())),
     (select private.current_role()),
     p_action, p_entity_type, p_entity_id, p_before, p_after, p_request_id
-  )
+  );
+end;
 $$;
 
 comment on function private.write_audit is
   'Records an audit row using the caller identity. Must be called inside the '
-  'same transaction as the change being recorded.';
+  'same transaction as the change being recorded. Pass p_tenant_id for '
+  'non-session contexts (seed, migration, cron); raise audit_context_missing '
+  'rather than writing a NULL tenant.';

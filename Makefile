@@ -151,8 +151,12 @@ secrets: ## Fail if the Supabase secret key appears anywhere it must not
 	fi
 	@echo "No legacy service_role JWTs in the working tree."
 
+.PHONY: assertions
+assertions: ## Check the pgTAP suites are portable between pgTAP and the shim
+	python3 scripts/check-assertions.py
+
 .PHONY: check
-check: lint typecheck test secrets ## Fast checks, no database needed
+check: lint typecheck test secrets assertions ## Fast checks, no database needed
 
 .PHONY: verify
 verify: check test-db build ## Everything CI runs

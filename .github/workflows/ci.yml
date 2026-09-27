@@ -88,6 +88,13 @@ jobs:
       - name: Set up PostgreSQL
         uses: ./.github/actions/setup-postgres
 
+      # Before the suites, and reported separately. A suite that uses an
+      # assertion pgTAP lacks, or a comparison whose type is inferred
+      # differently, passes against the shim and fails here with a message that
+      # looks like a schema bug. Naming the cause is the whole point.
+      - name: Check assertion portability
+        run: python3 scripts/check-assertions.py
+
       - name: Apply migrations and run suites
         run: ./scripts/verify-db.sh
 
@@ -99,14 +106,19 @@ jobs:
   # a policy, or someone "fixes" a suite into always passing, this job is what
   # notices.
   #
-  # It is not a required status check because it is a meta-check about the tests
-  # rather than about the product, and it would fail for reasons that are not
-  # always a real regression.
+  # Runs on pull requests as well as pushes, because that is where it earns its
+  # keep: a change to a policy or to a suite is exactly the moment a guard like this
+  # matters. Each job gets its own checkout, so mutating the working copy here
+  # cannot affect any other job.
+  #
+  # It is deliberately not a required status check. It is a statement about the
+  # tests rather than about the product, and it fails for reasons that are not
+  # always a real regression -- a legitimately restructured policy, for instance,
+  # would stop the sed matching and be reported as a broken test.
   mutation:
     name: Verify the RLS suites can fail
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
 
     steps:
       - uses: actions/checkout@v7

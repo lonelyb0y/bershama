@@ -86,7 +86,7 @@ select results_eq(
 );
 
 select results_eq(
-  $$select slug from public.tenants$$,
+  $$select slug::text from public.tenants$$,
   array['tenant-a'],
   'a user sees only their own tenant'
 );
@@ -106,7 +106,7 @@ select is_empty(
 );
 
 select is_empty(
-  $$select slug from public.tenants where slug = 'tenant-b'$$,
+  $$select slug::text from public.tenants where slug = 'tenant-b'$$,
   'tenant A cannot see tenant B''s tenant row'
 );
 
@@ -183,7 +183,7 @@ select lives_ok(
 );
 
 select results_eq(
-  $$select full_name from public.profiles where id = (select auth.uid())$$,
+  $$select full_name::text from public.profiles where id = (select auth.uid())$$,
   array['Admin A Renamed'],
   'the own-profile update actually changed the row'
 );
@@ -205,7 +205,7 @@ reset role;
 -- meaningful -- otherwise "no rows returned" would be indistinguishable from
 -- "row untouched".
 select results_eq(
-  $$select full_name from public.profiles where id = '33333333-3333-3333-3333-333333333333'$$,
+  $$select full_name::text from public.profiles where id = '33333333-3333-3333-3333-333333333333'$$,
   array['Admin B'],
   'the tenant B profile is intact after the denied update'
 );
@@ -240,7 +240,7 @@ select throws_ok(
 
 -- The row survived both attempts.
 select results_eq(
-  $$select action from public.audit_logs where action = 'fixture'$$,
+  $$select action::text from public.audit_logs where action = 'fixture'$$,
   array['fixture'],
   'the audit row is unchanged after the rejected mutations'
 );

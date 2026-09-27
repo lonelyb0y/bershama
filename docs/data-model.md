@@ -251,20 +251,38 @@ The composite-key warning is real: Postgres cannot use a multi-column index to
 filter on a non-leading column, so a `primary key (tenant_id, id)` indexes
 `tenant_id` and nothing else. Policy filter columns get their own index.
 
-## Coming in M2
+## M2: the inventory core
+
+Delivered. Every table below has RLS enabled and a `tenant_id`, and every write
+path is an audited `api.*` function.
 
 | Table | Notes |
 |---|---|
-| `facilities` | warehouses, pharmacies, hospitals, clinics, with coordinates |
-| `storage_locations` | per-facility, with temperature range for cold storage |
-| `products` | **both** `name_en` and `name_ar` required; ATC, GTIN, `eda_reg_no` |
-| `batches` | lot, mfg/expiry, unit cost, status |
-| `stock_ledger` | append-only, signed `qty_delta`, 12 movement types |
-| `stock_balances` | materialised; nightly reconciliation proves it agrees |
-| `stock_daily_snapshots` | pre-aggregated, so dashboards never scan the ledger |
-| `reorder_policies` | min/max, lead time, MOQ, safety stock |
-| `cold_chain_readings` | partitioned by month |
+| `facilities` | warehouses, pharmacies, hospitals, clinics. Coordinates are `numeric(9,6)`, not float, because route maths accumulates error |
+| `storage_locations` | per facility: ambient, cold, frozen, quarantine, in-transit, dispense. Codes unique per **facility**, not per tenant |
+| `products` | **both** `name_en` and `name_ar` required. Real ATC codes are 7 characters; a 5-character pattern rejects all of them |
+| `batches` | lot, mfg/expiry, unit cost, status. Never hard-deleted. Unique per (tenant, **product**, lot) |
+| `stock_ledger` | append-only, signed `qty_delta`, sign bound to `txn_type`. `bigint identity` |
+| `stock_balances` | materialisation maintained by an `AFTER INSERT` trigger. `check (qty_on_hand >= 0)` |
+| `alert_events` | operational and invariant alerts. Partial unique index on (tenant, type, entity) where `OPEN`, so a nightly scan cannot duplicate |
 
-`products.name_ar` is `not null` from the start, not nullable-and-hoped-for. An
-incomplete catalogue is unusable in an Egyptian pharmacy, and a nullable column
-is an invitation to create one.
+### Enums added in M2
+
+`private.movement_type` (12 values, with a legal sign for each),
+`private.product_form`, `private.stock_unit`, `private.strength_unit`,
+`private.alert_type`, `private.alert_severity`, `private.alert_status`.
+
+## Still to come
+
+| Table | Milestone |
+|---|---|
+| `requisitions`, `requisition_lines`, `allocations` | M3 — FEFO allocation |
+| `trips`, `stops`, `tracking_pings`, `proof_of_delivery`, `delivery_events` | M4 — delivery |
+| `reorder_policies` | M5 — no consumer before then, so not built early |
+| `stock_daily_snapshots` | M5 — pre-aggregates for dashboards |
+| `cold_chain_readings` | M5 — partitioned by month |
+| `batch_serials` | v2 — `products.is_serialised` is already declared and inert |
+
+A table with no reader and no test is speculative, so `reorder_policies` and
+`stock_daily_snapshots` are deferred to the milestone that consumes them rather
+than built now and forgotten.
