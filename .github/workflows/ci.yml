@@ -71,6 +71,13 @@ jobs:
       - name: Secret scan
         run: make secrets
 
+      # The client error mapper and the database's error codes are two files with
+      # no other connection. A migration can raise a code the UI has no message
+      # for, CI stays green, and the user sees a generic fallback -- a bug
+      # invisible in English and only noticed by someone who needed the number.
+      - name: Error-code drift
+        run: make drift
+
   database:
     name: Database (migrations + RLS suites)
     runs-on: ubuntu-latest
