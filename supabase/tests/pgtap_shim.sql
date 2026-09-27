@@ -154,6 +154,24 @@ returns text
 language sql
 as $$ select pgtap_shim._bump(p_got is distinct from p_want, p_msg) $$;
 
+-- Not in the subset originally implemented, but a real pgTAP function and one
+-- worth having: asserting a nullable column was populated is not the same
+-- assertion as "the value is not NULL" written by hand, because this fails with a
+-- readable message and shows what it actually got.
+create or replace function pgtap_shim.is_not_null(
+  p_got anyelement, p_msg text default null
+)
+returns text
+language sql
+as $$ select pgtap_shim._bump(p_got is not null, p_msg) $$;
+
+create or replace function pgtap_shim.is_null(
+  p_got anyelement, p_msg text default null
+)
+returns text
+language sql
+as $$ select pgtap_shim._bump(p_got is null, p_msg) $$;
+
 create or replace function pgtap_shim.fail(p_msg text default null)
 returns text
 language sql

@@ -257,12 +257,25 @@ create trigger stock_ledger_apply_to_balance
 
 -- ── grants ──────────────────────────────────────────────────────────────────
 --
--- No client access at all to either table. Reads go through the api.* functions
--- in 0009 and the views in 0010, so a client can never construct its own query
--- that bypasses the business rules.
+-- No client WRITE access to either table. Reads are granted, and RLS is the gate
+-- for them -- which is not a contradiction but the whole point of the model.
+--
+-- A SECURITY INVOKER view runs as the caller, so revoking SELECT outright does not
+-- hide the tables, it breaks them: v_inventory_by_batch would fail with "permission
+-- denied for table stock_balances" for every user. Granting SELECT and relying on
+-- the tenant policy is the correct arrangement, and it is what makes a tenant's
+-- own stock readable to its own staff, which they are entitled to see.
+--
+-- What must never be reachable is a WRITE. There is no INSERT, UPDATE or DELETE
+-- grant here, so the only way to change a balance is a ledger row, and the only
+-- way to produce a ledger row is private.post_stock_movement().
 
 revoke all on table public.stock_ledger, public.stock_balances
   from anon, authenticated;
+
+grant select on table public.stock_ledger, public.stock_balances to authenticated;
+-- `anon` gets nothing at all: no session means no tenant, and there is no
+-- anonymous read of stock.
 
 -- ── RLS ─────────────────────────────────────────────────────────────────────
 --

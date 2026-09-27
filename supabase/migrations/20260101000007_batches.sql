@@ -204,7 +204,11 @@ create table public.alert_events (
   last_seen_at  timestamptz not null default now(),
   occurrences   integer not null default 1,
 
-  created_at   timestamptz not null default now()
+  created_at    timestamptz not null default now(),
+  -- Alerts are mutated: acknowledged, resolved, re-raised. The touch trigger below
+  -- needs the column, and "when was this last touched" is the first question asked
+  -- of an alert nobody has looked at.
+  updated_at    timestamptz not null default now()
 );
 
 comment on table public.alert_events is

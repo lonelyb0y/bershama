@@ -67,7 +67,18 @@ create table public.products (
   -- WHO Anatomical Therapeutic Chemical code. This is the classification that
   -- makes the catalogue comparable across distributors, and the one an Egyptian
   -- Drug Authority submission is organised by.
-  atc_code     text check (atc_code is null or atc_code ~ '^[A-Z][0-9]{4}$'),
+  --
+  -- The pattern is a shape check, not a code check. A real ATC code is 7
+  -- characters -- an anatomical letter, two digits, two letters, then one or two
+  -- digits, as in N02BE01 for paracetamol or A10AB01 for insulin. An earlier
+  -- constraint of ^[A-Z][0-9]{4}$ accepted only 5 and rejected every real code;
+  -- the test fixtures caught it immediately.
+  --
+  -- Deliberately permissive beyond the shape. Whether a code actually exists and
+  -- means what someone thinks is a question for a reference table, not a regular
+  -- expression, and a regex that pretends to know better will reject valid codes
+  -- the moment the WHO issues one.
+  atc_code     text check (atc_code is null or atc_code ~ '^[A-Z][0-9A-Z]{5,6}$'),
 
   -- GTIN/EAN barcode. The scan target on the carton, and the lookup key when a
   -- warehouse receives a delivery with no paperwork.

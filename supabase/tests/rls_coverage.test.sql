@@ -13,7 +13,7 @@
 
 begin;
 
-select plan(9);
+select plan(10);
 
 -- ── every public table has RLS enabled ──────────────────────────────────────
 
@@ -141,15 +141,54 @@ select ok(
 
 -- ── no SECURITY DEFINER function in an exposed schema ───────────────────────
 
+-- ── privileged functions in exposed schemas are an allow-list ───────────────
+-- There must be no SECURITY DEFINER function in `public`, where nothing would
+-- catch a misplaced one.
+--
+-- The `api` schema is different, and deliberately so. A write wrapper there has to
+-- be SECURITY DEFINER: `private` carries no USAGE grant to client roles, so an
+-- INVOKER wrapper cannot reach the privileged code it needs to call. The wrapper
+-- IS the security boundary, and it is only safe because it checks the caller's
+-- role and scopes itself to the caller's tenant.
+--
+-- So the invariant is not "no DEFINER in api" -- it is "only these DEFINER
+-- functions in api, and each one authorises itself". The allow-list is
+-- fail-closed: adding a SECURITY DEFINER function to `api` fails this test until
+-- someone deliberately adds it here, which is the moment to ask whether it really
+-- needs to be in an exposed schema at all.
+--
+-- Read wrappers (api.whoami, api.current_tenant_id, api.search_products,
+-- api.get_product, api.get_batch_stock) are INVOKER and so never appear here --
+-- they are safe by running as the caller under RLS.
+
 select is_empty(
   $$
   select p.proname
   from pg_proc p
   join pg_namespace n on n.oid = p.pronamespace
-  where n.nspname in ('public', 'api')
+  where n.nspname = 'public'
     and p.prosecdef
   $$,
-  'no SECURITY DEFINER function sits in an exposed schema'
+  'no SECURITY DEFINER function sits in the public schema'
+);
+
+select is_empty(
+  $$
+  select p.proname
+  from pg_proc p
+  join pg_namespace n on n.oid = p.pronamespace
+  where n.nspname = 'api'
+    and p.prosecdef
+    and p.proname <> all (array[
+      -- identity and self-service (M1)
+      'update_my_profile', 'update_tenant_settings', 'touch',
+      -- stock and batch writes (M2); each calls private.require_inventory_write()
+      'receive_stock', 'issue_stock', 'adjust_stock', 'write_off_stock',
+      'transfer_stock',
+      'release_batch', 'quarantine_batch', 'recall_batch', 'create_batch'
+    ])
+  $$,
+  'only the allow-listed wrappers in the api schema are SECURITY DEFINER'
 );
 
 -- ── every SECURITY DEFINER function pins its search_path ────────────────────
