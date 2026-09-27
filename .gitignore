@@ -49,3 +49,8 @@ yarn-error.log*
 
 # transient file list used by the secret scan
 .secrets-scan-files.tmp
+
+# Python bytecode. check-assertions.py and check-api-types.py get imported by
+# tooling while debugging, and a .pyc in a commit is noise nobody reviews.
+__pycache__/
+*.pyc
