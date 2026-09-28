@@ -5,6 +5,7 @@ import {
   getBatchStock,
   issueStock,
   quarantineBatch,
+  releaseBatch,
   receiveStock,
   recallBatch,
   searchProducts,
@@ -29,13 +30,22 @@ import {
  */
 function stub(result: { data?: unknown; error?: unknown }) {
   const calls: Array<{ fn: string; args: Record<string, unknown> }> = [];
+  // `schemas` records every .schema() call, which is the point of this stub
+  // having grown a recorder at all.
+  const schemas: string[] = [];
+
   const client = {
+    schema(name: string) {
+      schemas.push(name);
+      return client;
+    },
     async rpc(fn: string, args: Record<string, unknown> = {}) {
       calls.push({ fn, args });
       return { data: result.data ?? null, error: result.error ?? null };
     },
   };
-  return { client, calls };
+
+  return { client, calls, schemas };
 }
 
 const IDS = {
@@ -43,6 +53,46 @@ const IDS = {
   productId: 'prod-1',
   batchId: 'batch-1',
 };
+
+describe('schema addressing', () => {
+  // Every function in this module lives in the `api` schema. A bare `rpc()` call
+  // routes to `public`, where none of them exist, and PostgREST answers PGRST202
+  // -- "function public.stock_take not found", which reads like a missing
+  // migration rather than a missing .schema() call. That shipped once: the whole
+  // inventory client called rpc() bare, and nothing caught it, because every test
+  // used a stub that answered whatever it was asked.
+  it('addresses every function in the api schema', async () => {
+    const { client, schemas } = stub({ data: 1 });
+
+    await receiveStock(client, 'en', { ...IDS, qty: 1 });
+    await issueStock(client, 'en', { ...IDS, qty: 1 });
+    await adjustStock(client, 'en', { ...IDS, qtyDelta: 1, reasonCode: 'DAMAGE' });
+    await writeOffStock(client, 'en', { ...IDS, qty: 1, reasonCode: 'DAMAGE_WRITE_OFF' });
+    await stockTake(client, 'en', { ...IDS, countedQty: 1, reasonCode: 'MISCOUNT' });
+    await transferStock(client, 'en', {
+      fromLocationId: 'a',
+      toLocationId: 'b',
+      productId: 'p',
+      batchId: 'x',
+      qty: 1,
+    });
+    await createBatch(client, 'en', {
+      productId: 'p',
+      lotNumber: 'L',
+      mfgDate: '2026-01-01',
+      expiryDate: '2028-01-01',
+    });
+    await releaseBatch(client, 'en', { batchId: 'x' });
+    await quarantineBatch(client, 'en', { batchId: 'x', reason: 'r' });
+    await recallBatch(client, 'en', { batchId: 'x', reason: 'r' });
+    await getBatchStock(client, 'en', 'x');
+    await searchProducts(client, 'en', {});
+
+    // One per call. A count of zero here is the bug this test exists for.
+    expect(schemas).toHaveLength(12);
+    expect(new Set(schemas)).toEqual(new Set(['api']));
+  });
+});
 
 describe('argument mapping', () => {
   it('prefixes every argument with p_, as PostgREST requires', async () => {
