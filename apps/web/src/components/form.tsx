@@ -5,26 +5,77 @@
 // difference between a stocktake screen and a stocktake screen that somebody has
 // to re-audit for RTL, accessibility and input-type behaviour.
 //
-//   1. `id` and `htmlFor` are paired, always. A label that is not associated with
-//      its control is invisible to a screen reader, and this is an application
-//      used in a warehouse by people wearing gloves.
+// ── react-hook-form ──────────────────────────────────────────────────────────
 //
-//   2. The error message is tied to the input with `aria-describedby` and
-//      `aria-invalid`, so it is announced when focus lands on the field rather
-//      than only at the top of the form.
+// Fields are UNCONTROLLED and wired with `register()`, which is the pattern RHF
+// is built for: the DOM owns the value and the form tracks it, rather than a
+// controlled input re-rendering on every keystroke. The call site reads
 //
-//   3. `dir="ltr"` on fields whose content is always left-to-right. A lot number,
-//      a SKU, an email or a cost reordering inside an RTL container looks like a
-//      typo to the person reading it, and they will transcribe it wrong.
+//   <TextField id="lot" label={t('lot')} dir="ltr" {...register('lot')} />
 //
-// Numbers get more attention than they look like they need. Stock is whole units
-// and money is integer minor units, so the input is `inputMode="numeric"` (a
-// phone keypad, no letters) rather than `type="number"` -- which silently returns
-// '' for anything non-numeric, so a pasted value with a thousands separator
-// vanishes with no error. The value is kept as a string and parsed on submit,
-// because a controlled number input cannot represent "being typed".
+// -- spreading register's return rather than passing it as a `registration`
+// object. What arrives is the standard set of DOM input props (name, onChange,
+// onBlur, ref), so these components stay ordinary inputs that happen to work
+// with a form library. A field outside a form is still a field, and a test can
+// render one without standing a form up around it.
+//
+// `ref` is forwarded so RHF can move focus to the first invalid field on submit.
+// That is the difference between a user fixing one field and hunting for four.
+//
+// Validation lives in lib/validation.ts, and the codes it raises are the same
+// ones the database raises, so a rule caught in the browser and the same rule
+// caught by Postgres produce one sentence rather than two that drift apart.
 
-import type { ReactNode } from 'react';
+import type { ReactNode, Ref } from 'react';
+
+/* ── what register() hands us ─────────────────────────────────────────────── */
+
+/**
+ * The subset of DOM input props that `register(name)` returns.
+ *
+ * Declared rather than imported so these components do not depend on a form
+ * library to render. `ref` is a plain Ref so the field can be used with or
+ * without one.
+ */
+export interface FieldInputProps {
+  name?: string;
+  /**
+   * react-hook-form's onChange reads `event.target.name`, so it takes an object
+   * with a `target` rather than a full React ChangeEvent. Typed to RHF's shape
+   * rather than to ChangeEvent because the two are not assignable in that
+   * direction, and RHF's is the one that has to fit.
+   */
+  onChange?: (event: { target: unknown; type?: unknown }) => void;
+  onBlur?: (event: { target: unknown; type?: unknown }) => void;
+  ref?: Ref<never>;
+}
+
+/**
+ * The DOM-safe part of a `register()` result.
+ *
+ * `<TextField {...register('lot')} />` looks tidier and is a trap, because what
+ * register returns is not only DOM props: it also carries the *validation rule*
+ * refs, including `min`, `max` and `maxLength`. Spread onto an input they collide
+ * with the HTML attributes of the same name -- and `maxLength` is the nasty one,
+ * because RHF's is an object like `{ value: 20, message: '...' }` where the
+ * browser expects a number, so the attribute is silently ignored and the field
+ * accepts more characters than the schema allows.
+ *
+ * So four props cross the boundary, named, and the collision cannot happen.
+ */
+export function fieldInputProps(registration: {
+  name: string;
+  onChange: (event: { target: unknown; type?: unknown }) => void;
+  onBlur: (event: { target: unknown; type?: unknown }) => void;
+  ref: Ref<never>;
+}): FieldInputProps {
+  return {
+    name: registration.name,
+    onChange: registration.onChange,
+    onBlur: registration.onBlur,
+    ref: registration.ref,
+  };
+}
 
 /* ── shell ──────────────────────────────────────────────────────────────── */
 
@@ -45,7 +96,15 @@ export function Field({
   // control, because the answer differs by field: a lot number is always LTR, a
   // note is whatever the writer used. Accepting `dir` on the wrapper and
   // ignoring it was documentation wearing the costume of a parameter.
-  children: (props: { id: string; describedBy?: string; invalid: boolean }) => ReactNode;
+  children: (props: {
+    id: string;
+    name?: string;
+    onChange?: (event: { target: unknown; type?: unknown }) => void;
+    onBlur?: (event: { target: unknown; type?: unknown }) => void;
+    ref?: Ref<never>;
+    describedBy?: string;
+    invalid: boolean;
+  }) => ReactNode;
 }) {
   const hintId = hint ? `${id}-hint` : undefined;
   const errorId = error ? `${id}-error` : undefined;
@@ -56,8 +115,9 @@ export function Field({
       <label htmlFor={id} className="block text-sm font-medium">
         {label}
         {required ? (
-          // A visual asterisk plus `required` on the control. The asterisk alone
-          // is decoration; screen readers get the word from the control.
+          // A visual asterisk, with `required` on the control doing the real
+          // work. The asterisk alone is decoration; assistive technology is told
+          // by the attribute.
           <span aria-hidden="true" className="ms-1 text-[var(--color-stock-critical)]">
             *
           </span>
@@ -73,11 +133,7 @@ export function Field({
       {children({ id, describedBy, invalid: Boolean(error) })}
 
       {error ? (
-        <p
-          id={errorId}
-          role="alert"
-          className="mt-1 text-xs text-[var(--color-stock-critical)]"
-        >
+        <p id={errorId} role="alert" className="mt-1 text-xs text-[var(--color-stock-critical)]">
           {error}
         </p>
       ) : null}
@@ -88,13 +144,13 @@ export function Field({
 const inputClass =
   'w-full rounded-lg border bg-transparent px-3 py-2 text-sm outline-none focus-visible:ring-2 disabled:opacity-60';
 
+const invalidClass = 'border-[var(--color-stock-critical)]';
+
 /* ── text ───────────────────────────────────────────────────────────────── */
 
 export function TextField({
   id,
   label,
-  value,
-  onChange,
   hint,
   error,
   required,
@@ -103,15 +159,15 @@ export function TextField({
   autoComplete,
   maxLength,
   disabled,
-}: {
+  ...input
+}: FieldInputProps & {
   id: string;
   label: string;
-  value: string;
-  onChange: (value: string) => void;
   hint?: string;
   error?: string | null;
   required?: boolean;
   placeholder?: string;
+  /** "ltr" for values that are never Arabic: lot numbers, SKUs, references. */
   dir?: 'ltr' | 'rtl';
   autoComplete?: string;
   maxLength?: number;
@@ -119,10 +175,9 @@ export function TextField({
 }) {
   return (
     <Field id={id} label={label} hint={hint} error={error} required={required}>
-      {({ describedBy, invalid }) => (
+      {({ id: fieldId, describedBy, invalid, ...rest }) => (
         <input
-          id={id}
-          name={id}
+          id={fieldId}
           type="text"
           dir={dir}
           autoComplete={autoComplete}
@@ -130,11 +185,11 @@ export function TextField({
           disabled={disabled}
           required={required}
           placeholder={placeholder}
-          value={value}
           aria-describedby={describedBy}
           aria-invalid={invalid || undefined}
-          onChange={(e) => onChange(e.target.value)}
-          className={`mt-1 ${inputClass} ${invalid ? 'border-[var(--color-stock-critical)]' : ''}`}
+          className={`mt-1 ${inputClass} ${invalid ? invalidClass : ''}`}
+          {...rest}
+          {...input}
         />
       )}
     </Field>
@@ -143,67 +198,83 @@ export function TextField({
 
 /* ── numbers ────────────────────────────────────────────────────────────── */
 
+/**
+ * Strip everything that is not a digit.
+ *
+ * `inputMode="numeric"` puts a phone keypad under the field, which is the right
+ * keypad, but on a physical keyboard it prevents nothing -- and `type="number"`
+ * is worse than useless here: it coerces any value it cannot parse to an empty
+ * string, so pasting "1,200" silently clears the field and the user believes the
+ * value went in.
+ *
+ * The cleaned string is passed to onChange rather than the DOM event, because a
+ * stripped value is not what the event carries. RHF accepts a bare value here,
+ * and the digit-stripping test asserts that rather than assuming it.
+ */
+function digitsOnly(value: string): string {
+  return value.replace(/[^0-9]/g, '');
+}
+
 export function NumberField({
   id,
   label,
-  value,
-  onChange,
   hint,
   error,
   required,
   placeholder,
-  dir = 'ltr',
-  min = 0,
-  max,
   suffix,
   disabled,
-}: {
+  ...input
+}: FieldInputProps & {
   id: string;
   label: string;
-  /** Kept as a string so a half-typed value is representable. */
-  value: string;
-  onChange: (value: string) => void;
   hint?: string;
   error?: string | null;
   required?: boolean;
   placeholder?: string;
-  dir?: 'ltr' | 'rtl';
-  min?: number;
-  max?: number;
-  /** A unit rendered inside the field, e.g. "EGP" or "boxes". */
+  /** Rendered inside the field, e.g. a unit or a currency. */
   suffix?: string;
   disabled?: boolean;
 }) {
   return (
     <Field id={id} label={label} hint={hint} error={error} required={required}>
-      {({ describedBy, invalid }) => (
+      {({ id: fieldId, describedBy, invalid, ...rest }) => (
         <div className="relative mt-1">
           <input
-            id={id}
-            name={id}
-            // inputMode rather than type="number": a number input coerces
-            // anything it cannot parse to an empty string, so pasting
-            // "1,200" silently clears the field instead of showing an error.
+            id={fieldId}
             type="text"
             inputMode="numeric"
+            // A pattern, not a max: it constrains a paste without preventing
+            // typing, so the field cannot be submitted holding a letter.
             pattern="[0-9]*"
-            dir={dir}
+            dir="ltr"
             required={required}
             disabled={disabled}
             placeholder={placeholder}
-            value={value}
-            min={min}
-            max={max}
             aria-describedby={describedBy}
             aria-invalid={invalid || undefined}
-            // Strip anything that is not a digit as it is typed, rather than
-            // validating on submit. A field that cannot hold an invalid value
-            // cannot be submitted invalid, and the reason is visible while
-            // typing rather than after a round trip.
-            onChange={(e) => onChange(e.target.value.replace(/[^0-9]/g, ''))}
+            // No min attribute: this is a text input, and browsers ignore min on
+            // one. The floor is enforced by the schema, which reports it with a
+            // code the user can read.
             className={`${inputClass} ${suffix ? 'pe-16' : ''} ${
-              invalid ? 'border-[var(--color-stock-critical)]' : ''
+              invalid ? invalidClass : ''
             }`}
+            {...rest}
+            {...input}
+            onChange={(e) => {
+              // Mutate the event's target, then hand the EVENT on.
+              //
+              // Passing the cleaned string instead looks equivalent and is not:
+              // react-hook-form's onChange reads e.target.name, so a bare value
+              // throws. It appeared to work anyway -- the field displayed the
+              // cleaned digits, and RHF read the DOM at submit and got the right
+              // answer -- while RHF's own form state was never updated. So
+              // touched/dirty tracking was wrong, and any setValueAs transform
+              // would have been skipped on every keystroke. The tests passed
+              // throughout because they only asserted the submitted value.
+              e.target.value = digitsOnly(e.target.value);
+              input.onChange?.(e);
+            }}
           />
           {suffix ? (
             <span
@@ -214,6 +285,65 @@ export function NumberField({
             </span>
           ) : null}
         </div>
+      )}
+    </Field>
+  );
+}
+
+/**
+ * A signed quantity, for an adjustment.
+ *
+ * An adjustment is the one movement that can go either way -- a miscount
+ * corrected upwards, damage corrected downwards -- so it needs a leading minus.
+ * The sign is part of the value, which is why this is a separate component
+ * rather than a `allowNegative` flag on NumberField: a flag would let a
+ * write-off accept a negative quantity, and the write-off is exactly where a
+ * stray minus is dangerous.
+ */
+export function SignedNumberField({
+  id,
+  label,
+  hint,
+  error,
+  required,
+  disabled,
+  ...input
+}: FieldInputProps & {
+  id: string;
+  label: string;
+  hint?: string;
+  error?: string | null;
+  required?: boolean;
+  disabled?: boolean;
+}) {
+  return (
+    <Field id={id} label={label} hint={hint} error={error} required={required}>
+      {({ id: fieldId, describedBy, invalid, ...rest }) => (
+        <input
+          id={fieldId}
+          type="text"
+          inputMode="numeric"
+          pattern="-?[0-9]*"
+          dir="ltr"
+          required={required}
+          disabled={disabled}
+          aria-describedby={describedBy}
+          aria-invalid={invalid || undefined}
+          className={`mt-1 ${inputClass} ${invalid ? invalidClass : ''}`}
+          {...rest}
+          {...input}
+          onChange={(e) => {
+            // Exactly one leading minus, and only at position 0. Allowing a
+            // minus anywhere produces "--5" and "5-", which parse as NaN and
+            // then fail validation with a message about a number.
+            const cleaned = e.target.value.replace(/[^\d-]/g, '').replace(/-{2,}/g, '-');
+            const normalised =
+              cleaned.startsWith('-') ? `-${cleaned.slice(1).replace(/-/g, '')}` : cleaned.replace(/-/g, '');
+            // The event, not the value -- see NumberField above.
+            e.target.value = normalised;
+            input.onChange?.(e);
+          }}
+        />
       )}
     </Field>
   );
@@ -230,44 +360,38 @@ export interface Option<T extends string = string> {
 export function SelectField<T extends string = string>({
   id,
   label,
-  value,
-  onChange,
-  options,
   hint,
   error,
   required,
   placeholder,
   disabled,
-}: {
+  options,
+  ...input
+}: FieldInputProps & {
   id: string;
   label: string;
-  value: T | '';
-  onChange: (value: T) => void;
-  options: readonly Option<T>[];
   hint?: string;
   error?: string | null;
   required?: boolean;
   placeholder?: string;
   disabled?: boolean;
+  options: readonly Option<T>[];
 }) {
   return (
     <Field id={id} label={label} hint={hint} error={error} required={required}>
-      {({ describedBy, invalid }) => (
+      {({ id: fieldId, describedBy, invalid, ...rest }) => (
         <select
-          id={id}
-          name={id}
+          id={fieldId}
           required={required}
           disabled={disabled}
-          value={value}
           aria-describedby={describedBy}
           aria-invalid={invalid || undefined}
-          onChange={(e) => onChange(e.target.value as T)}
-          className={`mt-1 ${inputClass} ${invalid ? 'border-[var(--color-stock-critical)]' : ''}`}
+          className={`mt-1 ${inputClass} ${invalid ? invalidClass : ''}`}
+          {...rest}
+          {...input}
         >
           {placeholder ? (
-            <option value="" disabled>
-              {placeholder}
-            </option>
+            <option value="">{placeholder}</option>
           ) : null}
           {options.map((o) => (
             <option key={o.value} value={o.value} disabled={o.disabled}>
@@ -285,19 +409,16 @@ export function SelectField<T extends string = string>({
 export function TextAreaField({
   id,
   label,
-  value,
-  onChange,
   hint,
   error,
   required,
   placeholder,
   rows = 3,
   maxLength,
-}: {
+  ...input
+}: FieldInputProps & {
   id: string;
   label: string;
-  value: string;
-  onChange: (value: string) => void;
   hint?: string;
   error?: string | null;
   required?: boolean;
@@ -307,21 +428,18 @@ export function TextAreaField({
 }) {
   return (
     <Field id={id} label={label} hint={hint} error={error} required={required}>
-      {({ describedBy, invalid }) => (
+      {({ id: fieldId, describedBy, invalid, ...rest }) => (
         <textarea
-          id={id}
-          name={id}
+          id={fieldId}
           rows={rows}
           required={required}
           maxLength={maxLength}
           placeholder={placeholder}
-          value={value}
           aria-describedby={describedBy}
           aria-invalid={invalid || undefined}
-          onChange={(e) => onChange(e.target.value)}
-          className={`mt-1 ${inputClass} resize-y ${
-            invalid ? 'border-[var(--color-stock-critical)]' : ''
-          }`}
+          className={`mt-1 ${inputClass} resize-y ${invalid ? invalidClass : ''}`}
+          {...rest}
+          {...input}
         />
       )}
     </Field>
@@ -333,23 +451,20 @@ export function TextAreaField({
 export function DateField({
   id,
   label,
-  value,
-  onChange,
   hint,
   error,
   required,
   min,
   max,
   disabled,
-}: {
+  ...input
+}: FieldInputProps & {
   id: string;
   label: string;
-  /** ISO `yyyy-mm-dd`, which is what <input type="date"> speaks. */
-  value: string;
-  onChange: (value: string) => void;
   hint?: string;
   error?: string | null;
   required?: boolean;
+  /** ISO `yyyy-mm-dd`, which is what <input type="date"> speaks. */
   min?: string;
   max?: string;
   disabled?: boolean;
@@ -359,23 +474,20 @@ export function DateField({
     // browser, and letting them inherit an RTL container renders the date in a
     // sequence nobody in Egypt is used to reading.
     <Field id={id} label={label} hint={hint} error={error} required={required}>
-      {({ describedBy, invalid }) => (
+      {({ id: fieldId, describedBy, invalid, ...rest }) => (
         <input
-          id={id}
-          name={id}
+          id={fieldId}
           type="date"
           dir="ltr"
           required={required}
           disabled={disabled}
-          value={value}
           min={min}
           max={max}
           aria-describedby={describedBy}
           aria-invalid={invalid || undefined}
-          onChange={(e) => onChange(e.target.value)}
-          className={`mt-1 ${inputClass} ${
-            invalid ? 'border-[var(--color-stock-critical)]' : ''
-          }`}
+          className={`mt-1 ${inputClass} ${invalid ? invalidClass : ''}`}
+          {...rest}
+          {...input}
         />
       )}
     </Field>
@@ -413,9 +525,9 @@ export function Button({
       type={type}
       onClick={onClick}
       disabled={disabled || pending}
-      // aria-busy, not just a disabled button: a screen reader announces the
-      // state change, and a disabled button with no explanation is a dead end
-      // for someone who cannot see that anything is happening.
+      // aria-busy, not just a disabled button: assistive technology announces
+      // the state change, and a disabled button with no explanation is a dead
+      // end for someone who cannot see that anything is happening.
       aria-busy={pending || undefined}
       className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:opacity-60 ${variants[variant]} ${className}`}
     >
