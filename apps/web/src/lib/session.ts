@@ -21,7 +21,7 @@
 import { cache } from 'react';
 
 import { asWhoAmI } from '@/lib/mappers';
-import { getSupabase } from '@/lib/supabase/server';
+import { getSupabase, getSupabaseApi } from '@/lib/supabase/server';
 import type { SessionInfo } from '@/lib/types';
 
 export { homeRouteForRole, ROLES_BY_SURFACE, type Surface } from './roles';
@@ -35,6 +35,10 @@ export { homeRouteForRole, ROLES_BY_SURFACE, type Surface } from './roles';
 export const getSession = cache(async (): Promise<SessionInfo | null> => {
   const supabase = await getSupabase();
 
+  // The api client, because the identity call below is an api.* function and
+  // needs the profile headers. Same session, same cookies, different address.
+  const api = await getSupabaseApi();
+
   const {
     data: { user },
     error,
@@ -47,10 +51,7 @@ export const getSession = cache(async (): Promise<SessionInfo | null> => {
   // One call returns identity, tenant and role together. It returns zero rows
   // for a user with no profile yet, or with an inactive profile, both of which
   // must read as "no session" rather than as a broken tenant.
-  const { data, error: rpcError } = await supabase
-    .schema('api')
-    .rpc('whoami')
-    .maybeSingle();
+  const { data, error: rpcError } = await api.rpc('whoami').maybeSingle();
 
   if (rpcError) {
     return null;

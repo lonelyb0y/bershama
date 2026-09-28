@@ -60,10 +60,17 @@ echo
 # `api.whoami` rather than a movement function, for two reasons: it takes no
 # arguments, so there is nothing to get wrong in the request, and it is the
 # function the sign-in path itself calls, so this is literally "can anyone log in".
+# The profile headers, NOT a path prefix. `POST /rest/v1/api/rpc/whoami` is a
+# 404 on this project even though the schema is served -- and even
+# `/rest/v1/public/batches` is 404, so schema-qualified paths are not served at
+# all. The headers are the documented mechanism and the one the application uses;
+# see apps/web/src/lib/supabase/api-schema.ts.
 BODY=$(curl -sS -m 20 -w '\n%{http_code}' \
-  -X POST "${URL%/}/rest/v1/api/rpc/whoami" \
+  -X POST "${URL%/}/rest/v1/rpc/whoami" \
   -H "apikey: ${KEY}" \
   -H "Content-Type: application/json" \
+  -H "Accept-Profile: api" \
+  -H "Content-Profile: api" \
   -d '{}' 2>&1)
 
 STATUS=$(echo "$BODY" | tail -n1)
@@ -73,7 +80,7 @@ echo "  HTTP ${STATUS}"
 echo "  ${PAYLOAD}" | head -c 300
 echo
 
-if echo "$PAYLOAD" | grep -qE 'PGRST125|PGRST202'; then
+if echo "$PAYLOAD" | grep -qE 'PGRST125|PGRST202|PGRST106'; then
   # Plain text, no colour: this output is read in a CI log, where escape codes
   # render as literal \033[1;31m and make a clear failure look like a script
   # error. The first version did exactly that.
@@ -104,4 +111,10 @@ fi
 echo -e "${GREEN}  OK${RESET} the api schema is routed."
 echo "      The request was refused for want of a session, which is the expected"
 echo "      answer for an unauthenticated call and proves the route exists."
+echo
+echo "  Also confirming the boundary holds:"
+printf "    Accept-Profile: private  -> HTTP %s  (406 means not served, which is correct)\n" \
+  "$(curl -sS -o /dev/null -m 20 -w '%{http_code}' -X POST "${URL%/}/rest/v1/rpc/whoami" \
+      -H "apikey: ${KEY}" -H "Content-Type: application/json" \
+      -H "Accept-Profile: private" -H "Content-Profile: private" -d '{}')"
 exit 0

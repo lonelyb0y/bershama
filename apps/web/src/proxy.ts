@@ -50,7 +50,7 @@ export default async function proxy(request: NextRequest) {
     // thenable, not a Promise, so the rejection is handled with try/catch
     // instead of a trailing catch.
     try {
-      await supabase.schema('api').rpc('touch');
+      await supabase.rpc('touch');
     } catch {
       // Intentionally ignored.
     }

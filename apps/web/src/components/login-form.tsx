@@ -19,7 +19,7 @@
 import { useState, useTransition } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 
-import { getSupabaseBrowserClient } from '@/lib/supabase/client';
+import { getSupabaseApiClient, getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { asWhoAmI } from '@/lib/mappers';
 import { useRouter } from '@/i18n/routing';
 import { homeRouteForRole } from '@/lib/roles';
@@ -55,10 +55,9 @@ export function LoginForm() {
     // than from anything the client sent. Asking the server for the role after
     // sign-in means a tampered client cannot route itself somewhere privileged;
     // the route guard re-checks it anyway.
-    const { data: sessionData } = await supabase
-      .schema('api')
-      .rpc('whoami')
-      .maybeSingle();
+      const { data: sessionData } = await getSupabaseApiClient()
+        .rpc('whoami')
+        .maybeSingle();
 
     const role = (asWhoAmI(sessionData)?.role ?? 'ANALYST') as AppRole;
 

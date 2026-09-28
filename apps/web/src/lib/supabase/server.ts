@@ -15,6 +15,7 @@
 // is how tenant isolation gets quietly deleted from a codebase.
 
 import { createServerClient } from '@supabase/ssr';
+import { API_PROFILE_HEADERS } from './api-schema';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import { cache } from 'react';
@@ -69,6 +70,41 @@ export async function createSupabaseServerClient(): Promise<SupabaseClient> {
 // session in three places creates three clients and three network round trips.
 export const getSupabase = cache(async () => {
   return createSupabaseServerClient();
+});
+
+// ── the api schema ───────────────────────────────────────────────────────────
+//
+// A separate client, not a mode of the public one, because reaching the api
+// schema is a different conversation with the server: it needs the profile
+// headers, and the path-based `.schema('api')` is a 404 on this project. See
+// lib/supabase/api-schema.ts for the evidence and the security checks.
+//
+// Deliberately `cache`d like getSupabase, so a page that needs both pays for
+// one client of each rather than one per call site.
+export const getSupabaseApi = cache(async () => {
+  const cookieStore = await cookies();
+
+  return createServerClient(
+    requireEnv('NEXT_PUBLIC_SUPABASE_URL'),
+    requireEnv('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY'),
+    {
+      global: { headers: { ...API_PROFILE_HEADERS } },
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet) {
+          try {
+            for (const { name, value, options } of cookiesToSet) {
+              cookieStore.set(name, value, options);
+            }
+          } catch {
+            // Server Component: read-only cookie store. See above.
+          }
+        },
+      },
+    },
+  );
 });
 
 // ── admin (BYPASSRLS) ────────────────────────────────────────────────────────
