@@ -22,8 +22,22 @@
 
 set -uo pipefail
 
-URL="${HOSTED_SUPABASE_URL:-}"
-KEY="${HOSTED_SUPABASE_PUBLISHABLE_KEY:-}"
+# Both spellings are accepted. The hosted values live in .env.local.hosted.bak under
+# the NEXT_PUBLIC_ names the application itself uses, so requiring a second pair of
+# names meant a developer with the right credentials on disk still got SKIPPED --
+# which is how a check designed to catch a production failure ends up never
+# running. CI passes HOSTED_*; a local run with `. .env.local.hosted.bak` works too.
+URL="${HOSTED_SUPABASE_URL:-${NEXT_PUBLIC_SUPABASE_URL:-}}"
+KEY="${HOSTED_SUPABASE_PUBLISHABLE_KEY:-${NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:-}}"
+
+# .env.local.hosted.bak holds a SERVICE key. Using it would bypass RLS and answer a
+# different question than the one being asked: the check is about whether the schema
+# is ROUTED, which is true or false for every role. The publishable key is used on
+# purpose, and the fallback below exists only so a local run is still meaningful
+# rather than silently wrong.
+if [ -n "${SUPABASE_SECRET_KEY:-}" ] && [ -z "$KEY" ]; then
+  echo "NOTE: only SUPABASE_SECRET_KEY is set; the service key bypasses RLS." >&2
+fi
 
 BLUE='\033[1;34m'
 GREEN='\033[1;32m'
