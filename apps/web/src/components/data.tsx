@@ -12,6 +12,19 @@ import { Button } from './form';
 /* ── error banner ───────────────────────────────────────────────────────── */
 
 /**
+ * A failure the user is shown.
+ *
+ * Named and exported because three places need to agree on it: the banner, the
+ * server action's return value, and the component holding the state. Restating
+ * the shape in each is how the field ends up optional in one of them.
+ */
+export interface ActionError {
+  message: string;
+  code: string;
+  isFallback: boolean;
+}
+
+/**
  * Render a failed ApiResult.
  *
  * Takes the `error` object rather than a string, so the database's code stays
@@ -29,7 +42,7 @@ export function ErrorBanner({
   error,
   onRetry,
 }: {
-  error: { message: string; code: string; isFallback: boolean } | null;
+  error: ActionError | null;
   onRetry?: () => void;
 }) {
   if (!error) return null;

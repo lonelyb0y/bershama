@@ -60,11 +60,19 @@ export type ProductSearchHit = SearchRow;
 // into a dozen functions. The first draft of this file copied it a dozen times,
 // which is how two of the copies drifted and stopped type-checking.
 
+/**
+ * The bit of a Supabase client these wrappers need.
+ *
+ * `PromiseLike`, not `Promise`: supabase-js's `rpc()` returns a
+ * `PostgrestFilterBuilder`, which is a thenable query builder rather than a
+ * Promise. Typing this as `Promise` made the interface structurally
+ * incompatible with the real client, so every caller had to cast.
+ */
 interface Client {
   rpc(
     fn: string,
     args?: Record<string, unknown>,
-  ): Promise<{ data: unknown; error: unknown }>;
+  ): PromiseLike<{ data: unknown; error: unknown }>;
 }
 
 type Raw = { data: unknown; error: { message: string; code?: string; details?: string | null } | null };

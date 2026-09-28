@@ -115,5 +115,29 @@
     "offlineQueue": "{count} change(s) waiting to sync",
     "online": "Online",
     "offline": "Offline"
+  },
+  "stocktake": {
+    "title": "Stocktake",
+    "subtitle": "Count what is on the shelf. Leave a line blank if you could not count it.",
+    "location": "Location",
+    "counted": "Counted",
+    "systemQty": "System",
+    "variance": "Variance",
+    "saveSheet": "Save the sheet",
+    "saving": "Saving",
+    "blankMeansUncounted": "A blank line is left uncounted. Enter 0 only if the shelf is genuinely empty.",
+    "noLines": "There is no stock recorded at this location to count.",
+    "noLocations": "No storage locations are set up yet.",
+    "chooseLocation": "Choose a location",
+    "uncounted": "uncounted",
+    "systemShort": "System",
+    "refusedLines": "Lines that were not saved",
+    "lineRef": "Lot {lot}",
+    "cleanRun": "Nothing needed changing: every line you counted already matched the books.",
+    "fixAndResubmit": "Correct the lines above and submit again. Everything else is saved.",
+    "offlineNote": "This page needs a connection. A count taken without one cannot be recorded.",
+    "reason": "Reason for a variance",
+    "entered": "lines entered",
+    "expired": "Expired"
   }
 }

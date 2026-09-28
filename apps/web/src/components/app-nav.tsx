@@ -23,20 +23,28 @@ const NAV_BY_SURFACE = {
 type NavKey = (typeof NAV_BY_SURFACE)[keyof typeof NAV_BY_SURFACE][number];
 
 /**
- * Destinations that exist in navigation but whose pages land in a later
- * milestone. Rendered as disabled rather than hidden, so the shape of the
- * product is visible while it is being built.
+ * Where each live destination actually is, per surface, relative to the surface
+ * root. Everything absent here is rendered as not yet built.
+ *
+ * One table rather than a NOT_YET_BUILT list plus an href list. Keeping them
+ * separate meant a key could be live on one surface and missing on another
+ * without either list looking wrong -- 'inventory' is in the pharmacy nav too,
+ * so a single global href map pointed it at /pharmacy/inventory/stocktake, which
+ * does not exist. A 404 nav link is the specific failure this file's own header
+ * comment warns about, introduced by the fix for another 404.
+ *
+ * The rule is therefore one sentence: if a surface has no path for a key, that
+ * key is not built there.
  */
-const NOT_YET_BUILT = new Set<NavKey>([
-  'batches',
-  'deliveries',
-  'analytics',
-  'audit',
-  'inventory',
-  'alerts',
-  'routes',
-  'catalogue',
-]);
+const HREF_BY_SURFACE: Partial<Record<Surface, Partial<Record<NavKey, string>>>> = {
+  admin: {
+    // An empty suffix means the surface root, which is the dashboard.
+    dashboard: '',
+    inventory: '/inventory/stocktake',
+  },
+  pharmacy: { dashboard: '' },
+  distributor: { dashboard: '' },
+};
 
 /**
  * Destinations an ANALYST cannot use.
@@ -66,11 +74,18 @@ export function AppNav({
   return (
     <nav aria-label={t('dashboard')} className="hidden items-center gap-1 md:flex">
       {items.map((item) => {
-        const href = `/${surface === 'admin' ? 'admin' : surface}`;
-        const isActive = pathname === href;
-        const isPending = NOT_YET_BUILT.has(item);
+        const surfaceRoot = `/${surface === 'admin' ? 'admin' : surface}`;
+        const table = HREF_BY_SURFACE[surface];
+        // Key PRESENCE decides liveness, not whether the suffix is truthy: the
+        // dashboard is live and its suffix is ''. Testing the value instead made
+        // every surface render no links at all, which the nav test caught.
+        const isPending = !table || !(item in table);
+        const href = isPending ? null : `${surfaceRoot}${table[item] ?? ''}`;
+        // Prefix match, so /admin/inventory/stocktake keeps "Inventory" active
+        // while the query string changes between locations.
+        const isActive = href !== null && pathname.startsWith(href);
 
-        if (isPending) {
+        if (href === null) {
           return (
             <span
               key={item}
