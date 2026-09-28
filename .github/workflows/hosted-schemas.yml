@@ -1,0 +1,79 @@
+name: Hosted project
+
+# Does the DEPLOYED project actually expose the api schema?
+#
+# ── why this is a separate workflow, and not part of CI ──────────────────────
+#
+# Everything in ci.yml runs against throwaway infrastructure. That is the right
+# trade for speed, and it has a blind spot: a throwaway Postgres is not the
+# deployed project, and configuration that only exists on the deployed project is
+# therefore never checked.
+#
+# The `api` schema is exactly that. Migration 0012 grants `authenticator` USAGE on
+# it, which is necessary and not sufficient -- PostgREST also has to be told the
+# schema exists, and on the hosted project that is a dashboard setting, applied
+# through the Management API, that lives nowhere in this repository. `config.toml`
+# governs the local stack only.
+#
+# So the failure this catches is invisible to everything else in the repo:
+#
+#   tsc            the generated types are correct either way
+#   unit tests     a stub answers whatever it is asked
+#   pgTAP suites   run as the owner, where schema routing is not a question
+#   ci.yml         throwaway infrastructure
+#
+# and it reaches production as `PGRST125 Invalid path specified in request URL`,
+# which reads like a bad URL rather than an unexposed schema. Sign-in calls
+# `api.whoami`, so the symptom is "nobody can log in".
+#
+# ── what it checks ───────────────────────────────────────────────────────────
+#
+# One call: `POST /rest/v1/api/rpc/whoami`, unauthenticated.
+#
+# Unauthenticated on purpose, and this is the subtle part. The check must FAIL
+# when the schema is unexposed, and it must not fail for the ordinary reason a
+# signed-out request is refused. Those are different answers:
+#
+#   PGRST125 / PGRST202  the schema is not routed, or the function is not there.
+#                        That is the bug, and it is what this fails on.
+#   401 / 400 / a JSON error body   the schema IS routed and the request was
+#                        refused for want of a session, which is correct.
+#
+# Asserting "the call succeeds" would therefore be wrong: it needs a live session
+# against someone's data, for no extra signal. Asserting the negative does not.
+#
+# ── secrets ─────────────────────────────────────────────────────────────────
+#
+# HOSTED_SUPABASE_URL and HOSTED_SUPABASE_PUBLISHABLE_KEY, as repository secrets.
+# The publishable key is designed to be public and is safe; the URL is not a
+# secret but lives here so the pair cannot be half-configured.
+#
+# With them absent the job reports SKIPPED and exits 0. A required check that
+# cannot run is worse than no check -- people learn to ignore red.
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 06:17 UTC daily. An off-hour minute on purpose: this is a configuration
+    # check against a long-lived project, not a response to a code change, so
+    # there is no reason for it to collide with every human pushing at :00.
+    - cron: '17 6 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  api-schema-exposed:
+    name: Hosted project exposes the api schema
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check the api schema is routed
+        env:
+          HOSTED_SUPABASE_URL: ${{ secrets.HOSTED_SUPABASE_URL }}
+          HOSTED_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.HOSTED_SUPABASE_PUBLISHABLE_KEY }}
+        run: ./scripts/check-hosted-schemas.sh

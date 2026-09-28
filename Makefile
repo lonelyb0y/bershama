@@ -166,6 +166,10 @@ drift: ## Check the client error mapper against the codes the database raises
 api-types: ## Check the generated TS types against the api schema
 	python3 scripts/check-api-types.py
 
+.PHONY: hosted-check
+hosted-check: ## Check the deployed project routes the api schema (needs HOSTED_* env)
+	@./scripts/check-hosted-schemas.sh
+
 .PHONY: check
 check: lint typecheck test secrets assertions drift api-types ## Fast checks, no database needed
 
