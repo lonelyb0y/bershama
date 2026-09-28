@@ -13,7 +13,7 @@
 
 begin;
 
-select plan(10);
+select plan(16);
 
 -- ── every public table has RLS enabled ──────────────────────────────────────
 
@@ -192,7 +192,57 @@ select is_empty(
   'only the allow-listed wrappers in the api schema are SECURITY DEFINER'
 );
 
--- ── every SECURITY DEFINER function pins its search_path ────────────────────
+  -- ── the api schema must be VISIBLE to PostgREST ────────────────────────────
+  --
+  -- Everything else in this suite runs as the owner over plain PostgreSQL, where
+  -- a schema's reachability is not a question. PostgREST is different: it logs
+  -- in as `authenticator` and includes only the schemas it holds USAGE on, and a
+  -- schema it cannot see is simply not there. The failure is PGRST125, "Invalid
+  -- path specified in request URL", which reads like a bad URL rather than a
+  -- missing GRANT.
+  --
+  -- 0012 exists because of this. The `api` schema had USAGE for `authenticated`
+  -- and nobody else, so every stock and batch function was unroutable over HTTP
+  -- and the application could not sign in -- invisible to tsc, to every stub,
+  -- and to this suite as it then stood.
+  select ok(
+    has_schema_privilege('authenticator', 'api', 'USAGE'),
+    'PostgREST can see the api schema, so its functions are routable'
+  );
+
+  select ok(
+    has_schema_privilege('service_role', 'api', 'USAGE'),
+    'service_role can see the api schema'
+  );
+
+  select ok(
+    has_schema_privilege('authenticated', 'api', 'USAGE'),
+    'authenticated can see the api schema'
+  );
+
+  -- The negative half, and the more important one.
+  --
+  -- The obvious response to "the api schema is not visible" is to grant broadly.
+  -- Granting USAGE on `private` to authenticator would expose every function in
+  -- it to every request: the whole privileged surface, the balance trigger, the
+  -- single writer of the ledger, with no RLS in front of any of it. It is a
+  -- one-line mistake and, before this assertion, had no test to catch it.
+  select ok(
+    not has_schema_privilege('authenticator', 'private', 'USAGE'),
+    'PostgREST cannot see the private schema'
+  );
+
+  select ok(
+    not has_schema_privilege('authenticated', 'private', 'USAGE'),
+    'authenticated cannot see the private schema'
+  );
+
+  select ok(
+    not has_schema_privilege('service_role', 'private', 'USAGE'),
+    'service_role cannot see the private schema'
+  );
+
+  -- ── every SECURITY DEFINER function pins its search_path ────────────────────
 -- Without `set search_path = ''` a caller can create an unqualified object that
 -- shadows a name inside the function and run it as the function owner.
 
