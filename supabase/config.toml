@@ -38,7 +38,18 @@ port = 54321
 # to Postgres on 54322 -- so the tables stay browsable and editable either way.
 # If the schema browser is wanted back, the alternative is leaving it out here
 # and serving GraphQL on its own port.
-schemas = ["public", "api"]
+#
+# Reverted: `graphql_public` is back. The previous commit removed it on the
+# theory that it was breaking routing for every other schema. That theory was
+# wrong -- the symptom it was based on turned out to have a different cause --
+# and removing it costs Studio's schema browser, which uses the GraphQL endpoint
+# it backs. The SQL editor connects straight to Postgres on 54322 and is
+# unaffected either way, so the cost was real and the benefit was nil.
+#
+# `api` stays, because it is required: every privileged stock and batch
+# operation lives in that schema, and `supabase gen types` cannot emit their
+# signatures without it.
+schemas = ["public", "graphql_public", "api"]
 # Extra schemas to add to the search_path of every request.
 extra_search_path = ["public", "extensions"]
 # The maximum number of rows returns from a view, table, or stored procedure. Limits payload size
