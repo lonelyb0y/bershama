@@ -66,6 +66,17 @@ begin
     -- BYPASSRLS is the point of this role, and the reason it must never be
     -- reachable from a client.
     create role service_role nologin noinherit bypassrls;
+  if not exists (select 1 from pg_roles where rolname = 'authenticator') then
+    -- PostgREST's own login role. It holds no table grants and bypasses no
+    -- policy; it switches to `authenticated` before serving a request.
+    --
+    -- Added because migration 0012 grants it USAGE on the `api` schema, and a
+    -- suite that cannot see that grant cannot catch it being removed -- which is
+    -- the failure 0012 exists to fix, since its absence made every function in
+    -- the schema unroutable while being invisible to tsc, to every stub, and to
+    -- the pgTAP suites as they stood.
+    create role authenticator nologin noinherit;
+  end if;
   end if;
 end
 $$;
