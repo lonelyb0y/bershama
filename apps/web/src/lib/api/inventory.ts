@@ -69,10 +69,30 @@ export type ProductSearchHit = SearchRow;
  * incompatible with the real client, so every caller had to cast.
  */
 interface Client {
+  /**
+   * PostgREST addresses a function by schema, so this is not optional.
+   *
+   * The wrappers below call `.schema('api')` explicitly. Calling `rpc()` bare
+   * routes to `public`, where none of these functions exist, and PostgREST
+   * answers PGRST202 -- a function-not-found error naming the wrong schema, which
+   * reads like a missing migration rather than a missing `.schema()` call.
+   */
+  schema(name: 'api'): Client;
   rpc(
     fn: string,
     args?: Record<string, unknown>,
   ): PromiseLike<{ data: unknown; error: unknown }>;
+}
+
+/**
+ * The client narrowed to the api schema.
+ *
+ * Every call goes through here rather than repeating `.schema('api')` at twelve
+ * call sites, where one omission is invisible until a warehouse tries to receive
+ * a delivery.
+ */
+function apiClient(supabase: Client): Client {
+  return supabase.schema('api');
 }
 
 type Raw = { data: unknown; error: { message: string; code?: string; details?: string | null } | null };
@@ -85,7 +105,7 @@ async function callScalar(
   args: Record<string, unknown>,
   missingMessage: string,
 ): Promise<ApiResult<number>> {
-  const { data, error } = (await supabase.rpc(fn, args)) as Raw;
+  const { data, error } = (await apiClient(supabase).rpc(fn, args)) as Raw;
 
   if (error) return toApiError(error, locale);
 
@@ -107,7 +127,7 @@ async function callRow<T>(
   args: Record<string, unknown>,
   missingMessage: string,
 ): Promise<ApiResult<T>> {
-  const { data, error } = (await supabase.rpc(fn, args)) as {
+  const { data, error } = (await apiClient(supabase).rpc(fn, args)) as {
     data: T | null;
     error: Raw['error'];
   };
@@ -132,7 +152,7 @@ async function callRows<T>(
   args: Record<string, unknown>,
   missingMessage: string,
 ): Promise<ApiResult<T[]>> {
-  const { data, error } = (await supabase.rpc(fn, args)) as {
+  const { data, error } = (await apiClient(supabase).rpc(fn, args)) as {
     data: T[] | null;
     error: Raw['error'];
   };
@@ -290,7 +310,7 @@ export async function stockTake(
     notes?: string;
   },
 ): Promise<ApiResult<StocktakeOutcome>> {
-  const { data, error } = (await supabase.rpc('stock_take', {
+  const { data, error } = (await apiClient(supabase).rpc('stock_take', {
     p_location_id: input.locationId,
     p_product_id: input.productId,
     p_batch_id: input.batchId,

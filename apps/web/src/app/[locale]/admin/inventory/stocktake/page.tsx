@@ -155,16 +155,35 @@ async function loadCountSheet(locationId: string, locale: Locale): Promise<Stock
   const { data, error } = await supabase
     .from('stock_balances')
     .select(
-      'product_id, batch_id, qty_on_hand, batches(lot_number, expiry_date, products(name_en, name_ar))',
+      // products!batches_product_id_fkey, not a bare products(...).
+      //
+      // Five views in this schema (v_expiry_report, v_inventory_by_batch and the
+      // rest) expose both product_id and batch_id, and PostgREST infers
+      // relationships from views by matching column names. That makes
+      // batches -> products genuinely ambiguous, and it fails with PGRST201
+      // "more than one relationship was found" -- verified against the local
+      // stack, not reasoned about. Naming the constraint resolves it.
+      //
+      // Unit tests could not have caught this: it is a property of the deployed
+      // schema's shape, not of any function.
+      'product_id, batch_id, qty_on_hand, batches(lot_number, expiry_date, products!batches_product_id_fkey(name_en, name_ar))',
     )
     .eq('location_id', locationId)
     .gt('qty_on_hand', 0)
     .order('id');
 
   if (error || !data) {
-    // An empty sheet rather than an exception. A counter who cannot load the
-    // sheet needs to be told, but throwing here replaces the screen with a
-    // stack trace, and the empty state already explains itself.
+    // Logged, and still rendered as an empty sheet. Throwing would replace the
+    // screen with a stack trace, which is the wrong answer for a warehouse
+    // terminal; but returning [] silently is worse, because a broken query and a
+    // genuinely empty location are then indistinguishable, and a count taken
+    // against an empty-looking sheet records nothing. The console entry is what
+    // makes the difference diagnosable.
+    console.error('stocktake: could not load the count sheet', {
+      locationId,
+      code: error?.code,
+      message: error?.message,
+    });
     return [];
   }
 
