@@ -120,6 +120,30 @@ export function expiryBand(days: number): ExpiryBand {
   return 'OK';
 }
 
+/**
+ * Every value api.search_products accepts for `p_expiry_band`, as a runtime
+ * constant so a filter dropdown and a compile-time type come from one list.
+ *
+ * The parameter is `text`, so the generated types say nothing about which strings
+ * are legal -- the domain exists only inside a `case` expression in the migration.
+ * A hand-written union therefore drifts silently, and it did: it once spelled
+ * 'WARNING' as 'SOON' and omitted 'NONE', so filtering the catalogue for
+ * short-dated stock matched no rows and returned an empty result with no error
+ * anywhere to explain it. expiry-bands.test.ts checks this list against the SQL.
+ *
+ * 'NONE' is the value a date cannot produce: a product with no batches at all.
+ * It is a genuinely useful filter -- what we list but do not stock.
+ */
+export const EXPIRY_BAND_FILTERS = [
+  'NONE',
+  'EXPIRED',
+  'CRITICAL',
+  'WARNING',
+  'OK',
+] as const;
+
+export type ExpiryBandFilter = (typeof EXPIRY_BAND_FILTERS)[number];
+
 export function formatDate(
   value: string,
   options: { locale?: 'en' | 'ar'; timeZone?: string; withTime?: boolean } = {},
