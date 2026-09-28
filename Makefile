@@ -76,6 +76,15 @@ db-reset: ## Reset the local database and re-apply migrations + seed
 db-diff: ## Generate a migration from the current remote schema
 	supabase db diff -f add_changes
 
+.PHONY: db-expose-api
+db-expose-api: ## Tell PostgREST to re-read its config, so the api schema is routable
+	@# The dashboard's "Exposed schemas" is not always reflected in the role
+	@# PostgREST actually reads, so set it here and signal both kinds of reload.
+	@psql "$${SUPABASE_DB_URL:-postgresql://postgres:postgres@127.0.0.1:54322/postgres}" -qtA -c "alter role authenticator set pgrst.db_schemas = 'public, graphql_public, api';" 2>/dev/null \
+	  || psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" -qtA -c "alter role authenticator set pgrst.db_schemas = 'public, graphql_public, api';"
+	@psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" -qtA -f scripts/expose-api-schema.sql
+	@echo "  api schema is now routable. Verify: curl localhost:54321/rest/v1/api/rpc/whoami"
+
 .PHONY: db-push
 db-push: ## Apply local migrations to the linked remote project
 	@command -v supabase >/dev/null || { echo "supabase CLI not found"; exit 1; }
