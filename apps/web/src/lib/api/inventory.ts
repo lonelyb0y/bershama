@@ -24,6 +24,7 @@
 import type { Locale } from '@/i18n/routing';
 import type { Database } from '@/lib/database.types';
 import type { Minor } from '@/lib/types';
+import type { ExpiryBandFilter } from '@/lib/format';
 import type { ApiResult } from '@/lib/api/result';
 import { ok, toApiError } from '@/lib/api/result';
 
@@ -45,7 +46,6 @@ type BatchStockRow = Database['api']['Functions']['get_batch_stock']['Returns'][
 
 export type BatchStatus = BatchStockRow['status'];
 export type BatchStock = BatchStockRow;
-export type ExpiryBand = 'EXPIRED' | 'CRITICAL' | 'SOON' | 'OK';
 
 type SearchRow = NonNullable<
   Database['api']['Functions']['search_products']['Returns']
@@ -441,7 +441,7 @@ export async function searchProducts(
   locale: Locale,
   input: {
     query?: string;
-    expiryBand?: ExpiryBand;
+    expiryBand?: ExpiryBandFilter;
     limit?: number;
     offset?: number;
   } = {},
