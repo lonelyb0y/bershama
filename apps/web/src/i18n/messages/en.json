@@ -135,6 +135,9 @@
     "lineRef": "Lot {lot}",
     "cleanRun": "Nothing needed changing: every line you counted already matched the books.",
     "fixAndResubmit": "Correct the lines above and submit again. Everything else is saved.",
-    "offlineNote": "This page needs a connection. A count taken without one cannot be recorded."
+    "offlineNote": "This page needs a connection. A count taken without one cannot be recorded.",
+    "reason": "Reason for a variance",
+    "entered": "lines entered",
+    "expired": "Expired"
   }
 }
