@@ -18,6 +18,8 @@
 
 import { createBrowserClient } from '@supabase/ssr';
 
+import { API_PROFILE_HEADERS } from './api-schema';
+
 let client: ReturnType<typeof createBrowserClient> | undefined;
 
 export function getSupabaseBrowserClient() {
@@ -36,4 +38,32 @@ export function getSupabaseBrowserClient() {
   }
 
   return client;
+}
+
+// ── the api schema, in the browser ──────────────────────────────────────────
+//
+// Needed by the sign-in form, which asks `api.whoami` for the caller's role
+// before routing them. Separate from the public client for the reason in
+// api-schema.ts: reaching the api schema needs the profile headers, and
+// `.schema('api')` is a 404 here.
+let apiClient: ReturnType<typeof createBrowserClient> | undefined;
+
+export function getSupabaseApiClient() {
+  if (!apiClient) {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+
+    if (!url || !key) {
+      throw new Error(
+        'Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY. ' +
+          'Copy .env.example to .env.local at the repository root.',
+      );
+    }
+
+    apiClient = createBrowserClient(url, key, {
+      global: { headers: { ...API_PROFILE_HEADERS } },
+    });
+  }
+
+  return apiClient;
 }

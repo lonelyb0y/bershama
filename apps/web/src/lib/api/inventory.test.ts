@@ -14,6 +14,7 @@ import {
   writeOffStock,
   adjustStock,
 } from './inventory';
+import { API_PROFILE_HEADERS } from '@/lib/supabase/api-schema';
 
 /**
  * A stub client that records what it was called with.
@@ -30,22 +31,19 @@ import {
  */
 function stub(result: { data?: unknown; error?: unknown }) {
   const calls: Array<{ fn: string; args: Record<string, unknown> }> = [];
-  // `schemas` records every .schema() call, which is the point of this stub
-  // having grown a recorder at all.
-  const schemas: string[] = [];
 
+  // No `schema()` on this stub, deliberately. The Client contract no longer has
+  // one, because on this project the path form is a 404 -- so a stub that offered
+  // it would let a wrapper quietly use it and pass a test while shipping a
+  // request that 404s.
   const client = {
-    schema(name: string) {
-      schemas.push(name);
-      return client;
-    },
     async rpc(fn: string, args: Record<string, unknown> = {}) {
       calls.push({ fn, args });
       return { data: result.data ?? null, error: result.error ?? null };
     },
   };
 
-  return { client, calls, schemas };
+  return { client, calls };
 }
 
 const IDS = {
@@ -54,15 +52,41 @@ const IDS = {
   batchId: 'batch-1',
 };
 
-describe('schema addressing', () => {
-  // Every function in this module lives in the `api` schema. A bare `rpc()` call
-  // routes to `public`, where none of them exist, and PostgREST answers PGRST202
-  // -- "function public.stock_take not found", which reads like a missing
-  // migration rather than a missing .schema() call. That shipped once: the whole
-  // inventory client called rpc() bare, and nothing caught it, because every test
-  // used a stub that answered whatever it was asked.
-  it('addresses every function in the api schema', async () => {
-    const { client, schemas } = stub({ data: 1 });
+describe('addressing the api schema', () => {
+  // This used to assert one `.schema('api')` per call, which was correct while
+  // supabase-js's path form was the only option. It is not any more: on this
+  // project `.schema('api')` is a 404, so the wrappers no longer address the
+  // schema at all and the client arrives already profiled.
+  //
+  // The assertion that matters now is the header contract, because that is what
+  // decides whether any of these calls reaches the database.
+  it('routes to the api schema with both profile headers', () => {
+    // Both, not one. `Accept-Profile` selects the schema for the response and
+    // `Content-Profile` for the request body; a PostgREST call needs both, and
+    // setting only one produces a 406 that looks like "schema not exposed".
+    expect(API_PROFILE_HEADERS).toEqual({
+      'Accept-Profile': 'api',
+      'Content-Profile': 'api',
+    });
+  });
+
+  it('does not address the schema from the wrappers', async () => {
+    // The Client contract has no `schema()` method at all, so a call site that
+    // reached for it would not compile. Verified here as a runtime assertion
+    // too, because the type is erased and the stub would otherwise accept
+    // anything.
+    const { client, calls } = stub({ data: 1 });
+    expect('schema' in client).toBe(false);
+
+    await receiveStock(client, 'en', { ...IDS, qty: 1 });
+    expect(calls).toHaveLength(1);
+  });
+
+  it('calls every movement function on the client it is given', async () => {
+    // The client is supplied already profiled, so a wrapper that quietly built
+    // its own would bypass the addressing. One call recorded per wrapper, with
+    // no extra rpc, is what that looks like.
+    const { client, calls } = stub({ data: 1 });
 
     await receiveStock(client, 'en', { ...IDS, qty: 1 });
     await issueStock(client, 'en', { ...IDS, qty: 1 });
@@ -70,17 +94,10 @@ describe('schema addressing', () => {
     await writeOffStock(client, 'en', { ...IDS, qty: 1, reasonCode: 'DAMAGE_WRITE_OFF' });
     await stockTake(client, 'en', { ...IDS, countedQty: 1, reasonCode: 'MISCOUNT' });
     await transferStock(client, 'en', {
-      fromLocationId: 'a',
-      toLocationId: 'b',
-      productId: 'p',
-      batchId: 'x',
-      qty: 1,
+      fromLocationId: 'a', toLocationId: 'b', productId: 'p', batchId: 'x', qty: 1,
     });
     await createBatch(client, 'en', {
-      productId: 'p',
-      lotNumber: 'L',
-      mfgDate: '2026-01-01',
-      expiryDate: '2028-01-01',
+      productId: 'p', lotNumber: 'L', mfgDate: '2026-01-01', expiryDate: '2028-01-01',
     });
     await releaseBatch(client, 'en', { batchId: 'x' });
     await quarantineBatch(client, 'en', { batchId: 'x', reason: 'r' });
@@ -88,9 +105,11 @@ describe('schema addressing', () => {
     await getBatchStock(client, 'en', 'x');
     await searchProducts(client, 'en', {});
 
-    // One per call. A count of zero here is the bug this test exists for.
-    expect(schemas).toHaveLength(12);
-    expect(new Set(schemas)).toEqual(new Set(['api']));
+    expect(calls.map((c) => c.fn)).toEqual([
+      'receive_stock', 'issue_stock', 'adjust_stock', 'write_off_stock',
+      'stock_take', 'transfer_stock', 'create_batch', 'release_batch',
+      'quarantine_batch', 'recall_batch', 'get_batch_stock', 'search_products',
+    ]);
   });
 });
 
