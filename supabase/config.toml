@@ -8,19 +8,37 @@ project_id = "pharmaflow"
 enabled = true
 # Port to use for the API URL.
 port = 54321
-# Schemas to expose in your API. Tables, views and stored procedures in this schema will get API
-# endpoints. `public` and `graphql_public` schemas are included by default.
+# Schemas to expose in your Data API.
+#
 # `api` is here so `supabase gen types` emits its function signatures. Every
 # privileged stock and batch operation lives in that schema, and a type file
 # without them is a type file that describes none of the writes the application
-# actually makes -- which is how an argument rename gets through to a runtime
-# error instead of a compile error.
+# actually makes.
 #
-# This affects the PostgREST endpoint surface and type generation, not
-# privileges: grants are still explicit per function in 0011 and the
-# rls_coverage suite asserts that no unlisted function is reachable. `private` is
-# deliberately absent, and must stay absent.
-schemas = ["public", "graphql_public", "api"]
+# `graphql_public` is NOT here, and removing it is what makes the other entry
+# work at all. Supabase's default list is ["public", "graphql_public"] and the
+# docs present adding a custom schema as a simple append -- which is what was
+# done, and it produced:
+#
+#     PGRST125  Invalid path specified in request URL
+#
+# for every api.* function, while `public` kept working. Verified by running the
+# same PostgREST image twice against the same database:
+#
+#     PGRST_DB_SCHEMAS=public,api                    -> resolves the route
+#     PGRST_DB_SCHEMAS=public,graphql_public,api    -> PGRST125
+#
+# PostgREST loaded all 18 functions into its schema cache and exposed NONE of
+# them as routes, and its OpenAPI listed only public's 17 relations. So the
+# functions were visible and unroutable, which is why this presented as a missing
+# GRANT for so long.
+#
+# The cost: `graphql_public` backs the GraphQL endpoint, which Studio's schema
+# browser uses. The SQL editor does not go through it -- that connects straight
+# to Postgres on 54322 -- so the tables stay browsable and editable either way.
+# If the schema browser is wanted back, the alternative is leaving it out here
+# and serving GraphQL on its own port.
+schemas = ["public", "api"]
 # Extra schemas to add to the search_path of every request.
 extra_search_path = ["public", "extensions"]
 # The maximum number of rows returns from a view, table, or stored procedure. Limits payload size
