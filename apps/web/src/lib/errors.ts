@@ -227,6 +227,29 @@ function safeParse(value: string): unknown {
   }
 }
 
+/**
+ * Render a bare code, with no database error around it.
+ *
+ * Exists so a code raised anywhere -- a `raise` in a migration, or a zod rule in
+ * validation.ts -- produces the same sentence. Those two are deliberately given
+ * the same codes, and this is the function that makes that pay off: a typo caught
+ * in the browser and the same typo caught by Postgres read identically, instead
+ * of the form inventing a second set of wordings that drift from the first.
+ */
+export function messageForCode(code: string, locale: Locale): LocalisedError {
+  const entry = MESSAGES[code as ErrorCode];
+
+  if (!entry) {
+    return {
+      message: locale === 'ar' ? GENERIC.ar : GENERIC.en,
+      code,
+      isFallback: true,
+    };
+  }
+
+  return { message: entry[locale]({}), code, isFallback: false };
+}
+
 export interface LocalisedError {
   /** Ready to render, in the active locale. */
   message: string;
