@@ -38,6 +38,12 @@ const plexArabic = IBM_Plex_Sans_Arabic({
 });
 
 export const metadata: Metadata = {
+  // Set explicitly, because the Open Graph card resolves its URL against this
+  // and Next falls back to http://localhost:3000 without it -- which is a
+  // correct-looking absolute URL that is useless to anyone but this machine.
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? 'https://pharmaflow-bay.vercel.app',
+  ),
   title: {
     default: 'PharmaFlow',
     template: '%s · PharmaFlow',

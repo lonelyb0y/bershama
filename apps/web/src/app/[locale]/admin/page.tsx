@@ -4,6 +4,7 @@ import { getSession } from '@/lib/session';
 import { timeAgo } from '@/lib/format';
 import { asRows, toAuditLogEntry, type AuditLogRow } from '@/lib/mappers';
 import { getSupabase } from '@/lib/supabase/server';
+import { describeAction, labelEntities, translateEntityType } from '@/lib/audit-labels';
 import type { Locale } from '@/i18n/routing';
 
 export default async function AdminDashboard({
@@ -31,6 +32,10 @@ export default async function AdminDashboard({
     .limit(5);
 
   const entries = asRows<AuditLogRow>(data).map(toAuditLogEntry);
+  // Names for whatever these rows point at, in one query per entity type.
+  // Without it every row read "facilities · 11111111", which is neither a name
+  // nor a usable identifier.
+  const entityLabels = await labelEntities(entries, locale);
 
   return (
     <div className="space-y-6">
@@ -99,11 +104,30 @@ export default async function AdminDashboard({
         ) : (
           <ul className="mt-3 divide-y">
             {entries.map((entry) => (
-              <li key={entry.id} className="flex flex-wrap items-baseline gap-x-3 gap-y-1 py-2 text-sm">
-                <span className="font-mono text-xs">{entry.action}</span>
-                <span className="text-[color:var(--text-muted)]">
-                  {entry.entityType}
-                  {entry.entityId ? ` · ${entry.entityId.slice(0, 8)}` : ''}
+                <li key={entry.id} className="flex flex-wrap items-baseline gap-x-3 gap-y-1 py-2 text-sm">
+                  {/*
+                    "facilities.insert" is a database detail, not a sentence. It
+                    is rendered as a verb plus a translated noun, because an audit
+                    log is read by someone asking "who changed what" -- and
+                    `facilities.insert` answers neither half of that question.
+                    Anything the tables do not cover falls back to the raw action,
+                    which is still better than showing nothing.
+                  */}
+                  <span className="text-xs">
+                    {describeAction(entry.action, t, locale)}
+                  </span>
+                  <span className="text-[color:var(--text-muted)]">
+                    {translateEntityType(entry.entityType, t, locale)}
+                    {entry.entityId
+                      ? ` · ${
+                          // The short id is a fallback, not the normal case: it
+                          // appears only when the row has been deleted or its
+                          // type is not one the resolver knows, which are exactly
+                          // the cases where an identifier is all there is to show.
+                          entityLabels.get(`${entry.entityType}:${entry.entityId}`) ??
+                          entry.entityId.slice(0, 8)
+                        }`
+                      : ''}
                 </span>
                 <span className="ms-auto text-[color:var(--text-muted)] text-xs">
                   {entry.actorLabel ?? t('systemActor')} · {timeAgo(entry.occurredAt, new Date(), locale)}

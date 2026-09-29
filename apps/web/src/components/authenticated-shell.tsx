@@ -15,8 +15,9 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { AppNav } from '@/components/app-nav';
 import { LocaleSwitcher } from '@/components/locale-switcher';
 import { ThemeToggle } from '@/components/theme-toggle';
-import { ROLES_BY_SURFACE, getSession } from '@/lib/session';
-import { isLocale, type Locale } from '@/i18n/routing';
+import { Logo } from '@/components/logo';
+import { ROLES_BY_SURFACE, getSession, homeRouteForRole } from '@/lib/session';
+import { isLocale, Link, type Locale } from '@/i18n/routing';
 
 type Surface = keyof typeof ROLES_BY_SURFACE;
 
@@ -71,9 +72,16 @@ export async function AuthenticatedShell({
     <div className="min-h-dvh">
       <header className="sticky top-0 z-10 border-b bg-[var(--surface)]/95 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3">
-          <span className="font-semibold tracking-tight">
-            {t('common.appName')}
-          </span>
+          <Link
+            href={`/${locale}/${homeRouteForRole(session.role)}`}
+            className="shrink-0 rounded-md"
+            // The wordmark is the way home, the same as a logo in any other
+            // application. Without this it was a <span>, which looked like a
+            // heading and did nothing.
+            aria-label={t('common.appName')}
+          >
+            <Logo />
+          </Link>
 
           <AppNav surface={surface} role={session.role} />
 
