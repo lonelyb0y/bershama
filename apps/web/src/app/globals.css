@@ -94,6 +94,37 @@
     border-color: var(--border);
   }
 
+  /*
+   * Select popups.
+   *
+   * The dropdown list of a <select> is drawn by the operating system, not by
+   * the page, so it inherits nothing from the cascade: a themed <select> in dark
+   * mode opened a white list with near-white text on it. That is what made the
+   * variance reasons unreadable, and it is worse than ugly -- the options cannot
+   * be read.
+   *
+   * `color-scheme` (set per theme above) gets the native widget itself right --
+   * the scrollbar, the focus ring, the default text -- and the explicit
+   * background/colour on option covers the popup list, which colour-scheme does
+   * not reach in every engine. Both are needed; neither is sufficient alone.
+   */
+  select {
+    background-color: var(--surface-raised);
+    color: var(--text);
+  }
+
+  select option,
+  select optgroup {
+    background-color: var(--surface-raised);
+    color: var(--text);
+  }
+
+  /* Firefox honours the option background only if the select itself is not
+     transparent, so the rule above is load-bearing rather than belt-and-braces. */
+  select:-moz-focusring {
+    outline: none;
+  }
+
   html {
     /* Logical property: the scrollbar sits on the correct side in RTL without a
        separate rule. */
