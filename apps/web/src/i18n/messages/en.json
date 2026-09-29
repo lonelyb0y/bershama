@@ -117,7 +117,16 @@
     "offline": "Offline",
     "roadmapNote": "Inventory, requisitions and delivery tracking arrive in M2 through M4.",
     "auditFootnote": "Rows here are RLS-filtered to your organisation. Another tenant's activity is invisible to this query even though the table is shared.",
-    "systemActor": "system"
+    "systemActor": "system",
+    "auditEmpty": "No entries yet. The audit trail fills as soon as something changes.",
+    "entityTypes": {
+      "facilities": "Facility",
+      "storage_locations": "Storage location",
+      "products": "Product",
+      "batches": "Batch",
+      "profiles": "User",
+      "tenants": "Tenant"
+    }
   },
   "stocktake": {
     "title": "Stocktake",

@@ -95,6 +95,74 @@
   }
 
   /*
+   * Focus.
+   *
+   * One ring, defined once, rather than a focus style per component. The
+   * components were inconsistent about it: three of them had a focus-visible
+   * ring and the rest had none, which for a keyboard user means the interface
+   * looks identical whether or not you can see where you are. That is the worst
+   * case -- worse than a consistent ugly ring -- because the affected person
+   * has no way to notice.
+   *
+   * `focus-visible` rather than `focus`, so a mouse click does not leave a ring
+   * behind, and `:focus:not(:focus-visible)` is not restyled because the
+   * browser default for that state is already correct.
+   */
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Inputs and selects share one look. A number field and a dropdown that differ
+     by three pixels of padding read as two different systems, and a warehouse
+     operator types into these for hours. */
+  input,
+  select,
+  textarea {
+    background-color: var(--surface-raised);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--text-muted);
+  }
+
+  /* A number input's spinners are removed in favour of a plain field: a stock
+     count is typed, not nudged, and the native spinners are the least
+     accessible control in the browser. Keyboard and paste still work. */
+  input[type='number'] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+  }
+
+  input[type='number']::-webkit-outer-spin-button,
+  input[type='number']::-webkit-inner-spin-button {
+    appearance: none;
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Disabled controls need to look disabled. The default disabled text is a
+     low-contrast grey that sits *below* the muted colour used for hints, so a
+     disabled field looked like a disabled one while a hint looked like a
+     disabled one too. */
+  :disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+
+  /* Tabular figures wherever a column of numbers is rendered, so digits line up
+     down the page and a miscount is visible at a glance. Applied by element
+     name rather than by class so it cannot be forgotten on the next table. */
+  table,
+  [class*='tabular-nums'] {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /*
    * Select popups.
    *
    * The dropdown list of a <select> is drawn by the operating system, not by
