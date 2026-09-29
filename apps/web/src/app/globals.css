@@ -30,26 +30,63 @@
   --color-stock-expired: oklch(0.5 0.19 20);
 }
 
+/*
+ * Light is the default, declared first and unconditionally.
+ *
+ * The dark block used to sit ABOVE this one, wrapped in prefers-color-scheme. Two
+ * `:root` selectors of equal specificity means the later one wins, so the dark
+ * values were overwritten by the light values before they were ever read. The
+ * stylesheet shipped a dark theme that could not apply, and nothing noticed
+ * because it still parsed. Order is load-bearing here: light in :root, dark in
+ * .dark, and never the reverse.
+ */
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
+  --surface: oklch(0.99 0.002 260);
+  --surface-raised: oklch(1 0 0);
+  --border: oklch(0.9 0.004 260);
+  --text: oklch(0.2 0.008 260);
+  --text-muted: oklch(0.5 0.01 260);
 }
 
+/*
+ * Dark, selected explicitly by the theme script writing `class="dark"` onto
+ * <html> before first paint.
+ *
+ * A class rather than a media query alone, because "follow my OS" is only one of
+ * three answers. Someone counting stock in a bright warehouse wants light
+ * regardless of what their laptop is set to, and someone checking a screen at
+ * 2am wants dark while their OS insists on light. Both need to be expressible.
+ *
+ * The media query below still runs, for the "system" choice, and is scoped so it
+ * cannot fight an explicit choice: :root:not(.light) keeps the OS preference
+ * active until the user picks something specific either way.
+ */
+:root.dark {
+  color-scheme: dark;
+  --surface: oklch(0.16 0.005 260);
+  --surface-raised: oklch(0.21 0.006 260);
+  --border: oklch(0.3 0.008 260);
+  --text: oklch(0.96 0.002 260);
+  --text-muted: oklch(0.72 0.01 260);
+}
+
+/*
+ * The "system" state. Scoped to :root:not(.light) so an explicit light choice
+ * wins over the OS, and it comes after :root.dark so an explicit dark choice
+ * wins over the OS too. Without the negation on both sides, the last matching
+ * rule in the file is the only one that applies, and one of the two choices
+ * would become unreachable.
+ */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not(.light):not(.dark) {
+    color-scheme: dark;
     --surface: oklch(0.16 0.005 260);
     --surface-raised: oklch(0.21 0.006 260);
     --border: oklch(0.3 0.008 260);
     --text: oklch(0.96 0.002 260);
     --text-muted: oklch(0.72 0.01 260);
   }
-}
-
-:root {
-  --surface: oklch(0.99 0.002 260);
-  --surface-raised: oklch(1 0 0);
-  --border: oklch(0.9 0.004 260);
-  --text: oklch(0.2 0.008 260);
-  --text-muted: oklch(0.5 0.01 260);
 }
 
 @layer base {

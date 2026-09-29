@@ -58,16 +58,43 @@
 /** The schema every privileged operation lives in. */
 export const API_SCHEMA = 'api';
 
-/**
- * The profile headers that route a request to that schema.
- *
- * Typed as a const so the object identity is stable -- it is used in a `cache`d
- * factory and a fresh object each call would defeat React's caching.
- */
-export const API_PROFILE_HEADERS = {
-  'Accept-Profile': API_SCHEMA,
-  'Content-Profile': API_SCHEMA,
-} as const;
+  /**
+   * The raw profile headers that route a request to the api schema.
+   *
+   * KEEP THIS FOR REFERENCE AND TESTS ONLY. Do not pass it to a Supabase client as
+   * `global.headers` -- that does not work, and it fails in the most confusing way
+   * available.
+   *
+   * Measured against the hosted project, calling `api.whoami`:
+   *
+   *   global: { headers: { 'Accept-Profile', 'Content-Profile' } }  ->  PGRST202
+   *   db: { schema: 'api' }                                          ->  200, role returned
+   *   raw fetch with both headers                                    ->  200
+   *
+   * The cause: on a POST, supabase-js manages `Content-Profile` itself and the
+   * value set through `global.headers` never reaches PostgREST. PostgREST then
+   * resolves the function in the first served schema -- `public` -- and reports
+   * "Could not find the function public.whoami". The same header pair sent by hand
+   * works, which is what made this so hard to see: every curl check passed while
+   * every browser request failed.
+   *
+   * `db.schema` is the option the library actually honours, because it is the one
+   * it wires into both the request and response profile itself. Use
+   * `getSupabaseApi` / `getSupabaseApiClient`; do not build a client by hand.
+   */
+  export const API_PROFILE_HEADERS = {
+    'Accept-Profile': API_SCHEMA,
+    'Content-Profile': API_SCHEMA,
+  } as const;
+
+  /**
+   * The client option that actually routes requests to the api schema.
+   *
+   * This is the ONLY supported way to reach the schema from supabase-js. Not
+   * `.schema('api')`, which is a 404 here, and not the header pair above, which
+   * is silently dropped on POST.
+   */
+  export const API_DB_OPTION = { schema: API_SCHEMA } as const;
 
 /**
  * Type of a client that talks to the api schema.

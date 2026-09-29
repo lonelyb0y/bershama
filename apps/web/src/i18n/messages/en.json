@@ -139,5 +139,11 @@
     "reason": "Reason for a variance",
     "entered": "lines entered",
     "expired": "Expired"
+  },
+  "theme": {
+    "label": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "Auto"
   }
 }

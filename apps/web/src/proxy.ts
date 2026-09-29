@@ -26,7 +26,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import createMiddleware from 'next-intl/middleware';
 
-import { getSupabase } from '@/lib/supabase/server';
+import { getSupabase, getSupabaseApi } from '@/lib/supabase/server';
 import { routing } from '@/i18n/routing';
 
 const handleIntl = createMiddleware(routing);
@@ -49,9 +49,18 @@ export default async function proxy(request: NextRequest) {
     // `.catch` does not exist on a PostgrestFilterBuilder because it is a
     // thenable, not a Promise, so the rejection is handled with try/catch
     // instead of a trailing catch.
-    try {
-      await supabase.rpc('touch');
-    } catch {
+      try {
+        // The API client, not the public one. `touch` lives in the `api` schema,
+        // and this line read `supabase.rpc('touch')` after the profile-header
+        // change -- which is PGRST202, "function public.touch not found", on every
+        // request from a signed-in user.
+        //
+        // Swallowed by the catch, so it looked harmless. It was not: it made the
+        // liveness signal silently dead, and it is the exact mistake the
+        // profile-header change existed to eliminate. Fixed in four other files
+        // and missed here.
+        await (await getSupabaseApi()).rpc('touch');
+      } catch {
       // Intentionally ignored.
     }
   }
@@ -68,8 +77,15 @@ export const config = {
     /*
      * Everything except:
      *  - /api, /_next, /_vercel  infrastructure paths
+     *  - /auth/*                  route handlers, which are not localised pages
      *  - paths with a file extension (static assets, icons, manifests)
+     *
+     * `auth` is excluded on purpose. /auth/sign-out is a Route Handler with no
+     * [locale] segment, so the intl middleware rewriting it to /en/auth/sign-out
+     * turned sign-out into a 404 -- the button submitted, the session was
+     * revoked, and the browser was left staring at a 404 instead of the login
+     * page. The proxy prefixes locales for pages; a POST endpoint is not a page.
      */
-    '/((?!api|_next|_vercel|.*\\..*).*)',
+    '/((?!api|auth|_next|_vercel|.*\\..*).*)',
   ],
 };

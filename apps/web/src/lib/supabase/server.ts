@@ -15,7 +15,7 @@
 // is how tenant isolation gets quietly deleted from a codebase.
 
 import { createServerClient } from '@supabase/ssr';
-import { API_PROFILE_HEADERS } from './api-schema';
+import { API_DB_OPTION } from './api-schema';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import { cache } from 'react';
@@ -88,8 +88,12 @@ export const getSupabaseApi = cache(async () => {
     requireEnv('NEXT_PUBLIC_SUPABASE_URL'),
     requireEnv('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY'),
     {
-      global: { headers: { ...API_PROFILE_HEADERS } },
-      cookies: {
+        // `db.schema`, NOT `global.headers`. See lib/supabase/api-schema.ts: the
+        // header pair is silently dropped by supabase-js on POST, so `whoami`
+        // resolved as public.whoami (PGRST202), getSession() read that as signed
+        // out, and every authenticated page bounced the user to /login.
+        db: { ...API_DB_OPTION },
+        cookies: {
         getAll() {
           return cookieStore.getAll();
         },
