@@ -30,6 +30,11 @@ async function signIn(page: Page) {
 const PAGES = [
   '/en/admin',
   '/ar/admin',
+  '/en/admin/inventory',
+  '/en/admin/inventory/products',
+  '/ar/admin/inventory/products',
+  '/en/admin/inventory/batches',
+  '/ar/admin/inventory/batches',
   '/en/admin/inventory/stocktake',
   '/ar/admin/inventory/stocktake',
 ];
@@ -37,6 +42,16 @@ const PAGES = [
 test.describe('navigation', () => {
   for (const from of PAGES) {
     test(`every link on ${from} lands somewhere real`, async ({ page }) => {
+      // 120s, not the 30s default. Each link is followed in a fresh visit, so
+      // this test deliberately does ten full page loads; on the stocktake screen,
+      // which is the heaviest page in the app, that legitimately takes ~28s.
+      //
+      // A flaky test is worse than a slow one: it trains people to re-run the
+      // suite until it goes green, which is the same as not having it. The
+      // slowness is inherent to what is being asserted, so the budget is raised
+      // rather than the work weakened.
+      test.setTimeout(120_000);
+
       await signIn(page);
       await page.goto(from);
 

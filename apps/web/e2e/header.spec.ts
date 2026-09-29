@@ -53,6 +53,51 @@ for (const width of WIDTHS) {
       overlaps(navBox!, clusterBox!),
       `the nav and the controls overlap at ${width}px: nav ${JSON.stringify(navBox)} vs cluster ${JSON.stringify(clusterBox)}`,
     ).toBe(false);
+
+    /*
+     * The box is not enough, and this is the lesson of the bug that made the
+     * language switcher unclickable.
+     *
+     * `min-w-0` lets the nav element shrink while its whitespace-nowrap children
+     * overflow it, so the boxes stayed apart and the box-based assertion above
+     * passed -- while the last nav item was painted over the controls and ate
+     * the click. What matters is where the content is actually PAINTED, which
+     * for a scroll container is the intersection of the item and the visible
+     * part of the nav.
+     *
+     * So each item is clipped to the nav's own box before being compared. An
+     * item scrolled out of view legitimately has a rect past the container's
+     * edge -- that is what scrolling means -- but the part of it anyone can
+     * actually see must not reach the controls.
+     */
+    const items = nav.locator('a, span');
+    const count = await items.count();
+
+    for (let i = 0; i < count; i += 1) {
+      const item = (await items.nth(i).boundingBox())!;
+      const visible = {
+        x: Math.max(item.x, navBox!.x),
+        y: Math.max(item.y, navBox!.y),
+        width: Math.min(item.x + item.width, navBox!.x + navBox!.width) - Math.max(item.x, navBox!.x),
+        height: Math.min(item.y + item.height, navBox!.y + navBox!.height) - Math.max(item.y, navBox!.y),
+      };
+
+      if (visible.width <= 0) continue;
+
+      expect(
+        overlaps(visible, clusterBox!),
+        `nav item ${i} ("${(await items.nth(i).textContent())?.trim()}") reaches the controls at ${width}px`,
+      ).toBe(false);
+    }
+
+    // And nothing may sit on top of the controls: an element that overlaps them
+    // is intercepting their clicks, whatever the boxes say.
+    const hitTest = await page.evaluate(({ x, y }) => {
+      const el = document.elementFromPoint(x, y);
+      return el?.closest('a, button')?.getAttribute('aria-label') ?? el?.textContent?.trim().slice(0, 20) ?? 'none';
+    }, { x: clusterBox!.x + 8, y: clusterBox!.y + clusterBox!.height / 2 });
+    expect(hitTest, 'the left edge of the control cluster must be clickable').not.toContain('Planned');
+    expect(hitTest, 'the control cluster must be reachable, not covered').toBeTruthy();
   });
 }
 

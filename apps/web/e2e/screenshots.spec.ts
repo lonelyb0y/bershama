@@ -25,6 +25,11 @@ const LOGIN_PAGES = [
 const APP_PAGES = [
   { path: '/en/admin', name: 'dashboard-en' },
   { path: '/ar/admin', name: 'dashboard-ar' },
+  { path: '/en/admin/inventory', name: 'inventory-index-en' },
+  { path: '/en/admin/inventory/products', name: 'products-en' },
+  { path: '/ar/admin/inventory/products', name: 'products-ar' },
+  { path: '/en/admin/inventory/batches', name: 'batches-en' },
+  { path: '/ar/admin/inventory/batches', name: 'batches-ar' },
   { path: '/en/admin/inventory/stocktake', name: 'stocktake-en' },
   { path: '/ar/admin/inventory/stocktake', name: 'stocktake-ar' },
 ];

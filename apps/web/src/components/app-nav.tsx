@@ -15,7 +15,18 @@ import type { Surface } from '@/lib/roles';
 import type { AppRole } from '@/lib/types';
 
 const NAV_BY_SURFACE = {
-  admin: ['dashboard', 'inventory', 'batches', 'requisitions', 'deliveries', 'alerts', 'analytics', 'audit'],
+  admin: [
+    'dashboard',
+    'inventory',
+    'catalogue',
+    'batches',
+    'stocktake',
+    'requisitions',
+    'deliveries',
+    'alerts',
+    'analytics',
+    'audit',
+  ],
   pharmacy: ['dashboard', 'catalogue', 'requisitions', 'inventory'],
   distributor: ['dashboard', 'routes'],
 } as const;
@@ -40,9 +51,19 @@ const HREF_BY_SURFACE: Partial<Record<Surface, Partial<Record<NavKey, string>>>>
   admin: {
     // An empty suffix means the surface root, which is the dashboard.
     dashboard: '',
-    inventory: '/inventory/stocktake',
+    // The section root. Separate keys rather than one "inventory" pointing at
+    // whichever page was built last: the section root and its pages are
+    // different destinations and only one of them can be "the" inventory link.
+    //
+    // Every path in this table is locale-less on purpose. next-intl's Link adds
+    // the active locale itself, and a `/${locale}` prefix here produces
+    // /en/en/inventory. See the note in the active-state logic below.
+    inventory: '/inventory',
+    catalogue: '/inventory/products',
+    batches: '/inventory/batches',
+    stocktake: '/inventory/stocktake',
   },
-  pharmacy: { dashboard: '' },
+  pharmacy: { dashboard: '', catalogue: '/inventory/products' },
   distributor: { dashboard: '' },
 };
 
@@ -72,11 +93,33 @@ export function AppNav({
   );
 
   return (
-    // lg, not md. With eight destinations plus the theme toggle, the language
-    // switcher, the name and the sign-out button, md was not enough room and the
-    // header wrapped. Below lg the nav is hidden and the layout has room to
-    // breathe; this is a layout decision, not a device one.
-    <nav aria-label={t('dashboard')} className="hidden min-w-0 items-center gap-1 lg:flex">
+    /*
+     * The nav scrolls rather than overflowing.
+     *
+     * min-w-0 lets this element shrink, but its children are whitespace-nowrap,
+     * so with enough destinations the *content* overflows the box instead of the
+     * box growing. That is the worst of both: the bounding boxes do not
+     * intersect, so a box-based overlap test passes, and the last item is
+     * painted on top of the controls -- where it silently swallowed clicks on
+     * the language switcher. A navigation item that eats clicks on the language
+     * switcher is invisible in a screenshot and obvious the first time somebody
+     * tries to switch language.
+     *
+     * overflow-x-auto contains the overflow, and shrink-0 on the items keeps
+     * each label whole rather than letting the last one clip mid-word. xl, not
+     * lg: at ten destinations there is no honest way to fit these beside the
+     * theme button, the language switcher, the name and sign-out, so below xl
+     * the nav is hidden rather than shown wrong.
+     *
+     * scrollbar-width: none hides the bar on Firefox, where a visible one eats
+     * the height the header already does not have. The nav still scrolls with a
+     * wheel or a trackpad, and by keyboard, which is what a keyboard user
+     * needs; the scrollbar was a cosmetic cost for a sighted mouse user.
+     */
+    <nav
+      aria-label={t('dashboard')}
+      className="min-w-0 shrink items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden xl:flex [&>*]:shrink-0"
+    >
       {items.map((item) => {
         const surfaceRoot = `/${surface === 'admin' ? 'admin' : surface}`;
         const table = HREF_BY_SURFACE[surface];
@@ -103,6 +146,11 @@ export function AppNav({
           //
           // `pathname` is locale-less here, because this is next-intl's
           // usePathname rather than the platform's.
+          //
+          // Both `pathname` and the hrefs are locale-less for the same reason: this
+          // is next-intl's Link and usePathname, and both sides of the comparison
+          // have to agree on whether the locale is present. Prefixing only the href
+          // is what produced /en/en/inventory on the logo link.
           const isActive =
             href !== null &&
             (suffix === ''

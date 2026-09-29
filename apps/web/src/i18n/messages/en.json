@@ -23,7 +23,8 @@
     "alerts": "Alerts",
     "catalogue": "Catalogue",
     "analytics": "Analytics",
-    "audit": "Audit log"
+    "audit": "Audit log",
+    "stocktake": "Stocktake"
   },
   "auth": {
     "signIn": "Sign in",
@@ -44,18 +45,20 @@
     "ANALYST": "Analyst"
   },
   "inventory": {
-    "onHand": "On hand",
-    "reserved": "Reserved",
-    "available": "Available",
-    "lotNumber": "Lot number",
-    "expiryDate": "Expiry date",
-    "daysToExpiry": "{days} days",
-    "expired": "Expired",
-    "expiringSoon": "Expiring soon",
-    "noStock": "No stock recorded",
-    "product": "Product",
-    "batch": "Batch",
-    "location": "Location"
+    "title": "Inventory",
+    "subtitle": "{count} combinations in stock across every location",
+    "catalogue": {
+      "title": "Catalogue",
+      "body": "{count} products"
+    },
+    "batches": {
+      "title": "Batches",
+      "body": "{count} lots, soonest expiry first"
+    },
+    "stocktake": {
+      "title": "Stocktake",
+      "body": "Count what is on the shelf"
+    }
   },
   "requisitions": {
     "new": "New requisition",
@@ -156,5 +159,83 @@
     "label": "Theme",
     "switchToLight": "Switch to light mode",
     "switchToDark": "Switch to dark mode"
+  },
+  "products": {
+    "title": "Products",
+    "subtitle": "{count} products in this catalogue",
+    "searchPlaceholder": "Search by name, generic name or SKU",
+    "search": "Search",
+    "clear": "Clear",
+    "edit": "Edit",
+    "deactivate": "Deactivate",
+    "reactivate": "Reactivate",
+    "empty": "No products yet. Add the first one to start tracking stock.",
+    "emptySearch": "Nothing matches “{query}”.",
+    "loadError": "The catalogue could not be loaded.",
+    "badge": {
+      "rx": "Rx",
+      "controlled": "Controlled",
+      "cold": "Cold chain",
+      "inactive": "Inactive"
+    },
+    "form": {
+      "newTitle": "Add a product",
+      "editTitle": "Edit product",
+      "sku": "SKU",
+      "nameEn": "Name (English)",
+      "nameAr": "Name (Arabic)",
+      "genericNameEn": "Generic name (English)",
+      "genericNameAr": "Generic name (Arabic)",
+      "brand": "Brand",
+      "form": "Form",
+      "strength": "Strength",
+      "strengthUnit": "Strength unit",
+      "packSize": "Pack size",
+      "uom": "Unit of measure",
+      "atcCode": "ATC code",
+      "gtin": "GTIN / barcode",
+      "edaRegNo": "EDA registration",
+      "requiresPrescription": "Prescription only",
+      "isControlled": "Controlled drug",
+      "isColdChain": "Cold chain",
+      "shelfLifeMonths": "Shelf life (months)",
+      "isActive": "Active",
+      "facility": "Facility",
+      "code": "Code",
+      "kind": "Kind",
+      "tempMinC": "Min temperature °C",
+      "tempMaxC": "Max temperature °C",
+      "submit": "Save product",
+      "cancel": "Close",
+      "saved": "Product saved.",
+      "created": "Product created.",
+      "newLocationTitle": "Add a storage location",
+      "locationSaved": "Location saved.",
+      "submitLocation": "Save location"
+    }
+  },
+  "batches": {
+    "title": "Batches",
+    "subtitle": "{count} lots, soonest expiry first",
+    "lot": "Lot",
+    "product": "Product",
+    "expiry": "Expiry",
+    "statusLabel": "Status",
+    "supplier": "Supplier",
+    "days": "days",
+    "empty": "No batches match this filter.",
+    "expired": "Expired",
+    "expiringSoon": "Expiring soon",
+    "readOnly": "Batches are created by receiving a delivery, not typed in by hand.",
+    "filterLabel": "Filter by status",
+    "filter": {
+      "all": "All"
+    },
+    "status": {
+      "RELEASED": "Released",
+      "QUARANTINED": "Quarantined",
+      "DEPLETED": "Depleted",
+      "EXPIRED": "Expired"
+    }
   }
 }
