@@ -123,6 +123,35 @@ differs.
 make verify           # lint + typecheck + unit tests + secret scan + migrations + suites + build
 ```
 
+## Deploying
+
+The app is a pnpm monorepo with the Next.js app in `apps/web`. On Vercel:
+
+| setting | value | why |
+|---|---|---|
+| Root Directory | `apps/web` | the app is not at the repository root |
+| Framework | Next.js | auto-detected, and pinned in `apps/web/vercel.json` |
+| Node.js | 22.x | |
+| Install / Build | pinned in `vercel.json` | dependencies live in the root workspace |
+| Region | `fra1` | matches the Supabase project's region |
+
+Environment variables, and nothing else:
+
+```
+NEXT_PUBLIC_SUPABASE_URL              the project URL
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY  the publishable key
+```
+
+`SUPABASE_SECRET_KEY` is deliberately **not** among them. It is the
+`service_role` key, it bypasses RLS, and it is only read inside
+`createSupabaseAdminClient`, which nothing imports. A secret that disables tenant
+isolation has no business on a public web host.
+
+The app reaches the `api` schema with `Accept-Profile`/`Content-Profile` headers
+rather than supabase-js's `.schema('api')`, because schema-qualified paths are not
+served on this project. `apps/web/src/lib/supabase/api-schema.ts` has the
+evidence, including the two probes that keep `private` unreachable.
+
 ## Verifying it works
 
 ```bash

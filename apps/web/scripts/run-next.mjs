@@ -31,7 +31,11 @@ const rootEnv = fileURLToPath(new URL('../../../.env.local', import.meta.url));
 
 if (existsSync(rootEnv)) {
   loadEnvFile(rootEnv);
-} else {
+} else if (process.env.NODE_ENV !== 'production') {
+  // Only in development. On Vercel there is no .env.local by design -- the
+  // variables come from the project's environment settings -- and a build log
+  // telling a deployer the file is missing sends them looking for a file that
+  // is not supposed to exist.
   console.warn(
     '\n  No .env.local at the repository root.\n' +
       '  Copy .env.example to .env.local and fill it in.\n',
