@@ -73,7 +73,12 @@ export async function AuthenticatedShell({
       <header className="sticky top-0 z-10 border-b bg-[var(--surface)]/95 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3">
           <Link
-            href={`/${locale}/${homeRouteForRole(session.role)}`}
+            // NO locale prefix. This is next-intl's Link, which expects a
+            // locale-less path and prefixes the active locale itself -- the
+            // identical mistake the login form made, and it produced
+            // /en/en/admin on every click. Any `/${locale}` interpolated into a
+            // next-intl href is a doubled segment.
+            href={homeRouteForRole(session.role)}
             className="shrink-0 rounded-md"
             // The wordmark is the way home, the same as a logo in any other
             // application. Without this it was a <span>, which looked like a
