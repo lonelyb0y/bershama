@@ -5,41 +5,43 @@ import { useCallback, useSyncExternalStore } from 'react';
 import { useTranslations } from 'next-intl';
 
 /**
- * The light / dark / system toggle.
+ * Light / dark toggle.
  *
- * A client component, but the class on <html> is set by the inline script in
- * lib/theme-script.ts before first paint. This component only reflects and
- * changes that state afterwards, so there is no flash on load and the toggle
- * itself is not the thing responsible for the theme being correct.
+ * One button that shows the moon in light mode and the sun in dark, and flips
+ * when pressed. It replaced a three-button Light / Dark / Auto group, which
+ * read as three labelled rectangles competing with the nav for the same row and
+ * pushed the header into wrapping.
  *
- * The DOM class is the source of truth, not React state, and it is read through
- * useSyncExternalStore rather than copied into state on mount. A useEffect that
- * set the state from the DOM would render once with the wrong label and then
- * correct itself, and it would do so in the one place where a flicker is most
- * visible. Subscribing to the class attribute means the button is right on the
- * first paint the user sees, and stays right if something else changes the class
- * -- including the OS listener inside the inline script.
+ * The sun/moon glyph is the destination, not the current state -- you press the
+ * moon to get darkness. That is the convention every other application uses and
+ * the one people already understand without being told, so it beats a toggle
+ * that shows the sun when you are already in the light and leaves you unsure
+ * which press does what.
+ *
+ * Losing "Auto" is a deliberate trade: a person who wants the system preference
+ * gets it on first visit, because nothing is stored until they choose. Anyone
+ * who wants it back has it in the OS. "System" was a third option in a header
+ * that had no room for a third option.
+ *
+ * The class on <html> is the source of truth, set before first paint by the
+ * inline script in lib/theme-script.ts. This reads it through
+ * useSyncExternalStore rather than copying it into state on mount, so the button
+ * is right on the first paint and stays right when the OS preference changes
+ * underneath it.
  */
-type Choice = 'light' | 'dark' | 'system';
-
 const KEY = 'pharmaflow:theme';
-const ORDER: Choice[] = ['light', 'dark', 'system'];
 
-function readDomChoice(): Choice {
-  const { classList } = document.documentElement;
-  if (classList.contains('dark')) return 'dark';
-  if (classList.contains('light')) return 'light';
-  return 'system';
+function readDomTheme(): 'light' | 'dark' {
+  return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
 }
 
 function subscribe(onChange: () => void) {
-  // A MutationObserver on the class attribute, so a change made anywhere --
-  // here, the inline script, the devtools, another tab -- re-renders this.
   const observer = new MutationObserver(onChange);
-  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['class'],
+  });
 
-  // Also across tabs, via storage events: a second tab writing the preference
-  // should update this one without needing a reload.
   const onStorage = (e: StorageEvent) => {
     if (e.key === KEY) onChange();
   };
@@ -53,58 +55,80 @@ function subscribe(onChange: () => void) {
 
 export function ThemeToggle() {
   const t = useTranslations('theme');
+  const theme = useSyncExternalStore(subscribe, readDomTheme, () => 'light' as const);
+  const isDark = theme === 'dark';
 
-  // On the server there is no DOM, and the server must assume the default. The
-  // inline script has already run in the browser by the time this hydrates, so
-  // the first client snapshot is the real value -- no mismatch, no flicker.
-  const choice = useSyncExternalStore(subscribe, readDomChoice, () => 'system' as Choice);
-
-  const choose = useCallback((next: Choice) => {
-    const root = document.documentElement;
-    const dark =
-      next === 'system' ? window.matchMedia('(prefers-color-scheme: dark)').matches : next === 'dark';
-    root.classList.toggle('dark', dark);
-    root.classList.toggle('light', !dark);
+  const toggle = useCallback(() => {
+    const next = isDark ? 'light' : 'dark';
+    document.documentElement.classList.toggle('dark', next === 'dark');
+    document.documentElement.classList.toggle('light', next === 'light');
 
     try {
-      if (next === 'system') {
-        // Removed rather than stored as "system", so the key's absence is the
-        // system state and there is one less thing to keep in sync.
-        window.localStorage.removeItem(KEY);
-      } else {
-        window.localStorage.setItem(KEY, next);
-      }
+      window.localStorage.setItem(KEY, next);
     } catch {
-      // As in the inline script: a preference is not worth an exception.
+      // A preference is not worth an exception. Private browsing in some
+      // browsers throws on localStorage writes, and the class is already set.
     }
-  }, []);
+  }, [isDark]);
 
   return (
-    <div
-      role="radiogroup"
-      aria-label={t('label')}
-      className="inline-flex items-center rounded-lg border p-0.5"
+    <button
+      type="button"
+      onClick={toggle}
+      // The label states the destination, so it reads correctly to a screen
+      // reader whether the button is in light or dark mode.
+      aria-label={isDark ? t('switchToLight') : t('switchToDark')}
+      title={isDark ? t('switchToLight') : t('switchToDark')}
+      className="flex size-8 items-center justify-center rounded-lg border text-[color:var(--text-muted)] transition-colors hover:bg-[color:var(--text-muted)]/10 hover:text-[color:var(--text)]"
     >
-      {ORDER.map((option) => {
-        const active = choice === option;
+      {isDark ? <SunIcon /> : <MoonIcon />}
+    </button>
+  );
+}
 
-        return (
-          <button
-            key={option}
-            type="button"
-            role="radio"
-            aria-checked={active}
-            onClick={() => choose(option)}
-            className={`rounded-md px-2 py-1 text-xs font-medium transition-colors ${
-              active
-                ? 'bg-[var(--color-brand-600)] text-white'
-                : 'text-[color:var(--text-muted)] hover:text-[color:var(--text)]'
-            }`}
-          >
-            {t(option)}
-          </button>
-        );
-      })}
-    </div>
+/**
+ * Inline SVG rather than an icon package or an emoji.
+ *
+ * An emoji renders in the system emoji font, so the same button would look
+ * different on every machine and would sit on the text baseline rather than
+ * centring in a square hit target. Both are the kind of thing that is fine in
+ * a mockup and wrong in a header.
+ *
+ * `currentColor` throughout, so the glyph follows the button's colour and
+ * therefore the theme, with nothing to keep in sync.
+ */
+function SunIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4" />
+    </svg>
+  );
+}
+
+function MoonIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
+    </svg>
   );
 }

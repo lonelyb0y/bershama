@@ -83,11 +83,31 @@ export function AppNav({
         // Key PRESENCE decides liveness, not whether the suffix is truthy: the
         // dashboard is live and its suffix is ''. Testing the value instead made
         // every surface render no links at all, which the nav test caught.
-        const isPending = !table || !(item in table);
-        const href = isPending ? null : `${surfaceRoot}${table[item] ?? ''}`;
-        // Prefix match, so /admin/inventory/stocktake keeps "Inventory" active
-        // while the query string changes between locations.
-        const isActive = href !== null && pathname.startsWith(href);
+          const isPending = !table || !(item in table);
+          const suffix = isPending ? null : (table[item] ?? '');
+          const href = isPending ? null : `${surfaceRoot}${suffix}`;
+
+          // Active state, and this took three attempts to get right.
+          //
+          // A plain `pathname.startsWith(href)` looks like the obvious way to
+          // keep a section lit while you move around inside it. It is wrong for
+          // the surface root: the dashboard's href is `/admin`, and
+          // `/admin/inventory/stocktake` starts with `/admin`, so clicking
+          // Inventory lit up Dashboard AND Inventory at once. A prefix match can
+          // only be right for a link that is *below* the root.
+          //
+          // So: the root matches exactly, and everything else matches on a
+          // segment boundary. The trailing slash in the comparison is what stops
+          // `/admin/inventory` from lighting up for a future
+          // `/admin/inventory-archive` -- segment equality, not string equality.
+          //
+          // `pathname` is locale-less here, because this is next-intl's
+          // usePathname rather than the platform's.
+          const isActive =
+            href !== null &&
+            (suffix === ''
+              ? pathname === href
+              : pathname === href || pathname.startsWith(`${href}/`));
 
         if (href === null) {
           return (

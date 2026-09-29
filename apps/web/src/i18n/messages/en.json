@@ -145,8 +145,7 @@
   },
   "theme": {
     "label": "Theme",
-    "light": "Light",
-    "dark": "Dark",
-    "system": "Auto"
+    "switchToLight": "Switch to light mode",
+    "switchToDark": "Switch to dark mode"
   }
 }

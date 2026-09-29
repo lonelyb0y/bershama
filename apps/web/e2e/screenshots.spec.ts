@@ -6,10 +6,11 @@ import { test, expect, devices } from '@playwright/test';
  * A real browser session: it signs in with real credentials, waits for the data,
  * and captures what a person would actually see.
  *
- * The suite so far asserts on URLs and colours. Those are precise and they
- * caught four sign-in bugs, but they cannot tell you whether a page looks like a
- * finished product or a wireframe. That judgement needs an eye on it, which is
- * what this file is for.
+ * The suite asserts on URLs and colours. Those are precise and they caught four
+ * sign-in bugs, but they cannot tell you whether a page looks like a finished
+ * product or a wireframe, and a header that drew the nav on top of the controls
+ * passed every one of them. That judgement needs an eye on it, which is what
+ * this file is for.
  *
  * Order matters: the login pages are captured while signed OUT, because the
  * login page redirects a signed-in visitor straight to their dashboard.
@@ -28,7 +29,9 @@ const APP_PAGES = [
   { path: '/ar/admin/inventory/stocktake', name: 'stocktake-ar' },
 ];
 
-test.use({ ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } });
+// 1280 rather than 1440: that is the width the header was reported as
+// overlapping at, so it is the one worth keeping an image of.
+test.use({ ...devices['Desktop Chrome'], viewport: { width: 1280, height: 900 } });
 
 for (const theme of ['light', 'dark'] as const) {
   test(`capture, ${theme}`, async ({ page }) => {

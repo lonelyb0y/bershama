@@ -280,7 +280,7 @@ export function CountSheet({
                         if (cleaned !== e.target.value) e.target.value = cleaned;
                         setCount(row.batchId, cleaned);
                       }}
-                      className={`w-24 rounded-lg border bg-transparent px-2 py-1.5 text-end text-sm tabular-nums outline-none focus-visible:ring-2 ${
+                      className={`w-24 rounded-lg border px-2 py-1.5 text-end text-sm tabular-nums outline-none focus-visible:ring-2 ${
                         failed ? 'border-[var(--color-stock-critical)]' : ''
                       }`}
                     />
@@ -295,7 +295,7 @@ export function CountSheet({
                         setReasons((prev) => ({ ...prev, [row.batchId]: e.target.value }));
                         reset();
                       }}
-                      className="rounded-lg border bg-transparent px-2 py-1.5 text-sm outline-none focus-visible:ring-2"
+                      className="rounded-lg border px-2 py-1.5 text-sm outline-none focus-visible:ring-2"
                     >
                       {reasonOptions.map((o) => (
                         <option key={o.value || 'none'} value={o.value}>
