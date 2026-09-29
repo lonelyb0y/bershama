@@ -131,10 +131,17 @@ export default async function StocktakePage({
       <CountSheet
         locationId={selected.id}
         rows={rows}
-        submit={async (id, lines) => {
-          const result = await submitStocktakeAction(id, lines);
-          return { summary: result.summary, failures: result.failures };
-        }}
+        // The action itself, passed by reference. Wrapping it in a closure --
+        // submit={async (id, lines) => { ... }} -- is what this page did before,
+        // and it 500'd on every load: a Server Component cannot hand an ordinary
+        // function to a Client Component, only a server reference. A server
+        // action IS a valid function prop, so passing it directly is both
+        // correct and less code.
+        //
+        // The 500 was invisible from the data layer: the query was fine, and the
+        // "could not load the count sheet" log line below it was a second,
+        // unrelated symptom that made the real error easy to misread.
+        submit={submitStocktakeAction}
       />
     </div>
   );
@@ -170,7 +177,21 @@ async function loadCountSheet(locationId: string, locale: Locale): Promise<Stock
     )
     .eq('location_id', locationId)
     .gt('qty_on_hand', 0)
-    .order('id');
+    // product_id, not id.
+    //
+    // stock_balances has no `id`: its columns are tenant_id, location_id,
+    // product_id, batch_id, qty_on_hand, qty_reserved, updated_at. Ordering by
+    // `id` is 42703 "column stock_balances.id does not exist", and because the
+    // loader catches its errors and returns an empty sheet, a warehouse saw
+    // "There is no stock recorded at this location" for a location holding
+    // hundreds of units. A total absence of data and a failed query are
+    // indistinguishable from the outside, which is the failure mode the
+    // console.error below was written to expose -- and it did, once someone
+    // looked at the log instead of the screen.
+    //
+    // product_id groups a product together, which is the order a counter wants:
+    // every lot of the same product on the same shelf, in one block.
+    .order('product_id');
 
   if (error || !data) {
     // Logged, and still rendered as an empty sheet. Throwing would replace the

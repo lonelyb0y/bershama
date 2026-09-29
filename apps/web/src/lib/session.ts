@@ -67,6 +67,7 @@ export const getSession = cache(async (): Promise<SessionInfo | null> => {
     tenantId: row.tenant_id,
     role: row.role,
     fullName: row.full_name,
+    fullNameAr: row.full_name_ar,
     locale: row.locale,
     tenantSlug: row.tenant_slug,
     currencyCode: row.currency_code,

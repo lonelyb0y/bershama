@@ -163,8 +163,17 @@ export function formatDate(
  * A signed, human-readable age for the audit log.
  * Timestamps are stored and rendered in the tenant's timezone, but the elapsed
  * time itself is timezone-independent, so this is safe to compute anywhere.
+ *
+ * `locale` is a BCP-47 tag handed to Intl.RelativeTimeFormat. This used to
+ * hardcode 'en', so every Arabic page rendered "9 hours ago" in English right
+ * beside Arabic labels. The default keeps existing callers and tests working;
+ * the audit log passes the page locale.
  */
-export function timeAgo(iso: string, from: Date = new Date()): string {
+export function timeAgo(
+  iso: string,
+  from: Date = new Date(),
+  locale = 'en',
+): string {
   const seconds = Math.round((from.getTime() - new Date(iso).getTime()) / 1000);
 
   const thresholds: Array<[number, Intl.RelativeTimeFormatUnit]> = [
@@ -180,7 +189,7 @@ export function timeAgo(iso: string, from: Date = new Date()): string {
   let value = -seconds;
   for (const [amount, unit] of thresholds) {
     if (Math.abs(value) < amount) {
-      return new Intl.RelativeTimeFormat('en', { numeric: 'auto' }).format(
+      return new Intl.RelativeTimeFormat(locale, { numeric: 'auto' }).format(
         Math.round(value),
         unit,
       );
