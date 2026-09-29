@@ -56,13 +56,33 @@ function mount(surface: 'admin' | 'pharmacy' | 'distributor', role: Parameters<t
 }
 
 describe('live destinations', () => {
-  it('points admin inventory at the stocktake screen', () => {
+  it('points admin inventory at the section, not at one of its pages', () => {
     mount('admin', 'WAREHOUSE_MANAGER');
 
+    // The section root, with the pages as siblings. "Inventory" used to point at
+    // the stocktake screen, which made the one page that happened to be built
+    // last stand in for the whole section -- and made the active-state logic
+    // ambiguous, because /admin/inventory/stocktake sits *below*
+    // /admin/inventory and both lit up at once.
     const link = screen.getByRole('link', { name: 'Inventory' });
     // Relative, because next-intl's Link prepends the locale. Asserting the
     // suffix keeps this test readable and survives a routing prefix change.
-    expect(link.getAttribute('href')).toContain('/admin/inventory/stocktake');
+    expect(link.getAttribute('href')).toContain('/admin/inventory');
+    expect(link.getAttribute('href')).not.toContain('/stocktake');
+  });
+
+  it('exposes the built inventory pages as their own destinations', () => {
+    mount('admin', 'WAREHOUSE_MANAGER');
+
+    // Each page reachable by its own name, so the nav is a map of the section
+    // rather than a single door into it.
+    for (const [name, suffix] of [
+      ['Catalogue', '/admin/inventory/products'],
+      ['Batches', '/admin/inventory/batches'],
+      ['Stocktake', '/admin/inventory/stocktake'],
+    ] as const) {
+      expect(screen.getByRole('link', { name }).getAttribute('href')).toContain(suffix);
+    }
   });
 
   it('does not give pharmacy a link to a page that does not exist', () => {

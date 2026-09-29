@@ -7,7 +7,7 @@ tracking, and an audit trail that survives an auditor.
 Built for an operator in Egypt: bilingual English/Arabic with full RTL, EGP
 denominated, WHO GDP-aligned batch traceability.
 
-**Status: milestones M0, M1 and M2 (foundation, identity, inventory core).** The
+**Status: milestones M0, M1 and M2 complete (foundation, identity, inventory core).** The
 catalogue, batches and append-only stock ledger are built and tested. The CRUD
 screens, requisitions and delivery tracking are not. See [Roadmap](#roadmap).
 
@@ -224,7 +224,7 @@ Each milestone ends in something a real user could be put in front of.
 |---|---|---|
 | **M0** | Repository, toolchain, CI, i18n/RTL foundation | done |
 | **M1** | Tenancy, roles, RLS, invite-only auth, audit log | done |
-| **M2** | Products, batches, locations, stock ledger, reconciliation | schema + tests done, UI in progress |
+| **M2** | Products, batches, locations, stock ledger, reconciliation | schema + tests done, UI complete: catalogue, batches, locations, stocktake |
 | **M3** | Requisitions, approval, FEFO allocation | planned |
 | **M4** | Trips, driver PWA offline, e-signature POD, live map | planned |
 | **M5** | Alerts, dashboards, analytics | planned |

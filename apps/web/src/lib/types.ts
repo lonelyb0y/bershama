@@ -180,6 +180,8 @@ export interface Product {
   brand: string | null;
   form: string;
   strength: string;
+  /** mg, mcg, IU... null when the product is unstrengthened. */
+  strengthUnit: string | null;
   packSize: number;
   uom: string;
   /** ATC code — the WHO Anatomical Therapeutic Chemical classification. */

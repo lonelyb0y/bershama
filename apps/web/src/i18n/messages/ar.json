@@ -23,7 +23,8 @@
     "alerts": "التنبيهات",
     "catalogue": "الكتالوج",
     "analytics": "التحليلات",
-    "audit": "سجل التدقيق"
+    "audit": "سجل التدقيق",
+    "stocktake": "الجرد"
   },
   "auth": {
     "signIn": "تسجيل الدخول",
@@ -44,18 +45,20 @@
     "ANALYST": "محلل"
   },
   "inventory": {
-    "onHand": "المتوفر",
-    "reserved": "المحجوز",
-    "available": "القابل للتوريد",
-    "lotNumber": "رقم التشغيلة",
-    "expiryDate": "تاريخ الصلاحية",
-    "daysToExpiry": "{days} يوم",
-    "expired": "منتهي الصلاحية",
-    "expiringSoon": "قارب على الانتهاء",
-    "noStock": "لا يوجد مخزون مسجل",
-    "product": "الصنف",
-    "batch": "التشغيلة",
-    "location": "الموقع"
+    "title": "المخزون",
+    "subtitle": "{count} تركيبة في المخزون عبر كل المواقع",
+    "catalogue": {
+      "title": "الكتالوج",
+      "body": "{count} منتج"
+    },
+    "batches": {
+      "title": "الدفعات",
+      "body": "{count} دفعة، الأقرب انتهاءً أولاً"
+    },
+    "stocktake": {
+      "title": "الجرد",
+      "body": "عدّ ما هو على الرف"
+    }
   },
   "requisitions": {
     "new": "طلب جديد",
@@ -156,5 +159,83 @@
     "label": "المظهر",
     "switchToLight": "التبديل إلى الوضع الفاتح",
     "switchToDark": "التبديل إلى الوضع الداكن"
+  },
+  "products": {
+    "title": "المنتجات",
+    "subtitle": "{count} منتج في هذا الكتالوج",
+    "searchPlaceholder": "ابحث بالاسم أو الاسم العلمي أو رمز المنتج",
+    "search": "بحث",
+    "clear": "مسح",
+    "edit": "تعديل",
+    "deactivate": "إيقاف",
+    "reactivate": "إعادة تفعيل",
+    "empty": "لا توجد منتجات بعد. أضف أول منتج لبدء تتبع المخزون.",
+    "emptySearch": "لا نتائج لـ «{query}».",
+    "loadError": "تعذّر تحميل الكتالوج.",
+    "badge": {
+      "rx": "يستلزم روشتة",
+      "controlled": "خاضع للرقابة",
+      "cold": "سلسلة تبريد",
+      "inactive": "غير نشط"
+    },
+    "form": {
+      "newTitle": "إضافة منتج",
+      "editTitle": "تعديل المنتج",
+      "sku": "رمز المنتج",
+      "nameEn": "الاسم (إنجليزي)",
+      "nameAr": "الاسم (عربي)",
+      "genericNameEn": "الاسم العلمي (إنجليزي)",
+      "genericNameAr": "الاسم العلمي (عربي)",
+      "brand": "العلامة التجارية",
+      "form": "الشكل الصيدلاني",
+      "strength": "التركيز",
+      "strengthUnit": "وحدة التركيز",
+      "packSize": "حجم العبوة",
+      "uom": "وحدة القياس",
+      "atcCode": "رمز ATC",
+      "gtin": "الباركود",
+      "edaRegNo": "رقم تسجيل هيئة الدواء",
+      "requiresPrescription": "يتطلب روشتة",
+      "isControlled": "خاضع للرقابة",
+      "isColdChain": "سلسلة تبريد",
+      "shelfLifeMonths": "مدة الصلاحية (شهر)",
+      "isActive": "نشط",
+      "facility": "المنشأة",
+      "code": "الرمز",
+      "kind": "النوع",
+      "tempMinC": "أقل درجة حرارة",
+      "tempMaxC": "أعلى درجة حرارة",
+      "submit": "حفظ المنتج",
+      "cancel": "إغلاق",
+      "saved": "تم حفظ المنتج.",
+      "created": "تم إنشاء المنتج.",
+      "newLocationTitle": "إضافة موقع تخزين",
+      "locationSaved": "تم حفظ الموقع.",
+      "submitLocation": "حفظ الموقع"
+    }
+  },
+  "batches": {
+    "title": "الدفعات",
+    "subtitle": "{count} دفعة، الأقرب انتهاءً أولاً",
+    "lot": "رقم التشغيلة",
+    "product": "المنتج",
+    "expiry": "الانتهاء",
+    "statusLabel": "الحالة",
+    "supplier": "المورّد",
+    "days": "يوم",
+    "empty": "لا توجد دفعات مطابقة لهذا الفلتر.",
+    "expired": "منتهي الصلاحية",
+    "expiringSoon": "قارب على الانتهاء",
+    "readOnly": "تُنشأ الدفعات باستلام توريد، ولا تُدخل يدويًا.",
+    "filterLabel": "فلترة حسب الحالة",
+    "filter": {
+      "all": "الكل"
+    },
+    "status": {
+      "RELEASED": "مُصرَّح به",
+      "QUARANTINED": "محجوز",
+      "DEPLETED": "مُستنفد",
+      "EXPIRED": "منتهي"
+    }
   }
 }
