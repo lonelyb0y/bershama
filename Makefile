@@ -120,14 +120,6 @@ test-db: ## Apply migrations and run the pgTAP suites (no Docker required)
 e2e: ## Run Playwright end-to-end tests (starts the app itself)
 	cd apps/web && npx playwright test
 
-# The full gate, in the order that fails fastest. `verify` used to be unit tests
-# and a typecheck, which is a gate that five shipped bugs walked straight through:
-# every one of them compiled, every one of them passed 181 unit tests, and the
-# browser still could not sign in. E2E is in here because it is the only layer
-# that exercises a real sign-in, a real cookie and a real schema.
-.PHONY: verify
-verify: test typecheck e2e ## Everything CI runs
-	pnpm db:test
 
 # ── quality ──────────────────────────────────────────────────────────────────
 
@@ -201,7 +193,7 @@ hosted-check: ## Check the deployed project routes the api schema (needs HOSTED_
 check: lint typecheck test secrets assertions drift api-types ## Fast checks, no database needed
 
 .PHONY: verify
-verify: check test-db build ## Everything CI runs
+verify: check test-db build e2e ## Everything CI runs
 	@echo ""
 	@echo "All checks passed."
 

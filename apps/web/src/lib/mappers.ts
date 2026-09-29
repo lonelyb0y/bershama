@@ -29,13 +29,17 @@ export interface AuditLogRow {
   occurred_at: string;
 }
 
-/** Row shape of api.whoami(). */
-export interface WhoAmIRow {
-  user_id: string;
-  tenant_id: string;
-  role: AppRole;
-  full_name: string;
-  locale: 'en' | 'ar';
+  /** Row shape of api.whoami(). */
+  export interface WhoAmIRow {
+    user_id: string;
+    tenant_id: string;
+    role: AppRole;
+    full_name: string;
+    // Added in migration 0015. Null is a real state, not an oversight: a staff
+    // record with no Arabic name on file, where the interface falls back to the
+    // Latin spelling rather than rendering an empty header.
+    full_name_ar: string | null;
+    locale: 'en' | 'ar';
   tenant_slug: string;
   currency_code: 'EGP' | 'SAR' | 'AED' | 'USD';
   vat_rate: number | string;

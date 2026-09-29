@@ -59,7 +59,13 @@ export async function AuthenticatedShell({
     notFound();
   }
 
-  const displayName = session.fullName;
+  // The Arabic name in Arabic. The session has carried both spellings all along
+  // -- whoami returns full_name and full_name_ar -- and the header was showing
+  // the Latin one on the Arabic page, so an Egyptian operator saw their own name
+  // in the wrong script at the top of every screen. Falls back to the Latin name
+  // for the many staff who have no Arabic name recorded, which is a real gap in
+  // the profile rather than a reason to render an empty header.
+  const displayName = locale === 'ar' ? (session.fullNameAr ?? session.fullName) : session.fullName;
 
   return (
     <div className="min-h-dvh">
@@ -71,22 +77,37 @@ export async function AuthenticatedShell({
 
           <AppNav surface={surface} role={session.role} />
 
-          <div className="ms-auto flex items-center gap-3">
-            <ThemeToggle />
-            <LocaleSwitcher />
-            <div className="text-end leading-tight">
-              <p className="text-sm font-medium">{displayName}</p>
-              <p className="text-[color:var(--text-muted)] text-xs">
+          {/*
+            min-w-0 and shrink-0 on the right-hand cluster, whitespace-nowrap on
+            the phrases.
+
+            With eight destinations in the nav plus four controls, the row ran out
+            of room and wrapped mid-phrase: "Sign out" broke across two lines, and
+            so did the user's name and the "Audit log" link. A name and a button
+            are phrases, so they wrap as units or not at all. min-w-0 on the flex
+            row lets the nav be the part that yields, and shrink-0 stops the
+            controls being squeezed at all.
+          */}
+          <div className="ms-auto flex min-w-0 shrink-0 items-center gap-3">
+            <div className="shrink-0">
+              <ThemeToggle />
+            </div>
+            <div className="shrink-0">
+              <LocaleSwitcher />
+            </div>
+            <div className="shrink-0 text-end leading-tight whitespace-nowrap">
+              <p className="truncate text-sm font-medium">{displayName}</p>
+              <p className="text-[color:var(--text-muted)] text-xs whitespace-nowrap">
                 {/* The role label is translated, never shown as a raw enum
                     value: "WAREHOUSE_MANAGER" means nothing to a warehouse
                     supervisor. */}
                 {t(`roles.${session.role}` as never)}
               </p>
             </div>
-            <form action="/auth/sign-out" method="post">
+            <form action="/auth/sign-out" method="post" className="shrink-0">
               <button
                 type="submit"
-                className="rounded-md border px-2.5 py-1.5 text-xs font-medium hover:bg-[color:var(--text-muted)]/10"
+                className="rounded-md border px-2.5 py-1.5 text-xs font-medium whitespace-nowrap hover:bg-[color:var(--text-muted)]/10"
               >
                 {t('common.signOut')}
               </button>

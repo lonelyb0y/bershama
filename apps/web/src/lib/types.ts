@@ -129,6 +129,7 @@ export interface SessionInfo {
   tenantId: string;
   role: AppRole;
   fullName: string;
+  fullNameAr: string | null;
   locale: 'en' | 'ar';
   tenantSlug: string;
   currencyCode: CurrencyCode;

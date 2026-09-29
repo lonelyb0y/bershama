@@ -114,7 +114,10 @@
     "comingSoon": "Coming in a later milestone",
     "offlineQueue": "{count} change(s) waiting to sync",
     "online": "Online",
-    "offline": "Offline"
+    "offline": "Offline",
+    "roadmapNote": "Inventory, requisitions and delivery tracking arrive in M2 through M4.",
+    "auditFootnote": "Rows here are RLS-filtered to your organisation. Another tenant's activity is invisible to this query even though the table is shared.",
+    "systemActor": "system"
   },
   "stocktake": {
     "title": "Stocktake",

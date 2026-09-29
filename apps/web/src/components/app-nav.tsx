@@ -72,7 +72,11 @@ export function AppNav({
   );
 
   return (
-    <nav aria-label={t('dashboard')} className="hidden items-center gap-1 md:flex">
+    // lg, not md. With eight destinations plus the theme toggle, the language
+    // switcher, the name and the sign-out button, md was not enough room and the
+    // header wrapped. Below lg the nav is hidden and the layout has room to
+    // breathe; this is a layout decision, not a device one.
+    <nav aria-label={t('dashboard')} className="hidden min-w-0 items-center gap-1 lg:flex">
       {items.map((item) => {
         const surfaceRoot = `/${surface === 'admin' ? 'admin' : surface}`;
         const table = HREF_BY_SURFACE[surface];
@@ -91,7 +95,7 @@ export function AppNav({
               key={item}
               aria-disabled="true"
               title="Planned for a later milestone"
-              className="cursor-not-allowed rounded-md px-2.5 py-1.5 text-sm text-[color:var(--text-muted)] opacity-50"
+              className="cursor-not-allowed rounded-md px-2.5 py-1.5 text-sm whitespace-nowrap text-[color:var(--text-muted)] opacity-50"
             >
               {t(item)}
             </span>
@@ -103,7 +107,7 @@ export function AppNav({
             key={item}
             href={href}
             aria-current={isActive ? 'page' : undefined}
-            className={`rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors ${
+            className={`whitespace-nowrap rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors ${
               isActive
                 ? 'bg-[var(--color-brand-600)] text-white'
                 : 'hover:bg-[color:var(--text-muted)]/10'

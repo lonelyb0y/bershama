@@ -39,7 +39,15 @@ export default async function AdminDashboard({
           {tNav('dashboard')}
         </h1>
         <p className="text-[color:var(--text-muted)] mt-1 text-sm">
-          {tAudit('welcome', { name: session?.fullName ?? '' })}
+          {tAudit('welcome', {
+            // The Arabic name on the Arabic page. whoami has returned full_name_ar
+            // since migration 0015, and the greeting ignored it, so a person's
+            // name was spelled in Latin script on an Arabic screen.
+            name:
+              locale === 'ar'
+                ? (session?.fullNameAr ?? session?.fullName ?? '')
+                : (session?.fullName ?? ''),
+          })}
         </p>
       </header>
 
@@ -75,7 +83,7 @@ export default async function AdminDashboard({
         </dl>
 
         <p className="text-[color:var(--text-muted)] mt-4 text-sm">
-          Inventory, requisitions and delivery tracking arrive in M2 through M4.
+          {t('roadmapNote')}
         </p>
       </section>
 
@@ -98,7 +106,7 @@ export default async function AdminDashboard({
                   {entry.entityId ? ` · ${entry.entityId.slice(0, 8)}` : ''}
                 </span>
                 <span className="ms-auto text-[color:var(--text-muted)] text-xs">
-                  {entry.actorLabel ?? 'system'} · {timeAgo(entry.occurredAt)}
+                  {entry.actorLabel ?? t('systemActor')} · {timeAgo(entry.occurredAt, new Date(), locale)}
                 </span>
               </li>
             ))}
@@ -106,9 +114,8 @@ export default async function AdminDashboard({
         )}
 
         <p className="text-[color:var(--text-muted)] mt-4 text-xs">
-          Rows here are RLS-filtered to your organisation. Another tenant&apos;s
-          activity is invisible to this query even though the table is shared.
-        </p>
+            {t('auditFootnote')}
+          </p>
       </section>
     </div>
   );
