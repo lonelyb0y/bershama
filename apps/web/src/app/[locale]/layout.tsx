@@ -3,6 +3,7 @@ import { type Metadata, type Viewport } from 'next';
 import { notFound } from 'next/navigation';
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
+import { Analytics } from '@vercel/analytics/next';
 
 import {
   directionOf,
@@ -118,6 +119,20 @@ export default async function LocaleLayout({
         <NextIntlClientProvider messages={messages}>
           {children}
         </NextIntlClientProvider>
+
+        {/*
+          Vercel Analytics, first-party: it reports to the deployment the request
+          already came from, so no analytics vendor sees a doctor's or a driver's IP
+          address. That is the same reasoning as next/font above -- a pharmacy
+          application is not where a request to a third party belongs -- and the
+          alternative is not "no analytics", it is whichever external tool would
+          otherwise be pasted in here.
+
+          mode="auto" follows the deployment: production and previews report, and
+          local development does not, which would otherwise fill the dashboard with
+          localhost noise.
+        */}
+        <Analytics mode="auto" />
       </body>
     </html>
   );

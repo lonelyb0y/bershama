@@ -57,3 +57,5 @@ __pycache__/
 
 # Vercel CLI token, used only to link and deploy. Never commit it.
 .vercel-token
+.vercel
+.env*

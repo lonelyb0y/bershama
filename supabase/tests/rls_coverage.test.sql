@@ -13,7 +13,7 @@
 
 begin;
 
-select plan(16);
+select plan(19);
 
 -- ── every public table has RLS enabled ──────────────────────────────────────
 
@@ -240,6 +240,60 @@ select is_empty(
   select ok(
     not has_schema_privilege('service_role', 'private', 'USAGE'),
     'service_role cannot see the private schema'
+  );
+
+  -- ── `anon` must be unable to execute anything in `api` ─────────────────────
+  --
+  -- Asserted over the WHOLE schema rather than a fixed list, so a function added
+  -- after this suite was written is covered too. The dashboard's "Exposed
+  -- functions" list grants EXECUTE to the API roles, and on this project ticking
+  -- three functions there granted EXECUTE to anon on all eighteen -- including
+  -- api.stock_take, which is SECURITY DEFINER and moves stock.
+  --
+  -- It was inert only because anon lacks USAGE on the schema, and an invariant
+  -- that depends on a checkbox in a dashboard is not an invariant.
+  -- Counted in a CTE rather than as an inline subquery, because
+  -- scripts/check-assertions.py treats any line beginning `select <fn>(` as a
+  -- pgTAP assertion and rejects `count(` as an unknown one. That rule is worth
+  -- keeping -- it is what stops a plain query being mistaken for a test -- so
+  -- the assertions are shaped to suit it rather than the rule being loosened.
+  with api_grants as (
+    select
+      count(*) filter (where has_function_privilege('anon', p.oid, 'execute'))
+        as anon_can_execute,
+      count(*) filter (where has_function_privilege('authenticated', p.oid, 'execute'))
+        as authenticated_can_execute,
+      count(*) as total
+    from pg_proc p
+    join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'api'
+  )
+  select is(
+    (select anon_can_execute from api_grants),
+    0::bigint,
+    'anon cannot EXECUTE any function in the api schema'
+  );
+
+  select ok(
+    not has_schema_privilege('anon', 'api', 'USAGE'),
+    'anon cannot even name the api schema'
+  );
+
+  -- The positive half, so the test above cannot be satisfied by revoking
+  -- everything from everyone.
+  with api_grants as (
+    select
+      count(*) filter (where has_function_privilege('authenticated', p.oid, 'execute'))
+        as authenticated_can_execute,
+      count(*) as total
+    from pg_proc p
+    join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'api'
+  )
+  select is(
+    (select authenticated_can_execute from api_grants),
+    (select total from api_grants),
+    'authenticated can still EXECUTE every function in the api schema'
   );
 
   -- ── every SECURITY DEFINER function pins its search_path ────────────────────

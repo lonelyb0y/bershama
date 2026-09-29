@@ -59,7 +59,15 @@ max_rows = 1000
 # `postgres` are reachable through the Data API roles (`anon`, `authenticated`, `service_role`)
 # without explicit GRANTs, matching the cloud default. Set to `false` to require explicit GRANTs
 # instead. Left unset, a fresh project falls back to `true`.
-# auto_expose_new_tables = true
+# Set explicitly to false, which is the default the CLI is migrating to anyway:
+# the setting is deprecated and its `true` behaviour is removed on 2026-10-30.
+#
+# Until then, `true` grants Data API privileges to the API roles the moment a table
+# appears in `public`. So a table written and forgotten is silently readable over
+# HTTP by anyone holding the publishable key. False means a new table is private
+# until someone grants it, which is the right way round for a schema that will
+# hold supplier pricing.
+auto_expose_new_tables = false
 
 [api.tls]
 # Enable HTTPS endpoints locally using a self-signed certificate.

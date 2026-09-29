@@ -85,6 +85,15 @@ db-expose-api: ## Tell PostgREST to re-read its config, so the api schema is rou
 	@psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" -qtA -f scripts/expose-api-schema.sql
 	@echo "  api schema is now routable. Verify: curl localhost:54321/rest/v1/api/rpc/whoami"
 
+.PHONY: config-push
+config-push: ## Push config.toml to the hosted project, then repair the auth settings
+	@# Two steps, in this order, and the second is not optional: `supabase config
+	@# push` rewrites the auth config and drops the email provider toggle, which
+	@# makes every sign-in return 422 email_provider_disabled. Do it in one target
+	@# so the footgun is disarmed rather than remembered.
+	@SUPABASE_YES=1 supabase config push
+	@SUPABASE_PROJECT_REF=$${SUPABASE_PROJECT_REF:-} ./scripts/fix-hosted-auth.sh
+
 .PHONY: db-push
 db-push: ## Apply local migrations to the linked remote project
 	@command -v supabase >/dev/null || { echo "supabase CLI not found"; exit 1; }

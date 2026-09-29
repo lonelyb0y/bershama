@@ -117,4 +117,46 @@ printf "    Accept-Profile: private  -> HTTP %s  (406 means not served, which is
   "$(curl -sS -o /dev/null -m 20 -w '%{http_code}' -X POST "${URL%/}/rest/v1/rpc/whoami" \
       -H "apikey: ${KEY}" -H "Content-Type: application/json" \
       -H "Accept-Profile: private" -H "Content-Profile: private" -d '{}')"
+
+# ── can anyone actually sign in? ───────────────────────────────────────────
+#
+# Routing is necessary and not sufficient. The application signs in with
+# `supabase.auth.signInWithPassword`, and the deployed project had the email
+# provider switched off entirely -- every sign-in returned
+#
+#     422 email_provider_disabled
+#
+# so the app was perfectly routable and completely unusable. Nothing about
+# that is visible from the schema.
+#
+# It is checked here, through the Management API, because a password is not
+# something this check should hold. When SUPABASE_ACCESS_TOKEN is absent the
+# check is skipped rather than failing, since the routing half is still worth
+# running.
+if [ -n "${SUPABASE_ACCESS_TOKEN:-}" ] && [ -n "${SUPABASE_PROJECT_REF:-}" ]; then
+  EMAIL_ENABLED=$(curl -sS -m 20 \
+    "https://api.supabase.com/v1/projects/${SUPABASE_PROJECT_REF}/config/auth" \
+    -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
+    | python3 -c "import sys,json; print(json.load(sys.stdin).get('external_email_enabled'))" 2>/dev/null)
+
+  if [ "$EMAIL_ENABLED" = "True" ] || [ "$EMAIL_ENABLED" = "true" ]; then
+    echo "    email provider          -> enabled"
+  else
+    echo
+    echo "  FAIL  the email provider is disabled, so NOBODY can sign in."
+    echo
+    echo "        Every sign-in returns 422 email_provider_disabled, and the app is"
+    echo "        unroutable-in-practice: it loads and then nobody can get in."
+    echo
+    echo "        This is what \`supabase config push\` does to this project -- it"
+    echo "        rewrites the auth config without carrying the email provider"
+    echo "        toggle, so a push silently disables sign-in. Re-apply it with:"
+    echo
+    echo "          curl -X PATCH https://api.supabase.com/v1/projects/\$REF/config/auth \\"
+    echo "               -H \"Authorization: Bearer \$SUPABASE_ACCESS_TOKEN\" \\"
+    echo "               -H 'Content-Type: application/json' \\"
+    echo "               -d '{\"external_email_enabled\": true}'"
+    exit 1
+  fi
+fi
 exit 0
