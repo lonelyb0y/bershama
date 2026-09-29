@@ -14,6 +14,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { AppNav } from '@/components/app-nav';
 import { LocaleSwitcher } from '@/components/locale-switcher';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { ROLES_BY_SURFACE, getSession } from '@/lib/session';
 import { isLocale, type Locale } from '@/i18n/routing';
 
@@ -71,6 +72,7 @@ export async function AuthenticatedShell({
           <AppNav surface={surface} role={session.role} />
 
           <div className="ms-auto flex items-center gap-3">
+            <ThemeToggle />
             <LocaleSwitcher />
             <div className="text-end leading-tight">
               <p className="text-sm font-medium">{displayName}</p>

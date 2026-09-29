@@ -17,7 +17,7 @@
 // pulling that into a client component fails the build.
 
 import { useState, useTransition } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 
 import { getSupabaseApiClient, getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { asWhoAmI } from '@/lib/mappers';
@@ -28,7 +28,6 @@ import type { AppRole } from '@/lib/types';
 export function LoginForm() {
   const t = useTranslations('auth');
   const router = useRouter();
-  const locale = useLocale();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -62,7 +61,15 @@ export function LoginForm() {
     const role = (asWhoAmI(sessionData)?.role ?? 'ANALYST') as AppRole;
 
     startTransition(() => {
-      router.replace(`/${locale}${homeRouteForRole(role)}`);
+      // NO locale prefix here, deliberately.
+      //
+      // `useRouter` comes from '@/i18n/routing', which is next-intl's
+      // locale-aware router: it expects a locale-less path and prefixes the active
+      // locale itself. Passing `/${locale}${...}` made it produce /en/en/admin --
+      // a 404 on every single sign-in, which is the bug reported as "after login
+      // it throws me to the same URL". next-intl's router and a locale-prefixed
+      // path are two different conventions, and mixing them doubles the segment.
+      router.replace(homeRouteForRole(role));
       router.refresh();
     });
   }

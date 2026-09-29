@@ -18,7 +18,7 @@
 
 import { createBrowserClient } from '@supabase/ssr';
 
-import { API_PROFILE_HEADERS } from './api-schema';
+import { API_DB_OPTION } from './api-schema';
 
 let client: ReturnType<typeof createBrowserClient> | undefined;
 
@@ -60,9 +60,24 @@ export function getSupabaseApiClient() {
       );
     }
 
-    apiClient = createBrowserClient(url, key, {
-      global: { headers: { ...API_PROFILE_HEADERS } },
-    });
+  apiClient = createBrowserClient(url, key, {
+    // `db.schema`, NOT `global.headers`. See lib/supabase/api-schema.ts.
+    db: { ...API_DB_OPTION },
+
+    // isSingleton: false, and this line is load-bearing.
+    //
+    // createBrowserClient keeps a module-level `cachedBrowserClient` and, in a
+    // browser, returns it for every later call while IGNORING the new options.
+    // The public client is created first during sign-in, so the api client got
+    // handed that same public client back -- no db.schema, no api routing -- and
+    // `rpc('whoami')` went out as public.whoami (PGRST202). The role came back
+    // empty, `role ?? 'ANALYST'` filled the gap, and every user was routed to
+    // /admin regardless of their actual role.
+    //
+    // Two different configurations need two different clients, so the api one
+    // must opt out of the cache rather than join it.
+    isSingleton: false,
+  });
   }
 
   return apiClient;

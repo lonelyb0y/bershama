@@ -11,6 +11,7 @@ import {
   routing,
   type Locale,
 } from '@/i18n/routing';
+import { THEME_SCRIPT } from '@/lib/theme-script';
 
 import '../globals.css';
 
@@ -110,6 +111,15 @@ export default async function LocaleLayout({
       className={`${inter.variable} ${plexArabic.variable}`}
       suppressHydrationWarning
     >
+      <head>
+        {/*
+          The theme is decided here, in the document, before anything paints. It
+          has to be here: a theme applied from a client component lands after the
+          first paint and produces a white flash on every load. See
+          lib/theme-script.ts for why this is a script and not a React effect.
+        */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
       <body
         // Applying the face by locale, not by direction: a page can be RTL
         // while still containing mostly Latin text (SKUs, GTINs, expiry dates),
