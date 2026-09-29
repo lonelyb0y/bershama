@@ -57,3 +57,8 @@ __pycache__/
 
 # Vercel CLI token, used only to link and deploy. Never commit it.
 .vercel-token
+.vercel
+.env*
+# npm wrote this when the global vercel install failed. The project is pnpm;
+# a second lockfile is how two tools end up disagreeing about versions.
+package-lock.json

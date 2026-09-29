@@ -66,7 +66,17 @@ def check_functions(suites: list[Path]) -> None:
         )
         local_defs |= set(re.findall(r"create\s+function\s+[\w.]*?(\w+)\s*\(", src, re.I))
 
-        for match in re.finditer(r"^\s*select\s+([a-z_][a-z0-9_]*)\s*\(", src, re.M | re.I):
+        # `[ \t]+` rather than `\s+` between the keyword and the function name.
+        # `\s` matches newlines, so a bare
+        #     select
+        #       count(*)
+        # -- a CTE, or any multi-line subquery -- was read as `select count(` and
+        # reported as an unknown assertion function. Found because the checker
+        # rejected two perfectly good assertions rather than because anyone was
+        # looking for that class of false positive.
+        for match in re.finditer(
+            r"^[ \t]*select[ \t]+([a-z_][a-z0-9_]*)[ \t]*\(", src, re.M | re.I
+        ):
             fn = match.group(1).lower()
             line = src[: match.start()].count("\n") + 1
             # A SELECT of a table or expression, not an assertion.
