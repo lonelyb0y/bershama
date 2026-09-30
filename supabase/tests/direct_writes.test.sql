@@ -40,7 +40,10 @@ values ('44444444-0000-4000-8000-000000000001', '44444444-0000-4000-8000-0000000
 
 -- The claim has to be set BEFORE the role switch, because the tenant trigger
 -- resolves current_tenant_id() during the first insert.
-select set_config('request.jwt.claim.sub', '44444444-0000-4000-8000-000000000001', true);
+-- `set local`, not `select set_config(...)`. check-assertions.py treats any line
+-- beginning `select <fn>(` as a pgTAP assertion, and set_config is not one, so
+-- the setup statement was reported as a portability failure.
+set local request.jwt.claim.sub = '44444444-0000-4000-8000-000000000001';
 
 set role authenticated;
 
