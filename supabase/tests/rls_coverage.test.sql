@@ -13,7 +13,7 @@
 
 begin;
 
-select plan(19);
+select plan(20);
 
 -- ── every public table has RLS enabled ──────────────────────────────────────
 
@@ -104,6 +104,54 @@ select is_empty(
       ])
   $$,
   'authenticated can INSERT only into the allow-listed catalogue tables'
+);
+-- ── no api function may take a private type as an INPUT parameter ───────────
+--
+-- Not a style rule. A `private.*` type in an api function's parameter list makes
+-- that function uncallable from the browser: PostgREST resolves the parameter's
+-- type name when a value is passed, and resolving it needs USAGE on `private`,
+-- which a client role has by design and cannot be granted. The failure is
+--
+--   42501 permission denied for schema private
+--
+-- -- an error that names the schema rather than the function, so it sends you
+-- looking in the wrong place entirely.
+--
+-- It bit api.create_product, api.create_location and api.update_product, all
+-- fixed in 0028/0030/0034. It is easy to introduce because typing the parameter
+-- as the enum reads like better validation.
+--
+-- The fix is text in, cast inside, where the cast runs as the owner. The database
+-- still rejects a bad value -- a cast to an enum rejects anything that is not a
+-- member -- so nothing is given up.
+--
+-- proargtypes and not proallargtypes: proallargtypes includes OUT parameters, and
+-- a table-returning function such as api.whoami has a private type in its OUTPUT
+-- (private.app_role), which is fine. The caller never supplies an output, so
+-- there is nothing for a client to fail to name. Only a value the caller must
+-- pass is a problem.
+--
+-- A local VARIABLE of a private type inside a function body is fine for the same
+-- reason. I previously flagged api.quarantine_batch and friends as affected, on
+-- the strength of grepping for `p_to_status private.batch_status`; they were not,
+-- and that flag was wrong. The assertion exists so the question has an answer
+-- that does not depend on a grep.
+select is_empty(
+  $$
+  select p.proname
+  from pg_proc p
+  join pg_namespace n on n.oid = p.pronamespace
+  left join lateral (
+    select 1 as hit
+    from unnest(p.proargtypes) as t(oid)
+    join pg_type pt on pt.oid = t.oid
+    join pg_namespace tn on tn.oid = pt.typnamespace
+    where tn.nspname = 'private'
+  ) x on true
+  where n.nspname = 'api'
+    and x.hit is not null
+  $$,
+  'no api function takes a private type as an input parameter -- such a function is uncallable from a client'
 );
 
 -- The critical tables that exist in M1 are also asserted by name, so the
