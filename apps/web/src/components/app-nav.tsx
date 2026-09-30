@@ -62,6 +62,7 @@ const HREF_BY_SURFACE: Partial<Record<Surface, Partial<Record<NavKey, string>>>>
     catalogue: '/inventory/products',
     batches: '/inventory/batches',
     stocktake: '/inventory/stocktake',
+    requisitions: '/inventory/requisitions',
   },
   pharmacy: { dashboard: '', catalogue: '/inventory/products' },
   distributor: { dashboard: '' },

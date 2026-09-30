@@ -46,14 +46,14 @@
   },
   "inventory": {
     "title": "المخزون",
-    "subtitle": "{count} تركيبة في المخزون عبر كل المواقع",
+    "subtitle": "{count, plural, zero {لا تركيبات} one {تركيبة واحدة} two {تركيبتان} few {# تركيبات} many {# تركيبة} other {# تركيبة}} في المخزون عبر كل المواقع",
     "catalogue": {
       "title": "الكتالوج",
-      "body": "{count} منتج"
+      "body": "{count, plural, zero {لا منتجات} one {منتج واحد} two {منتجان} few {# منتجات} many {# منتجًا} other {# منتج}}"
     },
     "batches": {
       "title": "الدفعات",
-      "body": "{count} دفعة، الأقرب انتهاءً أولاً"
+      "body": "{count, plural, zero {لا دفعات} one {دفعة واحدة} two {دفعتان} few {# دفعات} many {# دفعة} other {# دفعة}}، الأقرب انتهاءً أولاً"
     },
     "stocktake": {
       "title": "الجرد",
@@ -61,18 +61,56 @@
     }
   },
   "requisitions": {
-    "new": "طلب جديد",
+    "title": "الطلبات",
+    "subtitle": "{count, plural, zero {لا طلبات} one {طلب واحد} two {طلبان} few {# طلبات} many {# طلبًا} other {# طلب}}، الأحدث أولًا",
+    "listLabel": "الطلبات",
+    "empty": "لا توجد طلبات بعد. ابدأ بإنشاء طلب.",
+    "selectHint": "اختر طلبًا لعرض بنوده، أو أنشئ طلبًا جديدًا.",
     "status": {
       "DRAFT": "مسودة",
-      "SUBMITTED": "تم الإرسال",
-      "APPROVED": "تمت الموافقة",
+      "SUBMITTED": "مُرسل",
+      "ALLOCATED": "مُخصَّص",
       "REJECTED": "مرفوض",
-      "ALLOCATED": "تم التخصيص",
-      "DISPATCHED": "تم الشحن",
-      "IN_TRANSIT": "في الطريق",
-      "DELIVERED": "تم التسليم",
-      "CANCELLED": "ملغي",
-      "CLOSED": "مغلق"
+      "DISCARDED": "ملغى"
+    },
+    "new": {
+      "title": "إنشاء طلب",
+      "facility": "لأي منشأة",
+      "justification": "السبب (اختياري)",
+      "justificationHint": "نقص موسمي، افتتاح فرع جديد…",
+      "submit": "إنشاء الطلب",
+      "facilityRequired": "اختر المنشأة",
+      "errorSummary": "تعذّر إنشاء الطلب",
+      "created": "تم إنشاء الطلب. أضف البنود المطلوبة."
+    },
+    "detail": {
+      "product": "المنتج",
+      "requested": "مطلوب",
+      "allocated": "مُخصَّص",
+      "shortage": "ناقص",
+      "submit": "إرسال للموافقة",
+      "approve": "الموافقة والتخصيص",
+      "approveHint": "الموافقة تحجز المخزون من الدفعات الأقرب انتهاءً، مع استبعاد المحجوزة أو الموجودة في الطريق. النقص يُسجَّل ولا يُرفض، حتى لا يمنع بندٌ ناقص باقي الطلب.",
+      "reject": "الرفض مع سبب",
+      "rejectReason": "السبب (مطلوب)",
+      "cancel": "إلغاء",
+      "noLines": "لا توجد بنود بعد. أضف المنتجات التي تحتاجها المنشأة."
+    },
+    "editor": {
+      "add": "إضافة إلى الطلب",
+      "product": "المنتج",
+      "quantity": "الكمية",
+      "searchProducts": "ابحث في الكتالوج",
+      "noProducts": "لا يوجد منتج مطابق.",
+      "remove": "إزالة",
+      "removeLine": "إزالة هذا البند",
+      "qtyRequired": "أدخل كمية",
+      "qtyPositive": "يجب أن تكون الكمية رقمًا صحيحًا أكبر من صفر",
+      "productRequired": "اختر منتجًا أولًا",
+      "duplicate": "هذا المنتج موجود في الطلب بالفعل",
+      "errorSummary": "تعذّرت إضافة البند",
+      "lineAdded": "تمت الإضافة إلى الطلب.",
+      "lineRemoved": "تمت إزالة البند."
     }
   },
   "delivery": {
@@ -115,7 +153,7 @@
     "vatRate": "نسبة الضريبة",
     "minShelfLife": "أقل مدة صلاحية",
     "comingSoon": "متاح في مرحلة لاحقة",
-    "offlineQueue": "{count} تغيير في انتظار المزامنة",
+    "offlineQueue": "{count, plural, zero {لا تغييرات} one {تغيير واحد} two {تغييران} few {# تغييرات} many {# تغييرًا} other {# تغيير}} في انتظار المزامنة",
     "online": "متصل",
     "offline": "غير متصل",
     "roadmapNote": "المخزون والطلبات وتتبع التسليم تصل في المراحل M2 إلى M4.",
@@ -162,7 +200,7 @@
   },
   "products": {
     "title": "المنتجات",
-    "subtitle": "{count} منتج في هذا الكتالوج",
+    "subtitle": "{count, plural, zero {لا منتجات} one {منتج واحد} two {منتجان} few {# منتجات} many {# منتجًا} other {# منتج}} في هذا الكتالوج",
     "searchPlaceholder": "ابحث بالاسم أو الاسم العلمي أو رمز المنتج",
     "search": "بحث",
     "clear": "مسح",
@@ -216,7 +254,7 @@
   },
   "batches": {
     "title": "الدفعات",
-    "subtitle": "{count} دفعة، الأقرب انتهاءً أولاً",
+    "subtitle": "{count, plural, zero {لا دفعات} one {دفعة واحدة} two {دفعتان} few {# دفعات} many {# دفعة} other {# دفعة}}، الأقرب انتهاءً أولاً",
     "lot": "رقم التشغيلة",
     "product": "المنتج",
     "expiry": "الانتهاء",

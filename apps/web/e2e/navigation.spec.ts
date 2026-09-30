@@ -33,6 +33,8 @@ const PAGES = [
   '/en/admin/inventory',
   '/en/admin/inventory/products',
   '/ar/admin/inventory/products',
+  '/en/admin/inventory/requisitions',
+  '/ar/admin/inventory/requisitions',
   '/en/admin/inventory/batches',
   '/ar/admin/inventory/batches',
   '/en/admin/inventory/stocktake',

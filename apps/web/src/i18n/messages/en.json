@@ -46,14 +46,14 @@
   },
   "inventory": {
     "title": "Inventory",
-    "subtitle": "{count} combinations in stock across every location",
+    "subtitle": "{count, plural, one {# combination} other {# combinations}} in stock across every location",
     "catalogue": {
       "title": "Catalogue",
-      "body": "{count} products"
+      "body": "{count, plural, one {# product} other {# products}}"
     },
     "batches": {
       "title": "Batches",
-      "body": "{count} lots, soonest expiry first"
+      "body": "{count, plural, one {# lot} other {# lots}}, soonest expiry first"
     },
     "stocktake": {
       "title": "Stocktake",
@@ -61,18 +61,56 @@
     }
   },
   "requisitions": {
-    "new": "New requisition",
+    "title": "Requisitions",
+    "subtitle": "{count, plural, one {# request} other {# requests}}, newest first",
+    "listLabel": "Requisitions",
+    "empty": "No requests yet. Raise one to get started.",
+    "selectHint": "Choose a request on the left to see its lines, or raise a new one.",
     "status": {
       "DRAFT": "Draft",
       "SUBMITTED": "Submitted",
-      "APPROVED": "Approved",
-      "REJECTED": "Rejected",
       "ALLOCATED": "Allocated",
-      "DISPATCHED": "Dispatched",
-      "IN_TRANSIT": "In transit",
-      "DELIVERED": "Delivered",
-      "CANCELLED": "Cancelled",
-      "CLOSED": "Closed"
+      "REJECTED": "Rejected",
+      "DISCARDED": "Discarded"
+    },
+    "new": {
+      "title": "Raise a request",
+      "facility": "For which facility",
+      "justification": "Why (optional)",
+      "justificationHint": "A seasonal shortage, a new branch opening…",
+      "submit": "Create the request",
+      "facilityRequired": "Choose the facility this is for",
+      "errorSummary": "The request could not be created",
+      "created": "Request created. Add the lines you need."
+    },
+    "detail": {
+      "product": "Product",
+      "requested": "requested",
+      "allocated": "allocated",
+      "shortage": "short",
+      "submit": "Submit for approval",
+      "approve": "Approve and allocate",
+      "approveHint": "Approving reserves stock from the batches that expire soonest, skipping anything quarantined or still in transit. Short lines are recorded rather than refused, so one missing item does not block the rest.",
+      "reject": "Reject with a reason",
+      "rejectReason": "Reason (required)",
+      "cancel": "Cancel",
+      "noLines": "No lines yet. Add the products this facility needs."
+    },
+    "editor": {
+      "add": "Add to the request",
+      "product": "Product",
+      "quantity": "Quantity",
+      "searchProducts": "Search the catalogue",
+      "noProducts": "No product matches that.",
+      "remove": "Remove",
+      "removeLine": "Remove this line",
+      "qtyRequired": "Enter a quantity",
+      "qtyPositive": "The quantity must be a whole number above zero",
+      "productRequired": "Choose a product first",
+      "duplicate": "That product is already on this request",
+      "errorSummary": "The line could not be added",
+      "lineAdded": "Added to the request.",
+      "lineRemoved": "Line removed."
     }
   },
   "delivery": {
@@ -115,7 +153,7 @@
     "vatRate": "VAT rate",
     "minShelfLife": "Minimum shelf life",
     "comingSoon": "Coming in a later milestone",
-    "offlineQueue": "{count} change(s) waiting to sync",
+    "offlineQueue": "{count, plural, one {# change} other {# changes}} waiting to sync",
     "online": "Online",
     "offline": "Offline",
     "roadmapNote": "Inventory, requisitions and delivery tracking arrive in M2 through M4.",
@@ -162,7 +200,7 @@
   },
   "products": {
     "title": "Products",
-    "subtitle": "{count} products in this catalogue",
+    "subtitle": "{count, plural, one {# product} other {# products}} in this catalogue",
     "searchPlaceholder": "Search by name, generic name or SKU",
     "search": "Search",
     "clear": "Clear",
@@ -216,7 +254,7 @@
   },
   "batches": {
     "title": "Batches",
-    "subtitle": "{count} lots, soonest expiry first",
+    "subtitle": "{count, plural, one {# lot} other {# lots}}, soonest expiry first",
     "lot": "Lot",
     "product": "Product",
     "expiry": "Expiry",
