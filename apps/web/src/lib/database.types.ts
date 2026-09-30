@@ -341,7 +341,7 @@ export type Database = {
           p_shelf_life_months?: number;
           p_strength?: string;
           p_strength_unit?: string;
-          p_uom?: "BOX" | "STRIP" | "BOTTLE" | "TUBE" | "VIAL" | "SACHET" | "KIT";
+          p_uom?: string;
         };
         Returns: Database["public"]["Tables"]["products"]["Row"];
         SetofOptions: {
