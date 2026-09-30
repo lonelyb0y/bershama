@@ -1,6 +1,11 @@
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.5";
+  };
   api: {
     Tables: {
       [_ in never]: never;
@@ -19,6 +24,16 @@ export type Database = {
           p_reason_code: string;
         };
         Returns: number;
+      };
+      allocate_requisition: {
+        Args: { p_requisition_id: string };
+        Returns: {
+          allocated: number;
+          line_product: string;
+          requested: number;
+          requisition_id: string;
+          shortage: number;
+        }[];
       };
       create_batch: {
         Args: {
@@ -39,7 +54,7 @@ export type Database = {
           isSetofReturn: false;
         };
       };
-      current_tenant_id: { Args: Record<PropertyKey, never>; Returns: string };
+      current_tenant_id: { Args: never; Returns: string };
       get_batch_stock: {
         Args: { p_batch_id: string };
         Returns: {
@@ -106,6 +121,16 @@ export type Database = {
         };
         Returns: number;
       };
+      reject_requisition: {
+        Args: { p_note: string; p_requisition_id: string };
+        Returns: Database["public"]["Tables"]["requisitions"]["Row"];
+        SetofOptions: {
+          from: "*";
+          to: "requisitions";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
       release_batch: {
         Args: { p_batch_id: string; p_reason?: string };
         Returns: Database["public"]["Tables"]["batches"]["Row"];
@@ -116,8 +141,17 @@ export type Database = {
           isSetofReturn: false;
         };
       };
+      release_requisition: {
+        Args: { p_requisition_id: string };
+        Returns: undefined;
+      };
       search_products: {
-        Args: { p_expiry_band?: string; p_limit?: number; p_offset?: number; p_query?: string };
+        Args: {
+          p_expiry_band?: string;
+          p_limit?: number;
+          p_offset?: number;
+          p_query?: string;
+        };
         Returns: {
           atc_code: string;
           brand: string;
@@ -165,7 +199,17 @@ export type Database = {
         };
         Returns: number;
       };
-      touch: { Args: Record<PropertyKey, never>; Returns: undefined };
+      submit_requisition: {
+        Args: { p_requisition_id: string };
+        Returns: Database["public"]["Tables"]["requisitions"]["Row"];
+        SetofOptions: {
+          from: "*";
+          to: "requisitions";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      touch: { Args: never; Returns: undefined };
       transfer_stock: {
         Args: {
           p_batch_id: string;
@@ -204,10 +248,11 @@ export type Database = {
         };
       };
       whoami: {
-        Args: Record<PropertyKey, never>;
+        Args: never;
         Returns: {
           currency_code: string;
           full_name: string;
+          full_name_ar: string;
           locale: string;
           role:
             | "TENANT_ADMIN"
@@ -251,7 +296,12 @@ export type Database = {
     };
     Functions: {
       graphql: {
-        Args: { extensions?: Json; operationName?: string; query?: string; variables?: Json };
+        Args: {
+          extensions?: Json;
+          operationName?: string;
+          query?: string;
+          variables?: Json;
+        };
         Returns: Json;
       };
     };
@@ -269,7 +319,7 @@ export type Database = {
           acknowledged_at: string | null;
           acknowledged_by: string | null;
           created_at: string;
-          data: NonNullable<Json>;
+          data: Json;
           entity_id: string | null;
           entity_type: string;
           first_seen_at: string;
@@ -299,7 +349,7 @@ export type Database = {
           acknowledged_at?: string | null;
           acknowledged_by?: string | null;
           created_at?: string;
-          data?: NonNullable<Json>;
+          data?: Json;
           entity_id?: string | null;
           entity_type: string;
           first_seen_at?: string;
@@ -329,7 +379,7 @@ export type Database = {
           acknowledged_at?: string | null;
           acknowledged_by?: string | null;
           created_at?: string;
-          data?: NonNullable<Json>;
+          data?: Json;
           entity_id?: string | null;
           entity_type?: string;
           first_seen_at?: string;
@@ -913,6 +963,141 @@ export type Database = {
           },
         ];
       };
+      requisition_lines: {
+        Row: {
+          created_at: string;
+          id: string;
+          product_id: string;
+          qty_allocated: number | null;
+          qty_requested: number;
+          requisition_id: string;
+          shortage_qty: number | null;
+          tenant_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          product_id: string;
+          qty_allocated?: number | null;
+          qty_requested: number;
+          requisition_id: string;
+          shortage_qty?: number | null;
+          tenant_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          product_id?: string;
+          qty_allocated?: number | null;
+          qty_requested?: number;
+          requisition_id?: string;
+          shortage_qty?: number | null;
+          tenant_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "requisition_lines_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "requisition_lines_requisition_id_fkey";
+            columns: ["requisition_id"];
+            isOneToOne: false;
+            referencedRelation: "requisitions";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "requisition_lines_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      requisitions: {
+        Row: {
+          code: string;
+          created_at: string;
+          decided_at: string | null;
+          decided_by: string | null;
+          decision_note: string | null;
+          facility_id: string;
+          id: string;
+          justification: string | null;
+          requested_at: string;
+          requested_by: string | null;
+          status: string;
+          submitted_at: string | null;
+          tenant_id: string;
+          updated_at: string;
+        };
+        Insert: {
+          code: string;
+          created_at?: string;
+          decided_at?: string | null;
+          decided_by?: string | null;
+          decision_note?: string | null;
+          facility_id: string;
+          id?: string;
+          justification?: string | null;
+          requested_at?: string;
+          requested_by?: string | null;
+          status?: string;
+          submitted_at?: string | null;
+          tenant_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          code?: string;
+          created_at?: string;
+          decided_at?: string | null;
+          decided_by?: string | null;
+          decision_note?: string | null;
+          facility_id?: string;
+          id?: string;
+          justification?: string | null;
+          requested_at?: string;
+          requested_by?: string | null;
+          status?: string;
+          submitted_at?: string | null;
+          tenant_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "requisitions_decided_by_fkey";
+            columns: ["decided_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "requisitions_facility_id_fkey";
+            columns: ["facility_id"];
+            isOneToOne: false;
+            referencedRelation: "facilities";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "requisitions_requested_by_fkey";
+            columns: ["requested_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "requisitions_tenant_id_fkey";
+            columns: ["tenant_id"];
+            isOneToOne: false;
+            referencedRelation: "tenants";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       stock_balances: {
         Row: {
           batch_id: string;
@@ -1205,7 +1390,7 @@ export type Database = {
           min_shelf_life_pct: number;
           name_ar: string | null;
           name_en: string;
-          settings: NonNullable<Json>;
+          settings: Json;
           slug: string;
           timezone: string;
           updated_at: string;
@@ -1220,7 +1405,7 @@ export type Database = {
           min_shelf_life_pct?: number;
           name_ar?: string | null;
           name_en: string;
-          settings?: NonNullable<Json>;
+          settings?: Json;
           slug: string;
           timezone?: string;
           updated_at?: string;
@@ -1235,7 +1420,7 @@ export type Database = {
           min_shelf_life_pct?: number;
           name_ar?: string | null;
           name_en?: string;
-          settings?: NonNullable<Json>;
+          settings?: Json;
           slug?: string;
           timezone?: string;
           updated_at?: string;
@@ -1499,7 +1684,9 @@ export type Tables<
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never) = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals;
+}
   ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
       DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R;
@@ -1523,7 +1710,9 @@ export type TablesInsert<
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never) = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals;
+}
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I;
     }
@@ -1546,7 +1735,9 @@ export type TablesUpdate<
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never) = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals;
+}
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U;
     }
@@ -1569,7 +1760,9 @@ export type Enums<
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never) = never,
-> = DefaultSchemaEnumNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals;
+}
   ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
@@ -1584,7 +1777,9 @@ export type CompositeTypes<
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never) = never,
-> = PublicCompositeTypeNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals;
+}
   ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]

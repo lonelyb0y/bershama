@@ -89,9 +89,19 @@ select is_empty(
   where n.nspname = 'public'
     and c.relkind in ('r', 'p')
     and has_table_privilege('authenticated', c.oid, 'insert')
-    and c.relname <> all (array[
-      'facilities', 'storage_locations', 'products'
-    ])
+      and c.relname <> all (array[
+        'facilities', 'storage_locations', 'products',
+        -- M3. A requisition is raised by writing the table directly, and RLS is
+        -- the right mechanism for it: the insert policy restricts the caller to
+        -- the distributor-side roles, and the tenant trigger overwrites
+        -- tenant_id so the column cannot be chosen at all.
+        --
+        -- Note the asymmetry, which is deliberate: there is NO delete grant on
+        -- requisitions, because an allocated request is the evidence that stock
+        -- moved. Lines are scratch work inside a draft, so they are removable --
+        -- and the delete policy enforces that their parent is still a DRAFT.
+        'requisitions', 'requisition_lines'
+      ])
   $$,
   'authenticated can INSERT only into the allow-listed catalogue tables'
 );
@@ -186,7 +196,20 @@ select is_empty(
       'receive_stock', 'issue_stock', 'adjust_stock', 'write_off_stock',
       'transfer_stock',
       'stock_take',
-      'release_batch', 'quarantine_batch', 'recall_batch', 'create_batch'
+      'release_batch', 'quarantine_batch', 'recall_batch', 'create_batch',
+      -- requisition lifecycle (M3). SECURITY DEFINER is not a preference here:
+      -- these call private.current_tenant_id() and private.has_role(), and
+      -- `private` is a schema `authenticated` cannot even name. Under security
+      -- invoker every one of them returns 42501 "permission denied for schema
+      -- private" and the whole workflow is unreachable. The risk that buys is
+      -- bounded by `set search_path = ''` plus full schema qualification in every
+      -- body, so an unqualified name is what to watch for -- not the volatility.
+      --
+      -- submit_requisition and reject_requisition constrain themselves as well:
+      -- the requester cannot reject their own request, and only the
+      -- distributor-side roles may reject at all.
+      'submit_requisition', 'reject_requisition',
+      'allocate_requisition', 'release_requisition'
     ])
   $$,
   'only the allow-listed wrappers in the api schema are SECURITY DEFINER'
