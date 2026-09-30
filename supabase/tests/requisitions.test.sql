@@ -9,6 +9,14 @@
 -- quarantined one that expires sooner than anything else, and in-transit stock
 -- nobody owns yet.
 
+-- Helpers live in pg_temp, not pgtap_shim.
+--
+-- pgtap_shim is the FALLBACK schema verify-db.sh creates when the pgtap extension
+-- is unavailable; CI has the real extension, so that schema does not exist there
+-- and every helper failed with "schema pgtap_shim does not exist" while passing
+-- locally. pg_temp is per-session and always there, which is what a test helper
+-- actually wants.
+--
 -- No `set search_path` here on purpose. scripts/verify-db.sh runs every suite with
 -- `set search_path = public, pgtap_shim;` prepended, and a bare set in the file
 -- REPLACES that rather than adding to it -- which drops pgTAP and fails the very
@@ -87,10 +95,10 @@ values
 
 -- ── helpers ─────────────────────────────────────────────────────────────────
 
-create or replace function pgtap_shim.req_tenant()
+create or replace function pg_temp.req_tenant()
 returns uuid language sql as $$ select '33333333-0000-4000-8000-000000000001'::uuid $$;
 
-create or replace function pgtap_shim.as_requester()
+create or replace function pg_temp.as_requester()
 returns void language plpgsql set search_path = '' as $$
 begin
   -- `request.jwt.claim.sub`, singular. auth.uid() in the compat harness reads
@@ -101,16 +109,16 @@ begin
   perform set_config('request.jwt.claim.sub', '33333333-0000-4000-8000-000000000011', true);
 end $$;
 
-create or replace function pgtap_shim.as_approver()
+create or replace function pg_temp.as_approver()
 returns void language plpgsql set search_path = '' as $$
 begin
   perform set_config('request.jwt.claim.sub', '33333333-0000-4000-8000-000000000012', true);
 end $$;
 
-create or replace function pgtap_shim.reset_tenant()
+create or replace function pg_temp.reset_tenant()
 returns void language sql set search_path = '' as $$
   update public.requisition_lines set qty_allocated = null, shortage_qty = null
-   where tenant_id = pgtap_shim.req_tenant();
+   where tenant_id = pg_temp.req_tenant();
 $$;
 
 -- ── the requisition itself ──────────────────────────────────────────────────
@@ -119,13 +127,13 @@ $$;
 -- set_requisition_tenant trigger overwrites tenant_id with
 -- private.current_tenant_id(), which is null without auth.uid(), and a
 -- not-null violation is a confusing way to learn that.
-select pgtap_shim.as_requester();
+select pg_temp.as_requester();
 
 insert into public.requisitions (id, tenant_id, code, facility_id, status, justification)
-values ('33333333-0000-4000-8000-000000000061', pgtap_shim.req_tenant(), 'REQ-0001', '33333333-0000-4000-8000-000000000022', 'DRAFT', 'Branch restock');
+values ('33333333-0000-4000-8000-000000000061', pg_temp.req_tenant(), 'REQ-0001', '33333333-0000-4000-8000-000000000022', 'DRAFT', 'Branch restock');
 
 insert into public.requisition_lines (tenant_id, requisition_id, product_id, qty_requested)
-values (pgtap_shim.req_tenant(), '33333333-0000-4000-8000-000000000061', '33333333-0000-4000-8000-000000000041', 120);
+values (pg_temp.req_tenant(), '33333333-0000-4000-8000-000000000061', '33333333-0000-4000-8000-000000000041', 120);
 
 -- ── 1. lifecycle guards ─────────────────────────────────────────────────────
 
@@ -179,7 +187,7 @@ select throws_ok(
   'the requester cannot reject their own request'
 );
 
-select pgtap_shim.as_approver();
+select pg_temp.as_approver();
 
 select throws_ok(
   $$ select api.reject_requisition('33333333-0000-4000-8000-000000000061', '  ') $$,
@@ -280,11 +288,11 @@ select is(
 -- ── 5. a shortage is recorded, not raised ───────────────────────────────────
 
 insert into public.requisitions (id, tenant_id, code, facility_id, status, justification)
-values ('33333333-0000-4000-8000-000000000062', pgtap_shim.req_tenant(), 'REQ-0002', '33333333-0000-4000-8000-000000000022', 'SUBMITTED', 'Too much');
+values ('33333333-0000-4000-8000-000000000062', pg_temp.req_tenant(), 'REQ-0002', '33333333-0000-4000-8000-000000000022', 'SUBMITTED', 'Too much');
 
 -- 900 requested against 30 free (A 100 - 100 reserved, B 50 - 20 reserved).
 insert into public.requisition_lines (tenant_id, requisition_id, product_id, qty_requested)
-values (pgtap_shim.req_tenant(), '33333333-0000-4000-8000-000000000062', '33333333-0000-4000-8000-000000000041', 900);
+values (pg_temp.req_tenant(), '33333333-0000-4000-8000-000000000062', '33333333-0000-4000-8000-000000000041', 900);
 
 select lives_ok(
   $$ select api.allocate_requisition('33333333-0000-4000-8000-000000000062') $$,
