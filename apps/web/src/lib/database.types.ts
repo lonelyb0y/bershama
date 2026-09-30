@@ -14,6 +14,20 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      add_requisition_line: {
+        Args: {
+          p_product_id: string;
+          p_qty_requested: number;
+          p_requisition_id: string;
+        };
+        Returns: Database["public"]["Tables"]["requisition_lines"]["Row"];
+        SetofOptions: {
+          from: "*";
+          to: "requisition_lines";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
       adjust_stock: {
         Args: {
           p_batch_id: string;
@@ -50,6 +64,63 @@ export type Database = {
         SetofOptions: {
           from: "*";
           to: "batches";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      create_location: {
+        Args: {
+          p_code: string;
+          p_facility_id: string;
+          p_kind?: string;
+          p_name_ar: string;
+          p_name_en: string;
+          p_temp_max_c?: number;
+          p_temp_min_c?: number;
+        };
+        Returns: Database["public"]["Tables"]["storage_locations"]["Row"];
+        SetofOptions: {
+          from: "*";
+          to: "storage_locations";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      create_product: {
+        Args: {
+          p_atc_code?: string;
+          p_brand?: string;
+          p_eda_reg_no?: string;
+          p_form?: string;
+          p_generic_name_ar?: string;
+          p_generic_name_en?: string;
+          p_gtin?: string;
+          p_is_cold_chain?: boolean;
+          p_is_controlled?: boolean;
+          p_name_ar: string;
+          p_name_en: string;
+          p_pack_size?: number;
+          p_requires_prescription?: boolean;
+          p_shelf_life_months?: number;
+          p_sku: string;
+          p_strength?: string;
+          p_strength_unit?: string;
+          p_uom?: string;
+        };
+        Returns: Database["public"]["Tables"]["products"]["Row"];
+        SetofOptions: {
+          from: "*";
+          to: "products";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      create_requisition: {
+        Args: { p_facility_id: string; p_justification?: string };
+        Returns: Database["public"]["Tables"]["requisitions"]["Row"];
+        SetofOptions: {
+          from: "*";
+          to: "requisitions";
           isOneToOne: true;
           isSetofReturn: false;
         };
@@ -145,6 +216,10 @@ export type Database = {
         Args: { p_requisition_id: string };
         Returns: undefined;
       };
+      remove_requisition_line: {
+        Args: { p_line_id: string };
+        Returns: undefined;
+      };
       search_products: {
         Args: {
           p_expiry_band?: string;
@@ -187,6 +262,16 @@ export type Database = {
           total_count: number;
           uom: "BOX" | "STRIP" | "BOTTLE" | "TUBE" | "VIAL" | "SACHET" | "KIT";
         }[];
+      };
+      set_product_active: {
+        Args: { p_active: boolean; p_id: string };
+        Returns: Database["public"]["Tables"]["products"]["Row"];
+        SetofOptions: {
+          from: "*";
+          to: "products";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
       };
       stock_take: {
         Args: {
@@ -233,6 +318,35 @@ export type Database = {
         SetofOptions: {
           from: "*";
           to: "profiles";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      update_product: {
+        Args: {
+          p_atc_code?: string;
+          p_brand?: string;
+          p_eda_reg_no?: string;
+          p_form?: string;
+          p_generic_name_ar?: string;
+          p_generic_name_en?: string;
+          p_gtin?: string;
+          p_id: string;
+          p_is_cold_chain?: boolean;
+          p_is_controlled?: boolean;
+          p_name_ar: string;
+          p_name_en: string;
+          p_pack_size?: number;
+          p_requires_prescription?: boolean;
+          p_shelf_life_months?: number;
+          p_strength?: string;
+          p_strength_unit?: string;
+          p_uom?: "BOX" | "STRIP" | "BOTTLE" | "TUBE" | "VIAL" | "SACHET" | "KIT";
+        };
+        Returns: Database["public"]["Tables"]["products"]["Row"];
+        SetofOptions: {
+          from: "*";
+          to: "products";
           isOneToOne: true;
           isSetofReturn: false;
         };

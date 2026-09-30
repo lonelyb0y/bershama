@@ -62,3 +62,8 @@ __pycache__/
 # npm wrote this when the global vercel install failed. The project is pnpm;
 # a second lockfile is how two tools end up disagreeing about versions.
 package-lock.json
+
+# Local AI tooling. The skills under .opencode/skills are per-machine helpers, not
+# product: they are large, they change when the tool updates, and a clone of this
+# repository does not need them. Committed once by accident; ignored from here.
+.opencode/skills/

@@ -30,6 +30,8 @@ const APP_PAGES = [
   { path: '/ar/admin/inventory/products', name: 'products-ar' },
   { path: '/en/admin/inventory/batches', name: 'batches-en' },
   { path: '/ar/admin/inventory/batches', name: 'batches-ar' },
+  { path: '/en/admin/inventory/requisitions', name: 'requisitions-en' },
+  { path: '/ar/admin/inventory/requisitions', name: 'requisitions-ar' },
   { path: '/en/admin/inventory/stocktake', name: 'stocktake-en' },
   { path: '/ar/admin/inventory/stocktake', name: 'stocktake-ar' },
 ];

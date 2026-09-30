@@ -209,7 +209,16 @@ select is_empty(
       -- the requester cannot reject their own request, and only the
       -- distributor-side roles may reject at all.
       'submit_requisition', 'reject_requisition',
-      'allocate_requisition', 'release_requisition'
+      'allocate_requisition', 'release_requisition',
+      -- M3 catalogue and requisition writes. Same reason as the four above: the
+      -- tenant policies call private.*, and a client role cannot name that
+      -- schema, so a direct table write is a 42501. These functions are how a
+      -- client writes a product, a location, a requisition or a requisition line.
+      -- Each one re-checks the role itself with private.has_role() rather than
+      -- relying on the policy, because the policy is not what is doing the check.
+      'create_product', 'update_product', 'set_product_active',
+      'create_location',
+      'create_requisition', 'add_requisition_line', 'remove_requisition_line'
     ])
   $$,
   'only the allow-listed wrappers in the api schema are SECURITY DEFINER'

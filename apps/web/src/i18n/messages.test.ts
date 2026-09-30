@@ -95,13 +95,43 @@ describe('translation files', () => {
   });
 
   it('has no unresolved next-intl interpolation braces', () => {
-    // `{count}` is a placeholder and must survive. A lone `{` is a typo, and
-    // next-intl renders it literally into the page.
+    /*
+     * `{count}` is a placeholder and must survive. A lone `{` is a typo and
+     * next-intl renders it literally into the page.
+     *
+     * ICU plural and select blocks are skipped, and they have to be: a value like
+     *
+     *   {count, plural, one {# request} other {# requests}}
+     *
+     * is four balanced brace pairs and one placeholder, and a naive check flags
+     * it as broken. That is not hypothetical -- this assertion failed the moment
+     * the first plural was written, which is the test working, but also the test
+     * being wrong about a legitimate construct.
+     */
+    const isIcu = (v: string) => /,\s*(plural|select|selectordinal)\s*,/.test(v);
+
     const broken = [...enLeaves, ...arLeaves]
+      .filter(([, v]) => !isIcu(v))
       .filter(([, v]) => /(^|[^\\])[{](?!\w+\})/.test(v))
       .map(([k, v]) => `${k} = ${v}`);
 
     expect(broken, 'unbalanced interpolation braces').toEqual([]);
+  });
+
+  it('uses ICU plural where a count is interpolated', () => {
+    /*
+     * A `{count}` on its own renders "1 requests". English takes one/other and
+     * Arabic takes zero/one/two/few/many, which is why these are ICU strings
+     * rather than a conditional in the component: an if/else would have to be
+     * written twice and would get the Arabic forms wrong.
+     */
+    const counted = [...enLeaves, ...arLeaves].filter(([, v]) => /\{count\b/.test(v));
+    const notIcu = counted.filter(([, v]) => !/,\s*(plural|select|selectordinal)\s*,/.test(v));
+
+    expect(
+      notIcu.map(([k, v]) => `${k} = ${v}`),
+      'a value interpolating {count} without ICU plural will render "1 requests"',
+    ).toEqual([]);
   });
 });
 
