@@ -42,9 +42,29 @@
  */
 :root {
   color-scheme: light;
+  /*
+   * Brand, per theme.
+   *
+   * These are theme-scoped rather than global because the same token is two
+   * different things. On a light page brand-600 is a button fill and white sits
+   * on it, so it has to be DARK. On a dark page brand-600 is a link or a text
+   * colour, so it has to be LIGHT. One value cannot be both, and that is not
+   * hypothetical: a single global brand-600 measured 3.79:1 against white --
+   * failing WCAG AA on every button label in the application -- while the same
+   * token as text on a dark surface measured 3.67:1. Measured, not estimated,
+   * by e2e/contrast.spec.ts.
+   */
+  --color-brand-50: oklch(0.95 0.03 210);
+  --color-brand-100: oklch(0.90 0.05 210);
+  --color-brand-500: oklch(0.52 0.12 218);
+  --color-brand-600: oklch(0.45 0.11 222);
+  --color-brand-700: oklch(0.38 0.10 228);
+  --color-brand-800: oklch(0.31 0.09 232);
+
   --surface: oklch(0.99 0.002 260);
   --surface-raised: oklch(1 0 0);
-  --border: oklch(0.9 0.004 260);
+  /* 3:1 against the surface, which is the WCAG 1.4.11 bar for a control boundary. An input border is the only thing separating a field from the page, so it is not decoration. At the previous 1.31:1 the fields were effectively invisible in light mode. */
+  --border: oklch(0.62 0.02 250);
   --text: oklch(0.2 0.008 260);
   --text-muted: oklch(0.5 0.01 260);
 }
@@ -64,9 +84,18 @@
  */
 :root.dark {
   color-scheme: dark;
+  /* The same tokens, inverted for a dark page: brand-600 is now a text colour on
+     a dark surface rather than a fill under white text. See the note in :root. */
+  --color-brand-50: oklch(0.28 0.05 225);
+  --color-brand-100: oklch(0.34 0.06 222);
+  --color-brand-500: oklch(0.68 0.12 205);
+  --color-brand-600: oklch(0.74 0.12 202);
+  --color-brand-700: oklch(0.82 0.11 200);
+  --color-brand-800: oklch(0.89 0.09 198);
+
   --surface: oklch(0.16 0.005 260);
   --surface-raised: oklch(0.21 0.006 260);
-  --border: oklch(0.3 0.008 260);
+  --border: oklch(0.52 0.03 240);
   --text: oklch(0.96 0.002 260);
   --text-muted: oklch(0.72 0.01 260);
 }
@@ -83,7 +112,7 @@
     color-scheme: dark;
     --surface: oklch(0.16 0.005 260);
     --surface-raised: oklch(0.21 0.006 260);
-    --border: oklch(0.3 0.008 260);
+    --border: oklch(0.52 0.03 240);
     --text: oklch(0.96 0.002 260);
     --text-muted: oklch(0.72 0.01 260);
   }
