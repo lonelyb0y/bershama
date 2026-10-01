@@ -61,14 +61,24 @@ for (const theme of ['light', 'dark'] as const) {
 
     // 3. Signed in: everything behind the guard.
     for (const p of APP_PAGES) {
-      await page.evaluate((t) => localStorage.setItem('pharmaflow:theme', t), theme);
-      await page.goto(p.path);
-      await page.waitForLoadState('networkidle').catch(() => {});
-      const cls = await page.evaluate(() => document.documentElement.className);
-      await page.screenshot({ path: `${SHOTS}/${p.name}-${theme}.png`, fullPage: true });
-      console.log(`  ${p.name}-${theme} -> ${page.url()}  [${cls.includes('dark') ? 'dark' : 'light'}]`);
-    }
+await page.evaluate((t) => localStorage.setItem('pharmaflow:theme', t), theme);
+        const res = await page.goto(p.path);
+        await page.waitForLoadState('networkidle').catch(() => {});
+        const cls = await page.evaluate(() => document.documentElement.className);
 
-    expect(true).toBe(true);
+        // Assert the page rendered *before* capturing it.
+        //
+        // This file used to end on `expect(true).toBe(true)`: it checked URLs and
+        // colours, never that a page rendered. So a page returning 500 was
+        // screenshotted -- the image on disk said "This page couldn't load" -- and the
+        // run reported two passed. That is exactly what happened while the dashboard
+        // was broken in production.
+        expect(res?.status(), `${p.path} returned ${res?.status()}`).toBeLessThan(400);
+        await expect(page.getByText(/couldn['’]?t load/i)).toHaveCount(0);
+        await expect(page.locator('h1').first()).toBeVisible();
+
+        await page.screenshot({ path: `${SHOTS}/${p.name}-${theme}.png`, fullPage: true });
+        console.log(`  ${p.name}-${theme} -> ${page.url()}  [${cls.includes('dark') ? 'dark' : 'light'}]`);
+      }
   });
 }

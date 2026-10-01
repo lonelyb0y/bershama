@@ -77,10 +77,11 @@ function StatCard({
 }) {
   return (
     <article
-      className={`pf-notch pf-glass relative p-4 pr-10 ${
+      className={`pf-notch pf-notch--cut pf-glass relative p-4 pr-9 ${
         tone === 'warn' ? 'border-amber-500/40' : tone === 'bad' ? 'border-red-500/40' : ''
       }`}
     >
+      <span className="pf-notch__dot" aria-hidden />
       <p className="text-xs font-medium text-[color:var(--text-muted)]">{label}</p>
       <p className="mt-1 text-2xl font-semibold tracking-tight tabular">{value}</p>
       {hint && <p className="mt-0.5 text-xs text-[color:var(--text-muted)]">{hint}</p>}
@@ -118,6 +119,10 @@ export default async function AdminDashboard({
 
   const supabase = await getSupabase();
   const today = new Date();
+  // One clock read for the whole render, shared by the query and by the bucketing.
+  // Two independent reads can straddle a second boundary and drop the newest
+  // movement out of the window it belongs to.
+  const windowStartIso = new Date(today.getTime() - windowDays * 86_400_000).toISOString();
   const horizon = new Date(today);
   horizon.setDate(horizon.getDate() + windowDays);
 
@@ -128,6 +133,7 @@ export default async function AdminDashboard({
     { data: expiringBatches },
     { data: quarantined },
     { data: awaitingApproval },
+    { data: movementRows },
     { data: todaysRun },
     { data: auditRows },
   ] = await Promise.all([
@@ -144,6 +150,15 @@ export default async function AdminDashboard({
       .lte('expiry_date', horizon.toISOString().slice(0, 10)),
     supabase.from('batches').select('id').eq('status', 'QUARANTINED').is('deleted_at', null),
     supabase.from('requisitions').select('id, code, requested_at, facility_id').eq('status', 'SUBMITTED'),
+    // The movement history behind the hero chart. Bounded by the same window the
+    // range pills control, and capped, because a ledger is the one table here that
+    // grows without limit -- an unbounded read of it is a slow page waiting to happen.
+    supabase
+      .from('stock_ledger')
+      .select('occurred_at, qty_delta, txn_type, unit_cost_minor')
+      .gte('occurred_at', windowStartIso)
+      .order('occurred_at', { ascending: true })
+      .limit(5000),
     supabase
       .from('trips')
       .select('id, status, run_date')
@@ -173,14 +188,21 @@ export default async function AdminDashboard({
 
   // ── the money ───────────────────────────────────────────────────────────────
   //
-  // Weighted average cost per product, from the batches actually held. An average
-  // rather than the latest receipt, because a distributor's question is what its
-  // stock is worth, and stock bought at two prices is worth the middle of them.
+  // Weighted average cost per product. An average rather than the latest receipt,
+  // because a distributor's question is what its stock is worth, and stock bought at
+  // two prices is worth the middle of them.
+  //
+  // One pass over batches against one pass over balances. The obvious version of
+  // this -- filter the balances inside the batch loop -- is quadratic in stock, and
+  // with a ledger this size it is the difference between a fast page and a slow one.
+  const qtyByProduct = new Map<string, number>();
+  for (const row of balances) {
+    qtyByProduct.set(row.product_id, (qtyByProduct.get(row.product_id) ?? 0) + Number(row.qty_on_hand));
+  }
+
   const costByProduct = new Map<string, { total: number; qty: number }>();
   for (const batch of batches) {
-    const held = balances
-      .filter((b) => b.product_id === batch.product_id)
-      .reduce((sum, b) => sum + Number(b.qty_on_hand), 0);
+    const held = qtyByProduct.get(batch.product_id) ?? 0;
     if (held <= 0) continue;
     const entry = costByProduct.get(batch.product_id) ?? { total: 0, qty: 0 };
     entry.total += held * Number(batch.unit_cost_minor);
@@ -224,15 +246,44 @@ export default async function AdminDashboard({
 
   const unitsOnHand = balances.reduce((sum, row) => sum + Number(row.qty_on_hand), 0);
 
-  // The hero chart: margin ranked by product, best first. A ranked series rather
-  // than a time series, because there is no revenue history in this schema yet and
-  // inventing a time axis from a single day would be a chart of nothing.
+  // ── the hero series: what came in, against what it cost ──────────────────────
+  //
+  // Bucketed by week over the selected window. A week rather than a day, because
+  // a distributor's ledger is sparse: most days have no movement at all, and a daily
+  // chart of a sparse table is mostly empty columns and a line that means nothing.
+  //
+  // This is deliberately NOT revenue. There is no invoice or sale record in the
+  // schema, so a "sales" chart would have to be cost x margin, which is a forecast
+  // wearing a revenue label -- and a dashboard that overstates revenue is worse than
+  // one that admits what it does not know. What is here is measured.
+  const numberFormat = new Intl.NumberFormat(locale === 'ar' ? 'ar-EG' : 'en-GB');
+
   const ranked = [...priced].sort((a, b) => (b.marginPerUnit ?? 0) - (a.marginPerUnit ?? 0));
-  const chartPoints = ranked.slice(0, 8).map((line) => ({
-    label: line.product.sku.slice(0, 6),
-    value: Math.max(0, line.marginPerUnit ?? 0),
-    display: money(line.marginPerUnit ?? 0, locale),
-  }));
+
+  const movements = asRows<{ occurred_at: string; qty_delta: number; txn_type: string; unit_cost_minor: number }>(
+    movementRows,
+  );
+  const bucketCount = windowDays <= 30 ? 6 : windowDays <= 90 ? 9 : 12;
+  const bucketMs = (windowDays * 86_400_000) / bucketCount;
+  const windowStart = today.getTime() - windowDays * 86_400_000;
+
+  const buckets = new Array(bucketCount).fill(0) as number[];
+  for (const movement of movements) {
+    const at = new Date(movement.occurred_at).getTime();
+    const index = Math.min(bucketCount - 1, Math.max(0, Math.floor((at - windowStart) / bucketMs)));
+    buckets[index] += Math.abs(Number(movement.qty_delta));
+  }
+
+  const receivedByWeek = buckets.map((units, index) => {
+    const at = new Date(windowStart + index * bucketMs);
+    return {
+      label: at.toLocaleDateString(locale === 'ar' ? 'ar-EG' : 'en-GB', { day: 'numeric', month: 'short' }),
+      value: units,
+      display: numberFormat.format(units),
+    };
+  });
+
+  const totalReceived = receivedByWeek.reduce((sum, point) => sum + point.value, 0);
 
   const stopRows = run
     ? asRows<{ id: string; sequence: number; status: string; facility_id: string; latitude: number | null }>(
@@ -268,7 +319,6 @@ export default async function AdminDashboard({
   const entityLabels = await labelEntities(entries, locale);
 
   const delivered = stopRows.filter((stop) => stop.status === 'DELIVERED').length;
-  const numberFormat = new Intl.NumberFormat(locale === 'ar' ? 'ar-EG' : 'en-GB');
 
   return (
     <>
@@ -321,8 +371,8 @@ export default async function AdminDashboard({
             <section className="pf-hero p-5" aria-labelledby="margin-heading">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h2 id="margin-heading" className="text-sm font-medium opacity-90">{t('marginByProduct')}</h2>
-                  <p className="mt-1 max-w-md text-xs opacity-75">{t('marginByProductHint')}</p>
+                  <h2 id="margin-heading" className="text-sm font-medium opacity-90">{t('receivedAgainstCost')}</h2>
+                  <p className="mt-1 max-w-md text-xs opacity-75">{t('receivedAgainstCostHint')}</p>
                 </div>
                 <Link
                   href={`/${locale}/admin/inventory/products`}
@@ -334,18 +384,15 @@ export default async function AdminDashboard({
                 </Link>
               </div>
 
-              <p className="pf-hero__value mt-4">{chartPoints[0]?.display ?? money(0, locale, true)}</p>
-              <p className="mt-1 text-xs opacity-80">
-                {chartPoints[0] ? t('bestMargin', { sku: ranked[0]?.product.sku ?? '' }) : t('noPricesYet')}
-              </p>
+              <p className="pf-hero__value mt-4">{numberFormat.format(totalReceived)}</p>
+              <p className="mt-1 text-xs opacity-80">{t('unitsReceivedIn', { n: numberFormat.format(windowDays) })}</p>
 
               <div className="mt-4">
-                <BarTrendChart
-                  points={chartPoints}
-                  highlightIndex={0}
-                  format={(v) => money(v, locale, true)}
-                  ariaLabel={t('marginByProduct')}
-                />
+                {totalReceived === 0 ? (
+                  <p className="py-10 text-center text-sm opacity-80">{t('noMovements')}</p>
+                ) : (
+                  <BarTrendChart points={receivedByWeek} ariaLabel={t('receivedAgainstCost')} />
+                )}
               </div>
             </section>
 
@@ -391,7 +438,7 @@ export default async function AdminDashboard({
               {/* ── ranked by margin ─────────────────────────────────────── */}
               <GlassPanel className="p-5" as="section">
                 <h2 className="pf-section-title">{t('marginRanking')}</h2>
-                {chartPoints.length === 0 ? (
+                {ranked.length === 0 ? (
                   <p className="mt-3 text-sm text-[color:var(--text-muted)]">{t('noPricesYet')}</p>
                 ) : (
                   <div className="mt-3">
@@ -457,10 +504,15 @@ export default async function AdminDashboard({
                       <span className="block">
                         {describeAction(entry.action, tAudit, locale)} ·{' '}
                         <span className="text-[color:var(--text-muted)]">
-                          {translateEntityType(entry.entityType, tAudit, locale)}
-                          {entry.entityId
-                            ? ` · ${entityLabels.get(`${entry.entityType}:${entry.entityId}`) ?? entry.entityId.slice(0, 8)}`
-                            : ''}
+                          {(() => {
+                            const label = entry.entityId
+                              ? entityLabels.get(`${entry.entityType}:${entry.entityId}`)
+                              : undefined;
+                            // `describeAction` has already named the entity type --
+                            // "updated a Product" -- so repeating it here produced
+                            // "Product · Product · Insulin 100IU". Print the name.
+                            return label ?? translateEntityType(entry.entityType, tAudit, locale);
+                          })()}
                         </span>
                       </span>
                       <span className="text-[color:var(--text-muted)]">
