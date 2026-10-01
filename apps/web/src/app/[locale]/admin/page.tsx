@@ -106,6 +106,11 @@ export default async function AdminDashboard({
   // dashboard.entityTypes.products" before this was split.
   const tGreeting = await getTranslations('auth');
   const tAudit = await getTranslations('m0');
+  // Stop and trip states are the *deliveries* vocabulary, not the dashboard's. Reading
+  // them from `dashboard` renders a missing-message error, which next-intl raises as a
+  // thrown error rather than a missing string -- so a wrong namespace took the whole
+  // page down instead of printing an odd word.
+  const tDeliveries = await getTranslations('deliveries');
 
   const session = await getSession();
   const { expiry } = await searchParams;
@@ -361,7 +366,7 @@ export default async function AdminDashboard({
                 ) : (
                   <>
                     <p className="mt-2 text-sm">
-                      <span className="font-medium">{t(`deliveries.status.trip.${run.status}`)}</span>
+                      <span className="font-medium">{tDeliveries(`status.trip.${run.status}`)}</span>
                       <span className="ms-2 text-[color:var(--text-muted)]">
                         {t('deliveredOf', {
                           done: numberFormat.format(delivered),
@@ -375,7 +380,7 @@ export default async function AdminDashboard({
                           <span className="pf-bead__dot" aria-hidden />
                           <span className="tabular">{stop.sequence}</span>
                           <span>{facilityName.get(stop.facility_id) ?? '—'}</span>
-                          <span className="sr-only">{t(`deliveries.status.stop.${stop.status}`)}</span>
+                          <span className="sr-only">{tDeliveries(`status.stop.${stop.status}`)}</span>
                         </li>
                       ))}
                     </ul>
