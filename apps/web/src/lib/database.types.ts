@@ -162,6 +162,7 @@ export type Database = {
           p_name_en: string
           p_pack_size?: number
           p_requires_prescription?: boolean
+          p_sell_price_minor?: number
           p_shelf_life_months?: number
           p_sku: string
           p_strength?: string
@@ -484,6 +485,7 @@ export type Database = {
           p_name_en: string
           p_pack_size?: number
           p_requires_prescription?: boolean
+          p_sell_price_minor?: number
           p_shelf_life_months?: number
           p_sku: string
           p_strength?: string
@@ -1161,6 +1163,7 @@ export type Database = {
           name_en: string
           pack_size: number
           requires_prescription: boolean
+          sell_price_minor: number
           shelf_life_months: number
           sku: string
           strength: string
@@ -1200,6 +1203,7 @@ export type Database = {
           name_en: string
           pack_size?: number
           requires_prescription?: boolean
+          sell_price_minor?: number
           shelf_life_months?: number
           sku: string
           strength: string
@@ -1247,6 +1251,7 @@ export type Database = {
           name_en?: string
           pack_size?: number
           requires_prescription?: boolean
+          sell_price_minor?: number
           shelf_life_months?: number
           sku?: string
           strength?: string

@@ -225,6 +225,26 @@ on conflict (id) do nothing;
 -- is impersonated here the way the application does it. `set local role` outside
 -- a transaction would not persist, hence the do block.
 
+-- Selling prices, in piastres (ADR 0004: integer minor units, never a float).
+--
+-- Kept out of the INSERT above deliberately: an UPDATE keyed by SKU can be read
+-- against the catalogue without counting parentheses, and a price naturally belongs
+-- next to the batch costs it is meant to be compared against.
+--
+-- Each is well above the seeded batch cost, because a margin surface showing a
+-- margin of minus the entire cost of stock -- which is what every price of 0
+-- produces -- looks like a business losing money rather than one that has not
+-- entered its prices yet. The insulin is the outlier on purpose: it is cold chain,
+-- and a margin report that hid that would be hiding the thing worth looking at.
+update public.products set sell_price_minor = 18500 where sku = 'PARA-500-20';
+update public.products set sell_price_minor = 24500 where sku = 'AMOX-500-21';
+update public.products set sell_price_minor = 21000 where sku = 'METF-850-30';
+update public.products set sell_price_minor = 68000 where sku = 'INSU-100-5';
+update public.products set sell_price_minor =  4200 where sku = 'ORS-20';
+update public.products set sell_price_minor = 15900 where sku = 'TRAM-50-20';
+update public.products set sell_price_minor = 22750 where sku = 'ATORV-20-30';
+update public.products set sell_price_minor = 12300 where sku = 'DEMO-001';
+
 insert into public.batches (
   id, tenant_id, product_id, lot_number, mfg_date, expiry_date,
   unit_cost_minor, supplier_name, supplier_ref, status
