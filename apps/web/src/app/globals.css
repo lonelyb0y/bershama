@@ -603,3 +603,45 @@
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
 }
+/* ── the sticky header ────────────────────────────────────────────────────────
+ *
+ * A separate class from .pf-glass for one reason: opacity. A sticky header has
+ * content passing underneath it, and at the dashboard panel's 78% the header's own
+ * text loses its background every time a row scrolls behind. 92% reads as solid in
+ * practice while still showing a hint of the liquid behind it, which is the point.
+ */
+.pf-glass-header {
+  background-color: color-mix(in oklab, var(--surface) 92%, transparent);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  border-bottom: 1px solid color-mix(in oklab, var(--border) 45%, transparent);
+  box-shadow: 0 1px 0 color-mix(in oklab, white 30%, transparent);
+}
+
+:root.dark .pf-glass-header {
+  background-color: color-mix(in oklab, var(--surface) 88%, transparent);
+  border-bottom-color: color-mix(in oklab, var(--border) 35%, transparent);
+  box-shadow: 0 1px 0 color-mix(in oklab, white 8%, transparent);
+}
+
+/* A navigation strip that scrolls sideways rather than wrapping. The fade on the
+   trailing edge is the affordance: it says there is more, which a hidden scrollbar
+   does not. */
+.pf-nav-scroll {
+  display: flex;
+  gap: 0.125rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  mask-image: linear-gradient(to right, black 0, black calc(100% - 1.5rem), transparent 100%);
+}
+
+.pf-nav-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pf-nav-scroll {
+    scroll-behavior: auto;
+  }
+}

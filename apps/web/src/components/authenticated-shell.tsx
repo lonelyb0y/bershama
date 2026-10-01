@@ -13,8 +13,7 @@ import { redirect, notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { AppNav } from '@/components/app-nav';
-import { LocaleSwitcher } from '@/components/locale-switcher';
-import { ThemeToggle } from '@/components/theme-toggle';
+import { HeaderCluster } from '@/components/header-cluster';
 import { Logo } from '@/components/logo';
 import { ROLES_BY_SURFACE, getSession, homeRouteForRole } from '@/lib/session';
 import { isLocale, Link, type Locale } from '@/i18n/routing';
@@ -69,72 +68,63 @@ export async function AuthenticatedShell({
   const displayName = locale === 'ar' ? (session.fullNameAr ?? session.fullName) : session.fullName;
 
   return (
-    <div className="min-h-dvh">
-      <header className="sticky top-0 z-10 border-b bg-[var(--surface)]/95 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3">
-          <Link
-            // NO locale prefix. This is next-intl's Link, which expects a
-            // locale-less path and prefixes the active locale itself -- the
-            // identical mistake the login form made, and it produced
-            // /en/en/admin on every click. Any `/${locale}` interpolated into a
-            // next-intl href is a doubled segment.
-            href={homeRouteForRole(session.role)}
-            // Prefetching off, and this was the one that was missed: the nav links
-            // were fixed and the wordmark was not, so an `admin` request kept
-            // finishing last on every page in the sampling -- including the pages
-            // where the dashboard is the least likely destination on screen.
-            prefetch={false}
-            className="shrink-0 rounded-md"
-            // The wordmark is the way home, the same as a logo in any other
-            // application. Without this it was a <span>, which looked like a
-            // heading and did nothing.
-            aria-label={t('common.appName')}
-          >
-            <Logo />
-          </Link>
+    // The header.
+    // -- why the navigation gets its own row below lg --------------------------
+    // It used to be one row: wordmark, eight destinations, theme, language, name,
+    // role and sign-out. The comment that used to sit above that markup recorded
+    // what that cost -- the row ran out of room, "Sign out" broke across two lines,
+    // and so did the user's name. Thirteen items do not fit on one line at 1024px,
+    // and they will not be made to.
+    // So from lg up it is one row, which is what a wide screen is for. Below lg the
+    // navigation takes a second row of its own and scrolls sideways, which is the
+    // behaviour every phone has taught people already: a tab strip, not a wrapped
+    // sentence. Phrases stay phrases at every width because nothing has to wrap.
+    // -- the glass -------------------------------------------------------------
+    // The same material as the dashboard, so the page reads as one surface rather
+    // than a header sitting on top of a different design. `pf-glass-header` is a
+    // separate class from `pf-glass` because a sticky header needs more opacity to
+    // stay legible over content passing underneath -- at the dashboard's 78% the text
+    // loses its background every time a row scrolls behind it.
+      <div className="min-h-dvh">
+      <header className="pf-glass-header sticky top-0 z-30">
+        <div className="mx-auto max-w-7xl px-4">
+          <div className="flex h-16 items-center gap-4">
+            <Link
+              // NO locale prefix. next-intl's Link expects a locale-less path and
+              // prefixes the active locale itself -- the mistake the login form made
+              // once, which produced /en/en/admin on every click.
+              href={homeRouteForRole(session.role)}
+              // Prefetching off: every authenticated page was round-tripping the
+              // dashboard for a link in the corner, including the dashboard itself.
+              prefetch={false}
+              className="shrink-0 rounded-md focus-visible:outline-2 focus-visible:outline-offset-2"
+              // The wordmark is the way home, as a logo is in any other application.
+              aria-label={t('common.appName')}
+            >
+              <Logo />
+            </Link>
 
-          <AppNav surface={surface} role={session.role} />
+            {/* On wide screens the navigation lives here; below lg this wrapper is
+                hidden and the strip underneath carries it. */}
+            <div className="hidden min-w-0 flex-1 lg:block">
+              <AppNav surface={surface} role={session.role} />
+            </div>
 
-          {/*
-            min-w-0 and shrink-0 on the right-hand cluster, whitespace-nowrap on
-            the phrases.
+            <HeaderCluster displayName={displayName} role={session.role} surface={surface} />
+          </div>
 
-            With eight destinations in the nav plus four controls, the row ran out
-            of room and wrapped mid-phrase: "Sign out" broke across two lines, and
-            so did the user's name and the "Audit log" link. A name and a button
-            are phrases, so they wrap as units or not at all. min-w-0 on the flex
-            row lets the nav be the part that yields, and shrink-0 stops the
-            controls being squeezed at all.
-          */}
-          <div className="ms-auto flex min-w-0 shrink-0 items-center gap-3">
-            <div className="shrink-0">
-              <ThemeToggle />
-            </div>
-            <div className="shrink-0">
-              <LocaleSwitcher />
-            </div>
-            <div className="shrink-0 text-end leading-tight whitespace-nowrap">
-              <p className="truncate text-sm font-medium">{displayName}</p>
-              <p className="text-[color:var(--text-muted)] text-xs whitespace-nowrap">
-                {/* The role label is translated, never shown as a raw enum
-                    value: "WAREHOUSE_MANAGER" means nothing to a warehouse
-                    supervisor. */}
-                {t(`roles.${session.role}` as never)}
-              </p>
-            </div>
-            <form action="/auth/sign-out" method="post" className="shrink-0">
-              <button
-                type="submit"
-                className="rounded-md border px-2.5 py-1.5 text-xs font-medium whitespace-nowrap hover:bg-[color:var(--text-muted)]/10"
-              >
-                {t('common.signOut')}
-              </button>
-            </form>
+          {/* Below lg: the navigation on its own row, scrollable rather than wrapped.
+              The scrollbar is hidden on purpose -- a visible one on a tab strip is
+              noise, and the strip's own overflow is the affordance. */}
+          <div className="-mx-4 border-t border-[color:var(--border)]/30 lg:hidden">
+            <nav aria-label={t('nav.dashboard')} className="px-4">
+              <AppNav surface={surface} role={session.role} />
+            </nav>
           </div>
         </div>
       </header>
 
       <main className="mx-auto max-w-7xl px-4 py-6">{children}</main>
-    </div>
+      </div>
   );
 }
