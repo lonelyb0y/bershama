@@ -145,8 +145,11 @@ export function AppNav({
      */
     <nav
       aria-label={t('dashboard')}
-      className="min-w-0 shrink items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden xl:flex [&>*]:shrink-0"
-    >
+      // A scrolling strip rather than a wrapping one. Wrapping is what put "Sign out"
+      // across two lines; a strip that scrolls keeps every label on one line at every
+      // width, and the trailing fade is the affordance that says there is more.
+      className="pf-nav-scroll"
+      >
       {items.map((item) => {
         const surfaceRoot = `/${surface === 'admin' ? 'admin' : surface}`;
         const table = HREF_BY_SURFACE[surface];
