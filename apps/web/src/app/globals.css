@@ -64,7 +64,7 @@
   --surface: oklch(0.99 0.002 260);
   --surface-raised: oklch(1 0 0);
   /* 3:1 against the surface, which is the WCAG 1.4.11 bar for a control boundary. An input border is the only thing separating a field from the page, so it is not decoration. At the previous 1.31:1 the fields were effectively invisible in light mode. */
-  --border: oklch(0.922 0 0);
+  --border: oklch(0.62 0.02 250);
   --text: oklch(0.2 0.008 260);
   --text-muted: oklch(0.5 0.01 260);
   --background: oklch(1 0 0);
