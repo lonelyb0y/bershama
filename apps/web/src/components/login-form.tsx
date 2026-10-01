@@ -23,6 +23,7 @@ import { getSupabaseApiClient, getSupabaseBrowserClient } from '@/lib/supabase/c
 import { asWhoAmI } from '@/lib/mappers';
 import { useRouter } from '@/i18n/routing';
 import { homeRouteForRole } from '@/lib/roles';
+import { getRecaptchaToken, verifyRecaptchaToken } from '@/lib/recaptcha';
 import type { AppRole } from '@/lib/types';
 
 export function LoginForm() {
@@ -37,6 +38,26 @@ export function LoginForm() {
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
+
+    // A token per submission, before the password is sent anywhere. v3 scores the
+    // interaction rather than the credentials, so this has to run on the real submit
+    // and not on a timer -- a token minted while the user was still typing has
+    // expired by the time they finish, and an expired token scores as missing.
+    //
+    // The verdict is checked *before* supabase.auth.signInWithPassword rather than
+    // after: verifying afterwards would mean the credential check had already run,
+    // so a bot would still have burned a real sign-in attempt against the rate
+    // limiter, and the people whose attempts get limited would be the staff sharing
+    // an office IP.
+    const token = await getRecaptchaToken('login');
+
+    if (token) {
+      const verdict = await verifyRecaptchaToken(token);
+      if (!verdict.ok) {
+        setError(verdict.reason === 'hard_floor' ? t('recaptchaBlocked') : t('recaptchaChallenge'));
+        return;
+      }
+    }
 
     const supabase = getSupabaseBrowserClient();
 
