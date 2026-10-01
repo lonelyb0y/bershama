@@ -17,6 +17,22 @@
 import { createServerClient } from '@supabase/ssr';
 import { API_DB_OPTION } from './api-schema';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+
+import type { Database } from '../database.types';
+
+/**
+ * Every client here is parameterised with the generated Database.
+ *
+ * That is not tidiness. An untyped SupabaseClient accepts any rpc() name, so
+ * `supabase.rpc('update_location', …)` compiled happily for months against a
+ * function that did not exist, and the storage-location edit form failed only when
+ * somebody pressed Save. With the generic in place the same line is a compile error,
+ * which is the point at which the mistake is cheap.
+ *
+ * The generated type covers the `api` schema as well as `public` (see `make types`),
+ * so the api-schema client below is checked against the api functions too.
+ */
+type Db = Database;
 import { cookies } from 'next/headers';
 import { cache } from 'react';
 
@@ -41,10 +57,10 @@ function requireEnv(name: string): string {
  *     session and writes the rotated token, so the render pass has nothing to
  *     do. Swallowing it keeps a legitimate render from failing.
  */
-export async function createSupabaseServerClient(): Promise<SupabaseClient> {
+export async function createSupabaseServerClient(): Promise<SupabaseClient<Db>> {
   const cookieStore = await cookies();
 
-  return createServerClient(
+  return createServerClient<Db>(
     requireEnv('NEXT_PUBLIC_SUPABASE_URL'),
     requireEnv('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY'),
     {
@@ -81,10 +97,11 @@ export const getSupabase = cache(async () => {
 //
 // Deliberately `cache`d like getSupabase, so a page that needs both pays for
 // one client of each rather than one per call site.
-export const getSupabaseApi = cache(async () => {
-  const cookieStore = await cookies();
+export const getSupabaseApi = cache(
+  async (): Promise<SupabaseClient<Db, 'api'>> => {
+    const cookieStore = await cookies();
 
-  return createServerClient(
+    return createServerClient<Db, 'api'>(
     requireEnv('NEXT_PUBLIC_SUPABASE_URL'),
     requireEnv('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY'),
     {
@@ -117,7 +134,7 @@ export const getSupabaseApi = cache(async () => {
 // import this from a file that handles user-supplied data without an explicit
 // tenant_id filter that you have verified.
 
-export function createSupabaseAdminClient(): SupabaseClient {
+export function createSupabaseAdminClient(): SupabaseClient<Db> {
   return createClient(
     requireEnv('NEXT_PUBLIC_SUPABASE_URL'),
     requireEnv('SUPABASE_SECRET_KEY'),

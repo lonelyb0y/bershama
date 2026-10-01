@@ -137,7 +137,15 @@ async function loadBatches(locale: Locale, status?: string): Promise<BatchRowVie
   .is('deleted_at', null)
   .order('expiry_date');
 
-if (status) query = query.eq('status', status);
+// The status arrives from a query string, so it is a string and not a BatchStatus.
+// Rather than casting it -- which would turn a mistyped filter into a database
+// error instead of an empty list -- it is checked here: an unrecognised status is no
+// filter at all, which is what somebody who mistyped one meant.
+const BATCH_STATUSES = ['RELEASED', 'QUARANTINED', 'EXPIRED', 'RECALLED', 'DEPLETED'] as const;
+
+if (status && (BATCH_STATUSES as readonly string[]).includes(status)) {
+  query = query.eq('status', status as (typeof BATCH_STATUSES)[number]);
+}
 
 const { data, error } = await query.limit(200);
 

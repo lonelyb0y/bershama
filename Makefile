@@ -211,7 +211,7 @@ dev-web: ## Run only the web app (database must already be running)
 
 .PHONY: types
 types: ## Regenerate TypeScript types from the database
-	supabase gen types typescript --local > $(APP_DIR)/src/lib/database.types.ts
+	supabase gen types typescript $(if $(PROJECT_ID),--project-id $(PROJECT_ID),--linked) > $(APP_DIR)/src/lib/database.types.ts
 
 .PHONY: clean
 clean: ## Remove build output

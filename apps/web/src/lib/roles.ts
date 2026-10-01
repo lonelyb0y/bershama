@@ -9,7 +9,7 @@
 
 import type { AppRole } from './types';
 
-export type Surface = 'admin' | 'pharmacy' | 'distributor';
+export type Surface = 'admin' | 'pharmacy' | 'distributor' | 'driver';
 
 /** Which dashboard a role belongs on. */
 export function homeRouteForRole(role: AppRole): string {
@@ -18,6 +18,10 @@ export function homeRouteForRole(role: AppRole): string {
       return '/distributor';
     case 'PHARMACY_MANAGER':
       return '/pharmacy';
+    case 'DRIVER':
+      // A driver lands on the run in their hand, not on a dashboard. The first
+      // thing they need is the stop list, and everything else is behind it.
+      return '/driver';
     case 'TENANT_ADMIN':
     case 'WAREHOUSE_MANAGER':
     case 'DISPATCHER':
@@ -37,4 +41,7 @@ export const ROLES_BY_SURFACE: Record<Surface, AppRole[]> = {
   admin: ['TENANT_ADMIN', 'WAREHOUSE_MANAGER', 'DISPATCHER', 'ANALYST'],
   pharmacy: ['PHARMACY_MANAGER', 'TENANT_ADMIN'],
   distributor: ['DISTRIBUTOR', 'DISPATCHER', 'TENANT_ADMIN'],
+  // DRIVER alone. A dispatcher can read the run list from the admin surface, but
+  // not this one: what the driver surface can sign for is the whole point of it.
+  driver: ['DRIVER'],
 };

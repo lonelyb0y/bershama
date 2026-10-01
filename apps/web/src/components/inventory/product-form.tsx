@@ -53,6 +53,19 @@ export interface ProductFormLabels {
  * saying "validation failed" for a twenty-field form makes the user hunt, and
  * hunting through a catalogue form is how you get the wrong SKU saved.
  */
+/**
+ * private.stock_unit's members, for the strength-unit picker.
+ *
+ * Written out rather than derived because the database is the authority and a
+ * generated list would need a round trip to render a form -- and because a value
+ * that is not in this list is refused by the enum, which is the behaviour we want
+ * rather than a value silently coerced.
+ */
+const STRENGTH_UNITS = ['mg', 'g', 'mcg', 'ml', 'IU', '%', 'units'] as const;
+
+/** private.stock_unit's members: the unit a product's stock is counted in. */
+const STOCK_UNITS = ['BOX', 'STRIP', 'BOTTLE', 'TUBE', 'VIAL', 'SACHET', 'KIT'] as const;
+
 export function ProductForm({
   canWrite,
   editing,
@@ -98,9 +111,44 @@ export function ProductForm({
           <Field label={l.brand} name="brand" defaultValue={editing?.brand ?? ''} error={errorFor('brand')} />
           <Field label={l.form} name="form" defaultValue={editing?.form ?? 'TABLET'} error={errorFor('form')} dir="ltr" />
           <Field label={l.strength} name="strength" defaultValue={editing?.strength} error={errorFor('strength')} required dir="ltr" />
-          <Field label={l.strengthUnit} name="strengthUnit" defaultValue={l.strengthUnit} error={errorFor('strengthUnit')} dir="ltr" />
+          {/* A select, not a text input: the database holds an enum, so a free-text field can
+              only ever be right by luck. The placeholder value keeps the field
+              optional -- a product with no strength unit is legal -- while the options
+              are exactly the enum's members. */}
+              <label className="block">
+                <span className="mb-1 block text-xs font-medium">{l.strengthUnit}</span>
+                <select
+                  name="strengthUnit"
+                  defaultValue={editing?.strengthUnit ?? ''}
+                  className="w-full rounded-lg border px-3 py-2 text-sm"
+                >
+                  <option value="">—</option>
+                  {STRENGTH_UNITS.map((unit) => (
+                    <option key={unit} value={unit}>
+                      {unit}
+                    </option>
+                  ))}
+                </select>
+              </label>
           <Field label={l.packSize} name="packSize" type="number" defaultValue={editing?.packSize ?? 1} error={errorFor('packSize')} required dir="ltr" />
-          <Field label={l.uom} name="uom" defaultValue={editing?.uom ?? 'unit'} error={errorFor('uom')} dir="ltr" />
+          {/* Also an enum, and also was a text input. Its default was the string "unit",
+                which is not a member of private.stock_unit -- so every create sent an
+                invalid value and the database refused it. Same shape of mistake as the
+                strength unit beside it, and the same fix. */}
+              <label className="block">
+                <span className="mb-1 block text-xs font-medium">{l.uom}</span>
+                <select
+                  name="uom"
+                  defaultValue={editing?.uom ?? 'BOX'}
+                  className="w-full rounded-lg border px-3 py-2 text-sm"
+                >
+                  {STOCK_UNITS.map((unit) => (
+                    <option key={unit} value={unit}>
+                      {unit}
+                    </option>
+                  ))}
+                </select>
+              </label>
           <Field label={l.atcCode} name="atcCode" defaultValue={editing?.atcCode ?? ''} error={errorFor('atcCode')} dir="ltr" placeholder="N02BE01" />
           <Field label={l.gtin} name="gtin" defaultValue={editing?.gtin ?? ''} error={errorFor('gtin')} dir="ltr" inputMode="numeric" />
           <Field label={l.edaRegNo} name="edaRegNo" defaultValue={editing?.edaRegNo ?? ''} error={errorFor('edaRegNo')} dir="ltr" />
@@ -161,11 +209,17 @@ function Field({
         {label}
         {required && <span className="text-red-500"> *</span>}
       </span>
-      <input
-        name={name}
-        type={type}
-        dir={dir}
-        aria-invalid={error ? true : undefined}
+<input
+          name={name}
+          type={type}
+          dir={dir}
+          // Forwarded, not just used to draw the asterisk above. The prop was consumed
+          // by this component and never reached the input, so a field the form called
+          // required was not required: the browser submitted it empty and the database
+          // refused the row with a constraint name -- no client-side message, and an
+          // error about a table the person filling in a form has never heard of.
+          required={required}
+          aria-invalid={error ? true : undefined}
         aria-describedby={error ? `${name}-error` : undefined}
         className={`w-full rounded-lg border px-3 py-2 text-sm ${error ? 'border-red-500' : ''}`}
         {...rest}

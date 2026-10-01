@@ -51,33 +51,73 @@ RESET = "\033[0m"
 # functions as "no migration creates it" and two typed functions as missing.
 SIG_RE = re.compile(r"create\s+or\s+replace\s+function\s+api\.([a-z_]+)\s*\(", re.I)
 
-# One `p_name type [default ...]` per line.
+# A parameter is `p_name type`, so this matches the name at the start of a segment.
 PARAM_RE = re.compile(r"^\s*(p_[a-z0-9_]+)\s+", re.I)
 
-
 def balanced(src: str, open_at: int) -> str:
-    """Return the text between the bracket at open_at and its match.
+    """The text between the delimiter at open_at and its matching close.
 
-    open_at indexes the opening bracket. Counts depth so a default value or a
-    return type containing brackets does not end the scan early.
+    Handles parentheses (SQL signatures) and braces (the generated types' `Args: {`
+    block), and skips quoted text: a default like `default ', '` and a comment
+    containing a parenthesis both occur in real signatures here, and a naive depth
+    count then returns the wrong span -- a silent wrong answer rather than an error.
     """
-    opener = src[open_at]
-    closer = {"(": ")", "{": "}", "[": "]"}[opener]
     depth = 0
-    for i in range(open_at, len(src)):
+    quote: str | None = None
+    i = open_at
+    while i < len(src):
         ch = src[i]
-        if ch == opener:
+        if quote:
+            if ch == quote:
+                quote = None
+        elif ch in "'\"":
+            quote = ch
+        elif ch in "({":
             depth += 1
-        elif ch == closer:
+        elif ch in ")}":
             depth -= 1
             if depth == 0:
                 return src[open_at + 1 : i]
-    return ""
+        i += 1
+    raise ValueError("unbalanced parentheses in signature")
+
+
+def split_args(body: str) -> list[str]:
+    """Split an argument list on commas that are not nested or quoted."""
+    segments: list[str] = []
+    buf: list[str] = []
+    depth = 0
+    for ch in body:
+        if ch in "([{":
+            depth += 1
+        elif ch in ")]}":
+            depth -= 1
+        if ch == "," and depth == 0:
+            segments.append("".join(buf))
+            buf = []
+        else:
+            buf.append(ch)
+    segments.append("".join(buf))
+    return segments
 
 
 def collect_from_migrations() -> dict[str, list[set[str]]]:
-    """{function name: [arg names of signature 1, of signature 2, ...]}"""
-    found: dict[str, list[set[str]]] = {}
+    """{function name: [argument names of its current signature]}
+
+    ── why the newest `create or replace` wins ──────────────────────────────────
+    This schema evolves a function with `create or replace` and drops the old
+    signature in a later migration, so the newest definition is the one the database
+    serves. Collecting every signature ever written and comparing the first against
+    the generated types reported two invented arguments on api.update_product, whose
+    database definition was correct -- the check was describing a function that had
+    not existed for several migrations.
+
+    A name that is deliberately overloaded would break this rule, and this project
+    has been bitten three times by *accidental* overloads rather than deliberate
+    ones, so 0047 now asserts at the database that no api.* name has two signatures.
+    That assertion is what makes "newest wins" safe rather than merely convenient.
+    """
+    found: dict[str, set[str]] = {}
 
     for path in sorted(MIGRATIONS.glob("*.sql")):
         src = path.read_text()
@@ -85,36 +125,16 @@ def collect_from_migrations() -> dict[str, list[set[str]]]:
             name = match.group(1).lower()
             body = balanced(src, match.end() - 1)
 
-            # Split on commas that are not inside a bracket or a quoted default.
-            segments: list[str] = []
-            buf: list[str] = []
-            depth = 0
-            for ch in body:
-                if ch in "([{":
-                    depth += 1
-                elif ch in ")]}":
-                    depth -= 1
-                if ch == "," and depth == 0:
-                    segments.append("".join(buf))
-                    buf = []
-                else:
-                    buf.append(ch)
-            segments.append("".join(buf))
-
             params: set[str] = set()
-            for decl in segments:
-                line = decl.strip()
-                if not line or line.startswith("--"):
-                    continue
+            for decl in split_args(body):
                 pm = PARAM_RE.match(decl)
                 if pm:
                     params.add(pm.group(1))
 
-            found.setdefault(name, [])
-            if params not in found[name]:
-                found[name].append(params)
+            # Reassigned rather than merged: later migrations supersede earlier ones.
+            found[name] = params
 
-    return found
+    return {name: [params] for name, params in found.items()}
 
 
 def collect_from_types() -> dict[str, set[str]]:
@@ -192,7 +212,10 @@ def main() -> int:
         )
 
     for name in sorted(set(db) & set(ts)):
-        declared = db[name][0]  # first signature; overloads noted below
+        # Exactly one signature survived for this function, because a later drop
+        # removed the others. With more than one, this compares against the first and
+        # the note underneath says so -- the generated types keep only one.
+        declared = db[name][0]
         typed = ts[name]
         args_missing = sorted(declared - typed)
         args_extra = sorted(typed - declared)
