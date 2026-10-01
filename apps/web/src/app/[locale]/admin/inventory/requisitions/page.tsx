@@ -165,6 +165,10 @@ export default async function RequisitionsPage({
                 <Link
                   key={r.id}
                   href={isOpen ? '/admin/inventory/requisitions' : `/admin/inventory/requisitions?open=${r.id}`}
+                  // Same reasoning as the catalogue's per-row edit links: one prefetch
+                  // per row, each re-running the requisitions query to prove an open
+                  // panel exists.
+                  prefetch={false}
                   aria-current={isOpen ? 'page' : undefined}
                   className={`block rounded-lg border p-3 transition-colors hover:bg-[color:var(--surface-raised)] ${
                     isOpen ? 'border-[var(--color-brand-600)] bg-[var(--color-brand-600)]/5' : ''

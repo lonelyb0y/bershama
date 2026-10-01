@@ -209,6 +209,12 @@ export default async function ProductsPage({
                 <div className="flex gap-2">
                   <Link
                     href={`/admin/inventory/products?edit=${p.id}`}
+                      // Prefetching off. Each of these links to *this* page with a
+                      // different product's edit form attached, so the default
+                      // viewport prefetch fired one RSC request per row -- each
+                      // re-running the catalogue query to prove an edit form exists.
+                      // The largest single source of requests on this surface.
+                      prefetch={false}
                     className="rounded-md border px-2.5 py-1.5 text-xs font-medium hover:bg-[color:var(--text-muted)]/10"
                   >
                     {t('edit')}
