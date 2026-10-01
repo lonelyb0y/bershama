@@ -79,6 +79,11 @@ export async function AuthenticatedShell({
             // /en/en/admin on every click. Any `/${locale}` interpolated into a
             // next-intl href is a doubled segment.
             href={homeRouteForRole(session.role)}
+            // Prefetching off, and this was the one that was missed: the nav links
+            // were fixed and the wordmark was not, so an `admin` request kept
+            // finishing last on every page in the sampling -- including the pages
+            // where the dashboard is the least likely destination on screen.
+            prefetch={false}
             className="shrink-0 rounded-md"
             // The wordmark is the way home, the same as a logo in any other
             // application. Without this it was a <span>, which looked like a

@@ -70,6 +70,9 @@ export default async function InventoryIndex({
           <Link
             key={d.href}
             href={d.href}
+          // This route is already the parent of where this link goes, so prefetching
+          // it round-trips a page you are standing on.
+          prefetch={false}
             className="rounded-xl border p-5 transition-colors hover:bg-[color:var(--surface-raised)]"
           >
             <h2 className="font-semibold">{d.title}</h2>

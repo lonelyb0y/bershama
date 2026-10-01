@@ -280,6 +280,10 @@ export default async function AdminDashboard({
                 {run && (
                   <Link
                     href={`/${locale}/admin/deliveries`}
+                    // Two drill-through links from the dashboard. Prefetching a
+                    // route costs its full query set, and these are choices made from
+                    // the figures on screen rather than the first thing anybody clicks.
+                    prefetch={false}
                     className="text-xs font-medium text-[color:var(--color-brand-600)] underline dark:text-[color:var(--color-brand-100)]"
                   >
                     {t('openDeliveries')}
@@ -351,6 +355,10 @@ export default async function AdminDashboard({
 
               <Link
                 href={`/${locale}/admin/inventory/requisitions`}
+                    // Two drill-through links from the dashboard. Prefetching a
+                    // route costs its full query set, and these are choices made from
+                    // the figures on screen rather than the first thing anybody clicks.
+                    prefetch={false}
                 className="mt-3 inline-block text-xs font-medium text-[color:var(--color-brand-600)] underline dark:text-[color:var(--color-brand-100)]"
               >
                 {t('openRequisitions')}
