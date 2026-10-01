@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import { ThemeInit } from '@/components/theme-init';
 
 import {
@@ -141,8 +142,32 @@ export default async function LocaleLayout({
           local development does not, which would otherwise fill the dashboard with
           localhost noise.
         */}
-        <Analytics mode="auto" />
-      </body>
+<Analytics mode="auto" />
+
+          {/*
+            Speed Insights, for the same first-party reason as Analytics above: the
+            Core Web Vitals of a request never leave the deployment that served it.
+
+            It measures what actually shipped rather than what a lab predicts, which
+            matters here for one specific reason: the dashboard carries a WebGL
+            backdrop, and a fragment shader that is comfortable on a laptop is a janky
+            first contentful paint on a cheap Android in a warehouse. The number that
+            exposes it is the field one, and this is the field one.
+
+            No `route` override is passed, deliberately. A layout receives `params`
+            and not the pathname, so passing one would need a client component and a
+            hydration hop to hand over a string the script reads off the URL anyway.
+            Reporting per real URL also keeps /en/admin and /ar/admin as separate
+            series -- an English and an Arabic dashboard are different render costs,
+            and averaging them hides the case worth seeing.
+
+            No `mode` either, because @vercel/speed-insights 2.0 removed it: the
+            component reports only where the Vercel runtime collects it, so local
+            development does not need to be opted out of. (Analytics still takes
+            mode="auto" -- that prop does exist there.)
+          */}
+          <SpeedInsights />
+        </body>
     </html>
   );
 }
