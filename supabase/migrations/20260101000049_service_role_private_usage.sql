@@ -1,0 +1,27 @@
+-- service_role needs USAGE on `private` to write a column whose type is a private enum.
+--
+-- The 403 that sent me looking here was not a table privilege. 0048 granted
+-- service_role UPDATE on delivery_stops and the PATCH still failed, with
+--
+--     42501  permission denied for schema private
+--
+-- because delivery_stops.status is private.stop_status. Naming a value for a column
+-- means naming that type, and naming a type means USAGE on its schema. service_role
+-- could read the table and could delete from it, but could not write a column whose
+-- type it was not allowed to name -- which is a confusing failure rather than an
+-- incorrect one, and worth writing down.
+--
+-- USAGE is deliberately all this grants, and only to service_role:
+--
+--   * It does not grant EXECUTE on anything. The functions in `private` remain
+--     unreachable by name from a client role, because a client still has no USAGE on
+--     the schema at all. That is the whole mechanism of the private schema and this
+--     migration does not touch it.
+--   * It is not granted to authenticated. A client writing a private-enum column
+--     still goes through an api.* function, whose parameters are text precisely
+--     because a client cannot name these types.
+--   * service_role is the admin role and already bypasses RLS, so this hands it
+--     nothing it did not effectively have; it makes an administrative write possible
+--     without a database password on the machine.
+
+grant usage on schema private to service_role;
