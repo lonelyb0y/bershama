@@ -257,6 +257,10 @@ export default async function AdminDashboard({
   // wearing a revenue label -- and a dashboard that overstates revenue is worse than
   // one that admits what it does not know. What is here is measured.
   const numberFormat = new Intl.NumberFormat(locale === 'ar' ? 'ar-EG' : 'en-GB');
+  const percentFormat = new Intl.NumberFormat(locale === 'ar' ? 'ar-EG' : 'en-GB', {
+    style: 'percent',
+    maximumFractionDigits: 0,
+  });
 
   const ranked = [...priced].sort((a, b) => (b.marginPerUnit ?? 0) - (a.marginPerUnit ?? 0));
 
@@ -349,7 +353,7 @@ export default async function AdminDashboard({
             <StatCard
               label={t('margin')}
               value={money(marginMinor, locale, true)}
-              hint={priced.length > 0 ? t('marginHint', { pct: numberFormat.format(Math.round((marginMinor / Math.max(1, retailMinor)) * 100)) }) : t('noPricesYet')}
+              hint={priced.length > 0 ? t('marginHint', { pct: percentFormat.format(marginMinor / Math.max(1, retailMinor)) }) : t('noPricesYet')}
               tone={marginMinor >= 0 ? 'good' : 'bad'}
             />
             <StatCard
