@@ -700,33 +700,39 @@
 
 .pf-notch {
   position: relative;
-  border-radius: 1.25rem 0.35rem 1.25rem 1.25rem;
+  border-radius: 1.25rem;
 }
 
-.pf-notch::after {
-  content: '';
+/* The cut. `clip-path` with a straight chamfer rather than a curve, because a
+   curved notch needs a mask that also eats the card's own 1px border -- and a
+   chamfer in a corner is the part of that shape a reader actually recognises. */
+.pf-notch--cut {
+  clip-path: polygon(
+    0 0,
+    calc(100% - 1.5rem) 0,
+    100% 1.5rem,
+    100% 100%,
+    0 100%
+  );
+}
+
+/* The dot that sits in the cut, and the only reason the cut reads as deliberate
+   rather than as a rounded corner that lost a fight. */
+.pf-notch__dot {
   position: absolute;
-  inset-inline-end: 0;
-  inset-block-start: 0;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-start-end-radius: 1.25rem;
-  /* A quarter circle cut from the corner, done with a radial mask rather than a
-     clip-path so the card's border still follows the shape. */
-  background: var(--pf-notch-fill, transparent);
-  -webkit-mask: radial-gradient(circle at 100% 0, transparent 1.4rem, black 1.4rem);
-  mask: radial-gradient(circle at 100% 0, transparent 1.4rem, black 1.4rem);
-  pointer-events: none;
+  top: 1.125rem;
+  inset-inline-end: 0.75rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background-color: var(--color-brand-600);
 }
 
-/* The card behind the notch needs to show through, which means the notch is painted
-   in the *page* colour, not transparent. --pf-notch-fill is set per theme below. */
-:root {
-  --pf-notch-fill: color-mix(in oklab, var(--surface) 100%, transparent);
-}
-
-:root.dark {
-  --pf-notch-fill: color-mix(in oklab, var(--surface) 100%, transparent);
+/* On the accent-filled card the cut has to keep its outline, or the card loses its
+   edge against a dark header. A ring on the cut side does that with one rule. */
+.pf-notch--cut.pf-hero,
+.pf-notch--cut.pf-hero * {
+  --pf-notch-dot: black;
 }
 
 /* ── the delta chip: direction is the message, so it carries the colour ────── */

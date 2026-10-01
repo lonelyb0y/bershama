@@ -10,7 +10,8 @@
     "signOut": "Sign out",
     "language": "Language",
     "english": "English",
-    "arabic": "Arabic"
+    "arabic": "Arabic",
+    "account": "Account"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -417,7 +418,7 @@
     "reserved": "{n} reserved",
     "expiring": "Expiring",
     "withinDays": "within {n} days",
-    "quarantined": "Quarantined",
+    "quarantined": "{n} quarantined",
     "quarantinedHint": "held back, not sellable",
     "awaitingApproval": "Awaiting approval",
     "awaitingHint": "requests raised, not decided",
@@ -441,11 +442,12 @@
     "marginHint": "{pct}% at the current prices",
     "noPricesYet": "No sell prices entered yet",
     "unpriced": "{n} product(s) have no sell price and are excluded from the margin.",
-    "marginByProduct": "Margin per unit, by product",
-    "marginByProductHint": "What each unit earns above what it cost, ranked best first.",
-    "bestMargin": "best margin · {sku}",
     "marginRanking": "Ranked by margin",
     "perUnit": "per unit",
-    "openCatalogue": "Open the catalogue"
+    "openCatalogue": "Open the catalogue",
+    "receivedAgainstCost": "Received against cost",
+    "receivedAgainstCostHint": "Units received per week. Weeks with no movement are drawn as zero, not left out.",
+    "unitsReceivedIn": "units received in the last {n} days",
+    "noMovements": "No stock movements in this window."
   }
 }

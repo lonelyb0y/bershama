@@ -10,7 +10,8 @@
     "signOut": "تسجيل الخروج",
     "language": "اللغة",
     "english": "الإنجليزية",
-    "arabic": "العربية"
+    "arabic": "العربية",
+    "account": "الحساب"
   },
   "nav": {
     "dashboard": "لوحة التحكم",
@@ -417,7 +418,7 @@
     "reserved": "{n} محجوز",
     "expiring": "تنتهي صلاحيتها",
     "withinDays": "خلال {n} يومًا",
-    "quarantined": "في الحجر",
+    "quarantined": "{n} في الحجر الصحي",
     "quarantinedHint": "موقوفة، غير قابلة للبيع",
     "awaitingApproval": "بانتظار الاعتماد",
     "awaitingHint": "طلبات مرفوعة لم يُبت فيها",
@@ -441,11 +442,12 @@
     "marginHint": "{pct}% بالأسعار الحالية",
     "noPricesYet": "لم تُدخَل أسعار بيع بعد",
     "unpriced": "{n} منتج بدون سعر بيع، وغير محسوبة في الهامش.",
-    "marginByProduct": "هامش الوحدة لكل منتج",
-    "marginByProductHint": "ما تربحه الوحدة فوق تكلفتها، مرتبة من الأفضل.",
-    "bestMargin": "أعلى هامش · {sku}",
     "marginRanking": "مرتبة حسب الهامش",
     "perUnit": "للوحدة",
-    "openCatalogue": "افتح الكتالوج"
+    "openCatalogue": "افتح الكتالوج",
+    "receivedAgainstCost": "المستلم مقابل التكلفة",
+    "receivedAgainstCostHint": "الوحدات المستلمة أسبوعياً. الأسابيع بلا حركات تظهر بصفر لا مُحذفة.",
+    "unitsReceivedIn": "وحدة مستلمة خلال {n} يوماً",
+    "noMovements": "لا حركات مخزون في هذه الفترة."
   }
 }

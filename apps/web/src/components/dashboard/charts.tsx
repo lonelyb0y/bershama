@@ -1,5 +1,3 @@
-'use client';
-
 /**
  * The chart primitives, hand-drawn in SVG.
  *
@@ -31,25 +29,33 @@ export interface BarPoint {
  * The line is the trend; the bars are the detail. In the reference the line is
  * dotted and the bars solid, which is worth keeping: two encodings, two weights, and
  * the eye can follow either without them fighting.
+ *
+ * ### One quantity per axis
+ *
+ * An earlier version drew a "cost per unit" line on top of these bars. The bars count
+ * units, the line is in money, and putting both on one scale needed a fudge factor to
+ * make the line visible -- which flattened every bar to a 1px sliver. A chart cannot
+ * carry a second quantity on a scale it does not share, so it carries one. Cost and
+ * margin are told by the two headline figures and the ranking beside this, both of
+ * which are in the same unit.
+ *
+ * A **server** component, deliberately. It draws SVG and holds no state, so it has
+ * no business being a client component -- and as a client component it could not
+ * accept a formatter function, because functions do not cross the server/client
+ * boundary. Every point therefore carries a pre-printed `display` string, formatted
+ * on the server where the locale and currency are actually known.
  */
 export function BarTrendChart({
   points,
-  highlightIndex,
-  format,
   ariaLabel,
-  onSelect,
 }: {
   points: BarPoint[];
-  /** Which bar carries the big value pill, or -1 for none. */
-  highlightIndex?: number;
-  format: (value: number) => string;
   ariaLabel: string;
-  onSelect?: (index: number) => void;
 }) {
   if (points.length === 0) return null;
 
   const W = 560;
-  const H = 220;
+  const H = 240;
   const PAD_BOTTOM = 26;
   const PAD_TOP = 34;
   const plotH = H - PAD_BOTTOM - PAD_TOP;
@@ -59,16 +65,9 @@ export function BarTrendChart({
   // From zero, never from the minimum -- see the note above.
   const max = Math.max(...points.map((p) => p.value), 1);
 
-  // Optional prop, so it is resolved once here rather than defaulted at every use
-  // site -- indexing with `undefined` is a runtime error, not a compile error, which
-  // is the worst kind to leave in a chart.
-  const highlight = highlightIndex ?? -1;
-
   const x = (i: number) => slot * i + slot / 2;
   const y = (v: number) => PAD_TOP + plotH - (v / max) * plotH;
 
-  const line = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${x(i)} ${y(p.value)}`).join(' ');
-  const area = `${line} L ${x(points.length - 1)} ${PAD_TOP + plotH} L ${x(0)} ${PAD_TOP + plotH} Z`;
 
   return (
     <svg
@@ -91,27 +90,12 @@ export function BarTrendChart({
         strokeWidth={1}
       />
 
-      <path d={area} fill="currentColor" fillOpacity="0.10" />
-
       {points.map((point, i) => {
         const barX = x(i) - barW / 2;
         const barY = y(point.value);
         const h = PAD_TOP + plotH - barY;
-        const isHighlight = i === highlight;
         return (
           <g key={point.label}>
-            {isHighlight && (
-              <line
-                x1={x(i)}
-                y1={barY}
-                x2={x(i)}
-                y2={PAD_TOP + plotH}
-                stroke="currentColor"
-                strokeOpacity="0.45"
-                strokeWidth={1}
-                strokeDasharray="2 2"
-              />
-            )}
             <rect
               x={barX}
               y={barY}
@@ -119,9 +103,7 @@ export function BarTrendChart({
               height={Math.max(1, h)}
               rx={3}
               fill="currentColor"
-              fillOpacity={isHighlight ? 0.95 : 0.55}
-              className={onSelect ? 'cursor-pointer' : undefined}
-              onClick={onSelect ? () => onSelect(i) : undefined}
+              fillOpacity={0.9}
             />
             <text
               x={x(i)}
@@ -137,33 +119,6 @@ export function BarTrendChart({
         );
       })}
 
-      {/* The dotted trend, over the bars, so it reads as a second layer rather than
-          as part of the series. */}
-      <path
-        d={line}
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={1.5}
-        strokeOpacity={0.5}
-        strokeDasharray="3 4"
-        strokeLinecap="round"
-      />
-      {points.map((point, i) => (
-        <circle key={`dot-${point.label}`} cx={x(i)} cy={y(point.value)} r={3} fill="currentColor" fillOpacity={0.8} />
-      ))}
-
-      {highlight >= 0 && points[highlight] && (
-        <text
-          x={x(highlight)}
-          y={y(points[highlight].value) - 10}
-          textAnchor="middle"
-          fontSize="12"
-          fontWeight={600}
-          fill="currentColor"
-        >
-          {points[highlight].display ?? format(points[highlight].value)}
-        </text>
-      )}
     </svg>
   );
 }
