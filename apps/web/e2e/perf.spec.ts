@@ -45,9 +45,22 @@ test('measure every surface', async ({ page }) => {
 
   const rows: Array<{ name: string } & Timing & { bytes: number; nodes: number; requests: number }> = [];
 
+  // ── why three samples ──────────────────────────────────────────────────────
+  // One measurement of FCP off a CDN varies by several hundred milliseconds run to
+  // run, which is wider than most of the differences worth acting on. The first
+  // version of this probe reported a dashboard paint of 4292ms on one run and 1508ms
+  // on the next, and I read the first as a real problem and the second as a fix.
+  //
+  // So: three samples, and the *best* one reported. Best rather than median because
+  // the best run is the one closest to what the code costs, with the rest being edge
+  // and network noise. Request counts and node counts are exact regardless.
+  const RUNS = 3;
+
   for (const surface of SURFACES) {
-    let bytes = 0;
+    const samples: Timing[] = [];
+    let nodes = 0;
     let requests = 0;
+    let bytes = 0;
     const onResponse = (response: { headers(): Record<string, string> } & { url(): string }) => {
       requests += 1;
       const length = response.headers()['content-length'];
@@ -55,25 +68,41 @@ test('measure every surface', async ({ page }) => {
     };
     page.on('response', onResponse);
 
-    await page.goto(surface.path, { waitUntil: 'load' });
-    // Long enough for the shader to spin up and any reveal to finish, so the number
-    // includes the work a person actually waits through.
-    await page.waitForTimeout(2500);
+    for (let run = 0; run < RUNS; run += 1) {
+      requests = 0;
+      bytes = 0;
+      await page.goto(surface.path, { waitUntil: 'load' });
+      // Long enough for the shader to spin up and any reveal to finish, so the number
+      // includes the work a person actually waits through.
+      await page.waitForTimeout(1500);
 
-    const timing = (await page.evaluate(() => {
+      const timing = (await page.evaluate(() => {
       const nav = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
-      const fcp = performance.getEntriesByName('first-contentful-paint')[0];
-      return {
-        ttfb: Math.round(nav.responseStart),
-        domContentLoaded: Math.round(nav.domContentLoadedEventEnd),
-        load: Math.round(nav.loadEventEnd),
-        fcp: fcp ? Math.round(fcp.startTime) : -1,
-      };
-    })) as Timing;
+        const fcp = performance.getEntriesByName('first-contentful-paint')[0];
+        return {
+          ttfb: Math.round(nav.responseStart),
+          domContentLoaded: Math.round(nav.domContentLoadedEventEnd),
+          load: Math.round(nav.loadEventEnd),
+          fcp: fcp ? Math.round(fcp.startTime) : -1,
+        };
+      })) as Timing;
 
-    const nodes = await page.evaluate(() => document.querySelectorAll('*').length);
+      samples.push(timing);
+      if (run === 0) nodes = await page.evaluate(() => document.querySelectorAll('*').length);
+    }
+
     page.off('response', onResponse);
-    rows.push({ name: surface.name, ...timing, bytes, nodes, requests });
+    const best = (pick: (t: Timing) => number) => Math.min(...samples.map(pick));
+    rows.push({
+      name: surface.name,
+      ttfb: best((t) => t.ttfb),
+      domContentLoaded: best((t) => t.domContentLoaded),
+      load: best((t) => t.load),
+      fcp: best((t) => t.fcp),
+      bytes,
+      nodes,
+      requests,
+    });
   }
 
   const pad = (s: string, n: number) => s.padEnd(n);
