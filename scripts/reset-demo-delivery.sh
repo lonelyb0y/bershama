@@ -12,7 +12,7 @@
 #
 # HOW IT WORKS, AND WHY IT CALLS A FUNCTION
 #
-# This calls maintenance.reset_demo_run() rather than writing the tables with the
+# This calls api.reset_demo_run() rather than writing the tables with the
 # service key. That was not the first implementation and the first one was wrong:
 # writing delivery_stops.status needs USAGE on the private schema, because the
 # column's type is private.stop_status and naming a type means naming its schema.
@@ -39,7 +39,7 @@ BASE="$NEXT_PUBLIC_SUPABASE_URL/rest/v1"
 
 curl -s -X POST "${AUTH[@]}" \
   -H "Content-Type: application/json" \
-  -H "Accept-Profile: maintenance" -H "Content-Profile: maintenance" \
+  -H "Accept-Profile: api" -H "Content-Profile: api" \
   "$BASE/rpc/reset_demo_run" -d '{}' \
   | python3 -c "
 import json, sys

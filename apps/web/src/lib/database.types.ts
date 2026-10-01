@@ -330,6 +330,13 @@ export type Database = {
         Args: { p_line_id: string }
         Returns: undefined
       }
+      reset_demo_run: {
+        Args: never
+        Returns: {
+          proofs_removed: number
+          stops_reset: number
+        }[]
+      }
       search_products: {
         Args: {
           p_expiry_band?: string
