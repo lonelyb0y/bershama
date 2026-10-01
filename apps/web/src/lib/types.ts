@@ -194,6 +194,11 @@ export interface Product {
   isControlled: boolean;
   isColdChain: boolean;
   shelfLifeMonths: number;
+  /**
+   * What the tenant charges per unit, in piastres (ADR 0004). 0 means not priced
+   * yet, and every margin surface reads it as unknown rather than as free.
+   */
+  sellPriceMinor: number;
   isActive: boolean;
 }
 

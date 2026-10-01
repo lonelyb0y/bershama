@@ -46,6 +46,27 @@ function requiredString(value: FormDataEntryValue | null): string {
   return typeof value === 'string' ? value.trim() : '';
 }
 
+/**
+ * A money field, entered in pounds, returned in piastres.
+ *
+ * ADR 0004: money is integer minor units, never a float. Parsing is strict on
+ * purpose -- exactly two decimal places, digits and one dot -- because this figure
+ * goes into a margin a distributor is audited on, and a lenient parse that turns
+ * "12,5" into 1250 or "1.2.3" into NaN is the kind of quiet wrong number that is
+ * found a month later.
+ *
+ * An empty field is 0, which the column comment defines as "not priced yet" rather
+ * than as free. Returning null would be tidier but the column is NOT NULL, and 0 is
+ * the same thing with one fewer branch.
+ */
+function minorFromField(value: FormDataEntryValue | null): number {
+  const raw = requiredString(value);
+  if (raw === '') return 0;
+  if (!/^\d+(\.\d{2})?$/.test(raw)) return 0;
+  const [whole, frac = '00'] = raw.split('.');
+  return Number(whole) * 100 + Number(frac);
+}
+
 function boolean(form: FormData, key: string): boolean {
   return form.get(key) === 'on' || form.get(key) === 'true';
 }
@@ -122,6 +143,8 @@ export async function saveProduct(
     is_active: form.get('isActive') !== 'off',
   };
 
+    // Piastres from a field entered in pounds; see minorFromField.
+    const sellPrice = minorFromField(form.get('sellPrice'));
 const id = optional(form.get('id'));
 
     // Through api.* rather than a table write. The tenant triggers call private.*,
@@ -154,7 +177,12 @@ const id = optional(form.get('id'));
     };
 
     const { error } = id
-      ? await supabase.rpc('update_product', { p_id: id, ...common, p_is_active: row.is_active })
+      ? await supabase.rpc('update_product', {
+          p_id: id,
+          ...common,
+          p_is_active: row.is_active,
+          p_sell_price_minor: sellPrice,
+        })
       : await supabase.rpc('create_product', common);
 
   if (error) {

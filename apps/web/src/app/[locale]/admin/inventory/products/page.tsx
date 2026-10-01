@@ -50,7 +50,7 @@ export default async function ProductsPage({
   let select = supabase
     .from('products')
     .select(
-      'id, sku, name_en, name_ar, generic_name_en, generic_name_ar, brand, form, strength, strength_unit, pack_size, uom, atc_code, gtin, eda_reg_no, requires_prescription, is_controlled, is_cold_chain, shelf_life_months, is_active',
+      'id, sku, name_en, name_ar, generic_name_en, generic_name_ar, brand, form, strength, strength_unit, pack_size, uom, atc_code, gtin, eda_reg_no, requires_prescription, is_controlled, is_cold_chain, shelf_life_months, sell_price_minor, is_active',
     )
     .order('name_en');
 
@@ -117,6 +117,8 @@ export default async function ProductsPage({
           isControlled: t('form.isControlled'),
           isColdChain: t('form.isColdChain'),
           shelfLifeMonths: t('form.shelfLifeMonths'),
+          sellPrice: t('form.sellPrice'),
+          sellPriceHint: t('form.sellPriceHint'),
           isActive: t('form.isActive'),
           facility: t('form.facility'),
           code: t('form.code'),
@@ -268,6 +270,7 @@ interface ProductRow {
   is_controlled: boolean;
   is_cold_chain: boolean;
   shelf_life_months: number;
+  sell_price_minor: number;
   is_active: boolean;
 }
 
@@ -293,6 +296,7 @@ function toProduct(r: ProductRow): Product {
     isControlled: r.is_controlled,
     isColdChain: r.is_cold_chain,
     shelfLifeMonths: r.shelf_life_months,
+    sellPriceMinor: r.sell_price_minor,
     isActive: r.is_active,
   };
 }

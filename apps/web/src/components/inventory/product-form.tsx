@@ -26,6 +26,8 @@ export interface ProductFormLabels {
   isControlled: string;
   isColdChain: string;
   shelfLifeMonths: string;
+  sellPrice: string;
+  sellPriceHint: string;
   isActive: string;
   facility: string;
   code: string;
@@ -153,6 +155,20 @@ export function ProductForm({
           <Field label={l.gtin} name="gtin" defaultValue={editing?.gtin ?? ''} error={errorFor('gtin')} dir="ltr" inputMode="numeric" />
           <Field label={l.edaRegNo} name="edaRegNo" defaultValue={editing?.edaRegNo ?? ''} error={errorFor('edaRegNo')} dir="ltr" />
           <Field label={l.shelfLifeMonths} name="shelfLifeMonths" type="number" defaultValue={editing?.shelfLifeMonths ?? 24} error={errorFor('shelfLifeMonths')} required dir="ltr" />
+          {/* Price, in pounds, converted to piastres by the action. text rather than
+              number because a number input drops the trailing zero a price needs --
+              "125" entered as 125.00 becomes 125 and a margin is off by a factor of
+              a hundred. inputMode keeps the numeric keypad on a phone. */}
+          <Field
+            label={l.sellPrice}
+            name="sellPrice"
+            defaultValue={editing && editing.sellPriceMinor > 0 ? (editing.sellPriceMinor / 100).toFixed(2) : ''}
+            error={errorFor('sellPrice')}
+            placeholder="0.00"
+            inputMode="decimal"
+            dir="ltr"
+          />
+          <p className="-mt-2 text-xs text-[color:var(--text-muted)]">{l.sellPriceHint}</p>
         </div>
 
         <fieldset className="flex flex-wrap gap-4">
@@ -201,7 +217,7 @@ function Field({
   dir?: 'ltr' | 'rtl';
   defaultValue?: string | number;
   placeholder?: string;
-  inputMode?: 'numeric' | 'text';
+  inputMode?: 'numeric' | 'decimal' | 'text';
 }) {
   return (
     <label className="block">

@@ -250,7 +250,9 @@
       "created": "Product created.",
       "newLocationTitle": "Add a storage location",
       "locationSaved": "Location saved.",
-      "submitLocation": "Save location"
+      "submitLocation": "Save location",
+      "sellPrice": "Sell price",
+      "sellPriceHint": "What the pharmacy pays per unit. Leave empty if not priced yet — a zero price is treated as unknown, not free."
     }
   },
   "batches": {
