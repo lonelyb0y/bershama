@@ -201,6 +201,19 @@ export function AppNav({
           <Link
             key={item}
             href={href}
+            // Prefetching off, and this is a measured decision rather than a habit.
+            //
+            // Next prefetches every link in the viewport by default, so the nine
+            // navigation items fired nine RSC requests on every page load -- one
+            // Supabase round trip each, for pages nobody had asked for. The dashboard
+            // was issuing 46 requests where the driver surface issued 15, and the
+            // difference was almost entirely speculation.
+            //
+            // Nothing is lost by turning it off here: these are server-rendered routes
+            // answering in ~78ms, so a click is already fast, and each one costs a real
+            // query set the tenant pays for in latency. A marketing site's navigation
+            // is worth prefetching; a warehouse supervisor's is not.
+            prefetch={false}
             aria-current={isActive ? 'page' : undefined}
             className={`whitespace-nowrap rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors ${
               isActive
