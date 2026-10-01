@@ -56,12 +56,16 @@ export default async function AdminDashboard({
 
   const t = await getTranslations('dashboard');
   const tNav = await getTranslations('nav');
-  // The audit vocabulary lives in `m0` -- entityTypes, systemActor, auditFootnote.
+  // Two namespaces, and conflating them is the trap: `welcome` lives in `auth`, while
+  // the audit vocabulary (entityTypes, systemActor, auditFootnote) lives in `m0`.
+  //
+  // The audit vocabulary:
   // Not in `dashboard` and not in `auth`, and getting it wrong is silent in a way
   // that is easy to ship: next-intl renders a missing key as its own full path, so
   // the log reads "updated a auth.entityTypes.products" and credits
   // "auth.systemActor" instead of naming a product and saying "System". It took two
   // wrong guesses to find, so the namespace is named here.
+  const tGreeting = await getTranslations('auth');
   const tAudit = await getTranslations('m0');
 
   const session = await getSession();
@@ -176,7 +180,7 @@ export default async function AdminDashboard({
             <div>
               <h1 className="text-2xl font-semibold tracking-tight">{tNav('dashboard')}</h1>
               <p className="mt-1 text-sm text-[color:var(--text-muted)]">
-                {tAudit('welcome', {
+                {tGreeting('welcome', {
                   // The Arabic name on the Arabic page. whoami has returned
                   // full_name_ar since migration 0015, and the greeting ignored it,
                   // so a person's name was spelled in Latin script on an Arabic screen.
