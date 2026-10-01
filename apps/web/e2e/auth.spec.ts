@@ -20,7 +20,9 @@ import { expect, test, type Page } from '@playwright/test';
 const ACCOUNTS = [
   { email: 'admin@demo.local', surface: 'admin', name: 'Ahmed Hassan' },
   { email: 'pharmacy@demo.local', surface: 'pharmacy', name: null },
-  { email: 'driver@demo.local', surface: 'distributor', name: null },
+    // DRIVER since M4, so this lands on /driver. It was a DISTRIBUTOR before,
+    // which was honest about there being no driver surface to route to.
+    { email: 'driver@demo.local', surface: 'driver', name: null },
 ] as const;
 
 async function signIn(page: Page, email: string, locale = 'en') {

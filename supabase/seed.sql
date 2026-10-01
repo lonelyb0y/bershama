@@ -115,8 +115,11 @@ values
    'TENANT_ADMIN', 'Ahmed Hassan', 'أحمد حسن', '+201001234567', 'ar'),
   ('11111111-0000-4000-8000-000000000102', '11111111-0000-4000-8000-000000000001',
    'PHARMACY_MANAGER', 'Mariam Nabil', 'مريم نبيل', '+201112345678', 'ar'),
+  -- DRIVER, not DISTRIBUTOR. This account was a distributor because there was no
+  -- driver surface to route to; M4 built one, and seeding it as a distributor would
+  -- leave the local demo tenant contradicting the hosted one.
   ('11111111-0000-4000-8000-000000000103', '11111111-0000-4000-8000-000000000001',
-   'DISTRIBUTOR', 'Mostafa Ali', 'مصطفى علي', '+201223456789', 'ar')
+   'DRIVER', 'Mostafa Ali', 'مصطفى علي', '+201223456789', 'ar')
 on conflict (id) do nothing;
 
 -- ── facilities ──────────────────────────────────────────────────────────────
@@ -268,65 +271,67 @@ on conflict (id) do nothing;
 
 do $$
 declare
-  v_tenant uuid := '11111111-0000-4000-8000-000000000001';
-  v_amb1   uuid := '11111111-0000-4000-8000-000000000301';
-  v_amb2   uuid := '11111111-0000-4000-8000-000000000302';
-  v_cold   uuid := '11111111-0000-4000-8000-000000000303';
-  v_quar   uuid := '11111111-0000-4000-8000-000000000304';
-  v_ledger_id bigint;
+  v_manager uuid;
+  v_driver  uuid;
+  v_trip    public.trips;
 begin
-  -- The wrappers check the caller's role through profiles, so the session has to
-  -- look like a signed-in warehouse manager.
-  perform set_config('request.jwt.claim.sub', '11111111-0000-4000-8000-000000000101', true);
+  -- The demo accounts are found by email rather than by the seeded ids. The local
+  -- seed uses 11111111-...-000000000101 and 103, but the hosted project was seeded
+  -- through account creation and its profiles carry generated uuids -- so hardcoding
+  -- them worked locally and failed on the hosted database, which is the direction
+  -- that matters least to notice.
+  select p.id into v_manager
+  from public.profiles p join auth.users u on u.id = p.id
+  where u.email = 'admin@demo.local';
 
-  -- Ambient, released.
-  perform api.receive_stock(v_amb1, '11111111-0000-4000-8000-000000000401',
-                           '11111111-0000-4000-8000-000000000501', 240, 4500, 'PO-2026-0187');
-  perform api.receive_stock(v_amb1, '11111111-0000-4000-8000-000000000402',
-                           '11111111-0000-4000-8000-000000000502', 85, 12800, 'PO-2026-0203');
-  perform api.receive_stock(v_amb1, '11111111-0000-4000-8000-000000000407',
-                           '11111111-0000-4000-8000-000000000507', 12, 7600, 'PO-2026-0240');
-  -- The short-dated lot, in the second ambient location.
-  perform api.receive_stock(v_amb2, '11111111-0000-4000-8000-000000000401',
-                           '11101111-0000-4000-8000-000000000503', 60, 4200, 'PO-2025-0902');
+  select p.id into v_driver
+  from public.profiles p join auth.users u on u.id = p.id
+  where u.email = 'driver@demo.local';
 
-  -- Cold chain insulin: delivered to ambient, then put away into the cold store.
-  -- Receiving it straight into cold would leave nothing at the source, and the
-  -- transfer below would fail with insufficient_stock.
-  perform api.receive_stock(v_amb1, '11111111-0000-4000-8000-000000000404',
-                           '11111111-0000-4000-8000-000000000504', 12, 38500, 'PO-2026-0221');
+  -- A no-op on a database that is not the demo one. This migration runs BEFORE
+  -- seed.sql on a fresh environment, so raising here would mean a demo fixture
+  -- could stop the whole migration set from applying anywhere but the demo
+  -- project. Demo data is not worth that: on a fresh database the run is created
+  -- by the seed instead, which is the right place for it.
+  if v_manager is null or v_driver is null then
+    raise notice 'demo accounts not present -- skipping demo delivery data';
+    return;
+  end if;
 
-  -- Awaiting inspection: lands in quarantine and stays there.
-  perform api.receive_stock(v_quar, '11111111-0000-4000-8000-000000000405',
-                           '11111111-0000-4000-8000-000000000508', 40, 2100, 'PO-2026-0251');
+  -- Same reason as the stock fixtures above: the wrappers check the caller's role
+  -- through profiles, so the session has to look signed in.
+  perform set_config('request.jwt.claim.sub', v_manager::text, true);
 
-  -- Expired stock, present so the report has an EXPIRED band to show.
-  perform api.receive_stock(v_amb1, '11111111-0000-4000-8000-000000000405',
-                           '11111111-0000-4000-8000-000000000505', 25, 2000, 'PO-2024-0812');
+  if not exists (select 1 from public.vehicles where code = 'VAN-1') then
+    perform api.create_vehicle('VAN-1', 'Refrigerated delivery van', 'ABC 1234');
+  end if;
 
-  -- A little movement history, so the ledger is not one long row of receipts and
-  -- the stock value is not simply qty times cost.
-  v_ledger_id := api.issue_stock(v_amb1, '11111111-0000-4000-8000-000000000401',
-                                 '11111111-0000-4000-8000-000000000501', 18,
-                                 'requisition', 'REQ-2026-0007');
-  v_ledger_id := api.issue_stock(v_amb1, '11111111-0000-4000-8000-000000000402',
-                                 '11111111-0000-4000-8000-000000000502', 5,
-                                 'requisition', 'REQ-2026-0009');
-  -- On the short-dated lot, which lives in amb2, not amb1.
-  v_ledger_id := api.adjust_stock(v_amb2, '11111111-0000-4000-8000-000000000401',
-                                 '11101111-0000-4000-8000-000000000503', -2,
-                                 'DAMAGE', 'two boxes crushed in transit');
-  v_ledger_id := api.transfer_stock(v_amb1, v_cold,
-                                    '11111111-0000-4000-8000-000000000404',
-                                    '11111111-0000-4000-8000-000000000504', 12,
-                                    'COLD_CHAIN', 'put away into the cold store');
+  if not exists (select 1 from public.trips where notes = 'Morning run' and run_date = current_date) then
+    select * into v_trip
+    from api.create_trip(current_date,
+                         (select id from public.vehicles where code = 'VAN-1' limit 1),
+                         'Morning run');
 
-  -- Release the batches that inspection has cleared, so the demo has allocatable
-  -- stock. Quarantined lots stay quarantined on purpose: that is the state a
-  -- warehouse manager opens the app to see.
-  perform api.release_batch('11111111-0000-4000-8000-000000000501');
-  perform api.release_batch('11101111-0000-4000-8000-000000000503');
-  perform api.release_batch('11111111-0000-4000-8000-000000000502');
-  perform api.release_batch('11111111-0000-4000-8000-000000000504');
+    perform api.add_trip_stop(v_trip.id, '11111111-0000-4000-8000-000000000202');
+    perform api.add_trip_stop(v_trip.id, '11111111-0000-4000-8000-000000000203');
+    perform api.dispatch_trip(v_trip.id, v_driver);
+  else
+    select * into v_trip
+    from public.trips where notes = 'Morning run' and run_date = current_date limit 1;
+  end if;
+
+  -- One stop already arrived, with a position, so the map has something to plot and
+  -- the sign sheet is reachable without faking a geolocation fix in a test.
+  if exists (
+    select 1 from public.delivery_stops
+    where trip_id = v_trip.id and sequence = 1 and status = 'PENDING'
+  ) then
+    perform set_config('request.jwt.claim.sub', v_driver::text, true);
+    perform api.start_trip(v_trip.id);
+    perform api.arrive_at_stop(
+      (select id from public.delivery_stops where trip_id = v_trip.id and sequence = 1),
+      30.0444, 31.2357
+    );
+  end if;
 end
 $$;

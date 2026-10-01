@@ -14,7 +14,30 @@ import { Link, usePathname } from '@/i18n/routing';
 import type { Surface } from '@/lib/roles';
 import type { AppRole } from '@/lib/types';
 
-const NAV_BY_SURFACE = {
+/**
+ * The destinations that exist, as a union spelled out once.
+ *
+ * Spelled out rather than inferred from the table below, because the table is
+ * `Record<Surface, ...>`-typed and the key type is needed to type that record. The
+ * alternative -- letting the table infer itself -- means a surface with no entries
+ * cannot be written at all, which is the wrong thing to fail on.
+ */
+type NavKeySource =
+  | 'dashboard'
+  | 'inventory'
+  | 'catalogue'
+  | 'batches'
+  | 'stocktake'
+  | 'requisitions'
+  | 'deliveries'
+  | 'routes'
+  | 'alerts'
+  | 'analytics'
+  | 'audit';
+
+type NavKey = NavKeySource;
+
+const NAV_BY_SURFACE: Record<Surface, readonly NavKey[]> = {
   admin: [
     'dashboard',
     'inventory',
@@ -29,9 +52,12 @@ const NAV_BY_SURFACE = {
   ],
   pharmacy: ['dashboard', 'catalogue', 'requisitions', 'inventory'],
   distributor: ['dashboard', 'routes'],
-} as const;
-
-type NavKey = (typeof NAV_BY_SURFACE)[keyof typeof NAV_BY_SURFACE][number];
+  // A driver gets exactly one destination. Not a reduced nav: the run in their
+  // hand is the surface, and every other link would be somewhere they must not go.
+  // Offering a driver "Inventory" teaches them this is a warehouse tool they
+  // happen to be logged into.
+  driver: ['deliveries'],
+};
 
 /**
  * Where each live destination actually is, per surface, relative to the surface

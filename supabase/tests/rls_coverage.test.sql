@@ -266,8 +266,20 @@ select is_empty(
       -- relying on the policy, because the policy is not what is doing the check.
       'create_product', 'update_product', 'set_product_active',
       'create_location',
-      'create_requisition', 'add_requisition_line', 'remove_requisition_line'
-    ])
+        'create_requisition', 'add_requisition_line', 'remove_requisition_line',
+        -- M4 deliveries. The same reason, and a stronger one: these functions
+        -- enforce a chain of physical facts -- a run has a van before it is
+        -- dispatched, a stop is arrived at before it is signed, a run cannot close
+        -- with a stop nobody called at. Left to the client, those rules would live
+        -- in application code on a phone that may be holding a stale session.
+        -- start_trip, arrive_at_stop, complete_stop, fail_stop and complete_trip
+        -- additionally check that the run is assigned to the calling driver, so the
+        -- function is the only thing standing between a stale phone and a signature
+        -- on somebody else's delivery.
+        'create_vehicle', 'create_trip', 'add_trip_stop',
+        'dispatch_trip', 'start_trip', 'arrive_at_stop',
+        'complete_stop', 'fail_stop', 'complete_trip'
+      ])
   $$,
   'only the allow-listed wrappers in the api schema are SECURITY DEFINER'
 );

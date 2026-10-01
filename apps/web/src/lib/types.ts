@@ -18,6 +18,7 @@ export type AppRole =
   | 'TENANT_ADMIN'
   | 'WAREHOUSE_MANAGER'
   | 'DISPATCHER'
+  | 'DRIVER'
   | 'PHARMACY_MANAGER'
   | 'DISTRIBUTOR'
   | 'ANALYST';
@@ -242,15 +243,35 @@ export interface RequisitionLine {
   unitPrice: Minor;
 }
 
+export type TripStatus =
+  | 'PLANNED'
+  | 'DISPATCHED'
+  | 'IN_TRANSIT'
+  | 'COMPLETED'
+  | 'CANCELLED';
+
 export interface Trip {
   id: string;
   tenantId: string;
   vehicleId: string | null;
   driverId: string | null;
   runDate: string;
-  status: 'PLANNED' | 'DISPATCHED' | 'IN_TRANSIT' | 'COMPLETED' | 'CANCELLED';
+  status: TripStatus;
+  /**
+   * When the van left, not when the paperwork did. DISPATCHED runs have none --
+   * 0039 exists because the first constraint here wrongly required one.
+   */
   startedAt: string | null;
   endedAt: string | null;
+  notes: string | null;
+}
+
+export interface Vehicle {
+  id: string;
+  code: string;
+  description: string | null;
+  plateNumber: string | null;
+  isActive: boolean;
 }
 
 export interface Stop {
@@ -262,7 +283,14 @@ export interface Stop {
   status: StopStatus;
   eta: string | null;
   arrivedAt: string | null;
+  /**
+   * When the goods were handed over. NULL on a failed stop, and that distinction
+   * matters: counting delivered_at as stops closed overstates deliveries by exactly
+   * the failed calls.
+   */
   deliveredAt: string | null;
+  /** When the stop stopped being open, whatever the outcome. */
+  closedAt: string | null;
   failureReason: string | null;
   latitude: number | null;
   longitude: number | null;
