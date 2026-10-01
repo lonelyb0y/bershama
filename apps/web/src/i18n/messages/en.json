@@ -434,6 +434,18 @@
     "waitingOnYou": "Waiting on you",
     "nothingWaiting": "Nothing is waiting on a decision.",
     "openRequisitions": "Open requisitions",
-    "auditEmpty": "No entries yet. The audit trail fills as soon as something changes."
+    "auditEmpty": "No entries yet. The audit trail fills as soon as something changes.",
+    "capital": "Capital in stock",
+    "capitalHint": "what the business has tied up at cost",
+    "margin": "Margin on that stock",
+    "marginHint": "{pct}% at the current prices",
+    "noPricesYet": "No sell prices entered yet",
+    "unpriced": "{n} product(s) have no sell price and are excluded from the margin.",
+    "marginByProduct": "Margin per unit, by product",
+    "marginByProductHint": "What each unit earns above what it cost, ranked best first.",
+    "bestMargin": "best margin · {sku}",
+    "marginRanking": "Ranked by margin",
+    "perUnit": "per unit",
+    "openCatalogue": "Open the catalogue"
   }
 }

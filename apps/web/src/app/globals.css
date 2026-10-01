@@ -669,3 +669,174 @@
     scroll-behavior: auto;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   The dashboard's visual language.
+
+   Built from a logistics dashboard reference (Yevhen Ledenov / Ledo) and the Uber
+   design spec: one strong accent against neutral greys, generous radii, an
+   editorial headline doing real work, and figures that carry their own direction
+   rather than a separate legend explaining it.
+
+   The two shapes worth naming:
+
+   · `pf-notch` cuts a quarter-circle out of a stat card's top-right corner, with a
+     small arrow sitting in the cut. It is the reference's signature and it is cheap
+     CSS -- but it is why these cards read as a set rather than as a row of boxes.
+
+   · The hero panel inverts to the accent colour, so the one figure that matters most
+     on the page is the one thing you see first. Everything else is neutral.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.pf-radius {
+  border-radius: 1.25rem;
+}
+
+.pf-radius-sm {
+  border-radius: 0.875rem;
+}
+
+/* ── the notched stat card ─────────────────────────────────────────────────── */
+
+.pf-notch {
+  position: relative;
+  border-radius: 1.25rem 0.35rem 1.25rem 1.25rem;
+}
+
+.pf-notch::after {
+  content: '';
+  position: absolute;
+  inset-inline-end: 0;
+  inset-block-start: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-start-end-radius: 1.25rem;
+  /* A quarter circle cut from the corner, done with a radial mask rather than a
+     clip-path so the card's border still follows the shape. */
+  background: var(--pf-notch-fill, transparent);
+  -webkit-mask: radial-gradient(circle at 100% 0, transparent 1.4rem, black 1.4rem);
+  mask: radial-gradient(circle at 100% 0, transparent 1.4rem, black 1.4rem);
+  pointer-events: none;
+}
+
+/* The card behind the notch needs to show through, which means the notch is painted
+   in the *page* colour, not transparent. --pf-notch-fill is set per theme below. */
+:root {
+  --pf-notch-fill: color-mix(in oklab, var(--surface) 100%, transparent);
+}
+
+:root.dark {
+  --pf-notch-fill: color-mix(in oklab, var(--surface) 100%, transparent);
+}
+
+/* ── the delta chip: direction is the message, so it carries the colour ────── */
+
+.pf-delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.125rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.pf-delta--up { color: var(--color-stock-ok); }
+.pf-delta--down { color: var(--color-stock-critical); }
+.pf-delta--flat { color: var(--text-muted); }
+
+/* ── the pill tab bar ─────────────────────────────────────────────────────── */
+
+.pf-pills {
+  display: inline-flex;
+  gap: 0.125rem;
+  padding: 0.25rem;
+  border-radius: 999px;
+  background-color: color-mix(in oklab, var(--surface) 72%, transparent);
+  border: 1px solid color-mix(in oklab, var(--border) 40%, transparent);
+}
+
+.pf-pill {
+  border-radius: 999px;
+  padding: 0.375rem 0.875rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.pf-pill:hover {
+  color: var(--text);
+}
+
+.pf-pill[aria-current='true'],
+.pf-pill[data-active='true'] {
+  background-color: var(--color-brand-600);
+  color: white;
+}
+
+/* ── the hero panel ───────────────────────────────────────────────────────── */
+
+.pf-hero {
+  background-color: var(--color-brand-600);
+  color: white;
+  border-radius: 1.5rem;
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, white 28%, transparent),
+    0 18px 40px -22px color-mix(in oklab, var(--color-brand-800) 80%, transparent);
+}
+
+:root.dark .pf-hero {
+  background-color: color-mix(in oklab, var(--color-brand-700) 70%, black);
+}
+
+.pf-hero__value {
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+/* ── the editorial headline ────────────────────────────────────────────────── */
+
+.pf-display {
+  font-size: clamp(1.75rem, 3.4vw, 2.75rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+/* ── the round icon button the reference puts on card edges ────────────────── */
+
+.pf-icon-btn {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  background-color: color-mix(in oklab, currentColor 8%, transparent);
+  color: inherit;
+}
+
+.pf-icon-btn--solid {
+  background-color: var(--color-brand-600);
+  color: white;
+}
+
+.pf-icon-btn--invert {
+  background-color: black;
+  color: white;
+}
+
+/* A grid that gives the hero two thirds and the ranked column one third. */
+.pf-split {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+}
+
+@media (max-width: 60rem) {
+  .pf-split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
