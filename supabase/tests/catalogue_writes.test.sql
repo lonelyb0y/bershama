@@ -138,6 +138,14 @@ select is(
 -- so it has to fail. A missing cast would make this assertion fail, which is the
 -- other half of what the cast is for.
 
+-- The sqlstate, not the wording.
+--
+-- The two engines report the message differently -- the compatibility shim catches
+-- `invalid input value for enum private.strength_unit: "furlongs"` while real pgTAP
+-- prefixes the state as `22P02: ...` -- and they match it differently too, LIKE
+-- against a regex. Any single expected string passes on one engine and fails on the
+-- other. 22P02 is `invalid_text_representation`, which is the actual contract here;
+-- the wording is Postgres's to change.
 select throws_ok(
   $$
   select api.create_product(
@@ -149,10 +157,10 @@ select throws_ok(
     p_pack_size     => 10,
     p_uom           => 'BOX'
   )
-  $$::text,
-  '22P02'::text,
-  '%invalid input value for enum private.strength_unit%'::text,
-  'a strength unit outside the enum is refused'::text
+  $$,
+  '22P02',
+  null,
+  'a strength unit outside the enum is refused'
 );
 
 -- ── and the sell price is optional on update ─────────────────────────────────
