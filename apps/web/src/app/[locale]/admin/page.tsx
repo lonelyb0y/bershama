@@ -191,6 +191,10 @@ export default async function AdminDashboard({
                   <Link
                     key={days}
                     href={`/${locale}/admin?expiry=${days}`}
+                    // Three variants of the page already on screen. Prefetching them
+                    // re-runs this route's seven queries three times over, to prove
+                    // something the user can see by clicking.
+                    prefetch={false}
                     aria-current={days === windowDays ? 'true' : undefined}
                     className={`rounded-md px-2 py-1 text-xs font-medium tabular ${
                       days === windowDays
