@@ -130,7 +130,9 @@ export async function createRequisition(
 
   const { data, error } = await api.rpc('create_requisition', {
     p_facility_id: facilityId,
-    p_justification: justification || null,
+    // Omitted rather than null: the generated type marks a DEFAULT NULL parameter as
+    // optional but not nullable, and the default is null anyway.
+    ...(justification ? { p_justification: justification } : {}),
   });
 
   if (error) return translateDbError(error);

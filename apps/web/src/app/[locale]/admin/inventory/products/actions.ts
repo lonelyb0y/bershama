@@ -18,7 +18,7 @@
 
 import { revalidatePath } from 'next/cache';
 
-import { getSupabase } from '@/lib/supabase/server';
+import { getSupabaseApi } from '@/lib/supabase/server';
 import { getLocale } from 'next-intl/server';
 import type { Locale } from '@/i18n/routing';
 
@@ -67,7 +67,7 @@ export async function saveProduct(
   form: FormData,
 ): Promise<ActionResult> {
   const locale = (await getLocale()) as Locale;
-  const supabase = await getSupabase();
+  const supabase = await getSupabaseApi();
   const errors: FieldError[] = [];
 
   const sku = requiredString(form.get('sku'));
@@ -122,10 +122,40 @@ export async function saveProduct(
     is_active: form.get('isActive') !== 'off',
   };
 
-  const id = optional(form.get('id'));
-  const { error } = id
-    ? await supabase.from('products').update(row).eq('id', id)
-    : await supabase.from('products').insert(row);
+const id = optional(form.get('id'));
+
+    // Through api.* rather than a table write. The tenant triggers call private.*,
+    // which a client role cannot name, so a direct insert or update returns 42501 --
+    // and this form has been failing on exactly that, quietly enough that the
+    // existence of the api functions was mistaken for their use here.
+    //
+    // Optional arguments are omitted rather than passed as null: the generated types
+    // mark a DEFAULT NULL parameter as optional but not nullable, and omitting takes
+    // the same default at runtime.
+    const common = {
+      p_sku: row.sku,
+      p_name_en: row.name_en,
+      p_name_ar: row.name_ar,
+      p_form: row.form,
+      p_requires_prescription: row.requires_prescription,
+      p_is_controlled: row.is_controlled,
+      p_is_cold_chain: row.is_cold_chain,
+      p_shelf_life_months: row.shelf_life_months,
+      ...(row.generic_name_en ? { p_generic_name_en: row.generic_name_en } : {}),
+      ...(row.generic_name_ar ? { p_generic_name_ar: row.generic_name_ar } : {}),
+      ...(row.brand ? { p_brand: row.brand } : {}),
+      ...(row.strength ? { p_strength: row.strength } : {}),
+      ...(row.strength_unit ? { p_strength_unit: row.strength_unit } : {}),
+      ...(row.pack_size ? { p_pack_size: row.pack_size } : {}),
+      ...(row.uom ? { p_uom: row.uom } : {}),
+      ...(row.atc_code ? { p_atc_code: row.atc_code } : {}),
+      ...(row.gtin ? { p_gtin: row.gtin } : {}),
+      ...(row.eda_reg_no ? { p_eda_reg_no: row.eda_reg_no } : {}),
+    };
+
+    const { error } = id
+      ? await supabase.rpc('update_product', { p_id: id, ...common, p_is_active: row.is_active })
+      : await supabase.rpc('create_product', common);
 
   if (error) {
     // 23505 is a unique violation. On `sku` it is the single most likely thing a
@@ -151,7 +181,7 @@ export async function saveProduct(
  */
 export async function setProductActive(form: FormData): Promise<void> {
   const locale = (await getLocale()) as Locale;
-  const supabase = await getSupabase();
+  const supabase = await getSupabaseApi();
 
   // Read from the form rather than taking bound arguments. A closure or a
   // `.bind()` in a Server Component's <form action> is a function passed to a
@@ -165,7 +195,7 @@ export async function setProductActive(form: FormData): Promise<void> {
     throw new Error('setProductActive called without an id');
   }
 
-  const { error } = await supabase.from('products').update({ is_active: active }).eq('id', id);
+  const { error } = await supabase.rpc('set_product_active', { p_id: id, p_active: active });
   if (error) {
     // A failed deactivation that renders as a successful one is worse than an
     // error: the row simply does not change on the next render, and the person
@@ -183,7 +213,7 @@ export async function saveLocation(
   form: FormData,
 ): Promise<ActionResult> {
   const locale = (await getLocale()) as Locale;
-  const supabase = await getSupabase();
+  const supabase = await getSupabaseApi();
   const errors: FieldError[] = [];
 
   const code = requiredString(form.get('code'));
@@ -220,8 +250,24 @@ export async function saveLocation(
 
   const id = optional(form.get('id'));
   const { error } = id
-    ? await supabase.from('storage_locations').update(row).eq('id', id)
-    : await supabase.from('storage_locations').insert(row);
+    ? await supabase.rpc('update_location', {
+          p_id: id,
+          p_code: row.code,
+          p_name_en: row.name_en,
+          p_name_ar: row.name_ar,
+          p_kind: row.kind,
+          ...(row.temp_min_c === null ? {} : { p_temp_min_c: row.temp_min_c }),
+          ...(row.temp_max_c === null ? {} : { p_temp_max_c: row.temp_max_c }),
+        })
+      : await supabase.rpc('create_location', {
+          p_code: row.code,
+          p_facility_id: row.facility_id,
+          p_name_en: row.name_en,
+          p_name_ar: row.name_ar,
+          p_kind: row.kind,
+          ...(row.temp_min_c === null ? {} : { p_temp_min_c: row.temp_min_c }),
+          ...(row.temp_max_c === null ? {} : { p_temp_max_c: row.temp_max_c }),
+        });
 
   if (error) {
     if (error.code === '23505') {

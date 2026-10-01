@@ -52,8 +52,8 @@ export async function arriveAtStopAction(
   const api = await getSupabaseApi();
   const { error } = await api.rpc('arrive_at_stop', {
     p_stop_id: String(formData.get('stop_id') ?? ''),
-    p_latitude: lat === '' ? null : lat,
-    p_longitude: lng === '' ? null : lng,
+    ...(lat === '' ? {} : { p_latitude: Number(lat) }),
+    ...(lng === '' ? {} : { p_longitude: Number(lng) }),
   });
 
   if (error) return translateDbError(error);
@@ -78,14 +78,14 @@ export async function completeStopAction(
     p_stop_id: String(formData.get('stop_id') ?? ''),
     p_recipient_name: String(formData.get('recipient_name') ?? ''),
     p_meaning: String(formData.get('meaning') ?? ''),
-    p_signature_data: signature === '' ? null : signature,
-    p_photo_url: photoUrl === '' ? null : photoUrl,
+    ...(signature === '' ? {} : { p_signature_data: signature }),
+    ...(photoUrl === '' ? {} : { p_photo_url: photoUrl }),
     // Stable per handset, not per request: it is what makes two signatures from the
     // same device recognisable later.
-    p_device_id: deviceId === '' ? null : deviceId,
-    p_unsigned_reason: unsignedReason === '' ? null : unsignedReason,
-    p_latitude: lat === '' ? null : lat,
-    p_longitude: lng === '' ? null : lng,
+    ...(deviceId === '' ? {} : { p_device_id: deviceId }),
+    ...(unsignedReason === '' ? {} : { p_unsigned_reason: unsignedReason }),
+    ...(lat === '' ? {} : { p_latitude: Number(lat) }),
+    ...(lng === '' ? {} : { p_longitude: Number(lng) }),
   });
 
   if (error) return translateDbError(error);

@@ -427,6 +427,24 @@ export type Database = {
         }
         Returns: number
       }
+      update_location: {
+        Args: {
+          p_code: string
+          p_id: string
+          p_kind?: string
+          p_name_ar: string
+          p_name_en: string
+          p_temp_max_c?: number
+          p_temp_min_c?: number
+        }
+        Returns: Database["public"]["Tables"]["storage_locations"]["Row"]
+        SetofOptions: {
+          from: "*"
+          to: "storage_locations"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       update_my_profile: {
         Args: {
           p_full_name?: string
@@ -452,6 +470,7 @@ export type Database = {
           p_generic_name_en?: string
           p_gtin?: string
           p_id: string
+          p_is_active?: boolean
           p_is_cold_chain?: boolean
           p_is_controlled?: boolean
           p_name_ar: string
@@ -459,6 +478,7 @@ export type Database = {
           p_pack_size?: number
           p_requires_prescription?: boolean
           p_shelf_life_months?: number
+          p_sku: string
           p_strength?: string
           p_strength_unit?: string
           p_uom?: string

@@ -278,7 +278,14 @@ select is_empty(
         -- on somebody else's delivery.
         'create_vehicle', 'create_trip', 'add_trip_stop',
         'dispatch_trip', 'start_trip', 'arrive_at_stop',
-        'complete_stop', 'fail_stop', 'complete_trip'
+        'complete_stop', 'fail_stop', 'complete_trip',
+        -- M4 follow-ups, and the catalogue pair. api.update_product carries
+        -- p_is_active because the catalogue form edits a product and its active flag
+        -- together, and making that two round trips left a product whose name had
+        -- been changed and whose status had not. api.update_location is here because
+        -- the location form's edit branch called a function that did not exist: the
+        -- create branch used api.create_location, so the pair looked complete.
+        'update_product', 'update_location'
       ])
   $$,
   'only the allow-listed wrappers in the api schema are SECURITY DEFINER'

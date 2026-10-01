@@ -76,7 +76,7 @@ export default async function DeliveriesPage({
       // Only DRIVER and DISPATCHER can be sent out: a warehouse manager on a run is
       // not a driver, and 0036 refuses the dispatch. Sending only the roles the
       // database accepts means the picker cannot offer a choice that fails.
-      supabase.from('profiles').select('id, full_name, name_ar, role').in('role', ['DRIVER', 'DISPATCHER']),
+      supabase.from('profiles').select('id, full_name, full_name_ar, role').in('role', ['DRIVER', 'DISPATCHER']),
       // Allocated demand is what a stop is for, so the requisition picker lists
       // exactly the requests waiting to be delivered, labelled with their facility.
       supabase
@@ -95,8 +95,8 @@ export default async function DeliveriesPage({
     .filter((f) => f.kind !== 'WAREHOUSE')
     .map((f) => ({ id: f.id, label: locale === 'ar' ? (f.name_ar ?? f.name_en) : f.name_en }));
 
-  const drivers = ((driverData ?? []) as Array<{ id: string; full_name: string; name_ar: string | null }>).map(
-    (d) => ({ id: d.id, label: locale === 'ar' ? (d.name_ar ?? d.full_name) : d.full_name }),
+  const drivers = ((driverData ?? []) as Array<{ id: string; full_name: string; full_name_ar: string | null }>).map(
+    (d) => ({ id: d.id, label: locale === 'ar' ? (d.full_name_ar ?? d.full_name) : d.full_name }),
   );
 
   const facilityLabel = new Map(

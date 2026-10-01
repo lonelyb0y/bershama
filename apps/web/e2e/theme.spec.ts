@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 
 /**
  * Dark mode.
@@ -13,7 +13,7 @@ import { expect, test } from '@playwright/test';
  * So these tests assert the computed value, not the presence of a class. A test
  * that only checked for `.dark` on <html> would have passed against that build.
  */
-async function signIn(page: import('@playwright/test').Page) {
+async function signIn(page: Page) {
   await page.goto('/en/login');
   await page.getByLabel(/email address/i).fill('admin@demo.local');
   await page.getByLabel(/password/i).fill('PharmaFlow#2026');
@@ -47,8 +47,30 @@ function isDark(colour: string): boolean {
   throw new Error(`cannot judge brightness of "${colour}"`);
 }
 
-async function surface(page: import('@playwright/test').Page) {
+async function surface(page: Page) {
   await page.goto('/en/login');
+}
+
+/**
+ * The body's background, once it has one.
+ *
+ * Retries rather than reading once, because a computed style is available before the
+ * stylesheet that sets it has loaded. Reading it immediately after a reload returns
+ * whatever the browser defaults to -- white -- which is indistinguishable from a
+ * theme that did not apply.
+ */
+async function pollBackground(page: Page): Promise<string> {
+  let last = '';
+  await expect
+    .poll(
+      async () => {
+        last = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+        return last;
+      },
+      { timeout: 10_000 },
+    )
+    .not.toBe('rgba(0, 0, 0, 0)');
+  return last;
 }
 
 test.describe('dark mode', () => {
@@ -83,7 +105,11 @@ test.describe('dark mode', () => {
     });
     await page.reload();
 
-    let bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+    // Polled rather than read once. getComputedStyle does not wait for the
+    // stylesheet, so on a cold reload the body has no background yet and the first
+    // version of this test failed intermittently with a white value -- which reads as
+    // a theme bug and is not one.
+    let bg = await pollBackground(page);
     expect(isDark(bg), `dark choice on a light OS: ${bg}`).toBe(true);
 
     // Dark OS, light choice. The other direction, which is the one that gets
@@ -94,7 +120,7 @@ test.describe('dark mode', () => {
     });
     await page.reload();
 
-    bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+    bg = await pollBackground(page);
     expect(isDark(bg), `light choice on a dark OS: ${bg}`).toBe(false);
   });
 

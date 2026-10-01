@@ -47,7 +47,9 @@ export async function createTripAction(
   const api = await getSupabaseApi();
   const { error } = await api.rpc('create_trip', {
     p_run_date: String(formData.get('run_date') ?? ''),
-    p_vehicle_id: vehicleId === '' ? null : vehicleId,
+    // Omitted rather than null when absent: the generated type marks a DEFAULT NULL
+    // parameter as optional but not nullable, and omitting it takes the same default.
+    ...(vehicleId === '' ? {} : { p_vehicle_id: vehicleId }),
     p_notes: String(formData.get('notes') ?? ''),
   });
 
@@ -67,7 +69,7 @@ export async function addStopAction(
   const { error } = await api.rpc('add_trip_stop', {
     p_trip_id: String(formData.get('trip_id') ?? ''),
     p_facility_id: String(formData.get('facility_id') ?? ''),
-    p_requisition_id: requisitionId === '' ? null : requisitionId,
+    ...(requisitionId === '' ? {} : { p_requisition_id: requisitionId }),
   });
 
   if (error) return translateDbError(error);
