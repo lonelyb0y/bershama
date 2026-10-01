@@ -650,7 +650,14 @@
   overflow-x: auto;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
-  mask-image: linear-gradient(to right, black 0, black calc(100% - 1.5rem), transparent 100%);
+  /* The mask is gone. It was meant to be a trailing affordance saying "there is more",
+     and instead it faded three real destinations out of existence: Deliveries,
+     Alerts and Analytics sat behind the last 1.5rem and could not be reached, because
+     the scrollbar it was meant to hint at is hidden.
+
+     A nav that hides destinations is not a nav. If a surface has more items than fit,
+     they wrap onto the second row below lg -- which is what the two-row header is for.
+     Above lg the strip is not scrolled and there is nothing to hint at. */
 }
 
 .pf-nav-scroll::-webkit-scrollbar {

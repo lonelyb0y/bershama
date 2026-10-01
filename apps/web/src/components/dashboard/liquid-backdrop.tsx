@@ -102,8 +102,8 @@ void main() {
   float flowB = fbm(p * 2.35 + vec2(-t * 0.11, t * 0.14) + 7.3);
   float field = flowA * 0.65 + flowB * 0.35;
 
-  vec3 color = mix(uColorA, uColorB, smoothstep(-0.6, 0.7, field));
-  color = mix(color, uColorC * 0.5, smoothstep(0.35, 1.0, flowB) * 0.35);
+  vec3 color = mix(uColorA, uColorB, smoothstep(-0.9, 0.9, field));
+  color = mix(color, uColorC * 0.5, smoothstep(0.45, 1.0, flowB) * 0.22);
 
   float band = sin((p.x * 1.7 + p.y * 0.9) * 2.1 - t * 0.6);
   color += uColorC * pow(max(band, 0.0), 6.0) * 0.35 * uSheen;
@@ -123,16 +123,24 @@ export interface BackdropPalette {
   sheen: string;
 }
 
+/**
+ * base and accent are deliberately close together.
+ *
+ * The first version put a near-white next to a saturated cyan, and the noise field
+ * between them produced large blotches of colour that competed with the figures
+ * printed on top of them. A backdrop's job is to have depth without contrast: you
+ * should notice it if it is gone and never while you are reading.
+ */
 export const LIGHT_PALETTE: BackdropPalette = {
-  base: '#e6f4fb',
-  accent: '#74cfe6',
+  base: '#eef8fc',
+  accent: '#cbe9f5',
   sheen: '#ffffff',
 };
 
 export const DARK_PALETTE: BackdropPalette = {
-  base: '#06141f',
-  accent: '#0d5a75',
-  sheen: '#63e6ff',
+  base: '#071620',
+  accent: '#0c2c3d',
+  sheen: '#1d4f66',
 };
 
 /** Below film, above noticeable stutter. */
@@ -186,9 +194,14 @@ export function prefersReducedMotion(): boolean {
  */
 export function LiquidBackdrop({
   dark,
-  speed = 0.35,
-  sheen = 0.8,
-  grain = 0.035,
+  // Slow enough that it reads as a surface rather than as an animation. At the old
+  // 0.35 the field visibly slid, which is the difference between atmosphere and a
+  // screensaver -- and on a page of numbers, a screensaver behind them is noise.
+  speed = 0.05,
+  // The specular was the loudest part: a diagonal band at 0.8 was a bright sweep
+  // across the middle of the screen every few seconds.
+  sheen = 0.18,
+  grain = 0.018,
 }: {
   dark: boolean;
   speed?: number;
@@ -323,7 +336,7 @@ export function LiquidBackdrop({
           width: '100%',
           height: '100%',
           display: 'block',
-          filter: 'blur(3px)',
+          filter: 'blur(6px)',
         }}
       />
     </div>
