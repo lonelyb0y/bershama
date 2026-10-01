@@ -405,5 +405,30 @@
       "trip_not_in_transit": "Only a run on the road can be closed",
       "unexpected": "Something went wrong. Reload and try again."
     }
+  },
+  "dashboard": {
+    "figures": "Key figures",
+    "unitsOnHand": "Units on hand",
+    "reserved": "{n} reserved",
+    "expiring": "Expiring",
+    "withinDays": "within {n} days",
+    "quarantined": "Quarantined",
+    "quarantinedHint": "held back, not sellable",
+    "awaitingApproval": "Awaiting approval",
+    "awaitingHint": "requests raised, not decided",
+    "activeProducts": "Active products",
+    "activeProductsHint": "in the catalogue",
+    "expiryWindow": "Expiry window",
+    "todaysRun": "On the road today",
+    "openDeliveries": "Open deliveries",
+    "noRunToday": "No run is planned for today.",
+    "noStops": "This run has no stops yet.",
+    "deliveredOf": "{done} of {total} delivered",
+    "stopsRemaining": "{n} stop(s) still to visit.",
+    "stops": "Stops on today's run",
+    "waitingOnYou": "Waiting on you",
+    "nothingWaiting": "Nothing is waiting on a decision.",
+    "openRequisitions": "Open requisitions",
+    "auditEmpty": "No entries yet. The audit trail fills as soon as something changes."
   }
 }

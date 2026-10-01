@@ -280,3 +280,222 @@
     }
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   The liquid dashboard.
+
+   Glass surfaces over an animated backdrop. The technique is CSS rather than the
+   WebGL refraction of liquid-glass-js, and the reason is in
+   components/dashboard/glass.tsx: each refracting element needs its own readback of
+   the backdrop, and a dashboard with nine cards would stall on nine readbacks while
+   somebody tries to read a stock figure. The compositor does the blur once.
+
+   Every colour here comes from the verified tokens. That is not style: text on glass
+   is a third surface, and the contrast spec asserts the token pairs on the page
+   background only. A glass panel therefore carries its own fill, and its foreground
+   is the theme's text colour -- never the backdrop showing through as the text
+   colour, which is the way a "liquid" design quietly fails AA.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.pf-glass {
+  --pf-glass-x: 0;
+  --pf-glass-y: 0;
+
+  position: relative;
+  isolation: isolate;
+
+  background-color: color-mix(in oklab, var(--surface-raised) 78%, transparent);
+  backdrop-filter: blur(14px) saturate(1.35);
+  -webkit-backdrop-filter: blur(14px) saturate(1.35);
+
+  border: 1px solid color-mix(in oklab, var(--border) 55%, transparent);
+  border-radius: 1rem;
+
+  /* The specular edge. A 1px inset highlight on the top and a soft one underneath is
+     what makes a rectangle read as a material with a surface rather than as a box. */
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, white 55%, transparent),
+    inset 0 -1px 0 color-mix(in oklab, black 8%, transparent),
+    0 1px 2px color-mix(in oklab, black 10%, transparent),
+    0 8px 24px -12px color-mix(in oklab, black 28%, transparent);
+
+  /* A fallback for a browser with no backdrop-filter: a more opaque fill rather than
+     a transparent one, because the text still has to be readable. */
+  @supports not (backdrop-filter: blur(1px)) {
+    background-color: var(--surface-raised);
+  }
+}
+
+:root.dark .pf-glass {
+  background-color: color-mix(in oklab, var(--surface-raised) 72%, transparent);
+  border-color: color-mix(in oklab, var(--border) 45%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, white 12%, transparent),
+    inset 0 -1px 0 color-mix(in oklab, black 30%, transparent),
+    0 1px 2px color-mix(in oklab, black 40%, transparent),
+    0 10px 30px -14px color-mix(in oklab, black 70%, transparent);
+}
+
+/* The pointer-following highlight. Two gradients on a pseudo-element, offset by the
+   pointer position, which is one paint of an already-composited layer. */
+.pf-glass--interactive::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 220ms ease;
+  background:
+    radial-gradient(
+      120% 80% at calc(50% + var(--pf-glass-x) * 60%) calc(0% + var(--pf-glass-y) * 60%),
+      color-mix(in oklab, white 26%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      80% 60% at calc(50% - var(--pf-glass-x) * 40%) calc(100% + var(--pf-glass-y) * 40%),
+      color-mix(in oklab, var(--color-brand-500) 16%, transparent),
+      transparent 65%
+    );
+  pointer-events: none;
+}
+
+.pf-glass--interactive:hover::before,
+.pf-glass--interactive:focus-within::before {
+  opacity: 1;
+}
+
+/* ── tiles ────────────────────────────────────────────────────────────────── */
+
+.pf-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem 1.125rem;
+}
+
+.pf-tile__label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.pf-tile__value {
+  font-size: 1.75rem;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.pf-tile__hint {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.pf-tile__spark {
+  margin-top: 0.5rem;
+  height: 1.5rem;
+  width: 100%;
+}
+
+.pf-spark {
+  fill: color-mix(in oklab, var(--color-brand-500) 70%, transparent);
+}
+.pf-spark--good {
+  fill: color-mix(in oklab, oklch(0.6 0.13 155) 75%, transparent);
+}
+.pf-spark--warn {
+  fill: color-mix(in oklab, oklch(0.72 0.15 75) 80%, transparent);
+}
+.pf-spark--bad {
+  fill: color-mix(in oklab, oklch(0.58 0.19 25) 78%, transparent);
+}
+
+/* ── the panel grid ───────────────────────────────────────────────────────── */
+
+.pf-dash {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(15rem, 100%), 1fr));
+}
+
+.pf-dash__span-2 {
+  grid-column: span 2;
+}
+
+@media (max-width: 40rem) {
+  .pf-dash__span-2 {
+    grid-column: span 1;
+  }
+}
+
+/* A section heading that reads as part of the material rather than as chrome. */
+.pf-section-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ── the run strip: stops as a row of beads ───────────────────────────────── */
+
+.pf-beads {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.pf-bead {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem 0.25rem 0.375rem;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  border: 1px solid color-mix(in oklab, var(--border) 40%, transparent);
+  background-color: color-mix(in oklab, var(--surface-raised) 60%, transparent);
+}
+
+.pf-bead__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  flex: none;
+}
+
+.pf-bead--PENDING .pf-bead__dot { background: oklch(0.62 0.02 250); }
+.pf-bead--ARRIVED .pf-bead__dot { background: var(--color-brand-500); }
+.pf-bead--DELIVERED .pf-bead__dot { background: oklch(0.62 0.15 155); }
+.pf-bead--FAILED .pf-bead__dot { background: oklch(0.58 0.19 25); }
+.pf-bead--RETURNED .pf-bead__dot { background: oklch(0.55 0.18 295); }
+.pf-bead--SKIPPED .pf-bead__dot { background: oklch(0.7 0.01 250); }
+
+/* ── reduced motion ───────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .pf-glass--interactive::before {
+    transition: none;
+  }
+}
+
+/* A hover lift, in CSS so it does not fight the glass highlight for the same
+   composite layer. -1px rather than -4px: this is a panel of numbers, and a large
+   lift reads as a toy. */
+.pf-lift {
+  transition: transform 200ms cubic-bezier(0.2, 0, 0, 1);
+}
+.pf-lift:hover {
+  transform: translateY(-1px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pf-lift,
+  .pf-lift:hover {
+    transition: none;
+    transform: none;
+  }
+}
