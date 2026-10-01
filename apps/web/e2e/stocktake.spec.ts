@@ -39,13 +39,12 @@ test.describe('the count sheet', () => {
     await page.goto('/en/admin/inventory/stocktake');
 
     // The first location is chosen by default and the sheet loads its rows.
-    const rows = page.getByRole('spinbutton');
+    const rows = page.getByRole('textbox', { name: /^counted:/i });
     await expect(rows.first()).toBeVisible();
 
-    const first = rows.first();
-    await first.fill('7');
+    await rows.first().fill('7');
 
-    await page.getByRole('button', { name: /save sheet/i }).click();
+    await page.getByRole('button', { name: /save the sheet/i }).click();
 
     // The failure this pins: the save resolved with a refused line whose message was
     // the generic one. Asserted as an absence, because the bug's message is exactly
@@ -60,10 +59,10 @@ test.describe('the count sheet', () => {
   test('the refused-lines panel names the lot and the reason', async ({ page }) => {
     await page.goto('/en/admin/inventory/stocktake');
 
-    const rows = page.getByRole('spinbutton');
+    const rows = page.getByRole('textbox', { name: /^counted:/i });
     await expect(rows.first()).toBeVisible();
     await rows.first().fill('7');
-    await page.getByRole('button', { name: /save sheet/i }).click();
+    await page.getByRole('button', { name: /save the sheet/i }).click();
     await page.waitForTimeout(4000);
 
     const refused = page.getByText(/lines that were not saved/i);
