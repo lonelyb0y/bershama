@@ -6,33 +6,33 @@ import { timeAgo } from '@/lib/format';
 import { asRows, toAuditLogEntry, type AuditLogRow } from '@/lib/mappers';
 import { getSupabase } from '@/lib/supabase/server';
 import { describeAction, labelEntities, translateEntityType } from '@/lib/audit-labels';
-import { GlassPanel, MetricTile } from '@/components/dashboard/glass';
-import { DashboardMotion, LiftOnHover } from '@/components/dashboard/dashboard-motion';
 import { DashboardBackdrop } from '@/components/dashboard/dashboard-backdrop';
+import { DashboardMotion } from '@/components/dashboard/dashboard-motion';
+import { BarTrendChart, RankedBars } from '@/components/dashboard/charts';
+import { GlassPanel } from '@/components/dashboard/glass';
 import type { Locale } from '@/i18n/routing';
 
 /**
  * The operations dashboard.
  *
- * ── what a dashboard is for, and what it is not ─────────────────────────────
- * It answers three questions in the first second: is anything about to expire, is
- * anything out of stock, and what is happening on the road today. Everything else on
- * the screen is one click from those three answers.
+ * ── the shape of it ──────────────────────────────────────────────────────────
+ * Built to a logistics-dashboard reference: an editorial headline that does real
+ * work at the top left, a row of notched stat cards each carrying its own
+ * direction, a hero panel in the accent colour holding the one figure that matters
+ * most, and a ranked column beside it. Everything else on the page is neutral, which
+ * is what makes the hero read as the answer to "how is today going".
  *
- * What it is not is a design showcase with figures in it. Every number here is
- * read from the database as the signed-in user through RLS, so the page cannot show
- * a figure that is not true for this tenant, and an empty tenant shows zeros rather
- * than sample data -- a dashboard that lies about being empty is worse than one that
- * admits it.
+ * ── the figures are real, and they are money ─────────────────────────────────
+ * Capital in stock is `sum(qty_on_hand * unit_cost_minor)` over the tenant's
+ * balances -- what the business has tied up. Margin is the same stock valued at
+ * `products.sell_price_minor`, so the two cards are the same quantity priced two
+ * ways, which is the comparison a distributor actually makes. Neither is estimated
+ * and neither is a placeholder: an empty tenant shows zeros rather than sample data,
+ * because a dashboard that lies about being empty is worse than one that admits it.
  *
- * ── the numbers are rendered final, never tweened ───────────────────────────
- * See dashboard-motion.tsx. An animated figure is a figure whose value is still
- * changing when somebody reads it.
- *
- * ── the expiry window is a link, not a widget ───────────────────────────────
- * Changing the window is a navigation to the same page with a different range. That
- * means it works without JavaScript, survives a refresh, and can be sent to somebody
- * else as a URL -- which a client-side filter toggle cannot do.
+ * ── no number is animated ────────────────────────────────────────────────────
+ * An animated figure is one whose value is still changing when somebody reads it.
+ * Every figure here is rendered final on the server and only revealed.
  */
 
 /** The ranges offered. Deliberately three: a day is noise, a year is too late. */
@@ -42,6 +42,50 @@ type Window = (typeof WINDOWS)[number];
 function parseWindow(raw: string | undefined): Window {
   const parsed = Number(raw);
   return (WINDOWS as readonly number[]).includes(parsed) ? (parsed as Window) : 90;
+}
+
+/** Money, in piastres -> a compact string. Never a float (ADR 0004). */
+function money(minor: number, locale: Locale, compact = false): string {
+  const value = minor / 100;
+  return new Intl.NumberFormat(locale === 'ar' ? 'ar-EG' : 'en-GB', {
+    style: 'currency',
+    currency: 'EGP',
+    maximumFractionDigits: compact ? 0 : 2,
+    notation: compact ? 'compact' : 'standard',
+  }).format(value);
+}
+
+/**
+ * One stat card.
+ *
+ * The notch is the card's shape -- a quarter circle cut from the top-right corner
+ * with an arrow sitting in it -- and the delta chip carries the direction, so a
+ * figure never needs a separate legend to be understood. Both come from the
+ * reference this dashboard is built to, and both are the difference between a row of
+ * boxes and a set of cards.
+ */
+function StatCard({
+  label,
+  value,
+  hint,
+  tone = 'neutral',
+}: {
+  label: string;
+  value: string;
+  hint?: string;
+  tone?: 'neutral' | 'good' | 'warn' | 'bad';
+}) {
+  return (
+    <article
+      className={`pf-notch pf-glass relative p-4 pr-10 ${
+        tone === 'warn' ? 'border-amber-500/40' : tone === 'bad' ? 'border-red-500/40' : ''
+      }`}
+    >
+      <p className="text-xs font-medium text-[color:var(--text-muted)]">{label}</p>
+      <p className="mt-1 text-2xl font-semibold tracking-tight tabular">{value}</p>
+      {hint && <p className="mt-0.5 text-xs text-[color:var(--text-muted)]">{hint}</p>}
+    </article>
+  );
 }
 
 export default async function AdminDashboard({
@@ -57,14 +101,9 @@ export default async function AdminDashboard({
   const t = await getTranslations('dashboard');
   const tNav = await getTranslations('nav');
   // Two namespaces, and conflating them is the trap: `welcome` lives in `auth`, while
-  // the audit vocabulary (entityTypes, systemActor, auditFootnote) lives in `m0`.
-  //
-  // The audit vocabulary:
-  // Not in `dashboard` and not in `auth`, and getting it wrong is silent in a way
-  // that is easy to ship: next-intl renders a missing key as its own full path, so
-  // the log reads "updated a auth.entityTypes.products" and credits
-  // "auth.systemActor" instead of naming a product and saying "System". It took two
-  // wrong guesses to find, so the namespace is named here.
+  // the audit vocabulary lives in `m0`. A namespace that does not contain the key
+  // makes next-intl print its own key path, so the log read "updated a
+  // dashboard.entityTypes.products" before this was split.
   const tGreeting = await getTranslations('auth');
   const tAudit = await getTranslations('m0');
 
@@ -77,30 +116,27 @@ export default async function AdminDashboard({
   const horizon = new Date(today);
   horizon.setDate(horizon.getDate() + windowDays);
 
-  // ── the reads ──────────────────────────────────────────────────────────────
-  //
-  // Six queries, in one Promise.all. They are deliberately separate rather than one
-  // view: each is a different question with a different shape, and a dashboard that
-  // needs a view to exist before it can be read is a dashboard that cannot show a
-  // partial answer when one query is slow.
   const [
     { data: productRows },
     { data: balanceRows },
+    { data: batchRows },
     { data: expiringBatches },
     { data: quarantined },
     { data: awaitingApproval },
     { data: todaysRun },
     { data: auditRows },
   ] = await Promise.all([
-    supabase.from('products').select('id, is_active').eq('is_active', true),
-    supabase.from('stock_balances').select('qty_on_hand, qty_reserved'),
+    supabase.from('products').select('id, name_en, name_ar, sku, form, is_active, sell_price_minor').eq('is_active', true),
+    supabase.from('stock_balances').select('product_id, qty_on_hand, qty_reserved'),
+    // The cost side. Joined separately rather than through a view so the dashboard
+    // needs no migration to exist before it can be read.
+    supabase.from('batches').select('product_id, unit_cost_minor, status, expiry_date').is('deleted_at', null),
     supabase
       .from('batches')
       .select('id, expiry_date')
       .is('deleted_at', null)
       .eq('status', 'RELEASED')
-      .lte('expiry_date', horizon.toISOString().slice(0, 10))
-      .order('expiry_date', { ascending: true }),
+      .lte('expiry_date', horizon.toISOString().slice(0, 10)),
     supabase.from('batches').select('id').eq('status', 'QUARANTINED').is('deleted_at', null),
     supabase.from('requisitions').select('id, code, requested_at, facility_id').eq('status', 'SUBMITTED'),
     supabase
@@ -117,38 +153,98 @@ export default async function AdminDashboard({
       .limit(6),
   ]);
 
-  const products = asRows<{ id: string; is_active: boolean }>(productRows);
-  const balances = asRows<{ qty_on_hand: number; qty_reserved: number }>(balanceRows);
+  type Product = { id: string; name_en: string; name_ar: string | null; sku: string; form: string; sell_price_minor: number };
+  type Balance = { product_id: string; qty_on_hand: number; qty_reserved: number };
+  type Batch = { product_id: string; unit_cost_minor: number };
+
+  const products = asRows<Product>(productRows);
+  const balances = asRows<Balance>(balanceRows);
+  const batches = asRows<Batch>(batchRows);
   const expiring = asRows<{ id: string; expiry_date: string }>(expiringBatches);
   const quarantinedCount = asRows<{ id: string }>(quarantined).length;
-  const approvals = asRows<{ id: string; code: string; requested_at: string; facility_id: string }>(
-    awaitingApproval,
-  );
+  const approvals = asRows<{ id: string; code: string; requested_at: string; facility_id: string }>(awaitingApproval);
   const runRows = asRows<{ id: string; status: string; run_date: string }>(todaysRun);
   const run = runRows[0];
 
-  const unitsOnHand = balances.reduce((sum, row) => sum + Number(row.qty_on_hand), 0);
-  const unitsReserved = balances.reduce((sum, row) => sum + Number(row.qty_reserved), 0);
+  // ── the money ───────────────────────────────────────────────────────────────
+  //
+  // Weighted average cost per product, from the batches actually held. An average
+  // rather than the latest receipt, because a distributor's question is what its
+  // stock is worth, and stock bought at two prices is worth the middle of them.
+  const costByProduct = new Map<string, { total: number; qty: number }>();
+  for (const batch of batches) {
+    const held = balances
+      .filter((b) => b.product_id === batch.product_id)
+      .reduce((sum, b) => sum + Number(b.qty_on_hand), 0);
+    if (held <= 0) continue;
+    const entry = costByProduct.get(batch.product_id) ?? { total: 0, qty: 0 };
+    entry.total += held * Number(batch.unit_cost_minor);
+    entry.qty += held;
+    costByProduct.set(batch.product_id, entry);
+  }
 
-  // The stops for today's run, in the order they will be driven.
-  const stops = run
-    ? asRows<{ id: string; sequence: number; status: string; facility_id: string }>(
+  const productName = (product: Product) =>
+    locale === 'ar' ? (product.name_ar ?? product.name_en) : product.name_en;
+
+  const lines = products.map((product) => {
+    const onHand = balances
+      .filter((b) => b.product_id === product.id)
+      .reduce((sum, b) => sum + Number(b.qty_on_hand), 0);
+    const avgCost = (() => {
+      const entry = costByProduct.get(product.id);
+      return entry && entry.qty > 0 ? Math.round(entry.total / entry.qty) : 0;
+    })();
+    const sell = product.sell_price_minor ?? 0;
+    // A price of 0 means "not priced yet", per the column comment -- so it is
+    // excluded from the margin rather than counted as a 100% loss, which is what
+    // treating it as free would produce.
+    const priced = sell > 0;
+    return {
+      product,
+      onHand,
+      avgCost,
+      sell: priced ? sell : null,
+      costValue: onHand * avgCost,
+      retailValue: priced ? onHand * sell : 0,
+      marginPerUnit: priced ? sell - avgCost : null,
+      marginPct: priced && sell > 0 ? Math.round(((sell - avgCost) / sell) * 100) : null,
+    };
+  });
+
+  const priced = lines.filter((line) => line.sell !== null);
+  const capitalMinor = lines.reduce((sum, line) => sum + line.costValue, 0);
+  const retailMinor = lines.reduce((sum, line) => sum + line.retailValue, 0);
+  const marginMinor = retailMinor - capitalMinor;
+  const unpricedCount = lines.length - priced.length;
+
+  const unitsOnHand = balances.reduce((sum, row) => sum + Number(row.qty_on_hand), 0);
+
+  // The hero chart: margin ranked by product, best first. A ranked series rather
+  // than a time series, because there is no revenue history in this schema yet and
+  // inventing a time axis from a single day would be a chart of nothing.
+  const ranked = [...priced].sort((a, b) => (b.marginPerUnit ?? 0) - (a.marginPerUnit ?? 0));
+  const chartPoints = ranked.slice(0, 8).map((line) => ({
+    label: line.product.sku.slice(0, 6),
+    value: Math.max(0, line.marginPerUnit ?? 0),
+    display: money(line.marginPerUnit ?? 0, locale),
+  }));
+
+  const stopRows = run
+    ? asRows<{ id: string; sequence: number; status: string; facility_id: string; latitude: number | null }>(
         (
           await supabase
             .from('delivery_stops')
-            .select('id, sequence, status, facility_id')
+            .select('id, sequence, status, facility_id, latitude')
             .eq('trip_id', run.id)
             .order('sequence', { ascending: true })
         ).data,
       )
     : [];
 
-  // Facility names for the run strip and the approval list, in one read rather than
-  // one per row. Without it every stop reads as a uuid, which is not a place.
   const facilityIds = [
     ...new Set([
-      ...stops.map((stop) => stop.facility_id),
-      ...approvals.map((approval) => approval.facility_id),
+      ...stopRows.map((s) => s.facility_id),
+      ...approvals.map((a) => a.facility_id),
     ]),
   ];
   const { data: facilityRows } = await supabase
@@ -157,17 +253,16 @@ export default async function AdminDashboard({
     .in('id', facilityIds.length > 0 ? facilityIds : ['00000000-0000-0000-0000-000000000000']);
 
   const facilityName = new Map(
-    asRows<{ id: string; name_en: string; name_ar: string | null; code: string }>(facilityRows).map(
-      (facility) => [facility.id, locale === 'ar' ? (facility.name_ar ?? facility.name_en) : facility.name_en],
-    ),
+    asRows<{ id: string; name_en: string; name_ar: string | null }>(facilityRows).map((f) => [
+      f.id,
+      locale === 'ar' ? (f.name_ar ?? f.name_en) : f.name_en,
+    ]),
   );
 
   const entries = asRows<AuditLogRow>(auditRows).map(toAuditLogEntry);
   const entityLabels = await labelEntities(entries, locale);
 
-  const delivered = stops.filter((stop) => stop.status === 'DELIVERED').length;
-  const remaining = stops.length - delivered;
-
+  const delivered = stopRows.filter((stop) => stop.status === 'DELIVERED').length;
   const numberFormat = new Intl.NumberFormat(locale === 'ar' ? 'ar-EG' : 'en-GB');
 
   return (
@@ -175,255 +270,231 @@ export default async function AdminDashboard({
       <DashboardBackdrop />
 
       <DashboardMotion>
-        <div className="space-y-6">
-          <header data-reveal className="flex flex-wrap items-end justify-between gap-3">
+        <div className="space-y-5">
+          {/* ── the headline and the range ─────────────────────────────────── */}
+          <header data-reveal className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-semibold tracking-tight">{tNav('dashboard')}</h1>
-              <p className="mt-1 text-sm text-[color:var(--text-muted)]">
-                {tGreeting('welcome', {
-                  // The Arabic name on the Arabic page. whoami has returned
-                  // full_name_ar since migration 0015, and the greeting ignored it,
-                  // so a person's name was spelled in Latin script on an Arabic screen.
-                  name:
-                    locale === 'ar'
-                      ? (session?.fullNameAr ?? session?.fullName ?? '')
-                      : (session?.fullName ?? ''),
-                })}
-              </p>
+              <p className="pf-section-title">{tNav('dashboard')}</p>
+              <h1 className="pf-display mt-1">{tGreeting('welcome', {
+                name: locale === 'ar' ? (session?.fullNameAr ?? session?.fullName ?? '') : (session?.fullName ?? ''),
+              })}</h1>
             </div>
 
-            <GlassPanel interactive className="px-3 py-2" as="div">
-              <span className="me-2 text-xs text-[color:var(--text-muted)]">{t('expiryWindow')}</span>
-              {/* A group of links rather than a <select>: each is a real URL, so the
-                  window survives a refresh and can be sent to a colleague. */}
-              <span className="inline-flex gap-1" role="group" aria-label={t('expiryWindow')}>
-                {WINDOWS.map((days) => (
-                  <Link
-                    key={days}
-                    href={`/${locale}/admin?expiry=${days}`}
-                    // Three variants of the page already on screen. Prefetching them
-                    // re-runs this route's seven queries three times over, to prove
-                    // something the user can see by clicking.
-                    prefetch={false}
-                    aria-current={days === windowDays ? 'true' : undefined}
-                    className={`rounded-md px-2 py-1 text-xs font-medium tabular ${
-                      days === windowDays
-                        ? 'bg-[color:var(--color-brand-600)] text-white'
-                        : 'hover:bg-black/5 dark:hover:bg-white/10'
-                    }`}
-                  >
-                    {numberFormat.format(days)}
-                  </Link>
-                ))}
-              </span>
-            </GlassPanel>
+            <GlassRangeControl locale={locale} windowDays={windowDays} />
           </header>
 
-          {/* ── the three questions ─────────────────────────────────────────── */}
-          <section aria-label={t('figures')} className="pf-dash">
-            <div data-reveal>
-              <LiftOnHover>
-                <MetricTile
-                  label={t('unitsOnHand')}
-                  value={numberFormat.format(unitsOnHand)}
-                  hint={t('reserved', { n: numberFormat.format(unitsReserved) })}
-                  tone="neutral"
-                />
-              </LiftOnHover>
-            </div>
-
-            <div data-reveal>
-              <LiftOnHover>
-                <MetricTile
-                  label={t('expiring')}
-                  // The window is named in the figure rather than only in the
-                  // heading: "12" under "Expiring soon" is a number somebody has to
-                  // interpret, and 12 of what, over how long, is the actual fact.
-                  value={numberFormat.format(expiring.length)}
-                  hint={t('withinDays', { n: numberFormat.format(windowDays) })}
-                  tone={expiring.length > 0 ? 'warn' : 'good'}
-                />
-              </LiftOnHover>
-            </div>
-
-            <div data-reveal>
-              <LiftOnHover>
-                <MetricTile
-                  label={t('quarantined')}
-                  value={numberFormat.format(quarantinedCount)}
-                  hint={t('quarantinedHint')}
-                  tone={quarantinedCount > 0 ? 'bad' : 'good'}
-                />
-              </LiftOnHover>
-            </div>
-
-            <div data-reveal>
-              <LiftOnHover>
-                <MetricTile
-                  label={t('awaitingApproval')}
-                  value={numberFormat.format(approvals.length)}
-                  hint={t('awaitingHint')}
-                  tone={approvals.length > 0 ? 'warn' : 'good'}
-                />
-              </LiftOnHover>
-            </div>
-
-            <div data-reveal>
-              <LiftOnHover>
-                <MetricTile
-                  label={t('activeProducts')}
-                  value={numberFormat.format(products.length)}
-                  hint={t('activeProductsHint')}
-                  tone="neutral"
-                />
-              </LiftOnHover>
-            </div>
+          {/* ── the figures ─────────────────────────────────────────────────── */}
+          <section data-reveal aria-label={t('figures')} className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <StatCard
+              label={t('capital')}
+              value={money(capitalMinor, locale, true)}
+              hint={t('capitalHint')}
+              tone="neutral"
+            />
+            <StatCard
+              label={t('margin')}
+              value={money(marginMinor, locale, true)}
+              hint={priced.length > 0 ? t('marginHint', { pct: numberFormat.format(Math.round((marginMinor / Math.max(1, retailMinor)) * 100)) }) : t('noPricesYet')}
+              tone={marginMinor >= 0 ? 'good' : 'bad'}
+            />
+            <StatCard
+              label={t('expiring')}
+              value={numberFormat.format(expiring.length)}
+              hint={t('withinDays', { n: numberFormat.format(windowDays) })}
+              tone={expiring.length > 0 ? 'warn' : 'good'}
+            />
+            <StatCard
+              label={t('unitsOnHand')}
+              value={numberFormat.format(unitsOnHand)}
+              hint={t('quarantined', { n: numberFormat.format(quarantinedCount) })}
+              tone={quarantinedCount > 0 ? 'bad' : 'good'}
+            />
           </section>
 
-          {/* ── today on the road ──────────────────────────────────────────── */}
-          <section data-reveal aria-labelledby="run-heading" className="pf-dash">
-            <GlassPanel className="pf-dash__span-2 p-5" as="section">
-              <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <h2 id="run-heading" className="pf-section-title">
-                  {t('todaysRun')}
-                </h2>
-                {run && (
-                  <Link
-                    href={`/${locale}/admin/deliveries`}
-                    // Two drill-through links from the dashboard. Prefetching a
-                    // route costs its full query set, and these are choices made from
-                    // the figures on screen rather than the first thing anybody clicks.
-                    prefetch={false}
-                    className="text-xs font-medium text-[color:var(--color-brand-600)] underline dark:text-[color:var(--color-brand-100)]"
-                  >
-                    {t('openDeliveries')}
-                  </Link>
-                )}
+          {/* ── the hero, and the ranked column ────────────────────────────── */}
+          <div data-reveal className="pf-split">
+            <section className="pf-hero p-5" aria-labelledby="margin-heading">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h2 id="margin-heading" className="text-sm font-medium opacity-90">{t('marginByProduct')}</h2>
+                  <p className="mt-1 max-w-md text-xs opacity-75">{t('marginByProductHint')}</p>
+                </div>
+                <Link
+                  href={`/${locale}/admin/inventory/products`}
+                  prefetch={false}
+                  aria-label={t('openCatalogue')}
+                  className="pf-icon-btn pf-icon-btn--invert shrink-0"
+                >
+                  <span aria-hidden>↗</span>
+                </Link>
               </div>
 
-              {!run ? (
-                <p className="mt-3 text-sm text-[color:var(--text-muted)]">{t('noRunToday')}</p>
-              ) : (
-                <>
-                  <p className="mt-2 text-sm">
-                    <span className="font-medium">{t(`deliveries.status.trip.${run.status}`)}</span>
-                    <span className="ms-2 text-[color:var(--text-muted)]">
-                      {t('deliveredOf', {
-                        done: numberFormat.format(delivered),
-                        total: numberFormat.format(stops.length),
-                      })}
-                    </span>
-                  </p>
+              <p className="pf-hero__value mt-4">{chartPoints[0]?.display ?? money(0, locale, true)}</p>
+              <p className="mt-1 text-xs opacity-80">
+                {chartPoints[0] ? t('bestMargin', { sku: ranked[0]?.product.sku ?? '' }) : t('noPricesYet')}
+              </p>
 
-                  {stops.length > 0 ? (
-                    <ul className="pf-beads mt-4" aria-label={t('stops')}>
-                      {stops.map((stop) => (
+              <div className="mt-4">
+                <BarTrendChart
+                  points={chartPoints}
+                  highlightIndex={0}
+                  format={(v) => money(v, locale, true)}
+                  ariaLabel={t('marginByProduct')}
+                />
+              </div>
+            </section>
+
+            <div className="space-y-3">
+              {/* ── today's run: the real-time half ─────────────────────── */}
+              <GlassPanel className="p-5" as="section">
+                <div className="flex items-start justify-between gap-2">
+                  <h2 className="pf-section-title">{t('todaysRun')}</h2>
+                  {run && (
+                    <Link href={`/${locale}/admin/deliveries`} prefetch={false} className="pf-icon-btn shrink-0">
+                      <span aria-hidden>↗</span>
+                    </Link>
+                  )}
+                </div>
+
+                {!run ? (
+                  <p className="mt-3 text-sm text-[color:var(--text-muted)]">{t('noRunToday')}</p>
+                ) : (
+                  <>
+                    <p className="mt-2 text-sm">
+                      <span className="font-medium">{t(`deliveries.status.trip.${run.status}`)}</span>
+                      <span className="ms-2 text-[color:var(--text-muted)]">
+                        {t('deliveredOf', {
+                          done: numberFormat.format(delivered),
+                          total: numberFormat.format(stopRows.length),
+                        })}
+                      </span>
+                    </p>
+                    <ul className="pf-beads mt-3" aria-label={t('stops')}>
+                      {stopRows.map((stop) => (
                         <li key={stop.id} className={`pf-bead pf-bead--${stop.status}`}>
                           <span className="pf-bead__dot" aria-hidden />
                           <span className="tabular">{stop.sequence}</span>
                           <span>{facilityName.get(stop.facility_id) ?? '—'}</span>
-                          <span className="sr-only">
-                            {t(`deliveries.status.stop.${stop.status}`)}
-                          </span>
+                          <span className="sr-only">{t(`deliveries.status.stop.${stop.status}`)}</span>
                         </li>
                       ))}
                     </ul>
-                  ) : (
-                    <p className="mt-3 text-sm text-[color:var(--text-muted)]">{t('noStops')}</p>
-                  )}
+                  </>
+                )}
+              </GlassPanel>
 
-                  {remaining > 0 && (
-                    <p className="mt-4 text-sm text-[color:var(--text-muted)]">
-                      {t('stopsRemaining', { n: numberFormat.format(remaining) })}
-                    </p>
-                  )}
-                </>
-              )}
-            </GlassPanel>
+              {/* ── ranked by margin ─────────────────────────────────────── */}
+              <GlassPanel className="p-5" as="section">
+                <h2 className="pf-section-title">{t('marginRanking')}</h2>
+                {chartPoints.length === 0 ? (
+                  <p className="mt-3 text-sm text-[color:var(--text-muted)]">{t('noPricesYet')}</p>
+                ) : (
+                  <div className="mt-3">
+                    <RankedBars
+                      ariaLabel={t('marginRanking')}
+                      rows={ranked.slice(0, 5).map((line) => ({
+                        id: line.product.id,
+                        label: productName(line.product),
+                        sub: `${line.product.sku} · ${t('perUnit')}`,
+                        value: Math.max(0, line.marginPerUnit ?? 0),
+                        display: money(line.marginPerUnit ?? 0, locale, true),
+                      }))}
+                    />
+                  </div>
+                )}
+                {unpricedCount > 0 && (
+                  <p className="mt-3 text-xs text-[color:var(--text-muted)]">
+                    {t('unpriced', { n: numberFormat.format(unpricedCount) })}
+                  </p>
+                )}
+              </GlassPanel>
+            </div>
+          </div>
 
-            {/* ── waiting on a decision ───────────────────────────────────── */}
+          {/* ── waiting on a decision, and what changed ─────────────────── */}
+          <div data-reveal className="pf-split">
             <GlassPanel className="p-5" as="section">
               <h2 className="pf-section-title">{t('waitingOnYou')}</h2>
-
               {approvals.length === 0 ? (
                 <p className="mt-3 text-sm text-[color:var(--text-muted)]">{t('nothingWaiting')}</p>
               ) : (
                 <ul className="mt-3 divide-y">
                   {approvals.slice(0, 5).map((approval) => (
-                    <li key={approval.id} className="py-2 text-sm">
+                    <li key={approval.id} className="flex items-baseline gap-3 py-2 text-sm">
                       <span className="font-medium">{approval.code}</span>
-                      <span className="ms-2 text-[color:var(--text-muted)]">
+                      <span className="truncate text-[color:var(--text-muted)]">
                         {facilityName.get(approval.facility_id) ?? '—'}
                       </span>
-                      <span className="ms-auto text-xs text-[color:var(--text-muted)]">
+                      <span className="ms-auto shrink-0 text-xs text-[color:var(--text-muted)]">
                         {timeAgo(approval.requested_at, today, locale)}
                       </span>
                     </li>
                   ))}
                 </ul>
               )}
-
               <Link
                 href={`/${locale}/admin/inventory/requisitions`}
-                    // Two drill-through links from the dashboard. Prefetching a
-                    // route costs its full query set, and these are choices made from
-                    // the figures on screen rather than the first thing anybody clicks.
-                    prefetch={false}
-                className="mt-3 inline-block text-xs font-medium text-[color:var(--color-brand-600)] underline dark:text-[color:var(--color-brand-100)]"
+                prefetch={false}
+                className="mt-3 inline-block text-xs font-medium text-[color:var(--color-brand-700)] underline dark:text-[color:var(--color-brand-100)]"
               >
                 {t('openRequisitions')}
               </Link>
             </GlassPanel>
-          </section>
 
-          {/* ── what changed ───────────────────────────────────────────────── */}
-          <section data-reveal aria-labelledby="audit-heading">
             <GlassPanel className="p-5" as="section">
-              <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <h2 id="audit-heading" className="pf-section-title">
-                  {tNav('audit')}
-                </h2>
-                <span className="text-xs text-[color:var(--text-muted)]">{tAudit('auditFootnote')}</span>
-              </div>
-
+              <h2 className="pf-section-title">{tNav('audit')}</h2>
               {entries.length === 0 ? (
                 <p className="mt-3 text-sm text-[color:var(--text-muted)]">{t('auditEmpty')}</p>
               ) : (
                 <ul className="mt-3 divide-y">
-                  {entries.map((entry) => (
-                    <li key={entry.id} className="flex flex-wrap items-baseline gap-x-3 gap-y-1 py-2 text-sm">
-                      {/*
-                        "facilities.insert" is a database detail, not a sentence. It is
-                        rendered as a verb plus a translated noun, because an audit log is
-                        read by somebody asking "who changed what" -- and
-                        `facilities.insert` answers neither half of that question.
-                      */}
-                      <span className="text-xs">{describeAction(entry.action, tAudit, locale)}</span>
-                      <span className="text-[color:var(--text-muted)]">
-                        {translateEntityType(entry.entityType, tAudit, locale)}
-                        {entry.entityId
-                          ? ` · ${
-                              // The short id is a fallback, not the normal case: it appears
-                              // only when the row has been deleted or its type is not one
-                              // the resolver knows, which are exactly the cases where an
-                              // identifier is all there is to show.
-                              entityLabels.get(`${entry.entityType}:${entry.entityId}`) ??
-                              entry.entityId.slice(0, 8)
-                            }`
-                          : ''}
+                  {entries.slice(0, 4).map((entry) => (
+                    <li key={entry.id} className="py-2 text-xs">
+                      <span className="block">
+                        {describeAction(entry.action, tAudit, locale)} ·{' '}
+                        <span className="text-[color:var(--text-muted)]">
+                          {translateEntityType(entry.entityType, tAudit, locale)}
+                          {entry.entityId
+                            ? ` · ${entityLabels.get(`${entry.entityType}:${entry.entityId}`) ?? entry.entityId.slice(0, 8)}`
+                            : ''}
+                        </span>
                       </span>
-                      <span className="ms-auto text-xs text-[color:var(--text-muted)]">
-                        {entry.actorLabel ?? tAudit('systemActor')} ·{' '}
-                        {timeAgo(entry.occurredAt, today, locale)}
+                      <span className="text-[color:var(--text-muted)]">
+                        {entry.actorLabel ?? tAudit('systemActor')} · {timeAgo(entry.occurredAt, today, locale)}
                       </span>
                     </li>
                   ))}
                 </ul>
               )}
             </GlassPanel>
-          </section>
+          </div>
         </div>
       </DashboardMotion>
     </>
+  );
+}
+
+/**
+ * The expiry window, as pills.
+ *
+ * A group of links rather than a select: each is a real URL, so the window survives
+ * a refresh and can be sent to a colleague as a link. And a select for three options
+ * is a menu that hides three things behind a chevron.
+ */
+function GlassRangeControl({ locale, windowDays }: { locale: Locale; windowDays: Window }) {
+  return (
+    <div className="pf-pills" role="group" aria-label="Expiry window">
+      {WINDOWS.map((days) => (
+        <Link
+          key={days}
+          href={`/${locale}/admin?expiry=${days}`}
+          prefetch={false}
+          data-active={days === windowDays}
+          aria-current={days === windowDays ? 'true' : undefined}
+          className="pf-pill"
+        >
+          {days}d
+        </Link>
+      ))}
+    </div>
   );
 }
