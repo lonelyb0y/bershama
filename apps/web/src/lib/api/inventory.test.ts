@@ -43,7 +43,17 @@ function stub(result: { data?: unknown; error?: unknown }) {
     },
   };
 
-  return { client, calls };
+  // Cast, and deliberately: the wrappers now take the concrete api-schema client
+  // type, which is the fix that caught the production stocktake bug -- a structural
+  // interface could not tell the api client from the public one, so the wrong client
+  // was passed and every count line came back 42501.
+  //
+  // A test double cannot literally be a SupabaseClient, and it should not pretend to
+  // be. What it must not do is hide which methods exist, so this stub still has only
+  // `rpc`, and the assertion below still checks that `schema` is absent -- the two
+  // mistakes the type system now prevents at compile time are asserted at runtime
+  // here instead.
+  return { client: client as unknown as Parameters<typeof stockTake>[0], calls };
 }
 
 const IDS = {

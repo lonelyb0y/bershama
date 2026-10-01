@@ -12,7 +12,7 @@
 // "500 Internal Server Error" from the caller's point of view, and there is no
 // way to assert which line failed or why.
 
-import { getSupabase } from '@/lib/supabase/server';
+import { getSupabaseApi } from '@/lib/supabase/server';
 import { stockTake } from '@/lib/api/inventory';
 import {
   submitStocktake,
@@ -50,7 +50,11 @@ export async function submitStocktakeAction(
   lines: SheetLine[],
 ): Promise<StocktakeSubmission> {
   const locale = (await getLocale()) as Locale;
-  const supabase = await getSupabase();
+  // The api-schema client, not the public one. api.stock_take is reached by profile
+  // headers rather than by a schema-qualified path, so the client has to be addressed
+  // to `api` -- and handing this one the public client is what produced a 42501 on
+  // every stocktake line, which the sheet reported as "Something went wrong".
+  const supabase = await getSupabaseApi();
 
   // Typed as the sheet's Poster rather than as stockTake's own input type, so
   // the narrowing the sheet promises is preserved through to the call. Passing

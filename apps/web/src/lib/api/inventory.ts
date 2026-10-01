@@ -22,6 +22,7 @@
 // partial box is a whole-box problem, not a floating point one.
 
 import type { Locale } from '@/i18n/routing';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/lib/database.types';
 import type { Minor } from '@/lib/types';
 import type { ExpiryBandFilter } from '@/lib/format';
@@ -81,12 +82,29 @@ export type ProductSearchHit = SearchRow;
  * Promise, and typing this as `Promise` made the interface structurally
  * incompatible with the real client.
  */
-interface Client {
-  rpc(fn: string, args?: Record<string, unknown>): PromiseLike<{
-    data: unknown;
-    error: unknown;
-  }>;
-}
+/**
+ * The api-schema client, concretely.
+ *
+ * ── why the concrete type and not an interface ─────────────────────────────────
+ * This was `interface Client { rpc(fn: string, ...) }`, and a structural interface
+ * cannot tell the two clients apart: the public client satisfies it just as well as
+ * the api one, because both have an `rpc`. That is exactly the bug -- a stocktake
+ * line compiled against this interface and was handed the public client, and
+ * answered 42501 for every line of every count sheet.
+ *
+ * Naming the real type makes the mistake a compile error: `getSupabase()` returns
+ * `SupabaseClient<Database, 'public'>` and does not satisfy this, while
+ * `getSupabaseApi()` does. The second generic is the schema, and that is the only
+ * reason the two are distinguishable at all.
+ *
+ * `PromiseLike` on rpc's return, not `Promise`: supabase-js hands back a
+ * PostgrestFilterBuilder, a thenable query builder rather than a Promise, and typing
+ * it as Promise made the real client structurally incompatible.
+ */
+type Client = SupabaseClient<Database, 'api'>;
+
+/** The names of the api functions, taken from the generated types. */
+type ApiFn = keyof Database['api']['Functions'] & string;
 
 /** The shape PostgREST hands back, before the helpers below narrow it. */
 type Raw = {
@@ -98,7 +116,7 @@ type Raw = {
 async function callScalar(
   supabase: Client,
   locale: Locale,
-  fn: string,
+    fn: ApiFn,
   args: Record<string, unknown>,
   missingMessage: string,
 ): Promise<ApiResult<number>> {
@@ -120,7 +138,7 @@ async function callScalar(
 async function callRow<T>(
   supabase: Client,
   locale: Locale,
-  fn: string,
+    fn: ApiFn,
   args: Record<string, unknown>,
   missingMessage: string,
 ): Promise<ApiResult<T>> {
@@ -145,7 +163,7 @@ async function callRow<T>(
 async function callRows<T>(
   supabase: Client,
   locale: Locale,
-  fn: string,
+    fn: ApiFn,
   args: Record<string, unknown>,
   missingMessage: string,
 ): Promise<ApiResult<T[]>> {
@@ -312,9 +330,12 @@ export async function stockTake(
     p_product_id: input.productId,
     p_batch_id: input.batchId,
     p_counted_qty: input.countedQty,
-    p_reason_code: input.reasonCode,
-    p_notes: input.notes ?? null,
-  })) as { data: number | null; error: Raw['error'] };
+p_reason_code: input.reasonCode,
+      // Omitted rather than null, the same convention as everywhere else in this
+      // project: the generated type marks a DEFAULT NULL parameter as optional but not
+      // nullable, and omitting it takes the same default.
+      ...(input.notes ? { p_notes: input.notes } : {}),
+    })) as { data: number | null; error: Raw['error'] };
 
   if (error) return toApiError(error, locale);
 
