@@ -15,13 +15,12 @@ import { canUseWebGL, prefersReducedMotion } from './liquid-backdrop';
  * All three can only be established in the browser, so this component renders
  * nothing on the server and settles on one of two answers on the client.
  *
- * ── why the shader bundle is dynamically imported ───────────────────────────
- * `three` is roughly 600KB before compression, and the dashboard is not the only page
- * in the application. Loading it eagerly would make a driver's stop list on a phone
- * wait for a 3D engine to arrive. `ssr: false` plus a dynamic import means the
- * engine is fetched only when this dashboard is actually opened, and the fallback
- * gradient is on screen in the meantime -- so the page is never blank and never
- * blocking on it.
+ * ── why the canvas is dynamically imported ─────────────────────────────────
+ * Not to protect a phone from a megabyte any more: the backdrop is raw WebGL now,
+ * and the three.js version that needed 899KB has gone. This is so a GL context is
+ * never initialised during hydration -- the CSS gradient is on screen immediately
+ * and the canvas arrives a tick later. So the page is never blank, and never
+ * blocking on a capability it might not have.
  *
  * ── why the fallback is not a lesser version of the page ────────────────────
  * It is the same page. The panels, the figures and the interactions are HTML and CSS;
@@ -29,8 +28,13 @@ import { canUseWebGL, prefersReducedMotion } from './liquid-backdrop';
  * WebGL gets the dashboard, not a message about WebGL.
  */
 
+// Still dynamically imported, and the reason has changed: the module is now a few
+// hundred bytes of WebGL rather than 899KB of 3D engine, so this is no longer about
+// protecting a phone from a megabyte. It is about not running a GL context
+// initialisation during hydration at all -- the fallback gradient is on screen
+// immediately and the canvas arrives after.
 const LiquidBackdropScene = dynamic(
-  () => import('./liquid-backdrop').then((module) => module.LiquidBackdropScene),
+  () => import('./liquid-backdrop').then((module) => module.LiquidBackdrop),
   { ssr: false },
 );
 
