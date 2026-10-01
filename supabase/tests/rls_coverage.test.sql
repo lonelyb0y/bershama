@@ -13,7 +13,7 @@
 
 begin;
 
-select plan(20);
+select plan(23);
 
 -- ── every public table has RLS enabled ──────────────────────────────────────
 
@@ -285,7 +285,12 @@ select is_empty(
         -- been changed and whose status had not. api.update_location is here because
         -- the location form's edit branch called a function that did not exist: the
         -- create branch used api.create_location, so the pair looked complete.
-        'update_product', 'update_location'
+        'update_product', 'update_location',
+        -- api.reset_demo_run is named here on purpose. It un-delivers a stop, so it
+        -- is exactly the sort of function that should never be added quietly -- and
+        -- being in the allow-list is what makes adding it loudly unavoidable. It has
+        -- EXECUTE for the service role only; a client that reaches it is refused.
+        'reset_demo_run'
       ])
   $$,
   'only the allow-listed wrappers in the api schema are SECURITY DEFINER'
@@ -377,24 +382,68 @@ select is_empty(
     not has_schema_privilege('anon', 'api', 'USAGE'),
     'anon cannot even name the api schema'
   );
+    -- The positive half, so the test above cannot be satisfied by revoking
+    -- everything from everyone.
+    --
+    -- With one exception, and the exception is named rather than counted. Every
+    -- function in `api` is the authenticated surface except api.reset_demo_run, which
+    -- un-delivers a stop and is for the service role alone. Naming it here means a
+    -- second such function cannot be added quietly: adding one changes this count and
+    -- the suite reports which name broke it.
+    with api_grants as (
+      select authenticated_can_execute, total, unexpected_exceptions, named_exceptions
+      from (
+      select
+        sum((has_function_privilege('authenticated', p.oid, 'execute'))::int)
+          as authenticated_can_execute,
+        count(*) as total,
+        sum((not has_function_privilege('authenticated', p.oid, 'execute')
+             and p.proname <> 'reset_demo_run')::int) as unexpected_exceptions,
+        -- The named exceptions, counted from the name rather than typed in as a
+        -- number, so the arithmetic below cannot drift when one is added.
+        sum((p.proname = 'reset_demo_run')::int) as named_exceptions
+      from pg_proc p
+      join pg_namespace n on n.oid = p.pronamespace
+      where n.nspname = 'api'
+      ) counted
+    )
+    select is(
+      (select authenticated_can_execute from api_grants),
+      (select total - named_exceptions from api_grants),
+      'authenticated can EXECUTE every api function except the ones named in this suite'
+    );
 
-  -- The positive half, so the test above cannot be satisfied by revoking
-  -- everything from everyone.
-  with api_grants as (
-    select
-      count(*) filter (where has_function_privilege('authenticated', p.oid, 'execute'))
-        as authenticated_can_execute,
-      count(*) as total
-    from pg_proc p
-    join pg_namespace n on n.oid = p.pronamespace
-    where n.nspname = 'api'
-  )
-  select is(
-    (select authenticated_can_execute from api_grants),
-    (select total from api_grants),
-    'authenticated can still EXECUTE every function in the api schema'
-  );
+    with api_grants as (
+      select unexpected_exceptions
+      from (
+        -- `select` is on its own line so the assertion checker's `^select name(`
+        -- pattern does not read this aggregate as an assertion. It is the same false
+        -- positive that pattern already had to be patched for once.
+        select
+          sum((not has_function_privilege('authenticated', p.oid, 'execute')
+               and p.proname <> 'reset_demo_run')::int) as unexpected_exceptions
+        from pg_proc p
+        join pg_namespace n on n.oid = p.pronamespace
+        where n.nspname = 'api'
+      ) counted
+    )
+    select is(
+      (select unexpected_exceptions from api_grants),
+      0::bigint,
+      'no api function is service-role-only without being named in this suite'
+    );
 
+    -- And the named exception really is service-role-only, which is the only reason it
+    -- is allowed to break the rule above.
+    select ok(
+      not has_function_privilege('authenticated', 'api.reset_demo_run()', 'execute'),
+      'api.reset_demo_run is not executable by a client'
+    );
+
+    select ok(
+      has_function_privilege('service_role', 'api.reset_demo_run()', 'execute'),
+      'api.reset_demo_run is executable by the service role, which is its only caller'
+    );
   -- ── every SECURITY DEFINER function pins its search_path ────────────────────
 -- Without `set search_path = ''` a caller can create an unqualified object that
 -- shadows a name inside the function and run it as the function owner.
