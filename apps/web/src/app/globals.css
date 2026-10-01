@@ -29,6 +29,11 @@
   --color-stock-warning: oklch(0.75 0.15 75);
   --color-stock-critical: oklch(0.65 0.2 35);
   --color-stock-expired: oklch(0.5 0.19 20);
+  --color-brand-50: oklch(0.97 0.02 195);
+  --color-brand-100: oklch(0.93 0.04 195);
+  --color-brand-500: oklch(0.65 0.13 195);
+  --color-brand-600: oklch(0.58 0.14 195);
+  --color-brand-700: oklch(0.5 0.13 195);
 }
 
 /*
@@ -93,6 +98,12 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --color-brand-50: oklch(0.95 0.03 210);
+  --color-brand-100: oklch(0.90 0.05 210);
+  --color-brand-500: oklch(0.52 0.12 218);
+  --color-brand-600: oklch(0.45 0.11 222);
+  --color-brand-700: oklch(0.38 0.10 228);
+  --color-brand-800: oklch(0.31 0.09 232);
 }
 
 /*
@@ -118,6 +129,12 @@
   --border: oklch(0.52 0.03 240);
   --text: oklch(0.96 0.002 260);
   --text-muted: oklch(0.72 0.01 260);
+  --color-brand-50: oklch(0.28 0.05 225);
+  --color-brand-100: oklch(0.34 0.06 222);
+  --color-brand-500: oklch(0.68 0.12 205);
+  --color-brand-600: oklch(0.74 0.12 202);
+  --color-brand-700: oklch(0.82 0.11 200);
+  --color-brand-800: oklch(0.89 0.09 198);
 }
 
 /*
