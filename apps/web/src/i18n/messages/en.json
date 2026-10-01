@@ -439,7 +439,7 @@
     "capital": "Capital in stock",
     "capitalHint": "what the business has tied up at cost",
     "margin": "Margin on that stock",
-    "marginHint": "{pct}% at the current prices",
+    "marginHint": "{pct} at the current prices",
     "noPricesYet": "No sell prices entered yet",
     "unpriced": "{n} product(s) have no sell price and are excluded from the margin.",
     "marginRanking": "Ranked by margin",
