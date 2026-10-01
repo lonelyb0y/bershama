@@ -405,5 +405,30 @@
       "trip_not_in_transit": "يمكن إغلاق رحلة في الطريق فقط",
       "unexpected": "حدث خطأ ما. أعد المحاولة."
     }
+  },
+  "dashboard": {
+    "figures": "الأرقام الأساسية",
+    "unitsOnHand": "الوحدات في المخزون",
+    "reserved": "{n} محجوز",
+    "expiring": "تنتهي صلاحيتها",
+    "withinDays": "خلال {n} يومًا",
+    "quarantined": "في الحجر",
+    "quarantinedHint": "موقوفة، غير قابلة للبيع",
+    "awaitingApproval": "بانتظار الاعتماد",
+    "awaitingHint": "طلبات مرفوعة لم يُبت فيها",
+    "activeProducts": "منتجات نشطة",
+    "activeProductsHint": "في الكتالوج",
+    "expiryWindow": "نطاق الصلاحية",
+    "todaysRun": "في الطريق اليوم",
+    "openDeliveries": "افتح التوصيلات",
+    "noRunToday": "لا توجد رحلة مجدولة اليوم.",
+    "noStops": "لا توجد محطات في هذه الرحلة بعد.",
+    "deliveredOf": "تم تسليم {done} من {total}",
+    "stopsRemaining": "ما زالت {n} محطة لزيارتها.",
+    "stops": "محطات رحلة اليوم",
+    "waitingOnYou": "بانتظار قرارك",
+    "nothingWaiting": "لا يوجد شيء بانتظار قرار.",
+    "openRequisitions": "افتح طلبات التوريد",
+    "auditEmpty": "لا توجد سجلات بعد. يمتلئ سجل التدقيق فور حدوث أي تغيير."
   }
 }
