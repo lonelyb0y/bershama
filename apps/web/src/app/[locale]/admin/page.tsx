@@ -56,6 +56,10 @@ export default async function AdminDashboard({
 
   const t = await getTranslations('dashboard');
   const tNav = await getTranslations('nav');
+  // The audit vocabulary lives in `auth`, not in `dashboard`. Handing these helpers
+  // the dashboard's translator made every lookup miss, and next-intl renders a miss
+  // as the full key path -- so the log read "updated a dashboard.entityTypes.products"
+  // and "dashboard.systemActor" in place of "Product" and "System".
   const tAudit = await getTranslations('auth');
 
   const session = await getSession();
@@ -373,7 +377,7 @@ export default async function AdminDashboard({
                 <h2 id="audit-heading" className="pf-section-title">
                   {tNav('audit')}
                 </h2>
-                <span className="text-xs text-[color:var(--text-muted)]">{t('auditFootnote')}</span>
+                <span className="text-xs text-[color:var(--text-muted)]">{tAudit('auditFootnote')}</span>
               </div>
 
               {entries.length === 0 ? (
@@ -388,9 +392,9 @@ export default async function AdminDashboard({
                         read by somebody asking "who changed what" -- and
                         `facilities.insert` answers neither half of that question.
                       */}
-                      <span className="text-xs">{describeAction(entry.action, t, locale)}</span>
+                      <span className="text-xs">{describeAction(entry.action, tAudit, locale)}</span>
                       <span className="text-[color:var(--text-muted)]">
-                        {translateEntityType(entry.entityType, t, locale)}
+                        {translateEntityType(entry.entityType, tAudit, locale)}
                         {entry.entityId
                           ? ` · ${
                               // The short id is a fallback, not the normal case: it appears
@@ -403,7 +407,7 @@ export default async function AdminDashboard({
                           : ''}
                       </span>
                       <span className="ms-auto text-xs text-[color:var(--text-muted)]">
-                        {entry.actorLabel ?? t('systemActor')} ·{' '}
+                        {entry.actorLabel ?? tAudit('systemActor')} ·{' '}
                         {timeAgo(entry.occurredAt, today, locale)}
                       </span>
                     </li>

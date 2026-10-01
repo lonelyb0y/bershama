@@ -148,7 +148,7 @@ export function AppNav({
       // A scrolling strip rather than a wrapping one. Wrapping is what put "Sign out"
       // across two lines; a strip that scrolls keeps every label on one line at every
       // width, and the trailing fade is the affordance that says there is more.
-      className="pf-nav-scroll"
+      className="pf-nav-scroll lg:flex-wrap lg:overflow-visible"
       >
       {items.map((item) => {
         const surfaceRoot = `/${surface === 'admin' ? 'admin' : surface}`;
