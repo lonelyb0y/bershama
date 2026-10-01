@@ -846,3 +846,66 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   Loading placeholders.
+
+   A mask travelling across the shape, rather than the shape pulsing in opacity.
+   The reason is that opacity animates on the compositor and reads as "this is
+   breathing", while a travelling mask reads as "this is being filled in" -- the
+   second one is what is actually happening, and it is the one that reassures.
+
+   The sweep is 1.4s because a placeholder that finishes in under about half a
+   second should not have been rendered at all, and one that runs longer than about
+   two seconds has stopped being a placeholder and become a progress indicator.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.pf-skeleton {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Two stops, hard-edged in between, so the highlight has an edge to travel from.
+   A soft gradient here would need a third stop just to keep the ends from
+   smearing, and smearing is what makes cheap shimmers look cheap. */
+.pf-skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in oklab, white 45%, transparent) 45%,
+    color-mix(in oklab, white 45%, transparent) 55%,
+    transparent 100%
+  );
+  animation: pf-sweep 1.4s ease-in-out infinite;
+}
+
+:root.dark .pf-skeleton::after {
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in oklab, white 18%, transparent) 45%,
+    color-mix(in oklab, white 18%, transparent) 55%,
+    transparent 100%
+  );
+}
+
+@keyframes pf-sweep {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* A still placeholder, not a blank one. The sweep is the only thing reduced motion
+   removes, and the fill stays: "something is here and it is not ready" is the
+   message, and the sweep was only ever decoration on top of it. */
+@media (prefers-reduced-motion: reduce) {
+  .pf-skeleton::after {
+    animation: none;
+    transform: none;
+    background-image: none;
+  }
+}
