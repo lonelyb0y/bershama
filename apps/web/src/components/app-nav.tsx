@@ -89,6 +89,9 @@ const HREF_BY_SURFACE: Partial<Record<Surface, Partial<Record<NavKey, string>>>>
     batches: '/inventory/batches',
     stocktake: '/inventory/stocktake',
     requisitions: '/inventory/requisitions',
+    // Built and deployed in M4 (#27), and never added to this table -- so the
+    // navigation announced a shipped feature as planned-and-absent on every page.
+    deliveries: '/deliveries',
   },
   pharmacy: { dashboard: '', catalogue: '/inventory/products' },
   distributor: { dashboard: '' },
