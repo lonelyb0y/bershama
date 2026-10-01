@@ -56,11 +56,13 @@ export default async function AdminDashboard({
 
   const t = await getTranslations('dashboard');
   const tNav = await getTranslations('nav');
-  // The audit vocabulary lives in `auth`, not in `dashboard`. Handing these helpers
-  // the dashboard's translator made every lookup miss, and next-intl renders a miss
-  // as the full key path -- so the log read "updated a dashboard.entityTypes.products"
-  // and "dashboard.systemActor" in place of "Product" and "System".
-  const tAudit = await getTranslations('auth');
+  // The audit vocabulary lives in `m0` -- entityTypes, systemActor, auditFootnote.
+  // Not in `dashboard` and not in `auth`, and getting it wrong is silent in a way
+  // that is easy to ship: next-intl renders a missing key as its own full path, so
+  // the log reads "updated a auth.entityTypes.products" and credits
+  // "auth.systemActor" instead of naming a product and saying "System". It took two
+  // wrong guesses to find, so the namespace is named here.
+  const tAudit = await getTranslations('m0');
 
   const session = await getSession();
   const { expiry } = await searchParams;
