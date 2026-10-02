@@ -1,4 +1,4 @@
-import { expect, test, type Browser, type Page } from '@playwright/test';
+import { expect, test, type Browser, type BrowserContext, type Page } from '@playwright/test';
 
 import { signedInContext } from './helpers/session';
 
@@ -73,11 +73,28 @@ async function signIn(page: Page, email: string, locale = 'en') {
  * them -- which is the gate doing its job. So this opens its own short-lived admin
  * context, and the admin session is cached per worker rather than re-minted per test.
  */
+/**
+ * One admin page per worker, reused.
+ *
+ * The session was already cached; the *page* was not, so every test paid a fresh
+ * context, a fresh page and a full `/en/admin` load just to make one POST. Against a
+ * remote deployment under a parallel suite that is seconds each time, and it showed up
+ * as a `beforeEach` timeout with no error in it.
+ */
+let adminPage: { context: BrowserContext; page: Page } | null = null;
+
+async function adminSession(browser: Browser) {
+  adminPage ??= { context: await signedInContext(browser), page: undefined as unknown as Page };
+  if (!adminPage.page) {
+    adminPage.page = await adminPage.context.newPage();
+    await adminPage.page.goto('/en/admin');
+  }
+  return adminPage.page;
+}
+
 async function rearmDemoRun(browser: Browser) {
-  const context = await signedInContext(browser);
   try {
-    const page = await context.newPage();
-    await page.goto('/en/admin');
+    const page = await adminSession(browser);
 
     // Same origin, session cookie, so this is the same call an administrator would
     // make from the app. The route does its own role check.
@@ -93,7 +110,8 @@ async function rearmDemoRun(browser: Browser) {
       );
     }
   } finally {
-    await context.close();
+    // Nothing to close: the admin context is per worker and outlives the call. Closing
+    // it here was what made the next test pay for a new session.
   }
 }
 
@@ -149,7 +167,7 @@ test.describe('the driver surface', () => {
     // Arming is a context, a page load and a round trip, before the test's own work.
     // Under a loaded server that does not fit in the default 30s, and the symptom is a
     // timeout in `beforeEach` with the cause three lines above it.
-    testInfo.setTimeout(90_000);
+    testInfo.setTimeout(120_000);
 
     // Armed before the driver signs in, and by its own admin context: the driver is not
     // a warehouse manager and `reset_demo_run()` refuses them.
