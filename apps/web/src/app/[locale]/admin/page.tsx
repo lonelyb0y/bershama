@@ -133,7 +133,7 @@ export default async function AdminDashboard({
     { data: expiringBatches },
     { data: quarantined },
     { data: awaitingApproval },
-    { data: movementRows },
+    { data: deliveredStopRows },
     { data: todaysRun },
     { data: auditRows },
   ] = await Promise.all([
@@ -150,15 +150,15 @@ export default async function AdminDashboard({
       .lte('expiry_date', horizon.toISOString().slice(0, 10)),
     supabase.from('batches').select('id').eq('status', 'QUARANTINED').is('deleted_at', null),
     supabase.from('requisitions').select('id, code, requested_at, facility_id').eq('status', 'SUBMITTED'),
-    // The movement history behind the hero chart. Bounded by the same window the
-    // range pills control, and capped, because a ledger is the one table here that
-    // grows without limit -- an unbounded read of it is a slow page waiting to happen.
+    // What has actually been handed over and signed for. This is the difference
+    // between money made and money in stock, and it is the only query in the page that
+    // can tell the two apart -- see the note on the hero series.
     supabase
-      .from('stock_ledger')
-      .select('occurred_at, qty_delta, txn_type, unit_cost_minor')
-      .gte('occurred_at', windowStartIso)
-      .order('occurred_at', { ascending: true })
-      .limit(5000),
+      .from('delivery_stops')
+      .select('id, requisition_id, status, delivered_at, closed_at')
+      .not('requisition_id', 'is', null)
+      .in('status', ['DELIVERED', 'FAILED', 'ARRIVED'])
+      .gte('delivered_at', windowStartIso),
     supabase
       .from('trips')
       .select('id, status, run_date')
@@ -262,32 +262,152 @@ export default async function AdminDashboard({
     maximumFractionDigits: 0,
   });
 
-  const ranked = [...priced].sort((a, b) => (b.marginPerUnit ?? 0) - (a.marginPerUnit ?? 0));
 
-  const movements = asRows<{ occurred_at: string; qty_delta: number; txn_type: string; unit_cost_minor: number }>(
-    movementRows,
-  );
+  // ── what has actually been delivered, and what it was worth ───────────────────
+  //
+  // Revenue here means goods that left the warehouse against a signed-for stop. Not
+  // stock on hand, not stock allocated to a requisition, and not price x quantity --
+  // the three of which a dashboard can add up at any time and every one of which
+  // overstates what the business has earned.
+  //
+  // `qty_allocated` is the quantity FEFO set aside, and it is what the driver
+  // physically handed over. Cost is that same quantity at the product's weighted
+  // average cost, because there is no per-issue cost recorded: approving a requisition
+  // reserves stock and does not write an ISSUE movement to the ledger, so there is no
+  // row that says which batch left and what it cost. The average is the honest
+  // approximation, and it is labelled as cost of goods rather than as the batch price.
+  const deliveredStops = asRows<{
+    id: string;
+    requisition_id: string;
+    status: string;
+    delivered_at: string | null;
+    closed_at: string | null;
+  }>(deliveredStopRows);
+
+  // A stop is revenue-bearing only when it was actually completed. FAILED and ARRIVED
+  // are excluded: nothing was handed over, and counting them would put value on the
+  // books for a delivery that did not happen.
+  const fulfilledRequisitionIds = [
+    ...new Set(
+      deliveredStops
+        .filter((stop) => stop.status === 'DELIVERED')
+        .map((stop) => stop.requisition_id),
+    ),
+  ];
+
+  const { data: fulfilledLineRows } =
+    fulfilledRequisitionIds.length > 0
+      ? await supabase
+          .from('requisition_lines')
+          .select('requisition_id, product_id, qty_allocated')
+          .in('requisition_id', fulfilledRequisitionIds)
+      : { data: null };
+
+  const fulfilledLines = asRows<{
+    requisition_id: string;
+    product_id: string;
+    qty_allocated: number | null;
+  }>(fulfilledLineRows);
+
+  const avgCostByProduct = new Map<string, number>();
+  for (const [productId, entry] of costByProduct) {
+    const held = qtyByProduct.get(productId) ?? 0;
+    if (held > 0 && entry.qty > 0) avgCostByProduct.set(productId, Math.round(entry.total / held));
+  }
+
+  const productById = new Map(products.map((product) => [product.id, product]));
+
+  const realisedByProduct = new Map<string, { units: number; revenue: number; cost: number }>();
+  for (const line of fulfilledLines) {
+    const qty = Number(line.qty_allocated ?? 0);
+    if (qty <= 0) continue;
+    const product = productById.get(line.product_id);
+    if (!product) continue;
+
+    const revenue = product.sell_price_minor > 0 ? qty * product.sell_price_minor : 0;
+    const cost = qty * (avgCostByProduct.get(line.product_id) ?? 0);
+
+    const entry = realisedByProduct.get(line.product_id) ?? { units: 0, revenue: 0, cost: 0 };
+    entry.units += qty;
+    entry.revenue += revenue;
+    entry.cost += cost;
+    realisedByProduct.set(line.product_id, entry);
+  }
+
+  const realisedRevenueMinor = [...realisedByProduct.values()].reduce((sum, r) => sum + r.revenue, 0);
+  const realisedCostMinor = [...realisedByProduct.values()].reduce((sum, r) => sum + r.cost, 0);
+
+  // Ranked by what each product actually earned on deliveries, falling back to its
+  // per-unit margin when nothing has been delivered for it yet. A ranking of potential
+  // next to a chart of realised figures is a ranking of a different thing, and reads as
+  // though the two agree.
+  const rankedByRealised = [...realisedByProduct.entries()]
+    .map(([productId, entry]) => ({
+      product: productById.get(productId),
+      units: entry.units,
+      revenue: entry.revenue,
+      margin: entry.revenue - entry.cost,
+    }))
+    .filter((row): row is { product: NonNullable<typeof row.product>; units: number; revenue: number; margin: number } =>
+      row.product !== undefined,
+    )
+    .sort((a, b) => b.margin - a.margin);
+
   const bucketCount = windowDays <= 30 ? 6 : windowDays <= 90 ? 9 : 12;
   const bucketMs = (windowDays * 86_400_000) / bucketCount;
   const windowStart = today.getTime() - windowDays * 86_400_000;
 
-  const buckets = new Array(bucketCount).fill(0) as number[];
-  for (const movement of movements) {
-    const at = new Date(movement.occurred_at).getTime();
+  // ── the hero series: margin on what was actually delivered, per week ───────────
+  //
+  // Realised margin, bucketed by the week its stop was closed. Not receipts, not
+  // allocated stock, and not price x quantity -- the three of which are easy to
+  // compute, always available, and none of which is money in the bank.
+  //
+  // No trend line, even though the chart can draw one. These buckets are deliveries,
+  // not repeated observations of one quantity, and a dotted line between them implies a
+  // continuity that is not there: a quiet week between two busy ones is not a falling
+  // rate, it is a week with nothing to deliver.
+  //
+  // Every bucket exists whether or not anything happened in it. A week with no
+  // deliveries is information, and collapsing it would make the one busy week look
+  // like the whole story -- which is what the receipts chart did before this.
+  const stopByRequisition = new Map(deliveredStops.map((stop) => [stop.requisition_id, stop]));
+  const marginByWeek = new Array(bucketCount).fill(0) as number[];
+
+  for (const line of fulfilledLines) {
+    const qty = Number(line.qty_allocated ?? 0);
+    if (qty <= 0) continue;
+
+    const product = productById.get(line.product_id);
+    // Unpriced products earn nothing here rather than a full loss -- 0 means "not
+    // priced yet" per the column comment, and booking it as a 100% loss would
+    // overstate the margin shortfall by the entire unpriced inventory.
+    if (!product || product.sell_price_minor <= 0) continue;
+
+    const stop = stopByRequisition.get(line.requisition_id);
+    const closedAt = stop?.delivered_at ?? stop?.closed_at;
+    if (!closedAt) continue;
+
+    const at = new Date(closedAt).getTime();
+    if (at < windowStart) continue;
+
     const index = Math.min(bucketCount - 1, Math.max(0, Math.floor((at - windowStart) / bucketMs)));
-    buckets[index] += Math.abs(Number(movement.qty_delta));
+    marginByWeek[index] += qty * (product.sell_price_minor - (avgCostByProduct.get(line.product_id) ?? 0));
   }
 
-  const receivedByWeek = buckets.map((units, index) => {
+  const marginSeries = marginByWeek.map((margin, index) => {
     const at = new Date(windowStart + index * bucketMs);
     return {
       label: at.toLocaleDateString(locale === 'ar' ? 'ar-EG' : 'en-GB', { day: 'numeric', month: 'short' }),
-      value: units,
-      display: numberFormat.format(units),
+      // Negative is a real possibility -- delivering below cost happens when a price
+      // was set before a cost rose -- and the chart scales from zero, so it draws
+      // downward rather than quietly showing a loss as no loss.
+      value: margin,
+      display: money(margin, locale, true),
     };
   });
 
-  const totalReceived = receivedByWeek.reduce((sum, point) => sum + point.value, 0);
+  const totalDeliveredMargin = marginSeries.reduce((sum, point) => sum + point.value, 0);
 
   const stopRows = run
     ? asRows<{ id: string; sequence: number; status: string; facility_id: string; latitude: number | null }>(
@@ -351,7 +471,7 @@ export default async function AdminDashboard({
               tone="neutral"
             />
             <StatCard
-              label={t('margin')}
+              label={t('marginOnStock')}
               value={money(marginMinor, locale, true)}
               hint={priced.length > 0 ? t('marginHint', { pct: percentFormat.format(marginMinor / Math.max(1, retailMinor)) }) : t('noPricesYet')}
               tone={marginMinor >= 0 ? 'good' : 'bad'}
@@ -375,8 +495,8 @@ export default async function AdminDashboard({
             <section className="pf-hero p-5" aria-labelledby="margin-heading">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h2 id="margin-heading" className="text-sm font-medium opacity-90">{t('receivedAgainstCost')}</h2>
-                  <p className="mt-1 max-w-md text-xs opacity-75">{t('receivedAgainstCostHint')}</p>
+                  <h2 id="margin-heading" className="text-sm font-medium opacity-90">{t('deliveredMargin')}</h2>
+                  <p className="mt-1 max-w-md text-xs opacity-75">{t('deliveredMarginHint')}</p>
                 </div>
                 <Link
                   href={`/${locale}/admin/inventory/products`}
@@ -388,14 +508,19 @@ export default async function AdminDashboard({
                 </Link>
               </div>
 
-              <p className="pf-hero__value mt-4">{numberFormat.format(totalReceived)}</p>
-              <p className="mt-1 text-xs opacity-80">{t('unitsReceivedIn', { n: numberFormat.format(windowDays) })}</p>
+              <p className="pf-hero__value mt-4">{money(totalDeliveredMargin, locale, true)}</p>
+              <p className="mt-1 text-xs opacity-80">
+                {t('deliveredValueAndCost', {
+                  value: money(realisedRevenueMinor, locale, true),
+                  cost: money(realisedCostMinor, locale, true),
+                })}
+              </p>
 
               <div className="mt-4">
-                {totalReceived === 0 ? (
-                  <p className="py-10 text-center text-sm opacity-80">{t('noMovements')}</p>
+                {fulfilledLines.length === 0 ? (
+                  <p className="py-10 text-center text-sm opacity-80">{t('nothingDeliveredYet')}</p>
                 ) : (
-                  <BarTrendChart points={receivedByWeek} ariaLabel={t('receivedAgainstCost')} />
+                  <BarTrendChart points={marginSeries} ariaLabel={t('deliveredMargin')} />
                 )}
               </div>
             </section>
@@ -439,21 +564,23 @@ export default async function AdminDashboard({
                 )}
               </GlassPanel>
 
-              {/* ── ranked by margin ─────────────────────────────────────── */}
+              {/* ── what actually earned ─────────────────────────────────── */}
               <GlassPanel className="p-5" as="section">
-                <h2 className="pf-section-title">{t('marginRanking')}</h2>
-                {ranked.length === 0 ? (
-                  <p className="mt-3 text-sm text-[color:var(--text-muted)]">{t('noPricesYet')}</p>
+                <h2 className="pf-section-title">{t('rankedByRealised')}</h2>
+                {rankedByRealised.length === 0 ? (
+                  <p className="mt-3 text-sm text-[color:var(--text-muted)]">{t('nothingDeliveredYet')}</p>
                 ) : (
                   <div className="mt-3">
                     <RankedBars
-                      ariaLabel={t('marginRanking')}
-                      rows={ranked.slice(0, 5).map((line) => ({
-                        id: line.product.id,
-                        label: productName(line.product),
-                        sub: `${line.product.sku} · ${t('perUnit')}`,
-                        value: Math.max(0, line.marginPerUnit ?? 0),
-                        display: money(line.marginPerUnit ?? 0, locale, true),
+                      ariaLabel={t('rankedByRealised')}
+                      rows={rankedByRealised.slice(0, 5).map((row) => ({
+                        id: row.product.id,
+                        label: productName(row.product),
+                        sub: `${row.product.sku} · ${t('deliveredUnits', { n: numberFormat.format(row.units) })}`,
+                        // Not clamped: a product delivered below cost is negative, and
+                        // showing it as zero would rank a loss alongside a break-even.
+                        value: row.margin,
+                        display: money(row.margin, locale, true),
                       }))}
                     />
                   </div>

@@ -438,17 +438,19 @@
     "auditEmpty": "No entries yet. The audit trail fills as soon as something changes.",
     "capital": "Capital in stock",
     "capitalHint": "what the business has tied up at cost",
-    "margin": "Margin on that stock",
     "marginHint": "{pct} at the current prices",
     "noPricesYet": "No sell prices entered yet",
     "unpriced": "{n} product(s) have no sell price and are excluded from the margin.",
     "marginRanking": "Ranked by margin",
     "perUnit": "per unit",
     "openCatalogue": "Open the catalogue",
-    "receivedAgainstCost": "Received against cost",
-    "receivedAgainstCostHint": "Units received per week. Weeks with no movement are drawn as zero, not left out.",
-    "unitsReceivedIn": "units received in the last {n} days",
-    "noMovements": "No stock movements in this window.",
-    "loading": "Loading"
+    "loading": "Loading",
+    "deliveredMargin": "Margin on delivered goods",
+    "deliveredMarginHint": "What was actually delivered and signed for, per week, over cost. Not stock on hand and not allocated stock.",
+    "deliveredValueAndCost": "{value} delivered against {cost} of cost",
+    "nothingDeliveredYet": "Nothing has been delivered against a requisition in this window yet.",
+    "marginOnStock": "Margin if stock is sold",
+    "rankedByRealised": "Top products by delivered margin",
+    "deliveredUnits": "{n} units delivered"
   }
 }
