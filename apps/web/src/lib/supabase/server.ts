@@ -146,3 +146,36 @@ export function createSupabaseAdminClient(): SupabaseClient<Db> {
     },
   );
 }
+
+/**
+ * Admin client, addressed at the `api` schema.
+ *
+ * supabase-js only exposes `public` functions on the default client, so an `api.*`
+ * function is not callable through `createSupabaseAdminClient()` -- the name is not in
+ * the union, and the error names the schema rather than the function. That is the same
+ * trap as the grants: the callable surface is the schema PostgREST exposes, not the
+ * privilege.
+ *
+ * SECURITY: identical to the admin client above -- BYPASSRLS, service role. Every
+ * caller must filter by tenant explicitly. Used here for `api.reset_demo_run()`, whose
+ * own body hard-codes the demo tenant.
+ */
+export function createSupabaseAdminApiClient(): SupabaseClient<Db, 'api', 'api'> {
+  return createClient<Db, 'api', 'api'>(
+    requireEnv('NEXT_PUBLIC_SUPABASE_URL'),
+    requireEnv('SUPABASE_SECRET_KEY'),
+    {
+      // Not optional. The type parameters above are erased at runtime, so without
+      // `db` the request goes to PostgREST's default schema and every call fails with
+      // PGRST202 "searched for the function public.<name>" -- including `whoami`,
+      // which the app itself calls successfully. The schema name in the error is a
+      // PostgREST quirk worth knowing: it names the schema it searched, not the one
+      // your function is in, and it sends you looking in the wrong place.
+      db: API_DB_OPTION,
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    },
+  );
+}

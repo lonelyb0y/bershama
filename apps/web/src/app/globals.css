@@ -152,6 +152,57 @@
     --border: oklch(0.52 0.03 240);
     --text: oklch(0.96 0.002 260);
     --text-muted: oklch(0.72 0.01 260);
+
+    /* The shadcn token set, which had no OS-dark branch at all.
+     *
+     * These were only overridden under `.dark` -- the class `theme-init` adds when
+     * someone has *chosen* dark. So a visitor whose system was dark and who had chosen
+     * nothing -- the majority case on a phone -- got the dark `--surface` above and a
+     * page painted in `bg-background`, which never changed: `--background` was still
+     * the light value. Dark surfaces on a white page, with no flash to explain it and
+     * nothing in the markup to say which half was wrong.
+     *
+     * `body` is `bg-background`, which is why the symptom was the page background
+     * rather than one component. Everything on `bg-card`, `bg-muted`, `text-muted-foreground`
+     * or the chart colours had the same hole.
+     *
+     * `--border` is deliberately absent: this block already sets it, to a value chosen
+     * for a 3:1 control boundary (WCAG 1.4.11). Copying `.dark`'s translucent white over
+     * the top would replace a measured value with an unmeasured one.
+     *
+     * These values are duplicated from `.dark` because CSS cannot share a declaration
+     * block between a class selector and a media-scoped one. Change one, change both --
+     * `theme.spec.ts` and `contrast.spec.ts` are what notice when they drift. */
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.205 0 0);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.205 0 0);
+    --popover-foreground: oklch(0.985 0 0);
+    --primary: oklch(0.922 0 0);
+    --primary-foreground: oklch(0.205 0 0);
+    --secondary: oklch(0.269 0 0);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.269 0 0);
+    --muted-foreground: oklch(0.708 0 0);
+    --accent: oklch(0.269 0 0);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.704 0.191 22.216);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.556 0 0);
+    --chart-1: oklch(0.87 0 0);
+    --chart-2: oklch(0.556 0 0);
+    --chart-3: oklch(0.439 0 0);
+    --chart-4: oklch(0.371 0 0);
+    --chart-5: oklch(0.269 0 0);
+    --sidebar: oklch(0.205 0 0);
+    --sidebar-foreground: oklch(0.985 0 0);
+    --sidebar-primary: oklch(0.488 0.243 264.376);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.269 0 0);
+    --sidebar-accent-foreground: oklch(0.985 0 0);
+    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-ring: oklch(0.556 0 0);
   }
 }
 

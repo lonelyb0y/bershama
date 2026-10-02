@@ -363,6 +363,7 @@ export type Database = {
             | "DROPS"
             | "INHALER"
             | "PATCH"
+            | "UNSPECIFIED"
           generic_name_ar: string
           generic_name_en: string
           gtin: string
@@ -542,6 +543,31 @@ export type Database = {
           p_reason_code: string
         }
         Returns: number
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
       }
     }
     Enums: {
@@ -1151,6 +1177,7 @@ export type Database = {
             | "DROPS"
             | "INHALER"
             | "PATCH"
+            | "UNSPECIFIED"
           generic_name_ar: string | null
           generic_name_en: string | null
           gtin: string | null
@@ -1191,6 +1218,7 @@ export type Database = {
             | "DROPS"
             | "INHALER"
             | "PATCH"
+            | "UNSPECIFIED"
           generic_name_ar?: string | null
           generic_name_en?: string | null
           gtin?: string | null
@@ -1239,6 +1267,7 @@ export type Database = {
             | "DROPS"
             | "INHALER"
             | "PATCH"
+            | "UNSPECIFIED"
           generic_name_ar?: string | null
           generic_name_en?: string | null
           gtin?: string | null
@@ -2355,6 +2384,9 @@ export type CompositeTypes<
 
 export const Constants = {
   api: {
+    Enums: {},
+  },
+  graphql_public: {
     Enums: {},
   },
   public: {

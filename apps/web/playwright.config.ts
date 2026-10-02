@@ -36,6 +36,20 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
+
+  // Two workers, not Playwright's CPU/2 default.
+  //
+  // Every test here loads a full authenticated page and most of them sign in, so the
+  // suite is bound by how many concurrent document loads the app under test can
+  // serve, not by how many CPUs the runner has. At four workers the local server
+  // started logging `The destination stream closed early`, sign-ins stopped
+  // completing, and eight tests failed with "the restored session did not survive" --
+  // which is a message about the harness, not about the app.
+  //
+  // Halving the concurrency made it disappear. The suite takes about a minute either
+  // way, because the time is in page loads, not in assertions. Raise this only
+  // alongside evidence that the target can take it.
+  workers: 2,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   // A failure here is a real signal, so the trace is kept. It is a screenshot of
@@ -43,6 +57,24 @@ export default defineConfig({
   // stack trace and seeing the 500 page.
   use: {
     baseURL: process.env.E2E_BASE_URL ?? 'http://localhost:3000',
+
+    // Vercel's deployment protection, when the target is a preview URL.
+    //
+    // Preview deployments are behind SSO, so a CI browser gets the login page instead
+    // of the app -- and the suite's first failure would be "sign in", pointing at the
+    // authentication code. The bypass secret is a Vercel project setting
+    // (Deployment Protection -> Bypass Protection), passed in as a header.
+    //
+    // Absent locally, so nothing changes for a developer running against their own
+    // machine: an undefined header is simply not sent.
+    ...(process.env.E2E_BYPASS_TOKEN
+      ? {
+          extraHTTPHeaders: {
+            'x-vercel-protection-bypass': process.env.E2E_BYPASS_TOKEN,
+            'x-vercel-set-bypass-cookie': 'true',
+          },
+        }
+      : {}),
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     locale: 'en-GB',

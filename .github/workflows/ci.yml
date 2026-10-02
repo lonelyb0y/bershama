@@ -85,6 +85,114 @@ jobs:
       - name: Generated types match the api schema
         run: make api-types
 
+  # ── browser tests ─────────────────────────────────────────────────────────────
+  #
+  # This job exists because of a specific omission. Every product create and edit had
+  # been failing in production since migration 0058 -- a missing enum cast -- and the
+  # whole suite was green, because the only test that exercised that path was a
+  # Playwright spec and Playwright did not run in CI.
+  #
+  # It runs against the Vercel preview for this commit rather than a locally started
+  # app. That keeps the Supabase service key out of GitHub Actions: the preview already
+  # has its own environment, and the tests drive the app through the browser exactly as
+  # a person would. The cost is the deployment-protection bypass below.
+  #
+  # The demo delivery run is re-armed by the suite itself, through the application's
+  # own warehouse-manager endpoint. Nothing here writes to the database with a
+  # credential, which is the point: a pull request must not be able to run SQL against
+  # the hosted project.
+  #
+  # Required repository secrets:
+  #   VERCEL_TOKEN                 a Vercel API token with deployment read
+  #   VERCEL_ORG_ID                from .vercel/project.json
+  #   VERCEL_PROJECT_ID            from .vercel/project.json
+  #   VERCEL_PROTECTION_BYPASS     Deployment Protection -> Bypass Protection
+  e2e:
+    name: Browser (end-to-end)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [web]
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Chromium
+        run: pnpm --filter @pharmaflow/web exec playwright install --with-deps chromium
+
+      - name: Find this commit's preview deployment
+        id: preview
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          set -euo pipefail
+
+          for name in VERCEL_TOKEN VERCEL_ORG_ID VERCEL_PROJECT_ID; do
+            if [ -z "${!name:-}" ]; then
+              echo "::error::$name is not set. This job needs four repository secrets: VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID and VERCEL_PROTECTION_BYPASS. The first three come from .vercel/project.json and the Vercel token; the bypass is generated in the dashboard under Project Settings -> Deployment Protection -> Bypass Protection."
+              exit 1
+            fi
+          done
+
+          sha="${{ github.event.pull_request.head.sha || github.sha }}"
+
+          # Wait for the preview rather than failing on the first miss: the Vercel GitHub
+          # app starts its build from the same push, so on a pull request this job is
+          # frequently ahead of it.
+          url=""
+          for attempt in $(seq 1 30); do
+            url="$(curl -fsS \
+              -H "Authorization: Bearer $VERCEL_TOKEN" \
+              "https://api.vercel.com/v6/deployments?projectId=$VERCEL_PROJECT_ID&limit=20" \
+              | python3 -c "
+          import json,sys
+          sha = sys.argv[1]
+          for d in json.load(sys.stdin).get('deployments', []):
+              meta = d.get('meta') or {}
+              if meta.get('githubCommitSha') == sha and d.get('readyState') == 'READY':
+                  print(d.get('url',''))
+                  break
+          " "$sha" || true)"
+
+            if [ -n "$url" ]; then
+              echo "preview: https://$url"
+              echo "url=https://$url" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "attempt $attempt: no READY preview for $sha yet"
+            sleep 10
+          done
+
+          echo "::error::No READY preview deployment for $sha after 5 minutes." && exit 1
+
+      - name: Run the browser suite
+        env:
+          E2E_BASE_URL: ${{ steps.preview.outputs.url }}
+          E2E_BYPASS_TOKEN: ${{ secrets.VERCEL_PROTECTION_BYPASS }}
+          CI: true
+        run: pnpm --filter @pharmaflow/web exec playwright test
+
+      - name: Upload the failure artefacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            apps/web/playwright-report
+            apps/web/test-results
+          retention-days: 7
+
   database:
     name: Database (migrations + RLS suites)
     runs-on: ubuntu-latest
