@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 import { getSession } from '@/lib/session';
-import { createSupabaseAdminApiClient } from '@/lib/supabase/server';
+import { getSupabaseApi } from '@/lib/supabase/server';
 
 /**
  * Re-arm the demo delivery run.
@@ -23,17 +23,23 @@ import { createSupabaseAdminApiClient } from '@/lib/supabase/server';
  * CI, writable from a pull request, purely to set a date. That is a far larger
  * capability than this, held in a worse place.
  *
- * ── why the check is here and not only in the function ─────────────────────────
+ * ── it calls as the caller, not as the service role ────────────────────────────
  *
- * `api.reset_demo_run()` has its own warehouse-manager gate. It is not reachable by an
- * anonymous client because it lives in `api`, whose execute grants are enumerated by
- * `rls_coverage.test.sql`. This route adds the *session* check on top, because the call
- * below runs with the service key -- the service key has no profile row, so the
- * function's own `current_app_role()` is null and its gate cannot see who is asking.
+ * The first version used `createSupabaseAdminApiClient()` -- the service key, BYPASSRLS
+ * -- and it failed in production with "Missing environment variable
+ * SUPABASE_SECRET_KEY", because production has never had that variable: the rest of the
+ * application does not need it. Every other write in this app goes through the signed-in
+ * user's own session, and there is no reason for this one to be different.
  *
- * Without this check, any signed-in user could POST here and reset the demo run. It
- * only ever touches the demo tenant, so the blast radius is a demo, but a route that
- * ignores who is calling it is a bad habit to leave in a codebase.
+ * Calling as the caller is also *stronger*, not weaker. `api.reset_demo_run()` is
+ * SECURITY DEFINER and has its own warehouse-manager gate which reads the caller's role
+ * out of the session. Behind the service key that gate saw a null role -- "this is the
+ * service role, allow it" -- so the route had to re-implement the role check itself,
+ * and the function's own was bypassed. Called this way, the database enforces the same
+ * rule as every other warehouse write, and the check below is defence in depth rather
+ * than the only thing standing there.
+ *
+ * It also means this route needs no privileged credential to exist at all.
  */
 
 export async function POST() {
@@ -65,7 +71,9 @@ async function rearm() {
     );
   }
 
-  const supabase = createSupabaseAdminApiClient();
+  // The caller's own session, through the same `api`-schema client the rest of the
+  // application uses. `getSupabaseApi()` is bound to the request cookies.
+  const supabase = await getSupabaseApi();
   const { data, error } = await supabase.rpc('reset_demo_run');
 
   if (error) {
