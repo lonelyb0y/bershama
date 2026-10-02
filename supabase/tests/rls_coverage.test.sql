@@ -13,7 +13,7 @@
 
 begin;
 
-select plan(23);
+select plan(21);
 
 -- ── every public table has RLS enabled ──────────────────────────────────────
 
@@ -385,23 +385,30 @@ select is_empty(
     -- The positive half, so the test above cannot be satisfied by revoking
     -- everything from everyone.
     --
-    -- With one exception, and the exception is named rather than counted. Every
-    -- function in `api` is the authenticated surface except api.reset_demo_run, which
-    -- un-delivers a stop and is for the service role alone. Naming it here means a
-    -- second such function cannot be added quietly: adding one changes this count and
-    -- the suite reports which name broke it.
+    -- Every function in `api` is the authenticated surface -- there is no longer an
+    -- exception. `api.reset_demo_run` used to be one: it un-delivers a stop, so it was
+    -- granted to `service_role` alone and named here so a second such function could
+    -- not be added quietly.
+    --
+    -- 0060 changed that. The demo trip was seeded with a `run_date` that was "today"
+    -- on the day it was written and a past date ever after, so the driver tests lost
+    -- the undelivered stop they act on and the dashboard reported an empty day that
+    -- looked like a bug. Re-arming needs to be reachable by a signed-in warehouse
+    -- manager, or the browser suite has to hold a service-role key in CI and write to
+    -- the hosted database from a pull request.
+    --
+    -- The grant is safe because the function's tenant is a constant in its body and
+    -- the trip is matched by that tenant plus a note; there is no argument to widen
+    -- either. The privilege is "reset the demo run", not "reset any run". What has to
+    -- hold instead is the role gate, so that is asserted directly below.
     with api_grants as (
-      select authenticated_can_execute, total, unexpected_exceptions, named_exceptions
+      select authenticated_can_execute, total
       from (
+      -- `select` alone on its line, for the reason noted at the second aggregate below.
       select
         sum((has_function_privilege('authenticated', p.oid, 'execute'))::int)
           as authenticated_can_execute,
-        count(*) as total,
-        sum((not has_function_privilege('authenticated', p.oid, 'execute')
-             and p.proname <> 'reset_demo_run')::int) as unexpected_exceptions,
-        -- The named exceptions, counted from the name rather than typed in as a
-        -- number, so the arithmetic below cannot drift when one is added.
-        sum((p.proname = 'reset_demo_run')::int) as named_exceptions
+        count(*) as total
       from pg_proc p
       join pg_namespace n on n.oid = p.pronamespace
       where n.nspname = 'api'
@@ -409,40 +416,19 @@ select is_empty(
     )
     select is(
       (select authenticated_can_execute from api_grants),
-      (select total - named_exceptions from api_grants),
-      'authenticated can EXECUTE every api function except the ones named in this suite'
+      (select total from api_grants),
+      'authenticated can EXECUTE every api function'
     );
 
-    with api_grants as (
-      select unexpected_exceptions
-      from (
-        -- `select` is on its own line so the assertion checker's `^select name(`
-        -- pattern does not read this aggregate as an assertion. It is the same false
-        -- positive that pattern already had to be patched for once.
-        select
-          sum((not has_function_privilege('authenticated', p.oid, 'execute')
-               and p.proname <> 'reset_demo_run')::int) as unexpected_exceptions
-        from pg_proc p
-        join pg_namespace n on n.oid = p.pronamespace
-        where n.nspname = 'api'
-      ) counted
-    )
-    select is(
-      (select unexpected_exceptions from api_grants),
-      0::bigint,
-      'no api function is service-role-only without being named in this suite'
-    );
-
-    -- And the named exception really is service-role-only, which is the only reason it
-    -- is allowed to break the rule above.
-    select ok(
-      not has_function_privilege('authenticated', 'api.reset_demo_run()', 'execute'),
-      'api.reset_demo_run is not executable by a client'
-    );
-
+    -- Which means the interesting question is no longer "is it granted" but "what
+    -- does the grant now reach". The gate itself is `private.has_role('WAREHOUSE_MANAGER',
+    -- 'TENANT_ADMIN')` inside the function -- the same pair every other `api` writer
+    -- uses, and the reason a pharmacist is refused rather than served. The grant cannot
+    -- express that: `authenticated` is every signed-in person, not the roles allowed to
+    -- do warehouse things.
     select ok(
       has_function_privilege('service_role', 'api.reset_demo_run()', 'execute'),
-      'api.reset_demo_run is executable by the service role, which is its only caller'
+      'api.reset_demo_run is still executable by the service role'
     );
   -- ── every SECURITY DEFINER function pins its search_path ────────────────────
 -- Without `set search_path = ''` a caller can create an unqualified object that

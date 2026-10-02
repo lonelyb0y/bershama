@@ -1,0 +1,22 @@
+-- 0061: tell PostgREST to re-read its schema
+--
+-- 0060 added `api.reset_demo_run()` with EXECUTE for `authenticated`, but nothing told
+-- PostgREST. Its schema cache still listed the pre-0060 set of `api` functions, so the
+-- new one was invisible: the route behind it answered
+--
+--   {"ok":false,"error":"Could not find the function public.reset_demo_run"}
+--
+-- Note the schema in the error -- `public`, not `api`. PostgREST names the schema it
+-- searched, which sends you looking in the wrong place, and is the same class of
+-- misdirection as the grant problem in 0050: the function exists, the caller may
+-- execute it, and the answer is still that it cannot be found.
+--
+-- 0054/0055 established the notification for exactly this reason. 0060 should have
+-- carried it and did not; this is the standalone form so the already-applied 0060 does
+-- not have to be rewritten, which would put the applied and the recorded migration out
+-- of step.
+--
+-- A function added to an exposed schema is not callable until this runs. It is not a
+-- cache that expires; nothing else in the push path sends the signal.
+
+notify pgrst, 'reload schema';

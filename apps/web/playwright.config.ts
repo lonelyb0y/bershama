@@ -57,6 +57,24 @@ export default defineConfig({
   // stack trace and seeing the 500 page.
   use: {
     baseURL: process.env.E2E_BASE_URL ?? 'http://localhost:3000',
+
+    // Vercel's deployment protection, when the target is a preview URL.
+    //
+    // Preview deployments are behind SSO, so a CI browser gets the login page instead
+    // of the app -- and the suite's first failure would be "sign in", pointing at the
+    // authentication code. The bypass secret is a Vercel project setting
+    // (Deployment Protection -> Bypass Protection), passed in as a header.
+    //
+    // Absent locally, so nothing changes for a developer running against their own
+    // machine: an undefined header is simply not sent.
+    ...(process.env.E2E_BYPASS_TOKEN
+      ? {
+          extraHTTPHeaders: {
+            'x-vercel-protection-bypass': process.env.E2E_BYPASS_TOKEN,
+            'x-vercel-set-bypass-cookie': 'true',
+          },
+        }
+      : {}),
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     locale: 'en-GB',

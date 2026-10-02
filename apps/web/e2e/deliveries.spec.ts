@@ -1,4 +1,6 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Browser, type Page } from '@playwright/test';
+
+import { signedInContext } from './helpers/session';
 
 /**
  * The delivery surfaces, in a browser.
@@ -20,12 +22,79 @@ import { expect, test, type Page } from '@playwright/test';
  * contents.
  */
 
+/**
+ * These tests cannot run in parallel, and that is a property of the fixture rather than
+ * a setting somebody forgot.
+ *
+ * There is exactly one demo trip. The dispatcher tests dispatch and assign it, the
+ * driver tests deliver its stops, and `rearmDemoRun` puts it back -- so two tests
+ * running at once are operating on the same two rows. Run the file in parallel and they
+ * reset each other mid-assertion: twenty failures across both surfaces, and none of
+ * them mentioning that they were fighting.
+ *
+ * Serial is the honest answer. The cost is that a failure skips the rest of the file,
+ * which is why CI runs with `retries: 1` -- the group is retried as a unit before
+ * anything is skipped.
+ */
+test.describe.configure({ mode: 'serial' });
+
 async function signIn(page: Page, email: string, locale = 'en') {
   await page.goto(`/${locale}/login`);
   await page.getByLabel(/email address/i).fill(email);
   await page.getByLabel(/password/i).fill('PharmaFlow#2026');
   await page.getByRole('button', { name: /sign in/i }).click();
   await page.waitForURL((url) => !url.pathname.includes('/login'));
+  await page.waitForLoadState('networkidle');
+}
+
+/**
+ * Put the demo run back to a state these tests can act on.
+ *
+ * Calls the app's own `api.reset_demo_run()` over PostgREST, with a signed-in
+ * warehouse manager's token. It does not carry a service-role key and does not shell
+ * out to a script.
+ *
+ * ── why it is not optional ────────────────────────────────────────────────────
+ *
+ * The driver tests need a stop that is still PENDING and a trip dated *today*. The demo
+ * trip was seeded once with a `run_date` that was today on the day it was written, and
+ * from then on it was a past date -- so two of these tests failed, with failures that
+ * said nothing about dates and read as the driver screen being broken.
+ *
+ * The alternative was a suite that depends on a fixture which decays, plus CI resetting
+ * it with a service-role key before every run. Holding the most powerful credential
+ * this project has, in CI, writable from a pull request, to keep a date honest is a bad
+ * trade for a function that only ever touches the demo tenant.
+ *
+ * ── why it signs in for itself ────────────────────────────────────────────────
+ *
+ * Because it cannot borrow the page's session. The driver tests are signed in as the
+ * *driver*, and a driver is not a warehouse manager, so `reset_demo_run()` refuses
+ * them -- which is the gate doing its job. So this opens its own short-lived admin
+ * context, and the admin session is cached per worker rather than re-minted per test.
+ */
+async function rearmDemoRun(browser: Browser) {
+  const context = await signedInContext(browser);
+  try {
+    const page = await context.newPage();
+    await page.goto('/en/admin');
+
+    // Same origin, session cookie, so this is the same call an administrator would
+    // make from the app. The route does its own role check.
+    const result = await page.evaluate(async () => {
+      const response = await fetch('/api/demo/rearm', { method: 'POST' });
+      return { ok: response.ok, status: response.status, body: (await response.text()).slice(0, 200) };
+    });
+
+    if (!result.ok) {
+      throw new Error(
+        `could not re-arm the demo run: ${JSON.stringify(result)}. Without it the driver ` +
+          'tests have no undelivered stop and no run dated today.',
+      );
+    }
+  } finally {
+    await context.close();
+  }
 }
 
 test.describe('the dispatcher surface', () => {
@@ -76,7 +145,15 @@ test.describe('the dispatcher surface', () => {
 });
 
 test.describe('the driver surface', () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, browser }, testInfo) => {
+    // Arming is a context, a page load and a round trip, before the test's own work.
+    // Under a loaded server that does not fit in the default 30s, and the symptom is a
+    // timeout in `beforeEach` with the cause three lines above it.
+    testInfo.setTimeout(90_000);
+
+    // Armed before the driver signs in, and by its own admin context: the driver is not
+    // a warehouse manager and `reset_demo_run()` refuses them.
+    await rearmDemoRun(browser);
     await signIn(page, 'driver@demo.local');
   });
 
