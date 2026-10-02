@@ -290,7 +290,13 @@ select is_empty(
         -- is exactly the sort of function that should never be added quietly -- and
         -- being in the allow-list is what makes adding it loudly unavoidable. It has
         -- EXECUTE for the service role only; a client that reaches it is refused.
-        'reset_demo_run'
+        'reset_demo_run',
+        -- M5: the alert centre. All three mutate `alert_events`, whose bookkeeping
+        -- columns (acknowledged_by, resolved_at, occurrences) have to move together,
+        -- and whose partial unique index means a client writing them directly could
+        -- create a duplicate open alert. Being in this list is what makes adding a
+        -- fourth quietly impossible.
+        'run_alert_scan', 'ack_alert', 'resolve_alert'
       ])
   $$,
   'only the allow-listed wrappers in the api schema are SECURITY DEFINER'

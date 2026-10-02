@@ -92,6 +92,9 @@ const HREF_BY_SURFACE: Partial<Record<Surface, Partial<Record<NavKey, string>>>>
     // Built and deployed in M4 (#27), and never added to this table -- so the
     // navigation announced a shipped feature as planned-and-absent on every page.
     deliveries: '/deliveries',
+    // M5. Same lesson as deliveries: shipped means the navigation says so, and a
+    // feature that exists but reads as "planned" on every page is worse than absent.
+    alerts: '/alerts',
   },
   pharmacy: { dashboard: '', catalogue: '/inventory/products' },
   distributor: { dashboard: '' },
@@ -106,7 +109,15 @@ const HREF_BY_SURFACE: Partial<Record<Surface, Partial<Record<NavKey, string>>>>
  * operator that the software is broken, and it advertises workflow that the role
  * is not permitted to perform.
  */
-const READ_ONLY_HIDDEN = new Set<NavKey>(['requisitions', 'deliveries', 'routes']);
+// `alerts` is in here because acknowledging an alert is a write, and a read-only role
+  // clicking a button that always returns 403 learns that the software is broken. The
+  // page itself renders read-only for them -- they can still see what is wrong.
+  const READ_ONLY_HIDDEN = new Set<NavKey>([
+    'requisitions',
+    'deliveries',
+    'routes',
+    'alerts',
+  ]);
 
 export function AppNav({
   surface,
