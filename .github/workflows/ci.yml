@@ -109,10 +109,9 @@ jobs:
   #   VERCEL_PROTECTION_BYPASS     Deployment Protection -> Bypass Protection
   e2e:
     name: Browser (end-to-end)
-    # 35, not 20. The first run at 20 was cancelled at 20m26s having got as far as the
-    # suite itself -- and everything before it is fixed overhead: installing Chromium
-    # with its system dependencies, then waiting for the preview to finish building.
-    # The suite alone is about six minutes against a remote deployment.
+    # 35 rather than 20: installing Chromium with its system dependencies, then waiting
+    # for the preview build, then about six minutes of suite. The first run at 20 was
+    # cancelled having reached the suite itself.
     timeout-minutes: 35
     needs: [web]
 
@@ -153,9 +152,6 @@ jobs:
           # Wait for the preview rather than failing on the first miss: the Vercel GitHub
           # app starts its build from the same push, so on a pull request this job is
           # frequently ahead of it.
-          # 40 attempts at 5s is a little over three minutes, which is long enough for
-          # a Vercel build and short enough that a genuinely missing preview fails the
-          # job rather than eating the whole budget.
           url=""
           for attempt in $(seq 1 40); do
             url="$(curl -fsS \
