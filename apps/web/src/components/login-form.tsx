@@ -56,11 +56,16 @@ export function LoginForm() {
     // The secret cannot be read here, so verifying here approved everything while
     // looking, in review, exactly like a working check.
     //
-    // This runs whether or not a token came back. The earlier `if (token)` guard is a
-    // bypass with a straight line to it: block the reCAPTCHA script, or just never ask
-    // for a token, and no check happens at all. A missing token is a fact about the
-    // submission, and it is the server's to weigh -- it knows whether verification was
-    // ever switched on, which this bundle cannot.
+    // This always asks the server, rather than only when a token came back. The earlier
+    // `if (token)` guard meant a submission carrying no token skipped the check
+    // entirely without ever reaching a decision -- so the server saw nothing and could
+    // not weigh it.
+    //
+    // What the server then does with a missing token is its own call, and the answer is
+    // to allow: see lib/recaptcha-server.ts, where that decision cost a production
+    // lockout before it was measured. This line is here because an unreachable *server*
+    // is a different thing and does refuse -- failing to reach the check is not the
+    // same as passing it.
     const verdict = await verifyRecaptchaTokenViaRoute(token);
     if (!verdict.ok) {
       setError(verdict.reason === 'hard_floor' ? t('recaptchaBlocked') : t('recaptchaChallenge'));

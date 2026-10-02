@@ -18,9 +18,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
  *   * no secret configured -> allow, so preview builds and local dev still work;
  *   * Google unreachable -> allow, because a third-party outage is not evidence
  *     about the person;
- *   * a token that never arrived, verification switched on -> **refuse**, which is the
- *     case the old client-side `if (token)` guard silently waved through;
+ *   * a token that never arrived -> allow, and log it. This one is here because the
+ *     opposite was shipped and locked every sign-in in production: reCAPTCHA issues no
+ *     token to a blocked script, a privacy browser, or an automated browser, and a
+ *     distributor who cannot sign in cannot dispense;
  *   * a low score -> refuse, and a very low one -> refuse *and* be distinguishable.
+ *     That check is the protection that survives; requiring a token was not.
  *
  * The build cannot be tested from here, but it is also covered: `recaptcha-server.ts`
  * imports `server-only`, so a client component importing it fails the build, which is
@@ -47,12 +50,7 @@ function siteverify(body: unknown, ok = true) {
   } as Response;
 }
 
-const ENV_KEYS = [
-  'RECAPTCHA_SECRET_KEY',
-  'RECAPTCHA_LOGIN_MIN_SCORE',
-  'RECAPTCHA_LOGIN_HARD_FLOOR',
-  'RECAPTCHA_FAIL_OPEN',
-];
+const ENV_KEYS = ['RECAPTCHA_SECRET_KEY', 'RECAPTCHA_LOGIN_MIN_SCORE', 'RECAPTCHA_LOGIN_HARD_FLOOR'];
 
 const saved: Record<string, string | undefined> = {};
 
@@ -84,27 +82,18 @@ describe('when verification is not configured', () => {
   });
 });
 
-describe('when the token is missing but verification is on', () => {
-  it('refuses, because a client that never asked has not been checked', async () => {
+describe('when no token arrives', () => {
+  // The regression test for the lockout. The first version of this policy refused here
+  // and every sign-in in production failed within minutes, because reCAPTCHA issues no
+  // token to a blocked script, a privacy browser, or an automated one.
+  it('allows, because a missing token is not evidence of a bot', async () => {
     const { verifyRecaptchaToken } = await loadModule({ RECAPTCHA_SECRET_KEY: SECRET });
-
-    const verdict = await verifyRecaptchaToken(null);
-
-    expect(verdict.ok).toBe(false);
-    expect(verdict.reason).toBe('missing_token');
-    expect(fetch).not.toHaveBeenCalled();
-  });
-
-  it('allows it when FAIL_OPEN is set, for an office whose proxy blocks Google', async () => {
-    const { verifyRecaptchaToken } = await loadModule({
-      RECAPTCHA_SECRET_KEY: SECRET,
-      RECAPTCHA_FAIL_OPEN: 'true',
-    });
 
     const verdict = await verifyRecaptchaToken(null);
 
     expect(verdict.ok).toBe(true);
     expect(verdict.reason).toBe('missing_token');
+    expect(fetch).not.toHaveBeenCalled();
   });
 });
 

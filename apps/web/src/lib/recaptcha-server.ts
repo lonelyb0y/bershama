@@ -10,22 +10,28 @@ import 'server-only';
  * perfectly, passes lint, passes every unit test, and silently approves every
  * submission -- which is precisely what happened.
  *
- * ── fail closed by default, and say so ────────────────────────────────────────
- * Verification running is not the same as verification succeeding, and the failure
- * modes are not symmetric:
+ * ── what happens when there is no score ───────────────────────────────────────
  *
- *   * Google unreachable -> `verify_failed` -> allow. A third-party outage must not
- *     take every pharmacy's sign-in down with it; a distributor who cannot sign in
- *     cannot dispense, and that is a worse outcome than a bot getting one attempt.
- *   * No token at all, with verification switched on -> refuse. This is the case a
- *     fail-open reading loses: a bot that blocks the reCAPTCHA script, or a client
- *     that never asks for one, has otherwise turned the check off by removing it.
+ * This is the part production got wrong once, and the correction is worth stating.
  *
- * `RECAPTCHA_FAIL_OPEN=true` restores the permissive behaviour for an emergency --
- * for an office whose proxy blocks Google, say. It is an env var rather than a
- * constant so flipping it does not need a code change and a review, and it is logged
- * loudly, because a control that can be quietly disabled should at least leave a
- * trace when it is.
+ * The first version refused a submission that arrived **without a token**, on the
+ * reasoning that a bot which blocks the reCAPTCHA script has otherwise switched the
+ * check off by removing it. That reasoning is correct about the attack and wrong about
+ * the world. A token is not issued when the script is blocked, when the network cannot
+ * reach Google, when a privacy browser withholds it, or when the browser is automated
+ * -- and production refused sign-in for every one of those within minutes of deploying.
+ *
+ * A distributor who cannot sign in cannot dispense. That is a worse outcome than a bot
+ * getting one attempt against a rate limiter, and no score-based control is worth it.
+ *
+ * So: **no token means allow, and record it.** What remains is the part that actually
+ * discriminates -- when Google *does* return a score, the thresholds are enforced and a
+ * low score is refused. The residual weakness is real and worth naming: a bot that
+ * suppresses the script entirely skips the check. That trade is deliberate, it is the
+ * one the availability of a pharmacy demands, and the log line is there so the attempts
+ * that skipped the check are at least visible.
+ *
+ * Google's API being unreachable is treated the same way, for the same reason.
  *
  * ── thresholds ───────────────────────────────────────────────────────────────
  * `LOGIN_MIN_SCORE` refuses. `LOGIN_HARD_FLOOR` is the line above which the attempt
@@ -48,8 +54,6 @@ const LOGIN_MIN_SCORE = Number(process.env.RECAPTCHA_LOGIN_MIN_SCORE ?? '0.5');
 
 /** Below this, refuse and record as an attack signal. */
 const LOGIN_HARD_FLOOR = Number(process.env.RECAPTCHA_LOGIN_HARD_FLOOR ?? '0.15');
-
-const FAIL_OPEN = process.env.RECAPTCHA_FAIL_OPEN === 'true';
 
 export interface RecaptchaVerdict {
   /** True when the submission may proceed. */
@@ -78,11 +82,10 @@ export async function verifyRecaptchaToken(
   if (!SECRET) return { ok: true, score: null, reason: 'not_configured' };
 
   if (!token) {
-    const verdict: RecaptchaVerdict = FAIL_OPEN
-      ? { ok: true, score: null, reason: 'missing_token' }
-      : { ok: false, score: null, reason: 'missing_token' };
-    log('recaptcha_no_token', verdict.reason, null);
-    return verdict;
+    // Allowed, deliberately. See the note at the top of this file: refusing here locked
+    // every sign-in in production within minutes of shipping.
+    log('recaptcha_no_token', 'allowed', null);
+    return { ok: true, score: null, reason: 'missing_token' };
   }
 
   try {
@@ -154,7 +157,5 @@ export async function verifyRecaptchaToken(
  * pharmacy counter.
  */
 function log(event: string, detail: string, score: number | null): void {
-  const line = { event, detail, score, threshold: LOGIN_MIN_SCORE };
-  if (FAIL_OPEN) console.warn('[recaptcha] FAIL_OPEN is on', JSON.stringify(line));
-  else console.warn('[recaptcha]', JSON.stringify(line));
+  console.warn('[recaptcha]', JSON.stringify({ event, detail, score, threshold: LOGIN_MIN_SCORE }));
 }
