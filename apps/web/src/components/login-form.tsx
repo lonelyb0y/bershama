@@ -23,7 +23,8 @@ import { getSupabaseApiClient, getSupabaseBrowserClient } from '@/lib/supabase/c
 import { asWhoAmI } from '@/lib/mappers';
 import { useRouter } from '@/i18n/routing';
 import { homeRouteForRole } from '@/lib/roles';
-import { getRecaptchaToken, verifyRecaptchaToken } from '@/lib/recaptcha';
+import { getRecaptchaToken } from '@/lib/recaptcha';
+import { verifyRecaptchaTokenViaRoute } from '@/lib/recaptcha-verify';
 import type { AppRole } from '@/lib/types';
 
 export function LoginForm() {
@@ -51,12 +52,19 @@ export function LoginForm() {
     // an office IP.
     const token = await getRecaptchaToken('login');
 
-    if (token) {
-      const verdict = await verifyRecaptchaToken(token);
-      if (!verdict.ok) {
-        setError(verdict.reason === 'hard_floor' ? t('recaptchaBlocked') : t('recaptchaChallenge'));
-        return;
-      }
+    // The verdict comes from the server, over a route -- never from this bundle.
+    // The secret cannot be read here, so verifying here approved everything while
+    // looking, in review, exactly like a working check.
+    //
+    // This runs whether or not a token came back. The earlier `if (token)` guard is a
+    // bypass with a straight line to it: block the reCAPTCHA script, or just never ask
+    // for a token, and no check happens at all. A missing token is a fact about the
+    // submission, and it is the server's to weigh -- it knows whether verification was
+    // ever switched on, which this bundle cannot.
+    const verdict = await verifyRecaptchaTokenViaRoute(token);
+    if (!verdict.ok) {
+      setError(verdict.reason === 'hard_floor' ? t('recaptchaBlocked') : t('recaptchaChallenge'));
+      return;
     }
 
     const supabase = getSupabaseBrowserClient();
