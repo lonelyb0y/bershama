@@ -108,10 +108,27 @@ test.describe('signing in', () => {
   test('signs out', async ({ page }) => {
     await signIn(page, 'admin@demo.local');
     await page.waitForURL('**/admin', { timeout: 20_000 });
+    // Hydration, or the click lands on markup with no handler on it yet.
+    await page.waitForLoadState('networkidle');
 
+    // Sign-out moved into the account menu when the header was rebuilt, so the old
+    // one-line version of this test was clicking a button that no longer exists in the
+    // DOM. It had been failing since then, and the failure was accurate: the test was
+    // not wrong to report it.
+    //
+    // What it was not reporting was the reason. The menu itself was crashing the route
+    // -- `MenuGroupContext is missing` -- so opening it replaced the page with the
+    // global error boundary. The test said "sign-out is not clickable", which pointed
+    // at the button; the button was fine.
+    await page.getByTestId('account-menu').click();
+    await expect(page.getByRole('menu')).toBeVisible();
+
+    // `menuitem`, not `button`: it is a real submit button, but a menu item's explicit
+    // role is what it is announced and navigated as.
+    //
     // POST, not a link: a GET sign-out can be triggered by any page loading an
     // image at that URL, which is why the route is a POST in the first place.
-    await page.getByRole('button', { name: /sign out/i }).click();
+    await page.getByRole('menuitem', { name: /sign out/i }).click();
 
     await page.waitForURL('**/login', { timeout: 20_000 });
     await expect(page.getByLabel(/email address/i)).toBeVisible();

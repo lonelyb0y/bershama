@@ -106,7 +106,7 @@ export async function AuthenticatedShell({
 
             {/* On wide screens the navigation lives here; below lg this wrapper is
                 hidden and the strip underneath carries it. */}
-            <div className="hidden min-w-0 flex-1 lg:block">
+            <div data-testid="header-nav" className="hidden min-w-0 flex-1 lg:block">
               <AppNav surface={surface} role={session.role} />
             </div>
 
@@ -116,7 +116,7 @@ export async function AuthenticatedShell({
           {/* Below lg: the navigation on its own row, scrollable rather than wrapped.
               The scrollbar is hidden on purpose -- a visible one on a tab strip is
               noise, and the strip's own overflow is the affordance. */}
-          <div className="-mx-4 border-t border-[color:var(--border)]/30 lg:hidden">
+          <div data-testid="header-nav-strip" className="-mx-4 border-t border-[color:var(--border)]/30 lg:hidden">
             <nav aria-label={t('nav.dashboard')} className="px-4">
               <AppNav surface={surface} role={session.role} />
             </nav>

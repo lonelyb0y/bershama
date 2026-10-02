@@ -36,6 +36,20 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
+
+  // Two workers, not Playwright's CPU/2 default.
+  //
+  // Every test here loads a full authenticated page and most of them sign in, so the
+  // suite is bound by how many concurrent document loads the app under test can
+  // serve, not by how many CPUs the runner has. At four workers the local server
+  // started logging `The destination stream closed early`, sign-ins stopped
+  // completing, and eight tests failed with "the restored session did not survive" --
+  // which is a message about the harness, not about the app.
+  //
+  // Halving the concurrency made it disappear. The suite takes about a minute either
+  // way, because the time is in page loads, not in assertions. Raise this only
+  // alongside evidence that the target can take it.
+  workers: 2,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   // A failure here is a real signal, so the trace is kept. It is a screenshot of

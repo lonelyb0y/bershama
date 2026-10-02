@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -53,7 +54,11 @@ export function HeaderCluster({
   const initial = displayName.trim().charAt(0).toUpperCase() || '·';
 
   return (
-    <div className="flex shrink-0 items-center gap-2">
+    // A stable handle for the overlap tests. This used to be found with
+    // `header .ms-auto`, which a layout rewrite removed -- and a test that cannot
+    // find its element fails as a timeout, not as "the selector is stale", so the
+    // cost of that was thirty seconds per width and a message about a box.
+    <div data-testid="header-cluster" className="flex shrink-0 items-center gap-2">
       <ThemeToggle />
       <LocaleSwitcher />
 
@@ -85,32 +90,50 @@ export function HeaderCluster({
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align="end" className="w-60" data-testid="account-menu-content">
-          <DropdownMenuLabel className="font-normal">
-            <span className="block truncate text-sm font-medium">{displayName}</span>
-            <span className="block truncate text-xs text-[color:var(--text-muted)]">
-              {t(`roles.${role}` as never)}
-            </span>
-          </DropdownMenuLabel>
-          <DropdownMenuSeparator />
+          {/* The group wrapper is load-bearing, not decoration.
+           *
+           * shadcn's `DropdownMenuLabel` maps to Base UI's `Menu.GroupLabel`, which
+           * throws `MenuGroupContext is missing` unless it is inside a `Menu.Group`.
+           * Rendered bare, it did not render badly -- it *crashed the route*, and the
+           * global error boundary replaced the whole page with "This page couldn't
+           * load". So clicking the account menu in the top right of every
+           * authenticated page threw away the session's UI, and sign-out, which only
+           * lives in that menu, was unreachable.
+           *
+           * That is why `auth.spec.ts`'s sign-out test has been failing: it was not
+           * asserting the wrong thing, it was reporting a crash. */}
+          <DropdownMenuGroup>
+            <DropdownMenuLabel className="font-normal">
+              <span className="block truncate text-sm font-medium">{displayName}</span>
+              <span className="block truncate text-xs text-[color:var(--text-muted)]">
+                {t(`roles.${role}` as never)}
+              </span>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
           {/* Sign-out is a POST, so it is a form and not a link: a link would
               prefetch it, and it would not work with JavaScript disabled.
 
-              The menu item does not *become* the button (`asChild`); it submits the
-              form, with the default closed so the menu closes either way. Radix's
-              `asChild` merges props onto its child, and a form's submit is not a
-              click handler -- so the button is a real button inside a real form and
-              the item only reacts to the selection. */}
-          <form action="/auth/sign-out" method="post" id="sign-out-form">
-            <DropdownMenuItem
-              onSelect={(event) => {
-                event.preventDefault();
-                (document.getElementById('sign-out-form') as HTMLFormElement | null)?.requestSubmit();
-              }}
-              className="cursor-pointer"
-            >
-              {t('common.signOut')}
-            </DropdownMenuItem>
-          </form>
+              The menu item *renders as* a real submit button rather than being a
+              `div role="menuitem"` that reaches into the document and calls
+              `requestSubmit()` on it.
+
+              That indirection existed because Radix's `asChild` merges props onto its
+              child, and a form's submit is not a click handler -- so the earlier
+              version put the handler on the item and reached for the form by id. It
+              worked, and it meant two things nobody reviewing it would guess: the
+              control was announced as a menu item rather than a button, and sign-out
+              functioned at all only with JavaScript running, inside a form that
+              carried a `method` for precisely the case where it would not be.
+
+              Base UI's `render` prop does the merging properly, so the item is a
+              button that submits its own form natively -- announced as a button, and
+              working with scripting off. */}
+            <form action="/auth/sign-out" method="post" id="sign-out-form">
+              <DropdownMenuItem render={<button type="submit" />} className="cursor-pointer">
+                {t('common.signOut')}
+              </DropdownMenuItem>
+            </form>
+          </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
 
