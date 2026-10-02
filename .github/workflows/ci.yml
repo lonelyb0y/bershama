@@ -109,10 +109,8 @@ jobs:
   #   VERCEL_PROTECTION_BYPASS     Deployment Protection -> Bypass Protection
   e2e:
     name: Browser (end-to-end)
-    # 35 rather than 20: installing Chromium with its system dependencies, then waiting
-    # for the preview build, then about six minutes of suite. The first run at 20 was
-    # cancelled having reached the suite itself.
-    timeout-minutes: 35
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
     needs: [web]
 
     steps:
@@ -153,7 +151,7 @@ jobs:
           # app starts its build from the same push, so on a pull request this job is
           # frequently ahead of it.
           url=""
-          for attempt in $(seq 1 40); do
+          for attempt in $(seq 1 30); do
             url="$(curl -fsS \
               -H "Authorization: Bearer $VERCEL_TOKEN" \
               "https://api.vercel.com/v6/deployments?projectId=$VERCEL_PROJECT_ID&limit=20" \
@@ -173,7 +171,7 @@ jobs:
               exit 0
             fi
             echo "attempt $attempt: no READY preview for $sha yet"
-            sleep 5
+            sleep 10
           done
 
           echo "::error::No READY preview deployment for $sha after 5 minutes." && exit 1
