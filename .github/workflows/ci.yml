@@ -140,7 +140,7 @@ jobs:
 
           for name in VERCEL_TOKEN VERCEL_ORG_ID VERCEL_PROJECT_ID; do
             if [ -z "${!name:-}" ]; then
-              echo "::error::$name is not set; see this job's header comment for the four secrets it needs."
+              echo "::error::$name is not set. This job needs four repository secrets: VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID and VERCEL_PROTECTION_BYPASS. The first three come from .vercel/project.json and the Vercel token; the bypass is generated in the dashboard under Project Settings -> Deployment Protection -> Bypass Protection."
               exit 1
             fi
           done
