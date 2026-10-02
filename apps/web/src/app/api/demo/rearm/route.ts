@@ -37,6 +37,21 @@ import { createSupabaseAdminApiClient } from '@/lib/supabase/server';
  */
 
 export async function POST() {
+  // Everything below can throw, and a thrown handler in a route returns a bare 500 with
+  // an empty body -- which told me nothing when this route started failing in
+  // production. A JSON error naming the cause is worth the three lines.
+  try {
+    return await rearm();
+  } catch (error) {
+    console.error('[demo/rearm] threw', error);
+    return NextResponse.json(
+      { ok: false, error: error instanceof Error ? error.message : String(error) },
+      { status: 500 },
+    );
+  }
+}
+
+async function rearm() {
   const session = await getSession();
 
   if (!session) {
@@ -59,10 +74,20 @@ export async function POST() {
     return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
   }
 
-  const row = data[0];
+  // `data?.[0]` rather than `data[0]`. PostgREST returns an empty array rather than a
+  // row when a `returns table` function matches but yields nothing, and indexing that
+  // is the exception that produced the empty 500.
+  const row = data?.[0];
 
   return NextResponse.json(
-    { ok: true, stopsReset: row.stops_reset, proofsRemoved: row.proofs_removed },
+    {
+      ok: true,
+      stopsReset: row?.stops_reset ?? 0,
+      proofsRemoved: row?.proofs_removed ?? 0,
+      // Loud when it happens: the demo run going missing is a data problem, and a
+      // silent "0 stops reset" reads like a success that did nothing.
+      ...(row ? {} : { warning: 'the demo run returned no rows' }),
+    },
     { headers: { 'cache-control': 'no-store' } },
   );
 }
