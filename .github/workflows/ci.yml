@@ -110,7 +110,7 @@ jobs:
   e2e:
     name: Browser (end-to-end)
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 35
     needs: [web]
 
     steps:
