@@ -39,15 +39,22 @@ const PAGES = [
 test.describe('navigation', () => {
   for (const from of PAGES) {
     test(`every link on ${from} lands somewhere real`, async ({ page }) => {
-      // 120s, not the 30s default. Each link is followed in a fresh visit, so
-      // this test deliberately does ten full page loads; on the stocktake screen,
-      // which is the heaviest page in the app, that legitimately takes ~28s.
+      // 180s, not the 30s default. Each link is followed in a fresh visit, so this
+      // test's cost is (pages in the nav) x (pages it starts from) full page loads. It
+      // was 120s with eight admin destinations; M5 added Analytics and the eleventh
+      // page started failing on budget rather than on anything real.
       //
-      // A flaky test is worse than a slow one: it trains people to re-run the
-      // suite until it goes green, which is the same as not having it. The
-      // slowness is inherent to what is being asserted, so the budget is raised
-      // rather than the work weakened.
-      test.setTimeout(120_000);
+      // That arithmetic is the actual problem and it only gets worse with every nav
+      // item, so the budget is raised *and* the cost is now reported when it happens
+      // again: `NAV_BUDGET_NOTE` below is the number to update, and the comment says
+      // what made it move. A future reader should not have to rediscover this by
+      // bisecting a timeout.
+      //
+      // A flaky test is worse than a slow one: it trains people to re-run the suite
+      // until it goes green, which is the same as not having it. The slowness is
+      // inherent to what is asserted -- following a link and reading where it lands is
+      // the entire assertion -- so the budget is raised rather than the work weakened.
+      test.setTimeout(180_000);
 
       await ensureSignedIn(page);
       await page.goto(from);
