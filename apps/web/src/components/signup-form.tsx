@@ -69,7 +69,7 @@ export function SignupForm({ locale }: { locale: string }) {
     // and it can explain why before a generic server error does.
     const verdict = assessPassword(password, email);
     if (!verdict.ok) {
-      setError(verdict.problems.map((problem) => t(`password.${problem}`)).join(' '));
+      setError(verdict.problems.map((problem) => t(`passwordRules.${problem}`)).join(' '));
       return;
     }
 
@@ -277,7 +277,7 @@ export function SignupForm({ locale }: { locale: string }) {
               ))}
             </div>
             <p className="mt-1.5 text-xs text-[color:var(--text-muted)]" aria-live="polite">
-              {assessment.ok ? t('passwordGood') : t(`strength.${strength}`)}
+              {assessment.ok ? t('passwordGood') : t(`strengthScale.${strength}`)}
             </p>
 
             {/* Every outstanding problem, not just the first, so the meter never reads as
@@ -286,7 +286,7 @@ export function SignupForm({ locale }: { locale: string }) {
               <ul className="mt-1.5 space-y-0.5 text-xs text-[color:var(--color-warn)]">
                 {assessment.problems.map((problem) => (
                   <li key={problem} data-testid={`password-problem-${problem}`}>
-                    {t(`password.${problem}`)}
+                    {t(`passwordRules.${problem}`)}
                   </li>
                 ))}
               </ul>

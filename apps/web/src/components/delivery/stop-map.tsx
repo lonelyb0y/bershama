@@ -178,14 +178,30 @@ const STATUS_FILL: Record<MapStop['status'], string> = {
   SKIPPED: 'var(--pf-stop-skipped, #94a3b8)',
 };
 
+/**
+ * A reported vehicle position, as opposed to a place on the run.
+ *
+ * `ageSeconds` is not decoration. A marker still drawn at full strength on top of a fix
+ * from four minutes ago is a dispatcher being told a falsehood; the same marker drawn pale
+ * says "we last saw it here, and that was four minutes ago". That difference is the entire
+ * value of a live position.
+ */
+export interface LivePosition {
+  latitude: number;
+  longitude: number;
+  ageSeconds: number;
+}
+
 export function StopMap({
   stops,
   caption,
   emptyLabel,
+  live,
 }: {
   stops: MapStop[];
   caption: string;
   emptyLabel: string;
+  live?: LivePosition | null;
 }) {
   const located = stops.filter(
     (s): s is MapStop & { latitude: number; longitude: number } =>
@@ -205,7 +221,22 @@ export function StopMap({
 
   // Markers and tiles share one Mercator space, then the whole thing is scaled into the
   // viewBox. Scaling once, here, is what keeps a tile square and a marker round.
-  const raw = located.map((stop, i) => ({ ...mercatorPx(coords[i].lon, coords[i].lat, zoom), stop }));
+  // The stop is the *narrowed* type -- `located` has already established that latitude and
+  // longitude are present. Widening it to MapStop here lost that, and took `asLatLon` with
+  // it, because a MapStop's latitude is `number | null`.
+  type Placed = MapStop & { latitude: number; longitude: number };
+  const raw: Array<{ x: number; y: number; stop: Placed | null }> = located.map(
+    (stop, i) => ({ ...mercatorPx(coords[i].lon, coords[i].lat, zoom), stop }),
+  );
+
+  // The vehicle joins the extent, or a van that has driven away from its stops is drawn
+  // outside the frame -- which is to say the one thing the live map exists for would be the
+  // one thing not shown.
+  const liveRaw =
+    live && Number.isFinite(live.latitude) && Number.isFinite(live.longitude)
+      ? { ...mercatorPx(live.longitude, live.latitude, zoom), stop: null }
+      : null;
+  if (liveRaw) raw.push(liveRaw);
 
   const xs = raw.map((p) => p.x);
   const ys = raw.map((p) => p.y);
@@ -259,7 +290,9 @@ export function StopMap({
   // the newly exposed strip with no backdrop on it.
   const tiles = tilesFor({ minX: boxX, maxX: boxMaxX, minY: boxY, maxY: boxMaxY }, zoom);
 
-  const points = raw.map((p) => ({ ...toView(p.x, p.y), stop: p.stop }));
+  const points = raw
+    .filter((p): p is { x: number; y: number; stop: Placed } => p.stop !== null)
+    .map((p) => ({ ...toView(p.x, p.y), stop: p.stop }));
   const bySequence = [...points].sort((a, b) => a.stop.sequence - b.stop.sequence);
   const path = bySequence.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
 
@@ -271,6 +304,7 @@ export function StopMap({
         aria-label={caption}
         data-testid="stop-map"
         data-tiles={tiles.length > 0 ? 'on' : 'off'}
+        data-live={liveRaw ? 'yes' : 'no'}
         className="w-full rounded-lg border"
         // Without this the element is as wide as its container while the viewBox is
         // 320x220, so preserveAspectRatio centres the content and leaves the rest as bare
@@ -299,7 +333,34 @@ export function StopMap({
 
         <path d={path} fill="none" stroke="currentColor" strokeOpacity="0.45" strokeWidth="2" strokeDasharray="4 3" />
 
-        {bySequence.map(({ x, y, stop }) => (
+        {/* The vehicle. Fades with age, because a stale fix drawn at full strength is a lie
+            rather than a shortcut, and a dashed halo is already the map convention for
+            "estimated or aged" to anyone who reads maps. */}
+        {liveRaw && live && (
+          <g data-testid="live-vehicle" data-age-seconds={Math.round(live.ageSeconds)}>
+            <circle
+              cx={toView(liveRaw.x, liveRaw.y).x}
+              cy={toView(liveRaw.x, liveRaw.y).y}
+              r="13"
+              fill="none"
+              stroke="var(--pf-stop-arrived, #0284c7)"
+              strokeWidth="2"
+              strokeDasharray="3 3"
+              opacity={live.ageSeconds > 120 ? 0.45 : 0.9}
+            />
+            <circle
+              cx={toView(liveRaw.x, liveRaw.y).x}
+              cy={toView(liveRaw.x, liveRaw.y).y}
+              r="6"
+              fill="var(--pf-stop-arrived, #0284c7)"
+              stroke="white"
+              strokeWidth="2"
+              opacity={live.ageSeconds > 120 ? 0.45 : 1}
+            />
+          </g>
+        )}
+
+        {bySequence.map(({ x, y, stop }) => stop && (
           <g key={stop.id}>
             {stop.isNext && <circle cx={x} cy={y} r="11" fill="none" stroke="currentColor" strokeOpacity="0.6" />}
             {stop.isPlanned ? (

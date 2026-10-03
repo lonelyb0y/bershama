@@ -350,9 +350,19 @@ export type Database = {
         Args: { p_line_id: string }
         Returns: undefined
       }
+      report_position: {
+        Args: {
+          p_latitude: number
+          p_longitude: number
+          p_recorded_at?: string
+          p_trip_id: string
+        }
+        Returns: string
+      }
       reset_demo_run: {
         Args: never
         Returns: {
+          positions_cleared: number
           proofs_removed: number
           stops_reset: number
         }[]
@@ -1193,11 +1203,57 @@ export type Database = {
           },
         ]
       }
+      live_positions: {
+        Row: {
+          id: string
+          latitude: number
+          longitude: number
+          recorded_at: string
+          tenant_id: string
+          trip_id: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          latitude: number
+          longitude: number
+          recorded_at?: string
+          tenant_id: string
+          trip_id: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          latitude?: number
+          longitude?: number
+          recorded_at?: string
+          tenant_id?: string
+          trip_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_positions_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "live_positions_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: true
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           atc_code: string | null
           brand: string | null
           created_at: string
+          drug_class: string | null
           eda_reg_no: string | null
           form:
             | "TABLET"
@@ -1222,6 +1278,7 @@ export type Database = {
           is_cold_chain: boolean
           is_controlled: boolean
           is_serialised: boolean
+          manufacturer: string | null
           name_ar: string
           name_en: string
           pack_size: number
@@ -1229,6 +1286,7 @@ export type Database = {
           sell_price_minor: number
           shelf_life_months: number
           sku: string
+          source: string | null
           strength: string
           strength_unit: "mg" | "g" | "mcg" | "ml" | "IU" | "%" | "units" | null
           tenant_id: string
@@ -1239,6 +1297,7 @@ export type Database = {
           atc_code?: string | null
           brand?: string | null
           created_at?: string
+          drug_class?: string | null
           eda_reg_no?: string | null
           form:
             | "TABLET"
@@ -1263,6 +1322,7 @@ export type Database = {
           is_cold_chain?: boolean
           is_controlled?: boolean
           is_serialised?: boolean
+          manufacturer?: string | null
           name_ar: string
           name_en: string
           pack_size?: number
@@ -1270,6 +1330,7 @@ export type Database = {
           sell_price_minor?: number
           shelf_life_months?: number
           sku: string
+          source?: string | null
           strength: string
           strength_unit?:
             | "mg"
@@ -1288,6 +1349,7 @@ export type Database = {
           atc_code?: string | null
           brand?: string | null
           created_at?: string
+          drug_class?: string | null
           eda_reg_no?: string | null
           form?:
             | "TABLET"
@@ -1312,6 +1374,7 @@ export type Database = {
           is_cold_chain?: boolean
           is_controlled?: boolean
           is_serialised?: boolean
+          manufacturer?: string | null
           name_ar?: string
           name_en?: string
           pack_size?: number
@@ -1319,6 +1382,7 @@ export type Database = {
           sell_price_minor?: number
           shelf_life_months?: number
           sku?: string
+          source?: string | null
           strength?: string
           strength_unit?:
             | "mg"

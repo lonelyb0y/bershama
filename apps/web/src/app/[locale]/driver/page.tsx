@@ -7,6 +7,7 @@ import { ROLES_BY_SURFACE } from '@/lib/roles';
 import { StopMap, type MapStop } from '@/components/delivery/stop-map';
 import { ArriveButton, FailStopForm, SignSheet } from '@/components/delivery/stop-actions';
 import { RunControls } from '@/components/delivery/run-controls';
+import { LivePositionReporter } from '@/components/delivery/live-position-reporter';
 import { ServiceWorkerRegistration } from '@/components/delivery/service-worker-registration';
 import type { Locale } from '@/i18n/routing';
 
@@ -144,6 +145,13 @@ export default async function DriverPage({ params }: { params: Promise<{ locale:
         <h1 className="text-xl font-semibold">{t('driver.title')}</h1>
         {trip && (
           <p className="text-sm text-current/60">
+            {/* The run's id, so the dispatcher side of a test can be pointed at the exact
+                run this driver is on rather than at whichever run happens to be listed
+                first. Matching by date or by link text silently picks the wrong run once
+                other specs have created their own. */}
+            <span data-testid="driver-run" data-trip={trip.id} className="hidden">
+              {trip.id}
+            </span>
             {trip.run_date}
             {vehicle ? ` · ${vehicle.code}` : ''}
           </p>
@@ -158,6 +166,12 @@ export default async function DriverPage({ params }: { params: Promise<{ locale:
             <span className="font-medium">{t(`status.trip.${trip.status}`)}</span>
             {trip.started_at ? ` · ${new Date(trip.started_at).toLocaleString(locale)}` : ''}
           </p>
+
+          {/* Nothing is reported until a run is actually in transit, and the location
+              permission prompt arrives with the run rather than on page load. A permission
+              dialog on load is the thing people dismiss reflexively, and a dismissed prompt
+              is a permanently broken feature. */}
+          <LivePositionReporter tripId={trip.id} enabled={trip.status === 'IN_TRANSIT'} />
 
           <RunControls
             tripId={trip.id}

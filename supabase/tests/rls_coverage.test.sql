@@ -359,6 +359,12 @@ select is_empty(
         -- the moment to notice it existed -- which is what just happened, when the suite
         -- failed on it rather than letting it through unnoticed.
         'provision_tenant',
+        -- api.report_position is the first function here that a *moving* thing calls on a
+        -- timer rather than a person calling it once during a transaction. That is exactly
+        -- why it needs to be on this list rather than arriving quietly: it writes a
+        -- position for a run, so the per-run driver check inside it is the only thing
+        -- stopping one driver placing another driver's van somewhere in Egypt.
+        'report_position',
         -- M5: the alert centre. All three mutate `alert_events`, whose bookkeeping
         -- columns (acknowledged_by, resolved_at, occurrences) have to move together,
         -- and whose partial unique index means a client writing them directly could
