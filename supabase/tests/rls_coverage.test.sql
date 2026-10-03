@@ -35,7 +35,7 @@
 
 begin;
 
-select plan(21);
+select plan(22);
 
 -- ── every public table has RLS enabled ──────────────────────────────────────
 
@@ -250,6 +250,42 @@ select is_empty(
     and p.prosecdef
   $$,
   'no SECURITY DEFINER function sits in the public schema'
+);
+
+-- ── and none of them is reachable by an anonymous caller ───────────────────────
+--
+-- The assertion above is about *where* a definer function lives. This one is about who
+-- can reach it, and it is the general form of the finding that motivated it.
+--
+-- On the hosted project, public.rls_auto_enable() -- a SECURITY DEFINER function owned
+-- by postgres, created with Postgres' default privileges rather than the ACL the
+-- platform gives its own event triggers -- granted EXECUTE to PUBLIC, anon,
+-- authenticated and service_role. Any anonymous caller could POST /rest/v1/rpc/ and have
+-- it run as the superuser owner. It was not exploitable, because as an event-trigger
+-- function Postgres refuses a direct call with 0A000 before the body runs, but it was
+-- one refactor away from being real.
+--
+-- Checking for it by name would be worthless: the next one will have a different name,
+-- and the one after that will be in a schema nobody thought to list. So assert the
+-- property instead. `has_function_privilege` resolves inherited PUBLIC grants as well as
+-- direct ones, which is the whole point -- PUBLIC was the grant that mattered.
+--
+-- `anon` and not `authenticated` on purpose. The `api` wrappers are *meant* to be
+-- callable by a signed-in user; each one authorises itself against the caller's role and
+-- tenant. Demanding they be unreachable by authenticated would demand they be deleted.
+-- But there is no legitimate reason for any of them to answer to a request with no
+-- session at all, so that is the line drawn here.
+
+select is_empty(
+  $$
+  select p.oid::regprocedure::text
+  from pg_proc p
+  join pg_namespace n on n.oid = p.pronamespace
+  where n.nspname in ('public', 'api')
+    and p.prosecdef
+    and has_function_privilege('anon', p.oid, 'EXECUTE')
+  $$,
+  'no SECURITY DEFINER function in an exposed schema is executable by an anonymous caller'
 );
 
 select is_empty(
