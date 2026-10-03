@@ -247,6 +247,14 @@
     },
     "form": {
       "newTitle": "Add a product",
+      "register": {
+        "title": "Look up in the Egyptian drug register",
+        "placeholder": "Search by Arabic or English name, or generic…",
+        "searching": "Searching…",
+        "noResults": "No match in the register. Fill the form in by hand.",
+        "use": "Click to fill the form",
+        "provenance": "Third-party CC0 compilation of the Egyptian register — not an EDA export. Check against the authority for anything regulatory."
+      },
       "editTitle": "Edit product",
       "sku": "SKU",
       "nameEn": "Name (English)",

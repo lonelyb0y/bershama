@@ -4,9 +4,19 @@ import { useActionState } from 'react';
 
 import { saveProduct, type ActionResult } from '@/app/[locale]/admin/inventory/products/actions';
 import type { Product } from '@/lib/types';
+import { RegisterLookup } from '@/components/inventory/register-lookup';
 
 export interface ProductFormLabels {
   titleNew: string;
+  /** The drug-register lookup block. Grouped so it reads as one thing in the list. */
+  register: {
+    title: string;
+    placeholder: string;
+    searching: string;
+    noResults: string;
+    use: string;
+    provenance: string;
+  };
   titleEdit: string;
   sku: string;
   nameEn: string;
@@ -103,6 +113,11 @@ export function ProductForm({
             {state.message === 'created' ? l.created : l.saved}
           </p>
         )}
+
+        {/* Above the fields, because the point is to avoid filling them. Someone who does
+            not want to type fourteen fields by hand should not have to scroll past all
+            fourteen to find the way out. */}
+        <RegisterLookup labels={l.register} />
 
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label={l.sku} name="sku" defaultValue={editing?.sku} error={errorFor('sku')} required dir="ltr" />
