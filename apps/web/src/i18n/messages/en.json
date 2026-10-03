@@ -512,7 +512,6 @@
     "organisation": "Organisation name",
     "fullName": "Your name",
     "email": "Work email",
-    "password": "Password",
     "passwordHint": "At least {n} characters. Long beats complicated.",
     "submit": "Create organisation",
     "working": "Creating…",
@@ -527,21 +526,26 @@
     "provisionFailed": "Your account exists, but the organisation could not be created. Try again — you will not lose the account.",
     "recaptchaBlocked": "This looks automated. If that is wrong, contact an administrator.",
     "recaptchaChallenge": "Please try again in a moment.",
-    "strength": "Password strength",
-    "strength.0": "Too short to be anything",
-    "strength.1": "Very weak",
-    "strength.2": "Weak",
-    "strength.3": "Good",
-    "strength.4": "Strong",
     "passwordGood": "Good. Long and unpredictable is exactly right.",
-    "password.tooShort": "Use at least {n} characters.",
-    "password.tooCommon": "This is one of the most-used passwords in the world. Pick something a stranger could not guess.",
-    "password.containsEmail": "Your password contains your own email or its domain.",
-    "password.tooFewDistinct": "This repeats the same few characters.",
-    "password.isSequential": "This is a run of consecutive letters or digits.",
-    "password.isKeyboardWalk": "This walks along the keyboard.",
     "signupsDisabled": "Registration is not switched on for this project yet.",
-    "tooManyAttempts": "Too many attempts from this address. Wait a few minutes and try again."
+    "tooManyAttempts": "Too many attempts from this address. Wait a few minutes and try again.",
+    "strength": "Password strength",
+    "password": "Password",
+    "strengthScale": {
+      "0": "Too short to be anything",
+      "1": "Very weak",
+      "2": "Weak",
+      "3": "Good",
+      "4": "Strong"
+    },
+    "passwordRules": {
+      "tooShort": "Use at least {n} characters.",
+      "tooCommon": "This is one of the most-used passwords in the world. Pick something a stranger could not guess.",
+      "containsEmail": "Your password contains your own email or its domain.",
+      "tooFewDistinct": "This repeats the same few characters.",
+      "isSequential": "This is a run of consecutive letters or digits.",
+      "isKeyboardWalk": "This walks along the keyboard."
+    }
   },
   "setup": {
     "title": "Finish setting up",

@@ -92,6 +92,10 @@ async function rearm() {
       ok: true,
       stopsReset: row?.stops_reset ?? 0,
       proofsRemoved: row?.proofs_removed ?? 0,
+      // Reported for the same reason as the other two: a re-arm that left the previous
+      // run's vehicle position behind drew it as current on the fresh run, and the count
+      // is the receipt that it was actually cleared.
+      positionsCleared: row?.positions_cleared ?? 0,
       // Loud when it happens: the demo run going missing is a data problem, and a
       // silent "0 stops reset" reads like a success that did nothing.
       ...(row ? {} : { warning: 'the demo run returned no rows' }),

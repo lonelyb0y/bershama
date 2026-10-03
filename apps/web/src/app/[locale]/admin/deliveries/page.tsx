@@ -10,7 +10,12 @@ import {
   NewRunForm,
   NewVehicleForm,
 } from '@/components/delivery/dispatcher-forms';
+import { cache } from 'react';
+
 import { StopMap, type MapStop } from '@/components/delivery/stop-map';
+
+/** One clock reading per request. See the note at its use below. */
+const getRequestNow = cache(() => Date.now());
 import type { Locale } from '@/i18n/routing';
 
 /**
@@ -57,6 +62,13 @@ export default async function DeliveriesPage({
     .select('id, run_date, status, vehicle_id, driver_id, notes, started_at, ended_at')
     .order('run_date', { ascending: false })
     .limit(30);
+
+  // The whole reason this screen exists. Without it a dispatcher has a list of stops and
+  // no way to answer "is it stuck or nearly there", because a stop's coordinates are only
+  // written once the van has already reached it.
+  const { data: positionData } = await supabase
+    .from('live_positions')
+    .select('trip_id, latitude, longitude, recorded_at');
 
   const trips = (tripData ?? []) as Array<{
     id: string;
@@ -149,6 +161,25 @@ export default async function DeliveriesPage({
       (p) => [p.stop_id, p],
     ),
   );
+
+  // Only a run actually in transit gets a live marker. A position left over from a run that
+  // closed an hour ago would sit on the map looking current, which is precisely the lie the
+  // age-faded marker exists to avoid.
+  const liveRow = (positionData ?? []).find((row) => row.trip_id === selected?.id);
+  const live =
+    liveRow && selected?.status === 'IN_TRANSIT'
+      ? {
+          latitude: Number(liveRow.latitude),
+          longitude: Number(liveRow.longitude),
+          // `cache` rather than a bare Date.now(): the linter is right that this is impure
+          // in render, and it is also right that it would be evaluated again on every
+          // render pass. Once per request is both correct and what a poller would want.
+          ageSeconds: Math.max(
+            0,
+            (getRequestNow() - new Date(liveRow.recorded_at).getTime()) / 1000,
+          ),
+        }
+      : null;
 
   const mapStops: MapStop[] = stops.map((s) => ({
     id: s.id,
@@ -259,7 +290,7 @@ export default async function DeliveriesPage({
                 })}
               </ol>
 
-              <StopMap stops={mapStops} caption={t('dispatcher.mapCaption')} emptyLabel={t('dispatcher.mapEmpty')} />
+              <StopMap stops={mapStops} live={live} caption={t('dispatcher.mapCaption')} emptyLabel={t('dispatcher.mapEmpty')} />
 
               {selected.status === 'PLANNED' ? (
                 <AddStopForm
