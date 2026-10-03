@@ -1,26 +1,49 @@
 /**
- * A stop map that works with no network.
+ * A stop map: real map tiles when there is signal, a plotted route when there is not.
  *
- * ── why there are no map tiles ──────────────────────────────────────────────
+ * ── why the first version had no tiles, and why that was not the end of it ─────
  *
- * The obvious thing is to embed a tile layer. That fails the moment it matters: the
- * driver is in a place with no signal, which is the entire reason the offline queue
- * exists, so a map that needs a CDN is a map that is blank exactly when it is
- * needed. Tiles would also mean shipping somebody else's map to a tenant whose
- * phones are on a metered connection, in a country where the licensing conditions
- * are not ours to grant.
+ * The original drew the run as an SVG from the coordinates the driver records on arrival,
+ * and deliberately so. The reasoning still holds and is still the reason this degrades
+ * rather than breaks:
  *
- * So this plots the stops and the route between them in an SVG, from the latitude
- * and longitude the driver already records on arrival. It answers the two questions
- * a driver actually asks mid-run -- what is next, and how far along am I -- and it
- * answers them with nothing to load.
+ *   - a driver is in a place with no signal, which is the entire reason the offline queue
+ *     exists, so a map that needs a CDN is a map that is blank exactly when it is needed;
+ *   - tiles would mean shipping somebody else's map to a tenant whose phones are on a
+ *     metered connection, in a country whose tile-licensing terms are not ours to grant.
  *
- * ── honest about what it is ─────────────────────────────────────────────────
+ * But the cost of that decision was borne by the reader, not by the driver. A grey canvas
+ * with four dots on it does not look like a considered offline fallback; it looks broken,
+ * and it says nothing about *where* in Cairo or Alexandria a run is happening. Choosing
+ * "no tiles ever" answered the driver's constraint by degrading the dispatcher's screen,
+ * which was the wrong trade.
  *
- * It is not a navigation map. There are no streets and no turn-by-turn, and it does
- * not pretend to be: distance between two stops is a straight line, which is a
- * planning aid and would be a lie if it were labelled as a route. The heading says
- * "stops", and the caption says the distance is not a driving distance.
+ * ── what it does now ───────────────────────────────────────────────────────────
+ *
+ * Both, in one SVG and one coordinate system.
+ *
+ * The run is projected into Web Mercator pixel space at a zoom chosen from how far the
+ * stops are apart. Map tiles are `<image>` elements placed in that same space, so the
+ * markers land on the real streets instead of near them. The route line and the numbered
+ * markers are unchanged, drawn over the tiles.
+ *
+ * When there is no signal the tile images simply fail to load. A failed SVG `<image>`
+ * renders as nothing at all -- no broken-image icon, no layout shift -- so the surface
+ * falls back to exactly the plot it always was, with no JavaScript and no error state to
+ * write. That is the whole offline story, and it is why this is an enhancement rather than
+ * a replacement.
+ *
+ * ── on the tile source ─────────────────────────────────────────────────────────
+ *
+ * OpenStreetMap's public tile servers. No key, no account, no billing, and they work in
+ * every browser including the ones a delivery van will have. Attribution is rendered and is
+ * not optional: the ODbL requires it, and a deployment that drops it is a licensing
+ * problem rather than a UI bug.
+ *
+ * The public endpoint is for light use and explicitly not for production traffic. At this
+ * project's volume that is fine, and the honest way to keep it fine is the env flag below:
+ * set NEXT_PUBLIC_MAP_TILES=none and supply tiles from a provider you have an agreement
+ * with. Do not quietly leave a demo-scale dependency in place at real scale.
  */
 
 export interface MapStop {
@@ -31,24 +54,25 @@ export interface MapStop {
   longitude: number | null;
   status: 'PENDING' | 'ARRIVED' | 'DELIVERED' | 'FAILED' | 'RETURNED' | 'SKIPPED';
   isNext: boolean;
+  /**
+   * True when the position is the facility's registered address rather than somewhere the
+   * van actually stopped. Drawn hollow, because it is a different kind of claim and
+   * showing it as a solid dot would be overstating what the system knows.
+   */
+  isPlanned?: boolean;
 }
 
 const W = 320;
 const H = 220;
 const PAD = 28;
+const TILE = 256;
 
-/** Great-circle distance in kilometres. Used only for the ordering caption. */
 export interface LatLon {
   lat: number;
   lon: number;
 }
 
-/** A stop in the coordinate shape the maths below wants. */
-const asLatLon = (s: { latitude: number; longitude: number }): LatLon => ({
-  lat: s.latitude,
-  lon: s.longitude,
-});
-
+/** Great-circle distance in kilometres. Used only for the ordering caption. */
 export function haversineKm(a: LatLon, b: LatLon): number {
   const R = 6371;
   const dLat = ((b.lat - a.lat) * Math.PI) / 180;
@@ -59,33 +83,90 @@ export function haversineKm(a: LatLon, b: LatLon): number {
   return 2 * R * Math.asin(Math.sqrt(h));
 }
 
+const asLatLon = (s: { latitude: number; longitude: number }): LatLon => ({
+  lat: s.latitude,
+  lon: s.longitude,
+});
+
 /**
- * Latitude to SVG y, inverted, because latitude grows northwards and SVG y does not.
- * Longitude is not corrected for cos(latitude): over a single city the distortion is
- * under 2%, and the correction would make the axis harder to read for nothing.
+ * Web Mercator pixel coordinates at a zoom level.
+ *
+ * The standard slippy-map projection. Everything else on this map -- tiles and markers
+ * alike -- is expressed in this space, which is the only reason a dot lands on its street
+ * rather than near it: projecting latitude linearly, as the previous version did, is fine
+ * for dots and wrong for tiles, and having both in one system is what fixes that.
  */
-function project(point: LatLon, box: Bounds) {
-  const x = PAD + ((point.lon - box.minLon) / (box.maxLon - box.minLon || 1)) * (W - PAD * 2);
-  const y = H - PAD - ((point.lat - box.minLat) / (box.maxLat - box.minLat || 1)) * (H - PAD * 2);
-  return { x, y };
-}
-
-interface Bounds {
-  minLat: number;
-  maxLat: number;
-  minLon: number;
-  maxLon: number;
-}
-
-function boundsOf(points: Array<{ latitude: number; longitude: number }>): Bounds {
-  const lats = points.map((p) => p.latitude);
-  const lons = points.map((p) => p.longitude);
+function mercatorPx(lon: number, lat: number, zoom: number) {
+  const world = TILE * 2 ** zoom;
+  const rad = (lat * Math.PI) / 180;
   return {
-    minLat: Math.min(...lats),
-    maxLat: Math.max(...lats),
-    minLon: Math.min(...lons),
-    maxLon: Math.max(...lons),
+    x: ((lon + 180) / 360) * world,
+    y: ((1 - Math.log(Math.tan(rad) + 1 / Math.cos(rad)) / Math.PI) / 2) * world,
   };
+}
+
+/**
+ * A zoom that frames the run at a readable size.
+ *
+ * Derived from the spread rather than hard-coded, because a fixed zoom is wrong at both
+ * ends: two stops in one street become two enormous tiles, and a run that crosses a
+ * governorate becomes one dot on a continent. Clamped so the result stays usable either
+ * way.
+ */
+function chooseZoom(points: LatLon[]): number {
+  const lats = points.map((p) => p.lat);
+  const lons = points.map((p) => p.lon);
+  const spanLon = Math.max(...lons) - Math.min(...lons);
+  const spanLat = Math.max(...lats) - Math.min(...lats);
+  // 360 degrees of longitude at zoom z spans 256 * 2**z pixels.
+  const span = Math.max(spanLon, spanLat * 2, 0.0005);
+  const zoom = Math.log2((W - PAD * 2) / (span * TILE));
+  return Math.max(10, Math.min(16, Math.round(zoom)));
+}
+
+/**
+ * Whether to draw tiles at all.
+ *
+ * 'none' is a real setting rather than a development convenience: an operator who has a
+ * commercial tile agreement, or a deployment that would rather not send its drivers' run
+ * coordinates to a third party, can turn this off and get the plotted route back.
+ */
+function tilesEnabled(): boolean {
+  const setting = (process.env.NEXT_PUBLIC_MAP_TILES ?? 'osm').toLowerCase();
+  return setting !== 'none' && setting !== 'off' && setting !== 'false';
+}
+
+interface Tile {
+  href: string;
+  x: number;
+  y: number;
+}
+
+function tilesFor(box: { minX: number; maxX: number; minY: number; maxY: number }, zoom: number): Tile[] {
+  if (!tilesEnabled()) return [];
+
+  const minTx = Math.floor(box.minX / TILE) - 1;
+  const maxTx = Math.floor(box.maxX / TILE) + 1;
+  const minTy = Math.floor(box.minY / TILE) - 1;
+  const maxTy = Math.floor(box.maxY / TILE) + 1;
+
+  const maxIndex = 2 ** zoom;
+  const out: Tile[] = [];
+
+  for (let ty = minTy; ty <= maxTy; ty += 1) {
+    // Vertical wrap: y is meaningless past the poles, and without this a run near 90N
+    // would produce a request for tile -1 and simply lose its backdrop.
+    if (ty < 0 || ty >= maxIndex) continue;
+    for (let tx = minTx; tx <= maxTx; tx += 1) {
+      const wrapped = ((tx % maxIndex) + maxIndex) % maxIndex;
+      out.push({
+        href: `https://tile.openstreetmap.org/${zoom}/${wrapped}/${ty}.png`,
+        x: tx * TILE,
+        y: ty * TILE,
+      });
+    }
+  }
+  return out;
 }
 
 const STATUS_FILL: Record<MapStop['status'], string> = {
@@ -119,9 +200,66 @@ export function StopMap({
     );
   }
 
-  const box = boundsOf(located);
-  const points = located.map((s) => ({ ...project(asLatLon(s), box), stop: s }));
-  // Ordered by sequence, so the line is the run's order and not the id order.
+  const coords = located.map(asLatLon);
+  const zoom = chooseZoom(coords);
+
+  // Markers and tiles share one Mercator space, then the whole thing is scaled into the
+  // viewBox. Scaling once, here, is what keeps a tile square and a marker round.
+  const raw = located.map((stop, i) => ({ ...mercatorPx(coords[i].lon, coords[i].lat, zoom), stop }));
+
+  const xs = raw.map((p) => p.x);
+  const ys = raw.map((p) => p.y);
+  const minX = Math.min(...xs);
+  const maxX = Math.max(...xs);
+  const minY = Math.min(...ys);
+  const maxY = Math.max(...ys);
+
+  // A whole tile of slack around the markers, so the backdrop is never cropped to the dots
+  // and the map does not look like a postage stamp.
+  const extentX = minX - TILE;
+  const extentY = minY - TILE;
+  const extentMaxX = maxX + TILE;
+  const extentMaxY = maxY + TILE;
+
+  const spanX = extentMaxX - extentX || 1;
+  const spanY = extentMaxY - extentY || 1;
+
+  // One uniform scale, so tiles are not stretched and markers stay circles.
+  const scale = Math.min((W - PAD) / spanX, (H - PAD) / spanY);
+
+  // Then grow the extent until the scaled content fills the frame.
+  //
+  // The first version scaled the extent to fit *inside* W x H, which is only correct when
+  // the two axes happen to agree. They usually do not: one comes out short, and the
+  // shortfall is an unpainted band down one side of every map. Extending the short axis is
+  // cheaper than hunting for a zoom that fills both, and it keeps the aspect ratio honest
+  // because `scale` is not recomputed afterwards.
+  let boxX = extentX;
+  let boxY = extentY;
+  let boxMaxX = extentMaxX;
+  let boxMaxY = extentMaxY;
+
+  if (spanX * scale < W - PAD) {
+    const grow = (W - PAD - spanX * scale) / 2 / scale;
+    boxX -= grow;
+    boxMaxX += grow;
+  }
+  if (spanY * scale < H - PAD) {
+    const grow = (H - PAD - spanY * scale) / 2 / scale;
+    boxY -= grow;
+    boxMaxY += grow;
+  }
+
+  const toView = (x: number, y: number) => ({
+    x: PAD / 2 + (x - boxX) * scale,
+    y: PAD / 2 + (y - boxY) * scale,
+  });
+
+  // Tiles are chosen from the *final* box. Choosing them before the expansion is what left
+  // the newly exposed strip with no backdrop on it.
+  const tiles = tilesFor({ minX: boxX, maxX: boxMaxX, minY: boxY, maxY: boxMaxY }, zoom);
+
+  const points = raw.map((p) => ({ ...toView(p.x, p.y), stop: p.stop }));
   const bySequence = [...points].sort((a, b) => a.stop.sequence - b.stop.sequence);
   const path = bySequence.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
 
@@ -132,14 +270,52 @@ export function StopMap({
         role="img"
         aria-label={caption}
         data-testid="stop-map"
-        className="w-full rounded-lg border bg-current/5"
+        data-tiles={tiles.length > 0 ? 'on' : 'off'}
+        className="w-full rounded-lg border"
+        // Without this the element is as wide as its container while the viewBox is
+        // 320x220, so preserveAspectRatio centres the content and leaves the rest as bare
+        // background. Pinning the ratio makes the two agree and the band disappears.
+        style={{ aspectRatio: `${W} / ${H}` }}
       >
-        <path d={path} fill="none" stroke="currentColor" strokeOpacity="0.25" strokeWidth="2" strokeDasharray="4 3" />
+        <rect x="0" y="0" width={W} height={H} className="fill-[var(--color-surface-muted)]" />
+
+        {/* Backdrop. Fails silently and invisibly when offline, which is the point. */}
+        <g data-testid="stop-map-tiles" opacity="0.9">
+          {tiles.map((tile) => {
+            const p = toView(tile.x, tile.y);
+            return (
+              <image
+                key={`${tile.href}`}
+                href={tile.href}
+                x={p.x}
+                y={p.y}
+                width={TILE * scale}
+                height={TILE * scale}
+                preserveAspectRatio="none"
+              />
+            );
+          })}
+        </g>
+
+        <path d={path} fill="none" stroke="currentColor" strokeOpacity="0.45" strokeWidth="2" strokeDasharray="4 3" />
 
         {bySequence.map(({ x, y, stop }) => (
           <g key={stop.id}>
-            {stop.isNext && <circle cx={x} cy={y} r="11" fill="none" stroke="currentColor" strokeOpacity="0.5" />}
-            <circle cx={x} cy={y} r="7" fill={STATUS_FILL[stop.status]} stroke="white" strokeWidth="1.5" />
+            {stop.isNext && <circle cx={x} cy={y} r="11" fill="none" stroke="currentColor" strokeOpacity="0.6" />}
+            {stop.isPlanned ? (
+              // Hollow: a registered address, not a place the van has been.
+              <circle
+                cx={x}
+                cy={y}
+                r="7"
+                fill="white"
+                fillOpacity="0.85"
+                stroke={STATUS_FILL[stop.status]}
+                strokeWidth="2.5"
+              />
+            ) : (
+              <circle cx={x} cy={y} r="7" fill={STATUS_FILL[stop.status]} stroke="white" strokeWidth="1.5" />
+            )}
             <text x={x} y={y - 12} textAnchor="middle" fontSize="9" fill="currentColor">
               {stop.sequence}
             </text>
@@ -154,6 +330,21 @@ export function StopMap({
           if (!previous) return '';
           return ` · ${haversineKm(asLatLon(previous.stop), asLatLon(next.stop)).toFixed(1)} km apart (straight line, not a driving distance)`;
         })()}
+        {tiles.length > 0 && (
+          <span className="ms-2 opacity-70">
+            {' '}
+            ©{' '}
+            <a
+              href="https://www.openstreetmap.org/copyright"
+              target="_blank"
+              rel="noreferrer noopener"
+              className="underline"
+            >
+              OpenStreetMap
+            </a>{' '}
+            contributors
+          </span>
+        )}
       </figcaption>
     </figure>
   );

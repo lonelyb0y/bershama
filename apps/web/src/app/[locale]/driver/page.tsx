@@ -87,9 +87,10 @@ export default async function DriverPage({ params }: { params: Promise<{ locale:
   const facilityIds = [...new Set(stops.map((s) => s.facility_id))];
   const { data: facilityData } = await supabase
     .from('facilities')
-    .select('id, name_en, name_ar, code')
+    .select('id, name_en, name_ar, code, latitude, longitude')
     .in('id', facilityIds.length > 0 ? facilityIds : ['00000000-0000-0000-0000-000000000000']);
 
+  const facilityById = new Map((facilityData ?? []).map((f) => [f.id as string, f]));
   const facilityName = new Map(
     ((facilityData ?? []) as Array<{ id: string; name_en: string; name_ar: string | null; code: string }>).map(
       (f) => [f.id, locale === 'ar' ? (f.name_ar ?? f.name_en) : f.name_en],
@@ -108,18 +109,32 @@ export default async function DriverPage({ params }: { params: Promise<{ locale:
 
   const openStops = stops.filter((s) => s.status === 'PENDING' || s.status === 'ARRIVED');
 
-  const mapStops: MapStop[] = stops.map((s) => ({
-    id: s.id,
-    sequence: s.sequence,
-    label: facilityName.get(s.facility_id) ?? s.facility_id,
-    // Only a stop somebody actually reached has a position; the rest are unknown,
-    // and the map says so rather than plotting them at zero, zero off the coast of
-    // Ghana.
-    latitude: s.latitude ?? null,
-    longitude: s.longitude ?? null,
-    status: s.status as MapStop['status'],
-    isNext: s.id === nextStopId,
-  }));
+  const mapStops: MapStop[] = stops.map((s) => {
+    const facility = facilityById.get(s.facility_id);
+
+    // A stop somebody actually reached has a position of its own, and that is the
+    // authoritative one. A stop they have not reached has none -- so the facility's
+    // registered location is used instead, and `isPlanned` marks it.
+    //
+    // Without this the map is least useful exactly when a driver needs it: on a fresh run
+    // nothing has been visited yet, so every stop is PENDING, every position is null, and
+    // the map draws a single dot for the one stop they happen to be standing at while the
+    // two pharmacies they are about to drive to are invisible. `isPlanned` is what keeps
+    // that honest -- a hollow marker is a registered address, a filled one is a place the
+    // van actually stopped.
+    const recorded = s.latitude !== null && s.longitude !== null;
+
+    return {
+      id: s.id,
+      sequence: s.sequence,
+      label: facilityName.get(s.facility_id) ?? s.facility_id,
+      latitude: recorded ? s.latitude : (facility?.latitude ?? null),
+      longitude: recorded ? s.longitude : (facility?.longitude ?? null),
+      status: s.status as MapStop['status'],
+      isNext: s.id === nextStopId,
+      isPlanned: !recorded,
+    };
+  });
 
   return (
     <div className="space-y-4">
