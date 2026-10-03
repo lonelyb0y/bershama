@@ -3,6 +3,7 @@ import { expect, test, type Browser, type BrowserContext, type Page } from '@pla
 import { waitForHydration } from './helpers/hydration';
 
 import { signedInContext } from './helpers/session';
+import { clickSignIn } from './helpers/session';
 
 /**
  * The delivery surfaces, in a browser.
@@ -44,7 +45,7 @@ async function signIn(page: Page, email: string, locale = 'en') {
   await page.goto(`/${locale}/login`);
   await page.getByLabel(/email address/i).fill(email);
   await page.getByLabel(/password/i).fill('PharmaFlow#2026');
-  await page.getByRole('button', { name: /sign in/i }).click();
+  await clickSignIn(page);
   await page.waitForURL((url) => !url.pathname.includes('/login'));
   await waitForHydration(page);
 }

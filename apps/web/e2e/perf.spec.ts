@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { clickSignIn } from './helpers/session';
 
 /**
  * A one-off performance probe, kept in the repo because the question recurs.
@@ -40,7 +41,7 @@ test('measure every surface', async ({ page }) => {
   await page.goto('/en/login');
   await page.getByLabel(/email address/i).fill('admin@demo.local');
   await page.getByLabel(/password/i).fill(PASSWORD);
-  await page.getByRole('button', { name: /sign in/i }).click();
+  await clickSignIn(page);
   await page.waitForURL((url) => !url.pathname.includes('/login'));
 
   const rows: Array<{ name: string } & Timing & { bytes: number; nodes: number; requests: number }> = [];

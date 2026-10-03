@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { clickSignIn } from './helpers/session';
 
 /**
  * Dark mode.
@@ -17,7 +18,7 @@ async function signIn(page: Page) {
   await page.goto('/en/login');
   await page.getByLabel(/email address/i).fill('admin@demo.local');
   await page.getByLabel(/password/i).fill('PharmaFlow#2026');
-  await page.getByRole('button', { name: /sign in/i }).click();
+  await clickSignIn(page);
   await page.waitForURL('**/admin', { timeout: 20_000 });
 }
 
