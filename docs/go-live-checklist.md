@@ -73,6 +73,52 @@ scepticism. Two independent mechanisms hold:
 So an account that stops before provisioning reads nothing and sees no organisation. The
 signup page exists to close that loop, not to breach it.
 
+#### Password strength: the server setting is the one that counts
+
+`apps/web/src/lib/password.ts` enforces a real policy in the signup form -- a 12-character
+floor, a blocklist of the passwords that dominate credential-stuffing wordlists, and
+rejection of runs, keyboard walks and passwords built from the user's own email. That is the
+Free-plan stand-in for leaked-password protection, and it is genuinely useful.
+
+**It is not a security boundary.** It runs in the browser; anyone can POST straight to
+`/auth/v1/signup`. So the control that actually holds is GoTrue's own setting:
+
+> **Authentication -> Sign In / Providers -> Email -> Password Strength**
+
+Two things to change there:
+
+1. **Minimum password length: 12.** This is the floor the app assumes, enforced where a
+   client cannot reach around it.
+2. **Untick the character-class requirements.** GoTrue's defaults demand an uppercase letter,
+   a lowercase letter, a digit and a symbol. That directly contradicts this project's policy,
+   and NIST SP 800-63B recommends *against* composition rules precisely because they produce
+   guessable passwords -- `Password1!` satisfies all four and is in every breach corpus ever
+   published.
+
+Until (2) is done the two disagree, and the visible symptom is a strong passphrase being
+rejected with *"Password should contain at least one character of each"*. That was observed
+against the live project, not predicted. It is a configuration conflict, not a bug in the
+policy.
+
+#### Open registration is rate-limited on the Free plan
+
+Confirmed against the live project, and it matters for go-live planning.
+
+With email confirmation enabled, every signup sends an outbound confirmation email, and
+Supabase's default limit on the Free plan is low enough that **back-to-back signups return
+`429 email rate limit exceeded`**. Observed: the first attempt succeeded, and every subsequent
+one in the same window was refused.
+
+So a single admin inviting people one at a time is fine, and genuinely open self-serve
+registration is not usable until one of these happens:
+
+- **Upgrade to Pro**, which raises the limit substantially; or
+- **Configure custom SMTP** (already on the checklist under Email). A real provider removes
+  the Supabase-hosted quota entirely and is what makes confirmation viable at any volume.
+
+The signup form now reports a rate-limit refusal in those words rather than a generic
+failure, so this is diagnosable from the UI instead of only from the logs.
+
 #### The two Auth toggles, exactly
 
 Both live in the dashboard, neither is reachable by SQL or by the Supabase MCP, and the
