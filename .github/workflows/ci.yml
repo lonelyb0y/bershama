@@ -176,12 +176,45 @@ jobs:
 
           echo "::error::No READY preview deployment for $sha after 5 minutes." && exit 1
 
-      - name: Run the browser suite
+      # A smoke set, not the whole suite, and the reason is arithmetic rather than
+      # taste.
+      #
+      # The full suite is 66 tests that each load authenticated pages. Against a
+      # *warm* deployment that is about six minutes. Against a preview it is every
+      # first hit compiling cold, and two attempts at 20 and 35 minutes were both
+      # cancelled with the suite still running. No timeout makes that honest -- it just
+      # moves the number until someone spends twenty minutes of CI on it.
+      #
+      # So CI runs the specs that catch the failures which have actually happened, and
+      # the full suite stays a local run against production. What is here and why:
+      #
+      #   auth          every sign-in failed once because reCAPTCHA refused a missing
+      #                 token, and no other job could see it
+      #   header        the account menu crashed the whole route; nothing else noticed
+      #   theme         OS dark never reached half the tokens; contrast passed anyway
+      #   contrast      the accessibility floor, in both modes
+      #   navigation    a shipped feature reading as "planned" on every page
+      #   alerts        the M5 surface, on the day it was added
+      #   screenshots   asserts a 2xx and no error boundary, which is the only thing
+      #                 that catches a page rendering its own failure page
+      #
+      # What is left out (deliveries, catalogue writes, stocktake, navigation-heavy
+      # flows) mutates demo data and needs a reset, and is where the full local run earns
+      # its keep. Running it here on every push is what made the job unaffordable.
+      - name: Run the smoke suite
         env:
           E2E_BASE_URL: ${{ steps.preview.outputs.url }}
           E2E_BYPASS_TOKEN: ${{ secrets.VERCEL_PROTECTION_BYPASS }}
           CI: true
-        run: pnpm --filter @pharmaflow/web exec playwright test
+        run: |
+          pnpm --filter @pharmaflow/web exec playwright test \
+            e2e/auth.spec.ts \
+            e2e/header.spec.ts \
+            e2e/theme.spec.ts \
+            e2e/contrast.spec.ts \
+            e2e/navigation.spec.ts \
+            e2e/alerts.spec.ts \
+            e2e/screenshots.spec.ts
 
       - name: Upload the failure artefacts
         if: failure()
