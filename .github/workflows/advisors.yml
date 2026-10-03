@@ -1,0 +1,102 @@
+name: Database advisors
+
+# ── why this exists ──────────────────────────────────────────────────────────────
+#
+# `supabase/tests/rls_coverage.test.sql` runs in CI on every push, and it cannot see
+# platform-created database objects. `verify-db.sh` builds its cluster from our
+# migrations, so anything the Supabase platform installs itself simply is not there to be
+# asserted against.
+#
+# That gap produced a real miss. On the hosted project, `public.rls_auto_enable()` --
+# a SECURITY DEFINER function owned by postgres, created with Postgres' default
+# privileges rather than the ACL the platform gives its own event triggers -- granted
+# EXECUTE to PUBLIC, anon, authenticated and service_role. Any anonymous caller could
+# POST /rest/v1/rpc/rls_auto_enable and have it run as the superuser owner.
+#
+# It was not exploitable, because as an event-trigger function Postgres refuses a direct
+# call with 0A000 before the body runs. But nothing in this repository could have found
+# it, and a test that cannot see the object is a test that cannot catch it.
+#
+# The assertion added alongside that fix --
+#   no SECURITY DEFINER function in an exposed schema is executable by anon
+# -- closes the half we own. This workflow covers the half we do not, by asking the
+# platform directly instead of guessing at what it installed.
+#
+# ── baseline, not zero ────────────────────────────────────────────────────────────
+#
+# The advisor reports the 38 `api.*` wrappers on every run. They are the application's
+# write API: each one is SECURITY DEFINER because `private` grants no USAGE to client
+# roles, and each one authorises the caller's role and tenant internally. Demanding an
+# empty report would mean deleting the write API, so this compares against a committed
+# baseline and fails only on something NEW. That is the property worth having: the day
+# someone adds a definer function nobody reviewed, or the platform ships a new default,
+# this goes red.
+#
+# ── secrets ──────────────────────────────────────────────────────────────────────
+#
+# SUPABASE_ACCESS_TOKEN  a personal access token (Dashboard -> Account -> Tokens)
+# SUPABASE_PROJECT_REF   kswdttkwtqqlabcjsgcy
+#
+# Without them this job SKIPS with a visible notice. It deliberately does not pass
+# quietly: a green check that means "nothing was checked" is worse than no check, because
+# it reads as coverage.
+
+on:
+  schedule:
+    # 06:17 UTC daily. Deliberately not on the hour -- every scheduled GitHub Actions
+    # workflow in the world fires at :00, and the queue is measurably worse for it.
+    - cron: '17 6 * * *'
+  workflow_dispatch:
+    inputs:
+      fail_on_new:
+        description: Fail if the report contains anything outside the baseline
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  security-advisors:
+    name: Security advisors (hosted)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Require the Supabase access token
+        id: creds
+        env:
+          TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+        run: |
+          if [ -z "$TOKEN" ] || [ -z "$REF" ]; then
+            echo "::notice title=Advisors not checked::SUPABASE_ACCESS_TOKEN and/or SUPABASE_PROJECT_REF are unset, so the hosted security advisor was NOT read. This job is reporting nothing, and a green result here means exactly that."
+            echo "skipped=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "skipped=false" >> "$GITHUB_OUTPUT"
+
+      - name: Read the security advisor
+        if: steps.creds.outputs.skipped == 'false'
+        env:
+          TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+        run: |
+          set -euo pipefail
+          code=$(curl -sS -o /tmp/advisors.json -w '%{http_code}' \
+            -H "Authorization: Bearer $TOKEN" \
+            "https://api.supabase.com/v1/projects/$REF/advisors/security")
+          if [ "$code" != "200" ]; then
+            echo "::error title=Advisor request failed::HTTP $code from the Management API"
+            head -c 600 /tmp/advisors.json
+            exit 1
+          fi
+          echo "Advisor responded."
+
+      - name: Compare against the committed baseline
+        if: steps.creds.outputs.skipped == 'false'
+        run: |
+          set -euo pipefail
+          python3 scripts/check-advisors.py
