@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { getRecaptchaToken } from '@/lib/recaptcha';
 import { verifyRecaptchaTokenViaRoute } from '@/lib/recaptcha-verify';
+import { assessPassword, MIN_LENGTH } from '@/lib/password';
 
 /**
  * Self-serve signup: create the account, then create the organisation.
@@ -31,6 +32,15 @@ import { verifyRecaptchaTokenViaRoute } from '@/lib/recaptcha-verify';
  * before `signUp`, because an open registration endpoint is exactly where an automated
  * account-farming script would otherwise point.
  */
+/** Colour per score band. Not decoration: a 2-band has to look different from a 4-band. */
+const STRENGTH_COLOURS = [
+  'bg-current/10',
+  'bg-[var(--color-stock-critical)]',
+  'bg-[var(--color-warn)]',
+  'bg-[var(--color-stock-ok)]',
+  'bg-[var(--color-stock-ok)]',
+] as const;
+
 export function SignupForm({ locale }: { locale: string }) {
   const t = useTranslations('signup');
   const router = useRouter();
@@ -44,12 +54,22 @@ export function SignupForm({ locale }: { locale: string }) {
   const [awaitingEmail, setAwaitingEmail] = useState(false);
   const [isPending, setIsPending] = useState(false);
 
+  // Re-derived every keystroke rather than stored in state: it is a pure function of
+  // (password, email), and keeping one source of truth means the meter cannot disagree
+  // with the check that actually runs on submit.
+  const assessment = assessPassword(password, email);
+  const strength = password.length === 0 ? null : assessment.score;
+
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
 
-    if (password.length < 8) {
-      setError(t('passwordTooShort'));
+    // The form's own gate. A browser can be bypassed and this is not a security boundary --
+    // see lib/password.ts -- but it means nobody can *choose* a weak password by accident,
+    // and it can explain why before a generic server error does.
+    const verdict = assessPassword(password, email);
+    if (!verdict.ok) {
+      setError(verdict.problems.map((problem) => t(`password.${problem}`)).join(' '));
       return;
     }
 
@@ -79,11 +99,29 @@ export function SignupForm({ locale }: { locale: string }) {
       });
 
       if (signUpError) {
-        setError(
-          signUpError.message.toLowerCase().includes('already')
-            ? t('emailTaken')
-            : t('failed'),
-        );
+        // Supabase's own reasons, mapped rather than flattened into "try again". Every one
+        // of these is a real configuration state the person can act on or report, and
+        // "Something went wrong" is how a misconfigured project gets shipped instead of
+        // diagnosed.
+        //
+        //   "Signups not allowed for otp"  -> Allow new users to sign up is still off
+        //   rate limit / security purposes -> too many attempts from this address
+        //   already registered            -> this address has an account
+        //
+        // The raw message is logged regardless. It costs nothing and it is the difference
+        // between a five-minute diagnosis and an afternoon.
+        const reason = signUpError.message.toLowerCase();
+        console.error('[signup] supabase refused signUp:', signUpError.message);
+
+        if (reason.includes('signups not allowed') || reason.includes('signups are disabled')) {
+          setError(t('signupsDisabled'));
+        } else if (reason.includes('rate limit') || reason.includes('security purposes')) {
+          setError(t('tooManyAttempts'));
+        } else if (reason.includes('already') || reason.includes('registered')) {
+          setError(t('emailTaken'));
+        } else {
+          setError(`${t('failed')} (${signUpError.message})`);
+        }
         return;
       }
 
@@ -215,7 +253,46 @@ export function SignupForm({ locale }: { locale: string }) {
           data-testid="signup-password"
           className="mt-1 w-full rounded-lg border bg-transparent px-3 py-2 text-sm"
         />
-        <p className="mt-1 text-xs text-[color:var(--text-muted)]">{t('passwordHint')}</p>
+        <p className="mt-1 text-xs text-[color:var(--text-muted)]">
+          {t('passwordHint', { n: MIN_LENGTH })}
+        </p>
+
+        {strength !== null && (
+          <div className="mt-2" data-testid="password-strength" data-score={strength}>
+            <div
+              className="flex gap-1"
+              role="meter"
+              aria-valuenow={strength}
+              aria-valuemin={0}
+              aria-valuemax={4}
+              aria-label={t('strength')}
+            >
+              {[1, 2, 3, 4].map((step) => (
+                <span
+                  key={step}
+                  className={`h-1 flex-1 rounded-full transition-colors ${
+                    step <= strength ? STRENGTH_COLOURS[strength] : 'bg-current/10'
+                  }`}
+                />
+              ))}
+            </div>
+            <p className="mt-1.5 text-xs text-[color:var(--text-muted)]" aria-live="polite">
+              {assessment.ok ? t('passwordGood') : t(`strength.${strength}`)}
+            </p>
+
+            {/* Every outstanding problem, not just the first, so the meter never reads as
+                "not moving" the way the coverage table's single figure did. */}
+            {assessment.problems.length > 0 && (
+              <ul className="mt-1.5 space-y-0.5 text-xs text-[color:var(--color-warn)]">
+                {assessment.problems.map((problem) => (
+                  <li key={problem} data-testid={`password-problem-${problem}`}>
+                    {t(`password.${problem}`)}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
       </div>
 
       {error && (
@@ -229,7 +306,7 @@ export function SignupForm({ locale }: { locale: string }) {
 
       <button
         type="submit"
-        disabled={isPending}
+        disabled={isPending || !assessment.ok}
         data-testid="signup-submit"
         className="w-full rounded-lg bg-[var(--color-brand-600)] px-4 py-2.5 text-sm font-medium text-white disabled:opacity-60"
       >

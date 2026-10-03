@@ -67,3 +67,8 @@ package-lock.json
 # product: they are large, they change when the tool updates, and a clone of this
 # repository does not need them. Committed once by accident; ignored from here.
 .opencode/skills/
+
+# Next.js 16 writes its own agent-rules files on `next dev`. They are framework
+# output, regenerated per machine, and not this project's to carry in git.
+apps/web/AGENTS.md
+apps/web/CLAUDE.md
