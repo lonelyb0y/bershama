@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { clickSignIn } from './helpers/session';
 
 /**
  * The catalogue write path, driven through the forms.
@@ -38,7 +39,7 @@ async function signIn(page: Page, email: string) {
   await page.goto('/en/login');
   await page.getByLabel(/email address/i).fill(email);
   await page.getByLabel(/password/i).fill(PASSWORD);
-  await page.getByRole('button', { name: /sign in/i }).click();
+  await clickSignIn(page);
   await page.waitForURL((url) => !url.pathname.includes('/login'));
 }
 

@@ -1,4 +1,5 @@
 import { test, expect, devices } from '@playwright/test';
+import { clickSignIn } from './helpers/session';
 
 /**
  * Screenshots of every surface, for looking at.
@@ -60,7 +61,7 @@ for (const theme of ['light', 'dark'] as const) {
     await page.goto('/en/login');
     await page.getByLabel(/email address/i).fill('admin@demo.local');
     await page.getByLabel(/password/i).fill('PharmaFlow#2026');
-    await page.getByRole('button', { name: /sign in/i }).click();
+    await clickSignIn(page);
     await page.waitForURL('**/admin', { timeout: 20_000 });
 
     // 3. Signed in: everything behind the guard.

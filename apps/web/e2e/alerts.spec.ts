@@ -1,19 +1,15 @@
 import { test, expect } from '@playwright/test';
 
-import { waitForHydration } from './helpers/hydration';
+import { clickSignIn, signIn } from './helpers/session';
 
 /** Sign in through the UI, the way a person does, then wait for hydration. */
-async function signIn(page: import('@playwright/test').Page, email: string) {
-  await page.goto('/en/login');
-  await page.getByLabel(/email address/i).fill(email);
-  await page.getByLabel(/password/i).fill('PharmaFlow#2026');
-  await page.getByRole('button', { name: /sign in/i }).click();
-  await page.waitForURL((url) => !url.pathname.includes('/login'));
-  await waitForHydration(page);
-}
-
 test.describe('the alert centre', () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page }, testInfo) => {
+    // Signing in is a reCAPTCHA token, a password grant and a role lookup, and
+    // `/admin/alerts` is the coldest route in the application -- the first hit after a
+    // deploy compiles it. That exceeded the 30s default on production twice, with the
+    // cause three lines below this one.
+    testInfo.setTimeout(60_000);
     await signIn(page, 'admin@demo.local');
   });
 
@@ -116,7 +112,7 @@ test.describe('the alert centre', () => {
     await page.goto('/en/login');
     await page.getByLabel(/email address/i).fill('pharmacy@demo.local');
     await page.getByLabel(/password/i).fill('PharmaFlow#2026');
-    await page.getByRole('button', { name: /sign in/i }).click();
+    await clickSignIn(page);
     await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 60_000 });
 
     await page.goto('/en/admin/alerts', { waitUntil: 'domcontentloaded' });

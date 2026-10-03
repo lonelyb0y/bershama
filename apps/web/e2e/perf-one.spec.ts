@@ -1,4 +1,5 @@
 import { test } from '@playwright/test';
+import { clickSignIn } from './helpers/session';
 
 // Five samples of one surface, because a single run cannot distinguish a slow page
 // from a slow edge node, and I have already made that mistake twice.
@@ -9,7 +10,7 @@ test('sample one surface repeatedly', async ({ page }) => {
   await page.goto('/en/login');
   await page.getByLabel(/email address/i).fill('admin@demo.local');
   await page.getByLabel(/password/i).fill('PharmaFlow#2026');
-  await page.getByRole('button', { name: /sign in/i }).click();
+  await clickSignIn(page);
   await page.waitForURL((u) => !u.pathname.includes('/login'));
 
   const fcps: number[] = [];

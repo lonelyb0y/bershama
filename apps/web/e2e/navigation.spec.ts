@@ -1,5 +1,6 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
+import { ensureSignedIn } from './helpers/session';
 import { waitForHydration } from './helpers/hydration';
 
 /**
@@ -20,14 +21,6 @@ import { waitForHydration } from './helpers/hydration';
  * from every page, and asserts the resulting URL is well formed.
  */
 const DOUBLED = /\/(en|ar)\/\1(\/|$|\?)/;
-
-async function signIn(page: Page) {
-  await page.goto('/en/login');
-  await page.getByLabel(/email address/i).fill('admin@demo.local');
-  await page.getByLabel(/password/i).fill('PharmaFlow#2026');
-  await page.getByRole('button', { name: /sign in/i }).click();
-  await page.waitForURL('**/admin', { timeout: 20_000 });
-}
 
 const PAGES = [
   '/en/admin',
@@ -56,7 +49,7 @@ test.describe('navigation', () => {
       // rather than the work weakened.
       test.setTimeout(120_000);
 
-      await signIn(page);
+      await ensureSignedIn(page);
       await page.goto(from);
 
       const links = await page.locator('a[href]').evaluateAll((els) =>
@@ -99,7 +92,7 @@ test.describe('navigation', () => {
   test('the logo goes home, to the surface for the role, in both locales', async ({
     page,
   }) => {
-    await signIn(page);
+    await ensureSignedIn(page);
 
     for (const [start, expected] of [
       ['/en/admin/inventory/stocktake', '/en/admin'],
@@ -128,7 +121,7 @@ test.describe('navigation', () => {
   });
 
   test('the language switcher keeps the page, not the locale prefix', async ({ page }) => {
-    await signIn(page);
+    await ensureSignedIn(page);
     await page.goto('/en/admin/inventory/stocktake');
 
     await page.getByRole('button', { name: /العربية/ }).click();

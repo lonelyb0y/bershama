@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 
 import { waitForHydration } from './helpers/hydration';
+import { clickSignIn } from './helpers/session';
 
 /**
  * Sign-in, and the loop it caused.
@@ -32,7 +33,7 @@ async function signIn(page: Page, email: string, locale = 'en') {
 
   await page.getByLabel(/email address/i).fill(email);
   await page.getByLabel(/password/i).fill('PharmaFlow#2026');
-  await page.getByRole('button', { name: /sign in/i }).click();
+  await clickSignIn(page);
 }
 
 test.describe('the app is reachable', () => {
