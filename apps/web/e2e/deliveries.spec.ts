@@ -1,9 +1,8 @@
 import { expect, test, type Browser, type BrowserContext, type Page } from '@playwright/test';
 
-import { waitForHydration } from './helpers/hydration';
 
 import { signedInContext } from './helpers/session';
-import { clickSignIn } from './helpers/session';
+import { signIn as sharedSignIn } from './helpers/session';
 
 /**
  * The delivery surfaces, in a browser.
@@ -41,13 +40,23 @@ import { clickSignIn } from './helpers/session';
  */
 test.describe.configure({ mode: 'serial' });
 
+/**
+ * Sign in through the shared helper, so the session is cached per worker.
+ *
+ * This file had its own copy, and it was the last one still buying a fresh password
+ * grant and reCAPTCHA assessment for every test. That is what finally tripped Google's
+ * bot score: *"This sign-in looks automated, so it has been refused."* Two of the four
+ * accounts it uses land on non-admin surfaces, so the destination is asserted per role --
+ * a sign-in that resolved to the wrong surface would otherwise be reported by whichever
+ * later test tripped over it.
+ */
 async function signIn(page: Page, email: string, locale = 'en') {
-  await page.goto(`/${locale}/login`);
-  await page.getByLabel(/email address/i).fill(email);
-  await page.getByLabel(/password/i).fill('PharmaFlow#2026');
-  await clickSignIn(page);
-  await page.waitForURL((url) => !url.pathname.includes('/login'));
-  await waitForHydration(page);
+  const landsOn = {
+    'admin@demo.local': `/${locale}/admin`,
+    'driver@demo.local': `/${locale}/driver`,
+    'pharmacy@demo.local': `/${locale}/pharmacy`,
+  }[email];
+  return sharedSignIn(page, email, 'PharmaFlow#2026', landsOn);
 }
 
 /**
