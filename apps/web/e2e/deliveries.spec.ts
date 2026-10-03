@@ -1,5 +1,7 @@
 import { expect, test, type Browser, type BrowserContext, type Page } from '@playwright/test';
 
+import { waitForHydration } from './helpers/hydration';
+
 import { signedInContext } from './helpers/session';
 
 /**
@@ -44,7 +46,7 @@ async function signIn(page: Page, email: string, locale = 'en') {
   await page.getByLabel(/password/i).fill('PharmaFlow#2026');
   await page.getByRole('button', { name: /sign in/i }).click();
   await page.waitForURL((url) => !url.pathname.includes('/login'));
-  await page.waitForLoadState('networkidle');
+  await waitForHydration(page);
 }
 
 /**

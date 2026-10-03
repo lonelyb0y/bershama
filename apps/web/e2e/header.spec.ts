@@ -1,5 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 
+import { waitForHydration } from './helpers/hydration';
+
 import { signedInContext } from './helpers/session';
 
 /**
@@ -64,7 +66,7 @@ async function openAt(browser: import('@playwright/test').Browser, width: number
   // Hydration, before anything is clicked. A redirect resolves while React is still
   // attaching listeners, so a click straight after lands on markup with no handler on
   // it and is silently dropped -- which looks like a dead button.
-  await page.waitForLoadState('networkidle');
+  await waitForHydration(page);
   return page;
 }
 

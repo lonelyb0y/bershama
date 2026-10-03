@@ -20,6 +20,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      ack_alert: {
+        Args: { p_alert_id: string; p_note?: string }
+        Returns: Database["public"]["Tables"]["alert_events"]["Row"]
+        SetofOptions: {
+          from: "*"
+          to: "alert_events"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       add_requisition_line: {
         Args: {
           p_product_id: string
@@ -336,6 +346,23 @@ export type Database = {
         Returns: {
           proofs_removed: number
           stops_reset: number
+        }[]
+      }
+      resolve_alert: {
+        Args: { p_alert_id: string; p_note?: string }
+        Returns: Database["public"]["Tables"]["alert_events"]["Row"]
+        SetofOptions: {
+          from: "*"
+          to: "alert_events"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      run_alert_scan: {
+        Args: never
+        Returns: {
+          raised: number
+          skipped: number
         }[]
       }
       search_products: {

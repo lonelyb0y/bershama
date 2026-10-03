@@ -1,5 +1,7 @@
 import type { BrowserContext, Page } from '@playwright/test';
 
+import { waitForHydration } from './hydration';
+
 /** Playwright's storageState shape; named here so the cache has a type. */
 type StorageState = Awaited<ReturnType<BrowserContext['storageState']>>;
 
@@ -52,7 +54,7 @@ async function signInOnce(
     await page.getByRole('button', { name: /sign in/i }).click();
     await page.waitForURL('**/admin', { timeout: 30_000 });
     // Hydration, or the first click in a test lands on markup with no handler on it.
-    await page.waitForLoadState('networkidle');
+    await waitForHydration(page);
 
     // Never cache a session that has not actually landed. A sign-in that resolved the
     // URL but never finished mounting would otherwise be handed to every later test in
@@ -105,5 +107,5 @@ export async function signIn(
   await page.getByLabel(/password/i).fill(password);
   await page.getByRole('button', { name: /sign in/i }).click();
   await page.waitForURL('**/admin', { timeout: 30_000 });
-  await page.waitForLoadState('networkidle');
+  await waitForHydration(page);
 }

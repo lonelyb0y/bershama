@@ -1,5 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 
+import { waitForHydration } from './helpers/hydration';
+
 /**
  * No URL ever contains a doubled locale.
  *
@@ -74,7 +76,7 @@ test.describe('navigation', () => {
 
         await link.click();
         await page.waitForLoadState('domcontentloaded');
-        await page.waitForLoadState('networkidle').catch(() => {});
+        await waitForHydration(page);
 
         const landed = new URL(page.url());
         expect(

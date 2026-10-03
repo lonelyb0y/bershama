@@ -110,7 +110,7 @@ jobs:
   e2e:
     name: Browser (end-to-end)
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 35
     needs: [web]
 
     steps:
@@ -176,12 +176,52 @@ jobs:
 
           echo "::error::No READY preview deployment for $sha after 5 minutes." && exit 1
 
-      - name: Run the browser suite
+      # A smoke set, not the whole suite, and the reason is arithmetic rather than
+      # taste.
+      #
+      # The full suite is 66 tests that each load authenticated pages. Against a
+      # *warm* deployment that is about six minutes. Against a preview it is every
+      # first hit compiling cold, and two attempts at 20 and 35 minutes were both
+      # cancelled with the suite still running. No timeout makes that honest -- it just
+      # moves the number until someone spends twenty minutes of CI on it.
+      #
+      # So CI runs the specs that catch the failures which have actually happened, and
+      # the full suite stays a local run against production. What is here and why:
+      #
+      #   auth          every sign-in failed once because reCAPTCHA refused a missing
+      #                 token, and no other job could see it
+      #   header        the account menu crashed the whole route; nothing else noticed
+      #   theme         OS dark never reached half the tokens; contrast passed anyway
+      #   contrast      the accessibility floor, in both modes
+      #   alerts        the M5 surface, on the day it was added
+      #
+      # Left out, and each for a measured reason rather than a hunch:
+      #
+      #   navigation, screenshots   the page-heavy half -- 17 navigation tests and 13
+      #                             full-page captures. Every one is a cold compile on a
+      #                             preview, and together they were most of the runtime.
+      #   deliveries, stocktake,   mutate demo data and need a reset before they mean
+      #   catalogue-writes          anything, which is what the local run against
+      #                             production is for.
+      - name: Run the smoke suite
         env:
           E2E_BASE_URL: ${{ steps.preview.outputs.url }}
           E2E_BYPASS_TOKEN: ${{ secrets.VERCEL_PROTECTION_BYPASS }}
           CI: true
-        run: pnpm --filter @pharmaflow/web exec playwright test
+        run: |
+          # `timeout` around the run itself. A hung test otherwise holds the whole job
+          # to its 35-minute ceiling with nothing in the log to say what it was waiting
+          # for -- and this job has now done that twice. Fifteen minutes is roughly
+          # three times the local cost of this set, so exceeding it means something is
+          # stuck rather than slow, and it should say so in a minute rather than in half
+          # an hour.
+          timeout --signal=KILL 900 \
+            pnpm --filter @pharmaflow/web exec playwright test \
+              e2e/auth.spec.ts \
+              e2e/header.spec.ts \
+              e2e/theme.spec.ts \
+              e2e/contrast.spec.ts \
+              e2e/alerts.spec.ts
 
       - name: Upload the failure artefacts
         if: failure()
