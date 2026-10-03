@@ -7,7 +7,7 @@ tracking, and an audit trail that survives an auditor.
 Built for an operator in Egypt: bilingual English/Arabic with full RTL, EGP
 denominated, WHO GDP-aligned batch traceability.
 
-**Status: M0-M4 complete, M5 partially (alert centre, dashboards and analytics shipped; reorder policies and snapshots not started).** The
+**Status: M0-M4 complete, M5 partially (alert centre, dashboards, analytics and self-serve signup shipped; reorder policies and snapshots not started).** The
 catalogue, batches and append-only stock ledger are built and tested. The CRUD
 screens, requisitions and delivery tracking are not. See [Roadmap](#roadmap).
 

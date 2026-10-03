@@ -349,6 +349,16 @@ select is_empty(
         -- being in the allow-list is what makes adding it loudly unavoidable. It has
         -- EXECUTE for the service role only; a client that reaches it is refused.
         'reset_demo_run',
+        -- api.provision_tenant earns its place for the same reason and under the same
+        -- pressure. Self-serve signup means an unauthenticated stranger can reach the
+        -- door, and this is the function behind it. Two properties keep it from being a
+        -- "create any tenant, any time" endpoint: the caller must have no existing
+        -- profile, so it is spent after one success and a loop cannot manufacture
+        -- tenants; and it writes only its own organisation, taking tenant_id from a fresh
+        -- uuid and role from a constant rather than from the request. Adding it here is
+        -- the moment to notice it existed -- which is what just happened, when the suite
+        -- failed on it rather than letting it through unnoticed.
+        'provision_tenant',
         -- M5: the alert centre. All three mutate `alert_events`, whose bookkeeping
         -- columns (acknowledged_by, resolved_at, occurrences) have to move together,
         -- and whose partial unique index means a client writing them directly could
