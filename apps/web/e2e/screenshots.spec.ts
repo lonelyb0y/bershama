@@ -47,7 +47,11 @@ for (const theme of ['light', 'dark'] as const) {
       await page.goto(p.path);
       await page.evaluate((t) => localStorage.setItem('pharmaflow:theme', t), theme);
       await page.reload();
-      await page.waitForLoadState('networkidle').catch(() => {});
+      // `domcontentloaded` rather than hydration: this file only captures and asserts a
+      // 2xx, and the authenticated pages are server-rendered, so the pixels are correct
+      // before React attaches anything. Waiting for hydration here timed out on the
+      // signed-out login pages, which have no header.
+      await page.waitForLoadState('domcontentloaded');
       await page.screenshot({ path: `${SHOTS}/${p.name}-${theme}.png`, fullPage: true });
       console.log(`  ${p.name}-${theme} -> ${page.url()}`);
     }
@@ -63,7 +67,6 @@ for (const theme of ['light', 'dark'] as const) {
     for (const p of APP_PAGES) {
 await page.evaluate((t) => localStorage.setItem('pharmaflow:theme', t), theme);
         const res = await page.goto(p.path);
-        await page.waitForLoadState('networkidle').catch(() => {});
         const cls = await page.evaluate(() => document.documentElement.className);
 
         // Assert the page rendered *before* capturing it.

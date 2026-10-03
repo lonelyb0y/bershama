@@ -145,8 +145,20 @@ for (const scheme of ['light', 'dark'] as const) {
     await page.emulateMedia({ colorScheme: scheme });
     await page.goto('/en/login');
     await page.evaluate((s) => localStorage.setItem('pharmaflow:theme', s), scheme);
+    // The reload is what applies it: the stored preference is read by ThemeInit on
+    // hydration, so setting localStorage without reloading leaves the page on the OS
+    // default. Removing this line by accident measured light tokens under a dark OS and
+    // reported four pairs failing that pass.
     await page.goto('/en/login');
-    await page.waitForLoadState('networkidle').catch(() => {});
+
+    // Wait for the theme class rather than for the network or for a header: this is the
+    // login page, so there is no authenticated shell to wait for, and the class *is*
+    // the thing being measured.
+    await page.waitForFunction(
+      (want) => document.documentElement.classList.contains(want),
+      scheme,
+      { timeout: 30_000 },
+    );
 
     // The tuple annotation matters: without it TypeScript widens the pair to
     // (string | Record<string, Pair>)[] and `eval(fn)` stops typechecking,

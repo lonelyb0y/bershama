@@ -1,5 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 
+import { waitForHydration } from './helpers/hydration';
+
 /**
  * Sign-in, and the loop it caused.
  *
@@ -109,7 +111,7 @@ test.describe('signing in', () => {
     await signIn(page, 'admin@demo.local');
     await page.waitForURL('**/admin', { timeout: 20_000 });
     // Hydration, or the click lands on markup with no handler on it yet.
-    await page.waitForLoadState('networkidle');
+    await waitForHydration(page);
 
     // Sign-out moved into the account menu when the header was rebuilt, so the old
     // one-line version of this test was clicking a button that no longer exists in the

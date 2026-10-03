@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 
+import { waitForHydration } from './helpers/hydration';
+
 /** Sign in through the UI, the way a person does, then wait for hydration. */
 async function signIn(page: import('@playwright/test').Page, email: string) {
   await page.goto('/en/login');
@@ -7,7 +9,7 @@ async function signIn(page: import('@playwright/test').Page, email: string) {
   await page.getByLabel(/password/i).fill('PharmaFlow#2026');
   await page.getByRole('button', { name: /sign in/i }).click();
   await page.waitForURL((url) => !url.pathname.includes('/login'));
-  await page.waitForLoadState('networkidle');
+  await waitForHydration(page);
 }
 
 test.describe('the alert centre', () => {
@@ -106,10 +108,18 @@ test.describe('the alert centre', () => {
     // button returns 403.
     const context = await browser.newContext({ locale: 'en-GB' });
     const page = await context.newPage();
-    await signIn(page, 'pharmacy@demo.local');
 
-    await page.goto('/en/admin/alerts');
-    await page.waitForLoadState('networkidle');
+    // Not the shared `signIn`: that waits for the authenticated header, and a pharmacy
+    // account is deliberately kept off the admin surface -- so the thing being asserted
+    // here is precisely that it never gets one. Wait for the session to resolve and
+    // land wherever it lands.
+    await page.goto('/en/login');
+    await page.getByLabel(/email address/i).fill('pharmacy@demo.local');
+    await page.getByLabel(/password/i).fill('PharmaFlow#2026');
+    await page.getByRole('button', { name: /sign in/i }).click();
+    await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 60_000 });
+
+    await page.goto('/en/admin/alerts', { waitUntil: 'domcontentloaded' });
 
     // `notFound()` rather than a redirect, deliberately: a user who guesses /admin
     // should not learn that the path exists. So the URL is unchanged and the assertion
