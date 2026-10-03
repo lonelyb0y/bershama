@@ -31,19 +31,15 @@ select plan(17);
 
 -- ── harness ───────────────────────────────────────────────────────────────────
 --
--- `set local request.jwt.claim.sub` rather than the JSON `request.jwt.claims` blob,
--- because that is what every other suite in this repository uses and auth.uid() reads
--- both. One way to impersonate a user here, not three.
+-- Impersonation is a plain `set local request.jwt.claim.sub = '<uuid>'`, which is what
+-- movements.test.sql and delivery.test.sql do and what auth.uid() reads. One way to
+-- impersonate a user in this repository, not three.
+--
+-- It is deliberately NOT a `select some_function(...)`: check-assertions.py reads a bare
+-- select of an unknown function as a pgTAP assertion, and it is right to -- a harness call
+-- is not one. That check exists because a suite can pass against the shim and fail against
+-- real pgTAP, and it caught this.
 
-create or replace function pg_temp.impersonate(p_sub uuid)
-returns void language sql as $$
-  select set_config('request.jwt.claim.sub', p_sub::text, true)::text
-$$;
-
--- Calls the function and then reads back what it wrote, as two statements so the read
--- gets a fresh snapshot (see the header). Returns 'ok' or a description of the
--- divergence, so a failure tells you what the two values actually were rather than just
--- that they differed.
 create or replace function pg_temp.provision_and_capture(
   p_org     text,
   p_name    text,
@@ -83,7 +79,7 @@ end $$;
 
 insert into auth.users (id, email, email_confirmed_at)
 values ('33333333-0000-4000-8000-0000000000a1', 'founder@signup.test', now());
-select pg_temp.impersonate('33333333-0000-4000-8000-0000000000a1');
+set local request.jwt.claim.sub = '33333333-0000-4000-8000-0000000000a1';
 
 select is(
   pg_temp.provision_and_capture(
@@ -159,7 +155,7 @@ select is_empty(
 
 insert into auth.users (id, email, email_confirmed_at)
 values ('33333333-0000-4000-8000-0000000000a2', 'shorty@signup.test', now());
-select pg_temp.impersonate('33333333-0000-4000-8000-0000000000a2');
+set local request.jwt.claim.sub = '33333333-0000-4000-8000-0000000000a2';
 
 select throws_ok(
   $$select api.provision_tenant('X', 'Too Short', 'EG', 'Africa/Cairo')$$,
@@ -195,7 +191,7 @@ select is_empty(
 
 insert into auth.users (id, email, email_confirmed_at)
 values ('33333333-0000-4000-8000-0000000000a3', 'arabic@signup.test', now());
-select pg_temp.impersonate('33333333-0000-4000-8000-0000000000a3');
+set local request.jwt.claim.sub = '33333333-0000-4000-8000-0000000000a3';
 
 select is(
   pg_temp.provision_and_capture(
@@ -218,7 +214,7 @@ select ok(
 
 insert into auth.users (id, email, email_confirmed_at)
 values ('33333333-0000-4000-8000-0000000000a4', 'dup1@signup.test', now());
-select pg_temp.impersonate('33333333-0000-4000-8000-0000000000a4');
+set local request.jwt.claim.sub = '33333333-0000-4000-8000-0000000000a4';
 select is(
   pg_temp.provision_and_capture('City Pharmacy', 'One', 'EG', 'Africa/Cairo',
                                 '33333333-0000-4000-8000-0000000000a4'),
@@ -226,7 +222,7 @@ select is(
 
 insert into auth.users (id, email, email_confirmed_at)
 values ('33333333-0000-4000-8000-0000000000a5', 'dup2@signup.test', now());
-select pg_temp.impersonate('33333333-0000-4000-8000-0000000000a5');
+set local request.jwt.claim.sub = '33333333-0000-4000-8000-0000000000a5';
 select is(
   pg_temp.provision_and_capture('City Pharmacy', 'Two', 'EG', 'Africa/Cairo',
                                 '33333333-0000-4000-8000-0000000000a5'),

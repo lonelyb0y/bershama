@@ -281,6 +281,15 @@ export type Database = {
         }
         Returns: number
       }
+      provision_tenant: {
+        Args: {
+          p_country_code?: string
+          p_full_name: string
+          p_org_name: string
+          p_timezone?: string
+        }
+        Returns: string
+      }
       quarantine_batch: {
         Args: { p_batch_id: string; p_reason: string }
         Returns: Database["public"]["Tables"]["batches"]["Row"]
