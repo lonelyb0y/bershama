@@ -98,6 +98,14 @@ export default async function ProductsPage({
         editing={editing ?? null}
         labels={{
           titleNew: t('form.newTitle'),
+          register: {
+            title: t('form.register.title'),
+            placeholder: t('form.register.placeholder'),
+            searching: t('form.register.searching'),
+            noResults: t('form.register.noResults'),
+            use: t('form.register.use'),
+            provenance: t('form.register.provenance'),
+          },
           titleEdit: t('form.editTitle'),
           sku: t('form.sku'),
           nameEn: t('form.nameEn'),
@@ -182,7 +190,11 @@ export default async function ProductsPage({
       ) : (
         <ul className="divide-y rounded-xl border">
           {products.map((p) => (
-            <li key={p.id} className="flex flex-wrap items-center gap-x-4 gap-y-2 p-4">
+            <li
+                  key={p.id}
+                  data-testid="product-row"
+                  className="flex flex-wrap items-center gap-x-4 gap-y-2 p-4"
+                >
               <div className="min-w-0 flex-1">
                 <p className="font-medium">
                   {locale === 'ar' ? p.nameAr : p.nameEn}
