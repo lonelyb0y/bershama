@@ -3,6 +3,7 @@ import Link from 'next/link';
 
 import { getSession } from '@/lib/session';
 import { timeAgo } from '@/lib/format';
+import { formatMoney } from '@/lib/format';
 import { asRows, toAuditLogEntry, type AuditLogRow } from '@/lib/mappers';
 import { getSupabase } from '@/lib/supabase/server';
 import { describeAction, labelEntities, translateEntityType } from '@/lib/audit-labels';
@@ -44,16 +45,6 @@ function parseWindow(raw: string | undefined): Window {
   return (WINDOWS as readonly number[]).includes(parsed) ? (parsed as Window) : 90;
 }
 
-/** Money, in piastres -> a compact string. Never a float (ADR 0004). */
-function money(minor: number, locale: Locale, compact = false): string {
-  const value = minor / 100;
-  return new Intl.NumberFormat(locale === 'ar' ? 'ar-EG' : 'en-GB', {
-    style: 'currency',
-    currency: 'EGP',
-    maximumFractionDigits: compact ? 0 : 2,
-    notation: compact ? 'compact' : 'standard',
-  }).format(value);
-}
 
 /**
  * One stat card.
@@ -403,7 +394,7 @@ export default async function AdminDashboard({
       // was set before a cost rose -- and the chart scales from zero, so it draws
       // downward rather than quietly showing a loss as no loss.
       value: margin,
-      display: money(margin, locale, true),
+      display: formatMoney(margin, { locale, compact: true }),
     };
   });
 
@@ -466,13 +457,13 @@ export default async function AdminDashboard({
           <section data-reveal aria-label={t('figures')} className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <StatCard
               label={t('capital')}
-              value={money(capitalMinor, locale, true)}
+              value={formatMoney(capitalMinor, { locale, compact: true })}
               hint={t('capitalHint')}
               tone="neutral"
             />
             <StatCard
               label={t('marginOnStock')}
-              value={money(marginMinor, locale, true)}
+              value={formatMoney(marginMinor, { locale, compact: true })}
               hint={priced.length > 0 ? t('marginHint', { pct: percentFormat.format(marginMinor / Math.max(1, retailMinor)) }) : t('noPricesYet')}
               tone={marginMinor >= 0 ? 'good' : 'bad'}
             />
@@ -508,11 +499,11 @@ export default async function AdminDashboard({
                 </Link>
               </div>
 
-              <p className="pf-hero__value mt-4">{money(totalDeliveredMargin, locale, true)}</p>
+              <p className="pf-hero__value mt-4">{formatMoney(totalDeliveredMargin, { locale, compact: true })}</p>
               <p className="mt-1 text-xs opacity-80">
                 {t('deliveredValueAndCost', {
-                  value: money(realisedRevenueMinor, locale, true),
-                  cost: money(realisedCostMinor, locale, true),
+                  value: formatMoney(realisedRevenueMinor, { locale, compact: true }),
+                  cost: formatMoney(realisedCostMinor, { locale, compact: true }),
                 })}
               </p>
 
@@ -580,7 +571,7 @@ export default async function AdminDashboard({
                         // Not clamped: a product delivered below cost is negative, and
                         // showing it as zero would rank a loss alongside a break-even.
                         value: row.margin,
-                        display: money(row.margin, locale, true),
+                        display: formatMoney(row.margin, { locale, compact: true }),
                       }))}
                     />
                   </div>

@@ -50,15 +50,21 @@ export function toMinor(amount: number, currency: CurrencyCode = 'EGP'): Minor {
  */
 export function formatMoney(
   amount: Minor,
-  options: { currency?: CurrencyCode; locale?: 'en' | 'ar' } = {},
+  // `compact` drops the minor units and shortens the magnitude, for headline figures and
+  // chart axes where piastres are noise. It is opt-in per call rather than a mode,
+  // because the two are not interchangeable: an inventory valuation that reads
+  // "E£19K" has lost the precision someone is reconciling against.
+  options: { currency?: CurrencyCode; locale?: 'en' | 'ar'; compact?: boolean } = {},
 ): string {
-  const { currency = 'EGP', locale = 'en' } = options;
+  const { currency = 'EGP', locale = 'en', compact = false } = options;
+  const decimals = CURRENCY_DECIMALS[currency] ?? 2;
 
   return new Intl.NumberFormat(`${LOCALE_TAGS[locale]}-u-nu-latn`, {
     style: 'currency',
     currency,
-    minimumFractionDigits: CURRENCY_DECIMALS[currency] ?? 2,
-    maximumFractionDigits: CURRENCY_DECIMALS[currency] ?? 2,
+    minimumFractionDigits: compact ? 0 : decimals,
+    maximumFractionDigits: compact ? 0 : decimals,
+    notation: compact ? 'compact' : 'standard',
   }).format(toMajor(amount, currency));
 }
 

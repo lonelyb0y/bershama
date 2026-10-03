@@ -278,7 +278,7 @@ path is an audited `api.*` function.
 |---|---|
 | `requisitions`, `requisition_lines`, `allocations` | M3 — FEFO allocation |
 | `trips`, `stops`, `tracking_pings`, `proof_of_delivery`, `delivery_events` | M4 — delivery |
-| `reorder_policies` | M5 — not built; the alert scan uses days of cover from `tenants.settings` instead |
+| `reorder_policies` | M5 — not built; the alert scan and the analytics page both use days of cover from the ledger and `tenants.settings` instead |
 | `stock_daily_snapshots` | M5 — not built; the dashboard aggregates live over a 90-day ledger window |
 | `cold_chain_readings` | M5 — not built |
 | `batch_serials` | v2 — `products.is_serialised` is already declared and inert |
