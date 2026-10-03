@@ -505,5 +505,39 @@
     "unitsHeld": "{n} units held",
     "noStock": "No stock on hand.",
     "footnote": "Valued at batch cost. Cover extrapolates the last 30 days of issues linearly, so it is a prompt to reorder rather than a forecast."
+  },
+  "signup": {
+    "title": "Create your organisation",
+    "subtitle": "You will be its administrator. You can invite colleagues afterwards.",
+    "organisation": "Organisation name",
+    "fullName": "Your name",
+    "email": "Work email",
+    "password": "Password",
+    "passwordHint": "At least 8 characters.",
+    "submit": "Create organisation",
+    "working": "Creating…",
+    "haveAccount": "Already have an account?",
+    "signIn": "Sign in",
+    "checkEmailTitle": "Check your email",
+    "checkEmailBody": "We sent a confirmation link to {email}. Click it, sign in, and you will finish setting up here.",
+    "checkEmailHint": "Nothing arriving? Check spam, or sign in with the address you just used — your account already exists.",
+    "backToSignIn": "Back to sign in",
+    "passwordTooShort": "Your password needs at least 8 characters.",
+    "emailTaken": "An account already exists for that email. Sign in instead.",
+    "failed": "Could not create the account. Try again.",
+    "provisionFailed": "Your account exists, but the organisation could not be created. Try again — you will not lose the account.",
+    "recaptchaBlocked": "This looks automated. If that is wrong, contact an administrator.",
+    "recaptchaChallenge": "Please try again in a moment."
+  },
+  "setup": {
+    "title": "Finish setting up",
+    "subtitle": "Your account is ready. One more step and you can start using it.",
+    "organisation": "Organisation name",
+    "organisationHint": "Taken from your sign-up. Change it now if you got it wrong.",
+    "fullName": "Your name",
+    "submit": "Create organisation",
+    "working": "Creating…",
+    "provisionFailed": "Could not create the organisation. Try again.",
+    "footnote": "You become the administrator of this organisation, and can invite colleagues once it exists."
   }
 }

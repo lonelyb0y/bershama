@@ -49,6 +49,30 @@ Owner: ____________  Date: ____________  Reviewed by: ____________
       accepted with a reason. Re-run it after every deploy -- see the note below on why
       CI cannot do this for you.
 
+#### Self-serve signup is off until two toggles are flipped
+
+`api.provision_tenant()` and the `/signup` and `/setup` pages are built and deployed, but
+nothing can use them until Supabase's **Allow new users to sign up** is enabled.
+
+> **Enable "Confirm email" at the same time.** Sign-ups without confirmation accept
+> addresses nobody controls, and password reset goes nowhere for an unconfirmed account.
+> The three seeded demo users all have `email_confirmed_at` set, so turning it on does not
+> lock them out. With confirmation on, `signUp()` returns no session and the flow
+> deliberately routes the new user to `/setup` to finish.
+
+Turning on sign-ups does **not** expose anything, and that is worth being explicit about
+during review, because "let anyone register" is the kind of change that should meet
+scepticism. Two independent mechanisms hold:
+
+- `private.current_tenant_id()` returns NULL for a user with no `profiles` row, and every
+  RLS policy compares `tenant_id` against it. NULL fails every comparison, so every policy
+  denies.
+- `api.whoami()` returns zero rows for a profileless user, so `getSession()` returns null
+  and every authenticated route redirects to `/login`.
+
+So an account that stops before provisioning reads nothing and sees no organisation. The
+signup page exists to close that loop, not to breach it.
+
 #### The two Auth toggles, exactly
 
 Both live in the dashboard, neither is reachable by SQL or by the Supabase MCP, and the
