@@ -35,6 +35,18 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   testDir: './e2e',
+
+  // Manual-only, and deliberately outside the default run.
+  //
+  // A `zz-` prefix does not exclude anything -- Playwright globs every file under testDir,
+  // so this spec was picked up by `pnpm exec playwright test` and by CI. It creates real
+  // auth users and real tenants on the shared project, which is not something a green
+  // pipeline should ever do on its own.
+  //
+  // It is here rather than deleted because the signup path cannot be verified any other way:
+  // it needs sign-ups enabled, a unique address per run, and an email click. Run it by hand
+  // with E2E_BASE_URL pointed at the deployment you mean to test.
+  testIgnore: ['**/zz-signup-live.spec.ts'],
   fullyParallel: true,
 
   // Two workers, not Playwright's CPU/2 default.
