@@ -16,7 +16,7 @@
 
 import { createServerClient } from '@supabase/ssr';
 import { API_DB_OPTION } from './api-schema';
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 import type { Database } from '../database.types';
 
@@ -133,49 +133,22 @@ export const getSupabaseApi = cache(
 // SECURITY: bypasses tenant isolation. Never accept request input here. Never
 // import this from a file that handles user-supplied data without an explicit
 // tenant_id filter that you have verified.
-
-export function createSupabaseAdminClient(): SupabaseClient<Db> {
-  return createClient(
-    requireEnv('NEXT_PUBLIC_SUPABASE_URL'),
-    requireEnv('SUPABASE_SECRET_KEY'),
-    {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
-      },
-    },
-  );
-}
-
-/**
- * Admin client, addressed at the `api` schema.
- *
- * supabase-js only exposes `public` functions on the default client, so an `api.*`
- * function is not callable through `createSupabaseAdminClient()` -- the name is not in
- * the union, and the error names the schema rather than the function. That is the same
- * trap as the grants: the callable surface is the schema PostgREST exposes, not the
- * privilege.
- *
- * SECURITY: identical to the admin client above -- BYPASSRLS, service role. Every
- * caller must filter by tenant explicitly. Used here for `api.reset_demo_run()`, whose
- * own body hard-codes the demo tenant.
- */
-export function createSupabaseAdminApiClient(): SupabaseClient<Db, 'api', 'api'> {
-  return createClient<Db, 'api', 'api'>(
-    requireEnv('NEXT_PUBLIC_SUPABASE_URL'),
-    requireEnv('SUPABASE_SECRET_KEY'),
-    {
-      // Not optional. The type parameters above are erased at runtime, so without
-      // `db` the request goes to PostgREST's default schema and every call fails with
-      // PGRST202 "searched for the function public.<name>" -- including `whoami`,
-      // which the app itself calls successfully. The schema name in the error is a
-      // PostgREST quirk worth knowing: it names the schema it searched, not the one
-      // your function is in, and it sends you looking in the wrong place.
-      db: API_DB_OPTION,
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
-      },
-    },
-  );
-}
+//
+// ── why there is no client here ───────────────────────────────────────────────
+//
+// There were two: one for `public`, one for the `api` schema. Neither has a caller.
+//
+// The api-schema one existed for `POST /api/demo/rearm`, and it was wrong. A call
+// through it saw a null `current_app_role()` -- "this is the service role, allow it" --
+// so the route had to re-implement the warehouse-manager check itself while the
+// function's own gate sat bypassed behind it. That route now calls `getSupabaseApi()`
+// as the signed-in caller, which is both stronger and how every other write already
+// works.
+//
+// The `public` one has never had a caller.
+//
+// So `SUPABASE_SECRET_KEY` is now required by nothing, and neither deployment sets it.
+// That is the right shape: a credential that no code path can reach is one credential
+// fewer to leak, rotate and get wrong. If a future surface genuinely needs to bypass
+// RLS, that is a design conversation -- not something to re-add here on the assumption
+// that it might be useful.
