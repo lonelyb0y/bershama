@@ -46,7 +46,53 @@ Owner: ____________  Date: ____________  Reviewed by: ____________
 - [ ] **Network restrictions configured.**
 - [ ] **Email confirmations enabled.**
 - [ ] **Security Advisor findings reviewed**, each one either fixed or consciously
-      accepted with a reason.
+      accepted with a reason. Re-run it after every deploy -- see the note below on why
+      CI cannot do this for you.
+
+#### The two Auth toggles, exactly
+
+Both live in the dashboard, neither is reachable by SQL or by the Supabase MCP, and the
+paths move between dashboard versions. As of this writing:
+
+**Leaked password protection** -- Project Settings -> Authentication -> *Email*
+provider settings -> **"Prevent use of leaked passwords"**. It sits partway down the same
+page as the User Signups toggles, not in that block.
+
+> **Requires the Pro plan.** On Free the toggle is absent and the advisor finding cannot
+> be cleared -- it is not a setting you can leave off. Either upgrade, or record the
+> finding as consciously accepted with "free plan" as the reason, which is what the item
+> above asks for.
+
+The toggle changes nothing for the seeded demo users: it only rejects a password that
+matches one in HaveIBeenPwned, and `PharmaFlow#2026` is not one.
+
+**Multi-factor authentication** -- Project Settings -> Authentication -> **MFA** ->
+enable the **TOTP** factor. Leave phone and WebAuthn off unless the deployment needs
+them; TOTP alone is what clears the `auth_insufficient_mfa_options` advisor finding and it
+works with any authenticator app.
+
+Enabling the factor is the dashboard's job. *Requiring* it per role is this application's
+job and is a separate, still-open item: the `aal` restrictive policy above is written but
+nothing turns it on for `TENANT_ADMIN` yet.
+
+#### Why the Advisor is a human step and not a CI gate
+
+The advisor sees two populations of database objects. Ours are covered by
+`supabase/tests/rls_coverage.test.sql` on every push -- and as of this writing that suite
+also asserts that no SECURITY DEFINER function in an exposed schema is executable by
+`anon`, which is the general form of the `rls_auto_enable` finding.
+
+The platform's are not covered by anything, and cannot be: `verify-db.sh` builds its
+cluster from our migrations, so platform objects do not exist in it to be asserted
+against. This is not theoretical. `public.rls_auto_enable()` was a postgres-owned definer
+reachable by `anon`, it existed only on hosted, and no test here could ever have seen it.
+It was found by reading the advisor.
+
+`.github/workflows/advisors.yml` closes that as far as it honestly can: it runs the
+advisor against the project on a schedule and on demand, and fails on any finding not in
+the committed baseline. It needs `SUPABASE_ACCESS_TOKEN` and `SUPABASE_PROJECT_REF` as
+repository secrets, and it skips with a visible notice rather than passing quietly
+without them.
 - [ ] **Rate limits reviewed** against expected traffic.
 - [ ] **Rotated any key** that was ever pasted into chat, a commit, or a
       screenshot.

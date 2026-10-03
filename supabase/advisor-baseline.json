@@ -1,0 +1,70 @@
+{
+  "$comment": [
+    "Consciously accepted findings from the Supabase security advisor, and how many of",
+    "each are tolerated. Checked by .github/workflows/advisors.yml on a schedule and via",
+    "workflow_dispatch; compared by scripts/check-advisors.py.",
+    "",
+    "A lint name absent from here, or a count above max_count, fails the job. Accepting",
+    "a finding means editing this file with a reason, which is the point -- it should be",
+    "a reviewed artefact rather than a suppression list nobody reads.",
+    "",
+    "To regenerate after an intentional change: run the advisor, then update max_count to",
+    "the observed number. Do not paste the numbers in without reading what they are."
+  ],
+  "reviewed_on": "2026-10-03",
+  "project_ref": "kswdttkwtqqlabcjsgcy",
+  "accepted": {
+    "authenticated_security_definer_function_executable": {
+      "max_count": 38,
+      "why": [
+        "These are the api.* write wrappers, and being SECURITY DEFINER is the design.",
+        "`private` carries no USAGE grant to client roles, so an INVOKER wrapper cannot",
+        "reach the privileged code it needs; the wrapper IS the security boundary, and it",
+        "is only safe because each one authorises the caller's role and scopes itself to",
+        "the caller's tenant.",
+        "",
+        "The per-function allow-list is enforced structurally by",
+        "supabase/tests/rls_coverage.test.sql ('only the allow-listed wrappers in the api",
+        "schema are SECURITY DEFINER'), which runs in CI on every push and is fail-closed.",
+        "So this count is a tripwire for a function added outside that allow-list, not a",
+        "blanket acceptance.",
+        "",
+        "Note the asymmetry, which is deliberate: no SECURITY DEFINER function in an",
+        "exposed schema may be executable by `anon`. There is no legitimate reason for any",
+        "of them to answer a request with no session. The platform's own",
+        "public.rls_auto_enable() violated exactly that and was fixed in migration",
+        "20260101000066."
+      ]
+    },
+    "auth_leaked_password_protection": {
+      "max_count": 1,
+      "why": [
+        "Genuinely not fixed, and not fixable from here: the toggle lives in the Supabase",
+        "dashboard and has no SQL or MCP surface.",
+        "",
+        "BLOCKING FOR GO-LIVE IF THE PLAN ALLOWS IT. Project Settings -> Authentication",
+        "-> Email provider settings -> 'Prevent use of leaked passwords'. It requires the",
+        "Pro plan; on Free the toggle is absent.",
+        "",
+        "Until it is enabled this entry must stay here, and it must be consciously",
+        "accepted with the reason recorded -- which is what the Security Advisor item in",
+        "docs/go-live-checklist.md asks for."
+      ]
+    },
+    "auth_insufficient_mfa_options": {
+      "max_count": 1,
+      "why": [
+        "Not fixed. Same reason: dashboard-only, no SQL or MCP surface.",
+        "",
+        "Project Settings -> Authentication -> MFA -> enable the TOTP factor. TOTP alone",
+        "clears this finding and works with any authenticator app; phone and WebAuthn are",
+        "not needed.",
+        "",
+        "This is only half of MFA. Enabling the factor is the dashboard's job; *requiring*",
+        "it for TENANT_ADMIN is this application's job, via the `aal` restrictive policy",
+        "referenced in docs/go-live-checklist.md. That half is still open and is tracked",
+        "there."
+      ]
+    }
+  }
+}
