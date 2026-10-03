@@ -9,6 +9,28 @@
 -- exposed schema is callable over the Data API as postgres (which has
 -- BYPASSRLS), so api.whoami() as a trivial identity function would be a
 -- critical vulnerability. This test enforces the private/api split.
+--
+-- ── what this file cannot see ───────────────────────────────────────────────────
+--
+-- Every assertion below runs in scripts/verify-db.sh, against a throwaway cluster built
+-- from this repository's migrations. It can therefore only see objects *we* created.
+--
+-- On the hosted project there is a second population: functions and triggers the
+-- Supabase platform created. One of them, public.rls_auto_enable(), is a SECURITY DEFINER
+-- function owned by postgres that granted EXECUTE to PUBLIC, anon, authenticated and
+-- service_role -- put on /rest/v1/rpc/ for anonymous callers, and invisible to the
+-- "no SECURITY DEFINER function sits in the public schema" assertion below because our
+-- migrations never mentioned it. It was found by the Supabase security advisor, which
+-- runs against hosted; migration 20260101000066 revokes it.
+--
+-- So the coverage is split, deliberately:
+--
+--   our objects      -> this file, on every push
+--   platform objects -> the Supabase security advisor, which has to be read
+--
+-- Nothing here can close that gap, because the objects do not exist to be asserted
+-- against. The honest thing is to know it exists rather than to assume this file is the
+-- whole story.
 -- ============================================================================
 
 begin;
