@@ -350,6 +350,24 @@ export type Database = {
         Args: { p_line_id: string }
         Returns: undefined
       }
+      reorder_needs: {
+        Args: { p_facility_id?: string }
+        Returns: {
+          days_of_cover: number
+          facility_id: string
+          lead_time_days: number
+          max_qty: number
+          min_qty: number
+          name_ar: string
+          name_en: string
+          product_id: string
+          qty_available: number
+          qty_on_hand: number
+          qty_reserved: number
+          sku: string
+          suggested_qty: number
+        }[]
+      }
       report_position: {
         Args: {
           p_latitude: number
@@ -1525,6 +1543,70 @@ export type Database = {
           },
           {
             foreignKeyName: "proofs_of_delivery_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reorder_policies: {
+        Row: {
+          created_at: string
+          facility_id: string
+          id: string
+          is_active: boolean
+          lead_time_days: number
+          max_qty: number
+          min_qty: number
+          notes: string | null
+          product_id: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          facility_id: string
+          id?: string
+          is_active?: boolean
+          lead_time_days?: number
+          max_qty: number
+          min_qty: number
+          notes?: string | null
+          product_id: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          facility_id?: string
+          id?: string
+          is_active?: boolean
+          lead_time_days?: number
+          max_qty?: number
+          min_qty?: number
+          notes?: string | null
+          product_id?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reorder_policies_facility_id_fkey"
+            columns: ["facility_id"]
+            isOneToOne: false
+            referencedRelation: "facilities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reorder_policies_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reorder_policies_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
