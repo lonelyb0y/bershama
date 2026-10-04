@@ -56,6 +56,45 @@ async function expectExactlyOneMap(page: import('@playwright/test').Page) {
   await expect(keyless.or(google).first()).toBeVisible({ timeout: 15_000 });
 }
 
+/**
+ * Did a map actually *draw*?
+ *
+ * This is the assertion whose absence let a real bug through. `expectExactlyOneMap` and a
+ * non-zero bounding box both passed while the map was completely empty: the container had
+ * a height, the provider rendered, no request failed, and nothing appeared. Checking that
+ * an element exists is not the same as checking it drew.
+ *
+ * Polled, because tiles arrive after the element does.
+ */
+async function expectSomethingDrew(page: import('@playwright/test').Page) {
+  // Settle the provider FIRST. Checking for drawn content while the choice is still being
+  // made observes Google mid-load, before it has either drawn or given up -- which is how
+  // this test reported "rendered no tiles" for a provider that had already fallen back.
+  await expectExactlyOneMap(page);
+
+  const google = page.getByTestId('google-map');
+
+  // Only meaningful for the Google provider; the keyless map is hand-drawn SVG, so it has
+  // no tiles to find. Skipping rather than failing keeps this assertion honest about what
+  // it is checking.
+  if ((await google.count()) === 0) return 'keyless';
+
+  await expect
+    .poll(
+      async () =>
+        google.first().evaluate(
+          (el) =>
+            // Google mounts its own DOM: a canvas for vector tiles, or img/div tiles for
+            // raster, plus the style container. An empty container has none of them.
+            el.querySelectorAll('canvas, img, .gm-style > div').length,
+        ),
+      { timeout: 30_000, message: 'the Google map rendered tiles or a canvas' },
+    )
+    .toBeGreaterThan(0);
+
+  return 'google';
+}
+
 test.describe('delivery map', () => {
   test('the driver gets a map whichever provider is configured', async ({ page }) => {
     test.setTimeout(120_000);
@@ -122,12 +161,18 @@ test.describe('delivery map', () => {
     await page.locator('a[data-testid^="run-"]').first().click();
     await page.waitForLoadState('domcontentloaded');
 
+    const provider = await expectSomethingDrew(page);
+
     const container = page.getByTestId('google-map').or(page.getByTestId('stop-map'));
     await expect(container).toBeVisible({ timeout: 30_000 });
 
     const box = await container.boundingBox();
     expect(box?.width ?? 0, 'map width').toBeGreaterThan(50);
     expect(box?.height ?? 0, 'map height').toBeGreaterThan(50);
+
+    // Named so a failure says which provider was on screen and drew nothing, rather than
+    // leaving it to be inferred.
+    expect(provider, 'provider that rendered').toBeTruthy();
   });
 
   test('no request is made to Google when no key is configured', async ({ page }) => {
