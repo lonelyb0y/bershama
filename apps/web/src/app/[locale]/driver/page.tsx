@@ -4,7 +4,8 @@ import { notFound } from 'next/navigation';
 import { getSupabase } from '@/lib/supabase/server';
 import { getSession } from '@/lib/session';
 import { ROLES_BY_SURFACE } from '@/lib/roles';
-import { StopMap, type MapStop } from '@/components/delivery/stop-map';
+import { DeliveryMap } from '@/components/delivery/delivery-map';
+import type { MapStop } from '@/components/delivery/stop-map';
 import { ArriveButton, FailStopForm, SignSheet } from '@/components/delivery/stop-actions';
 import { RunControls } from '@/components/delivery/run-controls';
 import { LivePositionReporter } from '@/components/delivery/live-position-reporter';
@@ -184,7 +185,7 @@ export default async function DriverPage({ params }: { params: Promise<{ locale:
             }}
           />
 
-          <StopMap stops={mapStops} caption={t('driver.mapCaption')} emptyLabel={t('driver.mapEmpty')} />
+          <DeliveryMap stops={mapStops} caption={t('driver.mapCaption')} emptyLabel={t('driver.mapEmpty')} />
 
           {stops.length === 0 && (
             <p className="rounded-lg border border-dashed p-4 text-sm">{t('driver.noStops')}</p>

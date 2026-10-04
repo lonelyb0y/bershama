@@ -12,7 +12,8 @@ import {
 } from '@/components/delivery/dispatcher-forms';
 import { cache } from 'react';
 
-import { StopMap, type MapStop } from '@/components/delivery/stop-map';
+import { DeliveryMap } from '@/components/delivery/delivery-map';
+import type { MapStop } from '@/components/delivery/stop-map';
 
 /** One clock reading per request. See the note at its use below. */
 const getRequestNow = cache(() => Date.now());
@@ -290,7 +291,7 @@ export default async function DeliveriesPage({
                 })}
               </ol>
 
-              <StopMap stops={mapStops} live={live} caption={t('dispatcher.mapCaption')} emptyLabel={t('dispatcher.mapEmpty')} />
+              <DeliveryMap stops={mapStops} live={live} caption={t('dispatcher.mapCaption')} emptyLabel={t('dispatcher.mapEmpty')} />
 
               {selected.status === 'PLANNED' ? (
                 <AddStopForm
