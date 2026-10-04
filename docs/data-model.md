@@ -280,7 +280,7 @@ path is an audited `api.*` function.
 | `trips`, `stops`, `tracking_pings`, `proof_of_delivery`, `delivery_events` | M4 — delivery |
 | `products.manufacturer` / `drug_class` / `source` | M5 — added by migration 20260101000068 for the Egyptian |
 | `reorder_policies` | M5 — not built; the alert scan and the analytics page both use days of cover from the ledger and `tenants.settings` instead |
-| `stock_daily_snapshots` | M5 — not built; the dashboard aggregates live over a 90-day ledger window |
+| `stock_daily_snapshots` | M5 — built by migration 20260101000072; `api.snapshot_stock()` writes the day, idempotently |
 | `cold_chain_readings` | M5 — not built |
 | `batch_serials` | v2 — `products.is_serialised` is already declared and inert |
 

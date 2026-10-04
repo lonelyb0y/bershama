@@ -365,6 +365,11 @@ select is_empty(
         -- asserting on, since it decides whether a caller can see stock levels for
         -- products they have no policy on.
         'reorder_needs',
+        -- api.snapshot_stock is the only writer of stock_daily_snapshots. It has to be
+        -- SECURITY DEFINER because it aggregates balances across batches, and it must stay
+        -- the only writer: a client that could write one snapshot row could assert that
+        -- stock was whatever it liked on any past date, which would quietly rewrite history.
+        'snapshot_stock',
         -- api.report_position is the first function here that a *moving* thing calls on a
         -- timer rather than a person calling it once during a transaction. That is exactly
         -- why it needs to be on this list rather than arriving quietly: it writes a

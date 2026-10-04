@@ -456,6 +456,15 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      snapshot_stock: {
+        Args: { p_facility_id?: string; p_snapshot_on?: string }
+        Returns: {
+          at_risk_value_minor: number
+          products_written: number
+          snapshot_on: string
+          total_value_minor: number
+        }[]
+      }
       start_trip: {
         Args: { p_trip_id: string }
         Returns: Database["public"]["Tables"]["trips"]["Row"]
@@ -1801,6 +1810,67 @@ export type Database = {
           },
           {
             foreignKeyName: "stock_balances_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stock_daily_snapshots: {
+        Row: {
+          at_risk_batches: number
+          created_at: string
+          expiry_risk_minor: number
+          facility_id: string
+          product_id: string
+          qty_on_hand: number
+          qty_reserved: number
+          snapshot_on: string
+          tenant_id: string
+          value_minor: number
+        }
+        Insert: {
+          at_risk_batches?: number
+          created_at?: string
+          expiry_risk_minor?: number
+          facility_id: string
+          product_id: string
+          qty_on_hand?: number
+          qty_reserved?: number
+          snapshot_on: string
+          tenant_id: string
+          value_minor?: number
+        }
+        Update: {
+          at_risk_batches?: number
+          created_at?: string
+          expiry_risk_minor?: number
+          facility_id?: string
+          product_id?: string
+          qty_on_hand?: number
+          qty_reserved?: number
+          snapshot_on?: string
+          tenant_id?: string
+          value_minor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_daily_snapshots_facility_id_fkey"
+            columns: ["facility_id"]
+            isOneToOne: false
+            referencedRelation: "facilities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_daily_snapshots_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_daily_snapshots_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
