@@ -359,6 +359,12 @@ select is_empty(
         -- the moment to notice it existed -- which is what just happened, when the suite
         -- failed on it rather than letting it through unnoticed.
         'provision_tenant',
+        -- api.reorder_needs aggregates across every batch in a facility to work out what
+        -- to buy. That is not expressible as a row-level read of stock_balances, so the
+        -- function has to be SECURITY DEFINER -- which makes the grant the thing worth
+        -- asserting on, since it decides whether a caller can see stock levels for
+        -- products they have no policy on.
+        'reorder_needs',
         -- api.report_position is the first function here that a *moving* thing calls on a
         -- timer rather than a person calling it once during a transaction. That is exactly
         -- why it needs to be on this list rather than arriving quietly: it writes a
