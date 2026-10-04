@@ -60,6 +60,40 @@ test.describe('drug register lookup', () => {
     await expect(first).toContainText(/amoxicillin|أموكسيسيلين/i);
   });
 
+  test('finds a medicine typed with the definite article', async ({ page }) => {
+    test.setTimeout(120_000);
+
+    // The bug that made the search look broken. Zero of the 24,686 register rows begin
+    // with the definite article, because brand names are written in citation form -- and
+    // essentially every Egyptian speaker types the article. So "البروفين" found nothing
+    // while "بروفين" found 45 rows.
+    await signIn(page, 'admin@demo.local');
+    await page.goto('/en/admin/inventory/products', { waitUntil: 'domcontentloaded' });
+    await openNewProductForm(page);
+
+    await page.getByTestId('register-search').fill('البروفين');
+
+    const first = page.getByTestId('register-result').first();
+    await expect(first).toBeVisible({ timeout: 20_000 });
+    await expect(first).toContainText(/بروفين/);
+  });
+
+  test('finds a medicine typed with a typo', async ({ page }) => {
+    test.setTimeout(120_000);
+
+    await signIn(page, 'admin@demo.local');
+    await page.goto('/en/admin/inventory/products', { waitUntil: 'domcontentloaded' });
+    await openNewProductForm(page);
+
+    // بنادول for بانادول -- a missing alef. Substring matching cannot see this at all,
+    // which is why it needed an edit-distance fallback rather than more normalisation.
+    await page.getByTestId('register-search').fill('بنادول');
+
+    const first = page.getByTestId('register-result').first();
+    await expect(first).toBeVisible({ timeout: 20_000 });
+    await expect(first).toContainText(/بانادول/);
+  });
+
   test('picking a result fills the form and saves nothing on its own', async ({ page }) => {
     test.setTimeout(120_000);
 
