@@ -210,8 +210,15 @@ dev-web: ## Run only the web app (database must already be running)
 # ── housekeeping ─────────────────────────────────────────────────────────────
 
 .PHONY: types
+# Not `supabase gen types --project-id` directly, and not redirecting its stdout into
+# database.types.ts. That needs a personal access token, tokens expire, and when one does
+# the CLI writes a 153-byte JSON error document over the committed types -- after which
+# check-api-types reports every api function as missing and typecheck, lint and the build
+# all fail as though the schema had collapsed. scripts/gen-types.sh builds a throwaway
+# cluster from the migrations (which are the source of truth), generates to a temporary
+# file, verifies the output is TypeScript, and only then moves it into place.
 types: ## Regenerate TypeScript types from the database
-	supabase gen types typescript $(if $(PROJECT_ID),--project-id $(PROJECT_ID),--linked) > $(APP_DIR)/src/lib/database.types.ts
+	@./scripts/gen-types.sh
 
 .PHONY: clean
 clean: ## Remove build output

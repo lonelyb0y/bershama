@@ -370,6 +370,11 @@ select is_empty(
         -- the only writer: a client that could write one snapshot row could assert that
         -- stock was whatever it liked on any past date, which would quietly rewrite history.
         'snapshot_stock',
+        -- api.record_cold_reading must stay the only way in. The table deliberately has no
+        -- insert policy and no update policy, so a client that could write a row directly
+        -- could also mark its own excursion as in-spec -- which is the one thing a
+        -- temperature log has to make impossible.
+        'record_cold_reading',
         -- api.report_position is the first function here that a *moving* thing calls on a
         -- timer rather than a person calling it once during a transaction. That is exactly
         -- why it needs to be on this list rather than arriving quietly: it writes a

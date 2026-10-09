@@ -1,41 +1,48 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { GoogleStopMap } from './google-stop-map';
+import { MapLibreStopMap } from './maplibre-stop-map';
 import { StopMap, type LivePosition, type MapStop } from './stop-map';
 
 /**
- * Choose the map implementation, and fail over to the keyless one.
+ * Choose the map implementation, and fall back until something works.
  *
- * This is the only place that knows which map is in use, so switching providers is one
- * change rather than a search across every caller.
+ * ── the three tiers, and why there are three ──────────────────────────────────────
  *
- * ── why Google is preferred but never required ────────────────────────────────────
+ *   1. Google Maps  -- preferred. Familiar to users, and the only tier carrying the place
+ *                      data an Egyptian user expects. Requires a key; free at this volume,
+ *                      and its quota pauses rather than bills.
+ *   2. MapLibre     -- interactive, and **no key, no account, no billing**. Cannot be
+ *                      taken away by a quota, a referrer rule, or a card that lapses.
+ *   3. Static SVG   -- no map engine at all. No WebGL, no JavaScript, no network.
  *
- * `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` set  -> Google Maps. Familiar to users, and it has
- *                                            the place data an Egyptian user expects.
- * Not set, blank, or the script fails     -> OpenStreetMap tiles. No key, no billing
- *                                            account, no third-party dependency, and the
- *                                            route and markers still draw.
+ * Tier 1 has a long list of failure modes that are not ours to control: an expired key, a
+ * referrer allowlist that does not match the deployment domain, a daily quota hit on a busy
+ * afternoon, a script blocked by a corporate network, or simply no key configured. Tier 3
+ * exists because tier 2 can also fail -- no WebGL on an old or locked-down handset, and
+ * drivers use whatever phone is in their pocket.
  *
- * The failure path is not decorative. Google Maps requires a billing-enabled account, a
- * key can be restricted by referrer and start failing, the script can be blocked by a
- * network, and the daily quota can be exhausted -- any of which would otherwise leave a
- * dispatcher staring at an empty rectangle in the middle of a delivery run.
+ * A dispatcher watching a run must never be shown a blank rectangle. That is the single
+ * requirement this file exists to satisfy.
  *
- * So the presence of a key is a preference, never a precondition. It is also what keeps
- * the driver's offline story intact: arrive, sign and fail never touch the map.
+ * ── why MapLibre is imported dynamically ──────────────────────────────────────────
  *
- * ── why this is a client component ────────────────────────────────────────────────
+ * MapLibre is roughly 800 KB gzipped, which is real money on the mobile data a driver
+ * spends on a run. Google is the preferred tier, so on a normal configuration MapLibre is
+ * never needed and must never be downloaded. It is `await import()`ed on the failure path
+ * only.
  *
- * Because it has to *react* to Google failing. The keyless map is a server component, and
- * a client component cannot render one -- so the switch itself must live on the client,
- * which drags the keyless map into the client bundle. That is fine and cheap: it is
- * self-contained SVG and arithmetic, with no data access and no secrets. The alternative,
- * rendering the fallback from the server and swapping it in on failure, would need a
- * round trip to redraw the whole route and would flash the wrong map first.
+ * That is also why this is a client component: it has to react to a failure *and* defer a
+ * download. It drags `StopMap` into the client bundle, which is cheap -- self-contained SVG
+ * and arithmetic, no data access, no secrets. The alternative, swapping the fallback in from
+ * the server, needs a round trip to redraw the route and flashes the wrong map first.
  */
+
+/** Which tier is currently on screen. Exported for the tests, not for callers. */
+export type MapTier = 'google' | 'maplibre' | 'static';
+
 export function DeliveryMap({
   stops,
   caption,
@@ -47,23 +54,50 @@ export function DeliveryMap({
   emptyLabel: string;
   live?: LivePosition | null;
 }) {
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY?.trim() ?? '';
-  // Only meaningful when a key exists. Latched, not derived: a script that failed once
-  // should not be retried on every render, or a bad key becomes a request loop.
-  const [googleFailed, setGoogleFailed] = useState(false);
+  const googleKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY?.trim() ?? '';
 
-  if (!apiKey || googleFailed) {
-    return <StopMap stops={stops} caption={caption} emptyLabel={emptyLabel} live={live} />;
+  // -1 means "tiers before this have not failed yet", which is different from "index 0
+  // failed": the first tick must render Google, not skip straight past it.
+  const [failedThrough, setFailedThrough] = useState(-1);
+
+  const onTierFailed = useCallback((tier: MapTier) => {
+    setFailedThrough((current) => (current >= tierIndex(tier) ? current : tierIndex(tier)));
+  }, []);
+
+  // A key that exists but does not work must fall through to MapLibre rather than parking
+  // on the static map -- MapLibre is interactive and needs no key, so it is the better
+  // answer whenever the device can render it.
+  const useGoogle = googleKey !== '' && failedThrough < 0;
+  const useMapLibre = failedThrough < 1;
+
+  if (useGoogle) {
+    return (
+      <GoogleStopMap
+        stops={stops}
+        caption={caption}
+        emptyLabel={emptyLabel}
+        live={live}
+        apiKey={googleKey}
+        onFailure={() => onTierFailed('google')}
+      />
+    );
   }
 
-  return (
-    <GoogleStopMap
-      stops={stops}
-      caption={caption}
-      emptyLabel={emptyLabel}
-      live={live}
-      apiKey={apiKey}
-      onFailure={() => setGoogleFailed(true)}
-    />
-  );
+  if (useMapLibre) {
+    return (
+      <MapLibreStopMap
+        stops={stops}
+        caption={caption}
+        emptyLabel={emptyLabel}
+        live={live}
+        onFailure={() => onTierFailed('maplibre')}
+      />
+    );
+  }
+
+  return <StopMap stops={stops} caption={caption} emptyLabel={emptyLabel} live={live} />;
+}
+
+function tierIndex(tier: MapTier): number {
+  return tier === 'google' ? 0 : tier === 'maplibre' ? 1 : 2;
 }
