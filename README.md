@@ -7,9 +7,12 @@ tracking, and an audit trail that survives an auditor.
 Built for an operator in Egypt: bilingual English/Arabic with full RTL, EGP
 denominated, WHO GDP-aligned batch traceability.
 
-**Status: M0-M4 complete, M5 partially (alert centre, dashboards, analytics and self-serve signup shipped; reorder policies and snapshots not started).** The
-catalogue, batches and append-only stock ledger are built and tested. The CRUD
-screens, requisitions and delivery tracking are not. See [Roadmap](#roadmap).
+**Status: M0-M4 complete. M5 shipped: alert centre, dashboards, analytics,
+self-serve signup, reorder policies, daily stock snapshots and cold-chain
+readings.** The catalogue, batches and append-only stock ledger are built and
+tested, as are requisitions and delivery tracking. `reorder_policies` and
+`stock_daily_snapshots` are schema and tests only — they have no UI yet. M6 is
+the go-live gate and is not started. See [Roadmap](#roadmap).
 
 ---
 
@@ -227,7 +230,7 @@ Each milestone ends in something a real user could be put in front of.
 | **M2** | Products, batches, locations, stock ledger, reconciliation | schema + tests done, UI complete: catalogue, batches, locations, stocktake |
 | **M3** | Requisitions, approval, FEFO allocation | done |
 | **M4** | Trips, driver PWA offline, e-signature POD, live map | done |
-| **M5** | Alerts, dashboards, analytics | alerts, dashboards and analytics done; `reorder_policies` and `stock_daily_snapshots` not built |
+| **M5** | Alerts, dashboards, analytics | done — alerts, dashboards, analytics, self-serve signup, `reorder_policies`, `stock_daily_snapshots`, cold-chain readings. Last two are schema + tests, no UI |
 | **M6** | Go-live gate (see below) | planned |
 
 Deliberately deferred: purchase orders and GRN, invoicing and ETA e-invoicing,
@@ -255,6 +258,7 @@ backup.
 - [docs/data-model.md](docs/data-model.md) — tables, columns, invariants
 - [docs/security.md](docs/security.md) — threat model and controls
 - [docs/supabase-dev.md](docs/supabase-dev.md) — local development, both paths
+- [docs/local-postgres-test-db.md](docs/local-postgres-test-db.md) — running `make test-db` without root or Docker
 - [docs/runbook.md](docs/runbook.md) — operating it, and what to do when it breaks
 - [docs/adr/](docs/adr/) — decisions and why
 
