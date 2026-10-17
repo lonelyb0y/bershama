@@ -95,9 +95,13 @@ Frankfurt. A customer with an in-country residency requirement cannot be served
 from this deployment. Region selection is a data-location control, not proof of
 regulatory compliance.
 
-**No MFA enforcement yet.** The Postgres-level primitive exists — a `restrictive`
-policy on `auth.jwt() ->> 'aal'` — and it should be required for `TENANT_ADMIN`
-before go-live. Not yet implemented.
+**MFA enforcement implemented in code.** A restrictive policy on
+`auth.jwt() ->> 'aal'` now covers every table where `TENANT_ADMIN` holds a
+write grant (migration `20260101000074_mfa_for_tenant_admin.sql`). It requires
+`aal2` when the JWT carries an `aal` claim and is a no-op when MFA is not
+configured, so enforcement activates automatically once Supabase is set to
+emit one. Remaining go-live steps: enable TOTP in the dashboard and require
+it per role.
 
 **Rate limiting is inherited, not tuned.** Supabase's defaults are generous for a
 pilot. Fine now; review before public exposure.
