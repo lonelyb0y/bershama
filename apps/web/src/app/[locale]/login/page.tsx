@@ -2,6 +2,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { redirect } from 'next/navigation';
 
 import { LoginForm } from '@/components/login-form';
+import { GoogleSignInButton } from '@/components/google-signin-button';
 import { LocaleSwitcher } from '@/components/locale-switcher';
 import { getSession, homeRouteForRole } from '@/lib/session';
 import type { Locale } from '@/i18n/routing';
@@ -38,6 +39,16 @@ export default async function LoginPage({
       </div>
 
       <LoginForm />
+
+      <div className="flex items-center gap-3">
+        <span className="h-px flex-1 bg-[color:var(--border)]" />
+        <span className="text-xs text-[color:var(--text-muted)]">
+          {tCommon('or')}
+        </span>
+        <span className="h-px flex-1 bg-[color:var(--border)]" />
+      </div>
+
+      <GoogleSignInButton label={t('continueWithGoogle')} />
     </main>
   );
 }

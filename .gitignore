@@ -76,3 +76,4 @@ apps/web/CLAUDE.md
 # Built by scripts/build-drug-register.py from the upstream CC0 register.
 # Generated at build time (npm run build:register) so it is never stale in git.
 apps/web/data/
+backups/
