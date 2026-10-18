@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 import { getSupabaseApiClient } from '@/lib/supabase/client';
+import { getSession } from '@/lib/session';
 
 /**
  * OAuth callback.
@@ -51,6 +52,21 @@ export async function GET(request: NextRequest) {
     const url = new URL(`/${locale}/login`, origin);
     url.searchParams.set('error', exchangeError.message);
     return NextResponse.redirect(url);
+  }
+
+  // A person can hold an auth session and still have nothing to sign in *to*: no
+  // profiles row means no organisation, no role and no surface. getSession() is
+  // null in that case -- not because the session is absent, but because whoami has
+  // no row to return.
+  //
+  // Sending them to `safeNext` here would be the dead end this project already hit
+  // once: every authenticated layout redirects a null session to /login, so they
+  // would land on the page they cannot get past, holding a valid session, with no
+  // route forward. /setup is the route that exists for exactly this state, so it is
+  // the only sensible destination.
+  const session = await getSession();
+  if (!session) {
+    return NextResponse.redirect(new URL(`/${locale}/setup`, origin));
   }
 
   return NextResponse.redirect(new URL(safeNext, origin));
