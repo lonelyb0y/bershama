@@ -17,7 +17,8 @@
 // pulling that into a client component fails the build.
 
 import { useState, useTransition } from 'react';
-import { useTranslations } from 'next-intl';
+import Link from 'next/link';
+import { useTranslations, useLocale } from 'next-intl';
 
 import { getSupabaseApiClient, getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { asWhoAmI } from '@/lib/mappers';
@@ -29,6 +30,7 @@ import type { AppRole } from '@/lib/types';
 
 export function LoginForm() {
   const t = useTranslations('auth');
+  const locale = useLocale();
   const router = useRouter();
 
   const [email, setEmail] = useState('');
@@ -171,7 +173,13 @@ export function LoginForm() {
       </button>
 
       <p className="text-[color:var(--text-muted)] text-center text-xs">
-        {t('inviteOnly')}
+        {t('noAccount')}{' '}
+        <Link
+          href={`/${locale}/signup`}
+          className="font-medium underline underline-offset-2 hover:text-[color:var(--text)]"
+        >
+          {t('createOrganisation')}
+        </Link>
       </p>
     </form>
   );

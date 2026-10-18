@@ -40,7 +40,9 @@
     "recaptcha": {},
     "recaptchaBlocked": "يبدو أن تسجيل الدخول هذا آلي، لذلك تم رفضه. إن كان هذا خطأً فأخبر المسؤول.",
     "recaptchaChallenge": "نشاط غير معتاد على هذه الشبكة. حاول مرة أخرى، أو أخبر المسؤول إن تكرر الأمر.",
-    "continueWithGoogle": "المتابعة باستخدام Google"
+    "continueWithGoogle": "المتابعة باستخدام Google",
+    "noAccount": "ليس لديك حساب؟",
+    "createOrganisation": "أنشئ مؤسسة"
   },
   "roles": {
     "TENANT_ADMIN": "مسؤول النظام",
