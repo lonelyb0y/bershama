@@ -386,7 +386,17 @@ select is_empty(
         -- and whose partial unique index means a client writing them directly could
         -- create a duplicate open alert. Being in this list is what makes adding a
         -- fourth quietly impossible.
-        'run_alert_scan', 'ack_alert', 'resolve_alert'
+        'run_alert_scan', 'ack_alert', 'resolve_alert',
+        -- api.run_alert_scan_for_tenant is api.run_alert_scan for a caller with
+        -- no session: the scheduler runs it nightly and has no auth.uid() for the
+        -- function to resolve a tenant from. It has to be SECURITY DEFINER for the
+        -- same reason run_alert_scan is, and it is on this list rather than
+        -- arriving quietly because the one thing worth checking about it is that
+        -- it acts on a single hard-coded tenant -- a constant in the body, never
+        -- an argument, so no caller can widen which pharmacy it scans. A
+        -- multi-tenant variant would be a different design and is deliberately
+        -- absent; see migration 20260101000075.
+        'run_alert_scan_for_tenant'
       ])
   $$,
   'only the allow-listed wrappers in the api schema are SECURITY DEFINER'

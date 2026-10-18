@@ -1,0 +1,12 @@
+{
+  "name": "pharmaflow-worker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Nightly jobs for PharmaFlow: alert scanning and stock reconciliation",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.mjs",
+    "scan-alerts": "node src/index.mjs --only=alerts"
+  },
+  "engines": { "node": ">=20" }
+}

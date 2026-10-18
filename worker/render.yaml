@@ -1,0 +1,23 @@
+# Render blueprint for the PharmaFlow nightly worker.
+#
+# Why a scheduler and not pg_cron: the jobs are already in the database and
+# tested by pgTAP, but nothing called them -- docs/runbook.md told an operator
+# to check cron.job_run_details, and that table was always empty. This runs them.
+#
+# Free tier: Render cron jobs only fire once per minute on the free plan, which
+# is all a nightly job needs.
+
+services:
+  - type: cron
+    name: pharmaflow-nightly
+    runtime: node
+    plan: free
+    schedule: "0 3 * * *"        # 03:00 UTC nightly
+    buildCommand: npm install
+    startCommand: node src/index.mjs
+    rootDir: worker
+    envVars:
+      - key: SUPABASE_URL
+        sync: false              # set in the Render dashboard
+      - key: SUPABASE_SECRET_KEY
+        sync: false              # set in the Render dashboard
