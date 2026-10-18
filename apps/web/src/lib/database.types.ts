@@ -184,6 +184,10 @@ export type Database = {
               raised: number,skipped: number
             }[]
                            },
+      run_alert_scan_for_tenant: { Args: Record<PropertyKey, never>; Returns: {
+              raised: number,skipped: number
+            }[]
+                           },
       search_products: { Args: { p_expiry_band?: string,p_limit?: number,p_offset?: number,p_query?: string }; Returns: {
               atc_code: string,brand: string,earliest_expiry: string,form: "TABLET"|"CAPSULE"|"SYRUP"|"SUSPENSION"|"INJECTION"|"VIAL"|"SACHET"|"CREAM"|"OINTMENT"|"SUPPOSITORY"|"DROPS"|"INHALER"|"PATCH"|"UNSPECIFIED",generic_name_ar: string,generic_name_en: string,gtin: string,id: string,is_active: boolean,is_cold_chain: boolean,name_ar: string,name_en: string,pack_size: number,qty_available: number,qty_on_hand: number,requires_prescription: boolean,sku: string,strength: string,total_count: number,uom: "BOX"|"STRIP"|"BOTTLE"|"TUBE"|"VIAL"|"SACHET"|"KIT"
             }[]

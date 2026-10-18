@@ -11,7 +11,8 @@
     "language": "Language",
     "english": "English",
     "arabic": "Arabic",
-    "account": "Account"
+    "account": "Account",
+    "or": "or"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -38,7 +39,8 @@
     "welcome": "Welcome back, {name}",
     "recaptcha": {},
     "recaptchaBlocked": "This sign-in looks automated, so it has been refused. If that is wrong, tell an administrator.",
-    "recaptchaChallenge": "Unusual activity on this network. Please try again, or tell an administrator if it keeps happening."
+    "recaptchaChallenge": "Unusual activity on this network. Please try again, or tell an administrator if it keeps happening.",
+    "continueWithGoogle": "Continue with Google"
   },
   "roles": {
     "TENANT_ADMIN": "Administrator",
