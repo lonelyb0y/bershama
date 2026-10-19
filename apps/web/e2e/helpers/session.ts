@@ -1,6 +1,7 @@
 import { expect, type BrowserContext, type Page } from '@playwright/test';
 
 import { waitForHydration } from './hydration';
+import { ADMIN_EMAIL, E2E_PASSWORD } from './accounts';
 
 /** Playwright's storageState shape; named here so the cache has a type. */
 type StorageState = Awaited<ReturnType<BrowserContext['storageState']>>;
@@ -165,8 +166,8 @@ async function signInOnce(
  */
 export async function signedInContext(
   browser: import('@playwright/test').Browser,
-  email = 'admin@demo.local',
-  password = 'PharmaFlow#2026',
+  email = ADMIN_EMAIL,
+  password = E2E_PASSWORD,
 ): Promise<BrowserContext> {
   const state = (await signInOnce(browser, email, password)) as StorageState;
   return browser.newContext({ locale: 'en-GB', storageState: state });
@@ -178,15 +179,15 @@ export async function signedInContext(
  * The simple form to migrate a spec to: it keeps each test's own page and context, and
  * only removes the repeated network round trip.
  */
-export async function ensureSignedIn(page: Page, email = 'admin@demo.local'): Promise<void> {
+export async function ensureSignedIn(page: Page, email = ADMIN_EMAIL): Promise<void> {
   if (await page.getByTestId('header-cluster').isVisible().catch(() => false)) return;
   await signIn(page, email);
 }
 
 export async function signIn(
   page: Page,
-  email = 'admin@demo.local',
-  password = 'PharmaFlow#2026',
+  email = ADMIN_EMAIL,
+  password = E2E_PASSWORD,
   // Where this role is supposed to end up. Asserting it is deliberate: a sign-in that
   // silently lands on the wrong surface is a bug that would otherwise be reported by
   // whichever later test happened to trip over it.

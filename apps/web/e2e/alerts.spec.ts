@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 import { clickSignIn, signIn } from './helpers/session';
+import { ADMIN_EMAIL, E2E_PASSWORD, PHARMACY_EMAIL } from './helpers/accounts';
 
 /** Sign in through the UI, the way a person does, then wait for hydration. */
 test.describe('the alert centre', () => {
@@ -10,7 +11,7 @@ test.describe('the alert centre', () => {
     // deploy compiles it. That exceeded the 30s default on production twice, with the
     // cause three lines below this one.
     testInfo.setTimeout(60_000);
-    await signIn(page, 'admin@demo.local');
+    await signIn(page, ADMIN_EMAIL);
   });
 
   test('runs the scan and shows what it raised', async ({ page }) => {
@@ -110,8 +111,8 @@ test.describe('the alert centre', () => {
     // here is precisely that it never gets one. Wait for the session to resolve and
     // land wherever it lands.
     await page.goto('/en/login');
-    await page.getByLabel(/email address/i).fill('pharmacy@demo.local');
-    await page.getByLabel(/password/i).fill('PharmaFlow#2026');
+    await page.getByLabel(/email address/i).fill(PHARMACY_EMAIL);
+    await page.getByLabel(/password/i).fill(E2E_PASSWORD);
     await clickSignIn(page);
     await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 60_000 });
 

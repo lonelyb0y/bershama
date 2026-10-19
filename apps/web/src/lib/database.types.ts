@@ -59,6 +59,19 @@ export type Database = {
         isOneToOne: true
         isSetofReturn: false
       } },
+      ci_run_alert_scan: { Args: Record<PropertyKey, never>; Returns: {
+              raised: number,skipped: number
+            }[]
+                           SetofOptions: {
+        from: "*"
+        to: "ci_run_alert_scan"
+        isOneToOne: false
+        isSetofReturn: true
+      } },
+      ci_seed_fixture: { Args: { p_admin: string,p_driver: string,p_pharmacy: string }; Returns: Json
+                           },
+      ci_teardown_fixture: { Args: Record<PropertyKey, never>; Returns: Json
+                           },
       create_batch: { Args: { p_expiry_date: string,p_lot_number: string,p_mfg_date: string,p_product_id: string,p_release_now?: boolean,p_supplier_name?: string,p_supplier_ref?: string,p_unit_cost_minor?: number }; Returns: Database["public"]['Tables']["batches"]['Row']
                           SetofOptions: {
         from: "*"

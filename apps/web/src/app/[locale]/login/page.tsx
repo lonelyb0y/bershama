@@ -17,6 +17,7 @@ export default async function LoginPage({
 
   const t = await getTranslations('auth');
   const tCommon = await getTranslations('common');
+  const tLanding = await getTranslations('landing');
   const session = await getSession();
 
   // Already signed in: skip the form.
@@ -33,6 +34,9 @@ export default async function LoginPage({
           </h1>
           <p className="text-[color:var(--text-muted)] mt-1 text-sm">
             {t('signIn')}
+          </p>
+          <p className="text-[color:var(--text-muted)] mt-3 text-sm">
+            {tLanding('headline')}
           </p>
         </div>
         <LocaleSwitcher />

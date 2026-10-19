@@ -396,7 +396,20 @@ select is_empty(
         -- an argument, so no caller can widen which pharmacy it scans. A
         -- multi-tenant variant would be a different design and is deliberately
         -- absent; see migration 20260101000075.
-        'run_alert_scan_for_tenant'
+        'run_alert_scan_for_tenant',
+        -- The browser-suite fixture, from migration 20260101000077. All three write
+        -- rows no client has a policy for -- a tenant, auth.users, batches -- so they
+        -- have to be SECURITY DEFINER to seed at all.
+        --
+        -- Being on this list is the point of listing them. The property worth checking
+        -- is the scoping, and it is the same one run_alert_scan_for_tenant relies on:
+        -- a constant tenant, never an argument, so no caller can widen which rows are
+        -- touched. ci_seed_fixture is additionally idempotent -- a second call replaces
+        -- the same tenant rather than creating another -- so it cannot be looped to
+        -- manufacture tenants the way an unscoped "create tenant" endpoint could.
+        -- What it must never become is a way to write to a real organisation, and a
+        -- constant slug is what prevents that.
+        'ci_seed_fixture', 'ci_run_alert_scan', 'ci_teardown_fixture'
       ])
   $$,
   'only the allow-listed wrappers in the api schema are SECURITY DEFINER'
