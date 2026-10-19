@@ -2,6 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 
 import { waitForHydration } from './helpers/hydration';
 import { clickSignIn } from './helpers/session';
+import { ADMIN_EMAIL, ADMIN_NAME, DRIVER_EMAIL, E2E_PASSWORD, PHARMACY_EMAIL } from './helpers/accounts';
 
 /**
  * Sign-in, and the loop it caused.
@@ -21,18 +22,18 @@ import { clickSignIn } from './helpers/session';
 // supabase/seed.sql and in the README -- and these are throwaway credentials on a
 // deployment behind Vercel Deployment Protection.
 const ACCOUNTS = [
-  { email: 'admin@demo.local', surface: 'admin', name: 'Ahmed Hassan' },
-  { email: 'pharmacy@demo.local', surface: 'pharmacy', name: null },
+  { email: ADMIN_EMAIL, surface: 'admin', name: ADMIN_NAME },
+  { email: PHARMACY_EMAIL, surface: 'pharmacy', name: null },
     // DRIVER since M4, so this lands on /driver. It was a DISTRIBUTOR before,
     // which was honest about there being no driver surface to route to.
-    { email: 'driver@demo.local', surface: 'driver', name: null },
+    { email: DRIVER_EMAIL, surface: 'driver', name: null },
 ] as const;
 
 async function signIn(page: Page, email: string, locale = 'en') {
   await page.goto(`/${locale}/login`);
 
   await page.getByLabel(/email address/i).fill(email);
-  await page.getByLabel(/password/i).fill('PharmaFlow#2026');
+  await page.getByLabel(/password/i).fill(E2E_PASSWORD);
   await clickSignIn(page);
 }
 
@@ -91,7 +92,7 @@ test.describe('signing in', () => {
   test('the session survives a reload, so it is a cookie and not memory', async ({
     page,
   }) => {
-    await signIn(page, 'admin@demo.local');
+    await signIn(page, ADMIN_EMAIL);
     await page.waitForURL('**/admin', { timeout: 20_000 });
 
     await page.reload();
@@ -109,7 +110,7 @@ test.describe('signing in', () => {
   });
 
   test('signs out', async ({ page }) => {
-    await signIn(page, 'admin@demo.local');
+    await signIn(page, ADMIN_EMAIL);
     await page.waitForURL('**/admin', { timeout: 20_000 });
     // Hydration, or the click lands on markup with no handler on it yet.
     await waitForHydration(page);
@@ -154,7 +155,7 @@ test.describe('the guard', () => {
   test('a pharmacy manager does not reach the admin surface', async ({ page }) => {
     // RLS and the route guard are separate defences. This asserts the guard,
     // which is the one a user hits.
-    await signIn(page, 'pharmacy@demo.local');
+    await signIn(page, PHARMACY_EMAIL);
     await page.waitForURL('**/pharmacy', { timeout: 20_000 });
 
     // 404, not a redirect, and this is the intended behaviour rather than a

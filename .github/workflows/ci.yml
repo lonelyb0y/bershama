@@ -203,10 +203,40 @@ jobs:
       #   deliveries, stocktake,   mutate demo data and need a reset before they mean
       #   catalogue-writes          anything, which is what the local run against
       #                             production is for.
+      # ── the fixture ───────────────────────────────────────────────────────────
+      #
+      # The suite signs in against the hosted database, because a Vercel preview shares
+      # the project's database and there is no isolated environment to point it at (and
+      # branching is Pro-only). That used to mean production had to ship demo accounts so
+      # this job had something to sign in as. It no longer does, and it should not: the
+      # accounts below exist only between these two steps.
+      #
+      # Seeded as the service role over PostgREST rather than with a management token in
+      # the job, because the token can do anything to the project and this needs to do
+      # one thing.
+      - name: Seed the browser fixture
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          set -euo pipefail
+          for name in SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY; do
+            if [ -z "${!name:-}" ]; then
+              echo "::error::$name is not set. The browser job needs the project URL and the service role key so it can seed its own fixture."
+              exit 1
+            fi
+          done
+          ./scripts/ci-fixture.sh seed
+
       - name: Run the smoke suite
         env:
           E2E_BASE_URL: ${{ steps.preview.outputs.url }}
           E2E_BYPASS_TOKEN: ${{ secrets.VERCEL_PROTECTION_BYPASS }}
+          E2E_ADMIN_EMAIL: ci-admin@pharmaflow.test
+          E2E_ADMIN_NAME: CI Admin
+          E2E_PHARMACY_EMAIL: ci-pharmacy@pharmaflow.test
+          E2E_DRIVER_EMAIL: ci-driver@pharmaflow.test
+          E2E_PASSWORD: PharmaFlow#2026
           CI: true
         run: |
           # `timeout` around the run itself. A hung test otherwise holds the whole job
@@ -222,6 +252,15 @@ jobs:
               e2e/theme.spec.ts \
               e2e/contrast.spec.ts \
               e2e/alerts.spec.ts
+
+      # Always, including after a failure: a red build that left a tenant behind would
+      # make the next one fail for a reason that has nothing to do with its diff.
+      - name: Remove the browser fixture
+        if: always()
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: ./scripts/ci-fixture.sh teardown || true
 
       - name: Upload the failure artefacts
         if: failure()
