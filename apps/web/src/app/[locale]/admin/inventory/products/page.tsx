@@ -6,10 +6,8 @@ import { Link } from '@/i18n/routing';
 import { getSession } from '@/lib/session';
 import { setProductActive } from './actions';
 import { ProductForm } from '@/components/inventory/product-form';
+import { ProductTable } from '@/components/inventory/product-table';
 import { LocationForm } from '@/components/inventory/location-form';
-import { DataTable, type Column } from '@/components/ui/data-table';
-import { Badge, Ltr } from '@/components/ui/badge';
-import { EmptyState } from '@/components/ui/empty-state';
 import { PageHeader } from '@/components/ui/page-header';
 import { Toolbar } from '@/components/ui/toolbar';
 import type { Locale } from '@/i18n/routing';
@@ -90,70 +88,6 @@ export default async function ProductsPage({
   }));
 
   const displayName = (p: Product) => (locale === 'ar' ? p.nameAr : p.nameEn);
-
-  /**
-   * The columns worth showing.
-   *
-   * Five, not twelve. A catalogue manager is looking for a product by name or SKU and
-   * then checking two things about it: whether it is prescription-only, and whether it
-   * is active. The ATC code, the GTIN and the EDAN registration are real facts about
-   * the product, and they are also three more columns of noise on a screen whose job
-   * is to be scanned. They live in the edit form, which is where somebody asks for them.
-   */
-  const columns: Column<Product>[] = [
-    {
-      key: 'name',
-      header: t('column.product'),
-      primary: true,
-      render: (p) => (
-        <div className="min-w-0">
-          <div className="truncate font-medium">{displayName(p)}</div>
-          {/* The other language stays visible on purpose. A catalogue manager needs to
-              know the record is not missing its Arabic or English name. */}
-          <div
-            className="truncate text-xs text-[color:var(--text-muted)]"
-            dir="ltr"
-          >
-            {locale === 'ar' ? p.nameEn : p.nameAr}
-          </div>
-        </div>
-      ),
-    },
-    {
-      key: 'sku',
-      header: t('column.sku'),
-      mobileLabel: t('column.sku'),
-      className: 'font-mono text-xs',
-      render: (p) => <Ltr>{p.sku}</Ltr>,
-    },
-    {
-      key: 'strength',
-      header: t('column.form'),
-      mobileLabel: t('column.form'),
-      render: (p) => `${p.strength} ${p.strengthUnit ?? ''}`.trim(),
-    },
-    {
-      key: 'pack',
-      header: t('column.pack'),
-      mobileLabel: t('column.pack'),
-      numeric: true,
-      secondary: true,
-      render: (p) => `${p.packSize} ${p.uom}`,
-    },
-    {
-      key: 'flags',
-      header: t('column.flags'),
-      mobileLabel: t('column.flags'),
-      render: (p) => (
-        <div className="flex flex-wrap gap-1">
-          {p.requiresPrescription ? <Badge tone="info">{t('badge.rx')}</Badge> : null}
-          {p.isControlled ? <Badge tone="warn">{t('badge.controlled')}</Badge> : null}
-          {p.isColdChain ? <Badge tone="info">{t('badge.cold')}</Badge> : null}
-          {!p.isActive ? <Badge tone="neutral">{t('badge.inactive')}</Badge> : null}
-        </div>
-      ),
-    },
-  ];
 
   return (
     <div className="space-y-4">
@@ -280,58 +214,31 @@ export default async function ProductsPage({
           {t('loadError')}
         </p>
       ) : (
-        <DataTable
-          columns={columns}
+        <ProductTable
           rows={products}
-          caption={t('title')}
-          rowKey={(p) => p.id}
-          rowLabel={(p) => displayName(p)}
-          rowTestId="product-row"
-          empty={
-            <EmptyState
-              title={query === '' ? t('empty') : t('emptySearch', { query })}
-              body={query === '' ? t('emptyBody') : t('emptySearchBody', { query })}
-            />
-          }
-          renderActions={
-            canWrite
-              ? (p) => (
-                  <>
-                    <Link
-                      href={`/admin/inventory/products?edit=${p.id}`}
-                      // Prefetching off. Each of these links to *this* page with a
-                      // different product's edit form attached, so the default
-                      // viewport prefetch fired one RSC request per row -- each
-                      // re-running the catalogue query to prove an edit form exists.
-                      // The largest single source of requests on this surface.
-                      prefetch={false}
-                      // The product's name is in the accessible name. Ten links all
-                      // called "Edit" is ten identical announcements and a screen
-                      // reader user has no way to tell which product any of them
-                      // belongs to.
-                      aria-label={t('action.edit', { name: displayName(p) })}
-                      className="rounded-md border px-2.5 py-1.5 text-xs font-medium hover:bg-[color:var(--text-muted)]/10"
-                    >
-                      {t('edit')}
-                    </Link>
-                    <form action={setProductActive}>
-                      <input type="hidden" name="id" value={p.id} />
-                      <input type="hidden" name="active" value={String(!p.isActive)} />
-                      <button
-                        type="submit"
-                        aria-label={t(
-                          p.isActive ? 'action.deactivate' : 'action.reactivate',
-                          { name: displayName(p) },
-                        )}
-                        className="rounded-md border px-2.5 py-1.5 text-xs font-medium hover:bg-[color:var(--text-muted)]/10"
-                      >
-                        {p.isActive ? t('deactivate') : t('reactivate')}
-                      </button>
-                    </form>
-                  </>
-                )
-              : undefined
-          }
+          locale={locale}
+          canWrite={canWrite}
+          setActiveAction={setProductActive}
+          labels={{
+            columnProduct: t('column.product'),
+            columnSku: t('column.sku'),
+            columnForm: t('column.form'),
+            columnPack: t('column.pack'),
+            columnFlags: t('column.flags'),
+            edit: t('edit'),
+            deactivate: t('deactivate'),
+            reactivate: t('reactivate'),
+            actionEdit: t('action.edit'),
+            actionDeactivate: t('action.deactivate'),
+            actionReactivate: t('action.reactivate'),
+            rx: t('badge.rx'),
+            controlled: t('badge.controlled'),
+            cold: t('badge.cold'),
+            inactive: t('badge.inactive'),
+            empty: query === '' ? t('empty') : t('emptySearch', { query }),
+            emptyBody: query === '' ? t('emptyBody') : t('emptySearchBody', { query }),
+            caption: t('title'),
+          }}
         />
       )}
     </div>

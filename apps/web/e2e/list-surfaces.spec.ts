@@ -1,0 +1,47 @@
+import { expect, test } from '@playwright/test';
+
+import { signIn } from './helpers/session';
+
+/**
+ * The list surfaces render.
+ *
+ * ── why this exists ──────────────────────────────────────────────────────────────
+ *
+ * The catalogue was rebuilt as a real table and shipped broken: the page threw on
+ * every visit and rendered "This page couldn't load". The build was green, the unit
+ * tests passed, the type checker was happy, and the Browser job passed — because the
+ * Browser job never visited the catalogue.
+ *
+ * A server component cannot hand a render function to a client component, and the
+ * failure is a runtime crash rather than a compile error. The only thing that catches
+ * it is a browser actually going there.
+ *
+ * So the smoke suite goes there.
+ */
+const SURFACES = [
+  { path: '/en/admin/inventory/products', expect: 'table' },
+  { path: '/en/admin/inventory/batches', expect: 'table' },
+  { path: '/en/admin/alerts', expect: 'alert-list' },
+];
+
+test.describe('the list surfaces render', () => {
+  for (const surface of SURFACES) {
+    test(`${surface.path} does not fall over`, async ({ page }) => {
+      await signIn(page, process.env.E2E_ADMIN_EMAIL ?? 'admin@demo.local');
+
+      const response = await page.goto(surface.path, { waitUntil: 'domcontentloaded' });
+      expect(response?.status(), 'the page should not be an error').toBe(200);
+
+      // The error boundary replaces the whole page, so the absence of the failure text
+      // is the assertion, and the presence of the thing we wanted is the proof.
+      await expect(page.getByText(/couldn.t load/i)).toHaveCount(0);
+      await expect(page.getByText(/server error occurred/i)).toHaveCount(0);
+
+      if (surface.expect === 'table') {
+        await expect(page.locator('table')).toHaveCount(1);
+      } else {
+        await expect(page.getByTestId('alert-list')).toBeVisible();
+      }
+    });
+  }
+});
