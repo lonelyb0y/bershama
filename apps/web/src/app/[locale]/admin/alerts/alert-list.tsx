@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import type { Locale } from '@/i18n/routing';
 import type { ApiResult } from '@/lib/api/result';
 import { acknowledgeAlertAction, resolveAlertAction } from './actions';
+import { Badge } from '@/components/ui/badge';
 
 /**
  * The alert list, with its two buttons.
@@ -45,10 +46,22 @@ const SEVERITY_STYLE: Record<string, string> = {
   INFO: 'border-[color:var(--border)]/60',
 };
 
-const SEVERITY_DOT: Record<string, string> = {
-  CRITICAL: 'bg-red-500',
-  WARN: 'bg-amber-500',
-  INFO: 'bg-[color:var(--text-muted)]',
+/**
+ * Severity as a word.
+ *
+ * It used to be a coloured dot, with `aria-hidden` on it -- so the one thing on the
+ * screen that decided whether a warehouse manager acts now or at lunch was invisible
+ * to a screen reader, indistinguishable in greyscale, and invisible to anyone who
+ * cannot separate a red dot from an amber one.
+ *
+ * The word is the severity; the colour is decoration on top of it. "Critical" tells a
+ * supervisor how to triage. A red dot tells them something, and only if they already
+ * know the code.
+ */
+const SEVERITY_TONE: Record<string, 'bad' | 'warn' | 'neutral'> = {
+  CRITICAL: 'bad',
+  WARN: 'warn',
+  INFO: 'neutral',
 };
 
 export function AlertList({
@@ -129,17 +142,18 @@ function AlertItem({
       data-severity={alert.severity}
     >
       <div className="flex items-start gap-3">
-        {/* The dot is not decoration: it is the severity, readable without reading. */}
-        <span
-          className={`mt-1.5 size-2.5 shrink-0 rounded-full ${SEVERITY_DOT[alert.severity] ?? SEVERITY_DOT.INFO}`}
-          aria-hidden
-        />
+        <Badge tone={SEVERITY_TONE[alert.severity] ?? 'neutral'} className="shrink-0">
+          {t(`severity.${alert.severity}`)}
+        </Badge>
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
             <span className="text-xs font-semibold uppercase tracking-wide text-[color:var(--text-muted)]">
               {t(`type.${alert.type}`)}
             </span>
+            {alert.status === 'ACK' ? (
+              <span className="pf-pill !py-0.5 !text-[0.6875rem]">{t('acknowledged')}</span>
+            ) : null}
             {alert.occurrences > 1 && (
               <span
                 className="text-xs text-[color:var(--text-muted)]"
@@ -148,12 +162,9 @@ function AlertItem({
                 {t('seenTimes', { n: alert.occurrences })}
               </span>
             )}
-            {alert.status === 'ACK' && (
-              <span className="pf-pill !py-0.5 !text-[0.6875rem]">{t('acknowledged')}</span>
-            )}
           </div>
 
-          <p className="mt-1 text-sm">{alert.message}</p>
+          <p className="mt-1 text-sm font-medium">{alert.message}</p>
 
           <p className="mt-1 text-xs text-[color:var(--text-muted)]">
             {t('firstSeen', { when: firstSeen })}

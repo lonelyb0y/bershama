@@ -48,12 +48,12 @@ export function LocationForm({
   const errorFor = (field: string) => state.errors.find((e) => e.field === field)?.message;
 
   return (
-    <details open={state.ok} className="rounded-xl border">
-      <summary className="cursor-pointer px-4 py-3 text-sm font-medium select-none">
+    <details open={state.ok} className="w-fit max-w-full rounded-xl border">
+      <summary className="cursor-pointer rounded-lg px-3 py-1.5 text-sm font-medium select-none hover:bg-[color:var(--text-muted)]/10">
         {l.titleNewLocation}
       </summary>
 
-      <form action={formAction} className="space-y-4 border-t p-4">
+      <form action={formAction} className="w-[min(40rem,92vw)] space-y-4 border-t p-4">
         {state.ok && (
           <p className="rounded-lg border border-emerald-500/40 bg-emerald-500/5 px-3 py-2 text-sm text-emerald-600">
             {l.locationSaved}

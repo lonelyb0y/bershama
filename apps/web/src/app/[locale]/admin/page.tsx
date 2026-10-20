@@ -11,6 +11,7 @@ import { DashboardBackdrop } from '@/components/dashboard/dashboard-backdrop';
 import { DashboardMotion } from '@/components/dashboard/dashboard-motion';
 import { BarTrendChart, RankedBars } from '@/components/dashboard/charts';
 import { GlassPanel } from '@/components/dashboard/glass';
+import { StatTile } from '@/components/ui/stat-tile';
 import type { Locale } from '@/i18n/routing';
 
 /**
@@ -55,6 +56,19 @@ function parseWindow(raw: string | undefined): Window {
  * reference this dashboard is built to, and both are the difference between a row of
  * boxes and a set of cards.
  */
+/**
+ * A figure, with the sentence that makes it mean something.
+ *
+ * The notch that used to be cut out of these cards is gone, and so is the arrow that
+ * sat in it. It was the same on all four, so it said nothing about which figure
+ * mattered — it was a shape, not a signal — and it made the cards the widest things
+ * on the screen while saying least. The hero panel keeps the motif, where it is one
+ * element rather than a repeated decoration.
+ *
+ * The figure is the tile's job: the value, the unit, and one line saying what the
+ * value is for. "EGP 62K" alone is a number; "EGP 62K — what the business has tied up
+ * at cost" is a fact.
+ */
 function StatCard({
   label,
   value,
@@ -67,16 +81,13 @@ function StatCard({
   tone?: 'neutral' | 'good' | 'warn' | 'bad';
 }) {
   return (
-    <article
-      className={`pf-notch pf-notch--cut pf-glass relative p-4 pr-9 ${
-        tone === 'warn' ? 'border-amber-500/40' : tone === 'bad' ? 'border-red-500/40' : ''
-      }`}
-    >
-      <span className="pf-notch__dot" aria-hidden />
-      <p className="text-xs font-medium text-[color:var(--text-muted)]">{label}</p>
-      <p className="mt-1 text-2xl font-semibold tracking-tight tabular">{value}</p>
-      {hint && <p className="mt-0.5 text-xs text-[color:var(--text-muted)]">{hint}</p>}
-    </article>
+    <StatTile
+      label={label}
+      value={value}
+      hint={hint}
+      tone={tone}
+      className="pf-glass"
+    />
   );
 }
 

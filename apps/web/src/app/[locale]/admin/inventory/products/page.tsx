@@ -7,6 +7,11 @@ import { getSession } from '@/lib/session';
 import { setProductActive } from './actions';
 import { ProductForm } from '@/components/inventory/product-form';
 import { LocationForm } from '@/components/inventory/location-form';
+import { DataTable, type Column } from '@/components/ui/data-table';
+import { Badge, Ltr } from '@/components/ui/badge';
+import { EmptyState } from '@/components/ui/empty-state';
+import { PageHeader } from '@/components/ui/page-header';
+import { Toolbar } from '@/components/ui/toolbar';
 import type { Locale } from '@/i18n/routing';
 import type { Product } from '@/lib/types';
 
@@ -84,185 +89,252 @@ export default async function ProductsPage({
     code: f.code as string,
   }));
 
-  return (
-    <div className="space-y-6">
-      <header className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">{t('title')}</h1>
-          <p className="text-[color:var(--text-muted)] mt-1 text-sm">{t('subtitle', { count: products.length })}</p>
-        </div>
-      </header>
+  const displayName = (p: Product) => (locale === 'ar' ? p.nameAr : p.nameEn);
 
-      <ProductForm
-        canWrite={canWrite}
-        editing={editing ?? null}
-        labels={{
-          titleNew: t('form.newTitle'),
-          register: {
-            title: t('form.register.title'),
-            placeholder: t('form.register.placeholder'),
-            searching: t('form.register.searching'),
-            noResults: t('form.register.noResults'),
-            use: t('form.register.use'),
-            provenance: t('form.register.provenance'),
-          },
-          titleEdit: t('form.editTitle'),
-          sku: t('form.sku'),
-          nameEn: t('form.nameEn'),
-          nameAr: t('form.nameAr'),
-          genericNameEn: t('form.genericNameEn'),
-          genericNameAr: t('form.genericNameAr'),
-          brand: t('form.brand'),
-          form: t('form.form'),
-          strength: t('form.strength'),
-          strengthUnit: t('form.strengthUnit'),
-          packSize: t('form.packSize'),
-          uom: t('form.uom'),
-          atcCode: t('form.atcCode'),
-          gtin: t('form.gtin'),
-          edaRegNo: t('form.edaRegNo'),
-          requiresPrescription: t('form.requiresPrescription'),
-          isControlled: t('form.isControlled'),
-          isColdChain: t('form.isColdChain'),
-          shelfLifeMonths: t('form.shelfLifeMonths'),
-          sellPrice: t('form.sellPrice'),
-          sellPriceHint: t('form.sellPriceHint'),
-          isActive: t('form.isActive'),
+  /**
+   * The columns worth showing.
+   *
+   * Five, not twelve. A catalogue manager is looking for a product by name or SKU and
+   * then checking two things about it: whether it is prescription-only, and whether it
+   * is active. The ATC code, the GTIN and the EDAN registration are real facts about
+   * the product, and they are also three more columns of noise on a screen whose job
+   * is to be scanned. They live in the edit form, which is where somebody asks for them.
+   */
+  const columns: Column<Product>[] = [
+    {
+      key: 'name',
+      header: t('column.product'),
+      primary: true,
+      render: (p) => (
+        <div className="min-w-0">
+          <div className="truncate font-medium">{displayName(p)}</div>
+          {/* The other language stays visible on purpose. A catalogue manager needs to
+              know the record is not missing its Arabic or English name. */}
+          <div
+            className="truncate text-xs text-[color:var(--text-muted)]"
+            dir="ltr"
+          >
+            {locale === 'ar' ? p.nameEn : p.nameAr}
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'sku',
+      header: t('column.sku'),
+      mobileLabel: t('column.sku'),
+      className: 'font-mono text-xs',
+      render: (p) => <Ltr>{p.sku}</Ltr>,
+    },
+    {
+      key: 'strength',
+      header: t('column.form'),
+      mobileLabel: t('column.form'),
+      render: (p) => `${p.strength} ${p.strengthUnit ?? ''}`.trim(),
+    },
+    {
+      key: 'pack',
+      header: t('column.pack'),
+      mobileLabel: t('column.pack'),
+      numeric: true,
+      secondary: true,
+      render: (p) => `${p.packSize} ${p.uom}`,
+    },
+    {
+      key: 'flags',
+      header: t('column.flags'),
+      mobileLabel: t('column.flags'),
+      render: (p) => (
+        <div className="flex flex-wrap gap-1">
+          {p.requiresPrescription ? <Badge tone="info">{t('badge.rx')}</Badge> : null}
+          {p.isControlled ? <Badge tone="warn">{t('badge.controlled')}</Badge> : null}
+          {p.isColdChain ? <Badge tone="info">{t('badge.cold')}</Badge> : null}
+          {!p.isActive ? <Badge tone="neutral">{t('badge.inactive')}</Badge> : null}
+        </div>
+      ),
+    },
+  ];
+
+  return (
+    <div className="space-y-4">
+      <PageHeader
+        title={t('title')}
+        description={t('subtitle', { count: products.length })}
+      />
+
+      {/*
+        The two disclosures, side by side and the width of their labels.
+
+        They were full-width bordered strips, one word each, stacked — two entire rows
+        of the screen for two actions, and the widest elements on the page. `w-fit`
+        makes the closed disclosure exactly as wide as its summary, and the form
+        inside sets its own width when it opens.
+      */}
+      <div className="flex flex-wrap items-start gap-2">
+        <ProductForm
+          canWrite={canWrite}
+          editing={editing ?? null}
+          labels={{
+            titleNew: t('form.newTitle'),
+            register: {
+              title: t('form.register.title'),
+              placeholder: t('form.register.placeholder'),
+              searching: t('form.register.searching'),
+              noResults: t('form.register.noResults'),
+              use: t('form.register.use'),
+              provenance: t('form.register.provenance'),
+            },
+            titleEdit: t('form.editTitle'),
+            sku: t('form.sku'),
+            nameEn: t('form.nameEn'),
+            nameAr: t('form.nameAr'),
+            genericNameEn: t('form.genericNameEn'),
+            genericNameAr: t('form.genericNameAr'),
+            brand: t('form.brand'),
+            form: t('form.form'),
+            strength: t('form.strength'),
+            strengthUnit: t('form.strengthUnit'),
+            packSize: t('form.packSize'),
+            uom: t('form.uom'),
+            atcCode: t('form.atcCode'),
+            gtin: t('form.gtin'),
+            edaRegNo: t('form.edaRegNo'),
+            requiresPrescription: t('form.requiresPrescription'),
+            isControlled: t('form.isControlled'),
+            isColdChain: t('form.isColdChain'),
+            shelfLifeMonths: t('form.shelfLifeMonths'),
+            sellPrice: t('form.sellPrice'),
+            sellPriceHint: t('form.sellPriceHint'),
+            isActive: t('form.isActive'),
+            facility: t('form.facility'),
+            code: t('form.code'),
+            kind: t('form.kind'),
+            tempMinC: t('form.tempMinC'),
+            tempMaxC: t('form.tempMaxC'),
+            submit: t('form.submit'),
+            cancel: t('form.cancel'),
+            saved: t('form.saved'),
+            created: t('form.created'),
+            titleNewLocation: t('form.newLocationTitle'),
+            locationSaved: t('form.locationSaved'),
+            submitLocation: t('form.submitLocation'),
+          }}
+        />
+
+        <LocationForm canWrite={canWrite} facilities={facilities} labels={{
           facility: t('form.facility'),
           code: t('form.code'),
+          nameEn: t('form.nameEn'),
+          nameAr: t('form.nameAr'),
           kind: t('form.kind'),
           tempMinC: t('form.tempMinC'),
           tempMaxC: t('form.tempMaxC'),
-          submit: t('form.submit'),
-          cancel: t('form.cancel'),
-          saved: t('form.saved'),
-          created: t('form.created'),
+          isActive: t('form.isActive'),
           titleNewLocation: t('form.newLocationTitle'),
           locationSaved: t('form.locationSaved'),
           submitLocation: t('form.submitLocation'),
-        }}
-      />
+        }} />
+      </div>
 
-      <LocationForm canWrite={canWrite} facilities={facilities} labels={{
-        facility: t('form.facility'),
-        code: t('form.code'),
-        nameEn: t('form.nameEn'),
-        nameAr: t('form.nameAr'),
-        kind: t('form.kind'),
-        tempMinC: t('form.tempMinC'),
-        tempMaxC: t('form.tempMaxC'),
-        isActive: t('form.isActive'),
-        titleNewLocation: t('form.newLocationTitle'),
-        locationSaved: t('form.locationSaved'),
-        submitLocation: t('form.submitLocation'),
-      }} />
+      {/*
+        One search landmark, not six.
 
-      <form method="get" className="flex gap-2">
-        <input
-          type="search"
-          name="q"
-          defaultValue={query}
-          placeholder={t('searchPlaceholder')}
-          aria-label={t('searchPlaceholder')}
-          className="w-full max-w-sm rounded-lg border px-3 py-2 text-sm"
-        />
-        <button type="submit" className="rounded-lg border px-3 py-2 text-sm font-medium hover:bg-[color:var(--text-muted)]/10">
-          {t('search')}
-        </button>
-        {query !== '' && (
-          <Link
-            href="/admin/inventory/products"
-            className="rounded-lg border px-3 py-2 text-sm font-medium hover:bg-[color:var(--text-muted)]/10"
+        The catalogue had a search form and two disclosure forms and an action form
+        per row, so the page announced six form landmarks and a screen reader user
+        listing them heard "form" six times. The search is a `role="search"` region
+        with a name, and the per-row action forms are inside the table where they
+        belong.
+      */}
+      <Toolbar label={t('searchPlaceholder')}>
+        <form method="get" className="flex flex-1 gap-2">
+          <input
+            type="search"
+            name="q"
+            defaultValue={query}
+            placeholder={t('searchPlaceholder')}
+            aria-label={t('searchPlaceholder')}
+            className="w-full max-w-sm rounded-lg border bg-transparent px-3 py-1.5 text-sm"
+          />
+          <button
+            type="submit"
+            className="rounded-lg border px-3 py-1.5 text-sm font-medium hover:bg-[color:var(--text-muted)]/10"
           >
-            {t('clear')}
-          </Link>
-        )}
-      </form>
+            {t('search')}
+          </button>
+          {query !== '' ? (
+            <Link
+              href="/admin/inventory/products"
+              className="rounded-lg border px-3 py-1.5 text-sm font-medium hover:bg-[color:var(--text-muted)]/10"
+            >
+              {t('clear')}
+            </Link>
+          ) : null}
+        </form>
+      </Toolbar>
 
       {error ? (
-        <p className="rounded-xl border border-red-500/40 bg-red-500/5 p-4 text-sm text-red-500">
+        <p
+          role="alert"
+          className="rounded-xl border border-[var(--color-stock-critical)]/40 bg-[var(--color-stock-critical)]/5 p-4 text-sm text-[var(--color-stock-critical)]"
+        >
           {t('loadError')}
         </p>
-      ) : products.length === 0 ? (
-        <p className="rounded-xl border p-8 text-center text-sm text-[color:var(--text-muted)]">
-          {query === '' ? t('empty') : t('emptySearch', { query })}
-        </p>
       ) : (
-        <ul className="divide-y rounded-xl border">
-          {products.map((p) => (
-            <li
-                  key={p.id}
-                  data-testid="product-row"
-                  className="flex flex-wrap items-center gap-x-4 gap-y-2 p-4"
-                >
-              <div className="min-w-0 flex-1">
-                <p className="font-medium">
-                  {locale === 'ar' ? p.nameAr : p.nameEn}
-                  {/* The other language stays visible on purpose. A catalogue
-                      manager needs to know the record is not missing its Arabic
-                      or English name. */}
-                  <span className="text-[color:var(--text-muted)] ms-2 text-sm font-normal">
-                    {locale === 'ar' ? p.nameEn : p.nameAr}
-                  </span>
-                </p>
-                <p className="text-[color:var(--text-muted)] mt-0.5 font-mono text-xs">
-                  {p.sku} · {p.strength} {p.strengthUnit ?? ''} · {p.packSize} {p.uom}
-                </p>
-              </div>
-
-              <div className="flex flex-wrap gap-1.5">
-                {p.requiresPrescription && <Badge tone="info">{t('badge.rx')}</Badge>}
-                {p.isControlled && <Badge tone="warn">{t('badge.controlled')}</Badge>}
-                {p.isColdChain && <Badge tone="cold">{t('badge.cold')}</Badge>}
-                {!p.isActive && <Badge tone="muted">{t('badge.inactive')}</Badge>}
-              </div>
-
-              {canWrite && (
-                <div className="flex gap-2">
-                  <Link
-                    href={`/admin/inventory/products?edit=${p.id}`}
+        <DataTable
+          columns={columns}
+          rows={products}
+          caption={t('title')}
+          rowKey={(p) => p.id}
+          rowLabel={(p) => displayName(p)}
+          rowTestId="product-row"
+          empty={
+            <EmptyState
+              title={query === '' ? t('empty') : t('emptySearch', { query })}
+              body={query === '' ? t('emptyBody') : t('emptySearchBody', { query })}
+            />
+          }
+          renderActions={
+            canWrite
+              ? (p) => (
+                  <>
+                    <Link
+                      href={`/admin/inventory/products?edit=${p.id}`}
                       // Prefetching off. Each of these links to *this* page with a
                       // different product's edit form attached, so the default
                       // viewport prefetch fired one RSC request per row -- each
                       // re-running the catalogue query to prove an edit form exists.
                       // The largest single source of requests on this surface.
                       prefetch={false}
-                    className="rounded-md border px-2.5 py-1.5 text-xs font-medium hover:bg-[color:var(--text-muted)]/10"
-                  >
-                    {t('edit')}
-                  </Link>
-<form action={setProductActive}>
-                    <input type="hidden" name="id" value={p.id} />
-                    <input type="hidden" name="active" value={String(!p.isActive)} />
-                    <button
-                      type="submit"
+                      // The product's name is in the accessible name. Ten links all
+                      // called "Edit" is ten identical announcements and a screen
+                      // reader user has no way to tell which product any of them
+                      // belongs to.
+                      aria-label={t('action.edit', { name: displayName(p) })}
                       className="rounded-md border px-2.5 py-1.5 text-xs font-medium hover:bg-[color:var(--text-muted)]/10"
                     >
-                      {p.isActive ? t('deactivate') : t('reactivate')}
-                    </button>
-                  </form>
-                </div>
-              )}
-            </li>
-          ))}
-        </ul>
+                      {t('edit')}
+                    </Link>
+                    <form action={setProductActive}>
+                      <input type="hidden" name="id" value={p.id} />
+                      <input type="hidden" name="active" value={String(!p.isActive)} />
+                      <button
+                        type="submit"
+                        aria-label={t(
+                          p.isActive ? 'action.deactivate' : 'action.reactivate',
+                          { name: displayName(p) },
+                        )}
+                        className="rounded-md border px-2.5 py-1.5 text-xs font-medium hover:bg-[color:var(--text-muted)]/10"
+                      >
+                        {p.isActive ? t('deactivate') : t('reactivate')}
+                      </button>
+                    </form>
+                  </>
+                )
+              : undefined
+          }
+        />
       )}
     </div>
-  );
-}
-
-function Badge({ tone, children }: { tone: 'info' | 'warn' | 'cold' | 'muted'; children: React.ReactNode }) {
-  const tones = {
-    info: 'border-sky-500/40 text-sky-600',
-    warn: 'border-amber-500/40 text-amber-600',
-    cold: 'border-cyan-500/40 text-cyan-600',
-    muted: 'border-[color:var(--border)] text-[color:var(--text-muted)]',
-  } as const;
-
-  return (
-    <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${tones[tone]}`}>
-      {children}
-    </span>
   );
 }
 

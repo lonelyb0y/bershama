@@ -99,13 +99,13 @@ export function ProductForm({
   return (
     <details
       open={editing !== null || state.ok}
-      className="rounded-xl border"
+      className="w-fit max-w-full rounded-xl border"
     >
-      <summary className="cursor-pointer px-4 py-3 text-sm font-medium select-none">
+      <summary className="cursor-pointer rounded-lg px-3 py-1.5 text-sm font-medium select-none hover:bg-[color:var(--text-muted)]/10">
         {editing ? l.titleEdit : l.titleNew}
       </summary>
 
-      <form action={formAction} className="space-y-4 border-t p-4">
+      <form action={formAction} className="w-[min(40rem,92vw)] space-y-4 border-t p-4">
         {editing && <input type="hidden" name="id" value={editing.id} />}
 
         {state.ok && (
