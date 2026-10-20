@@ -259,7 +259,8 @@ jobs:
               e2e/header.spec.ts \
               e2e/theme.spec.ts \
               e2e/contrast.spec.ts \
-              e2e/alerts.spec.ts
+              e2e/alerts.spec.ts \
+              e2e/list-surfaces.spec.ts
 
       # Always, including after a failure: a red build that left a tenant behind would
       # make the next one fail for a reason that has nothing to do with its diff.
