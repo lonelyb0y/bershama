@@ -167,7 +167,12 @@
     },
     "runScan": "Run scan",
     "scanning": "Scanning…",
-    "scanDone": "Scan complete."
+    "scanDone": "Scan complete.",
+    "severity": {
+      "CRITICAL": "Critical",
+      "WARN": "Warning",
+      "INFO": "Info"
+    }
   },
   "m0": {
     "title": "Bershama",
@@ -296,7 +301,21 @@
       "submitLocation": "Save location",
       "sellPrice": "Sell price",
       "sellPriceHint": "What the pharmacy pays per unit. Leave empty if not priced yet — a zero price is treated as unknown, not free."
-    }
+    },
+    "column": {
+      "product": "Product",
+      "sku": "SKU",
+      "form": "Strength",
+      "pack": "Pack",
+      "flags": "Flags"
+    },
+    "action": {
+      "edit": "Edit {name}",
+      "deactivate": "Deactivate {name}",
+      "reactivate": "Reactivate {name}"
+    },
+    "emptyBody": "A product is what a batch belongs to. Add the first one and the catalogue can take stock against it.",
+    "emptySearchBody": "Nothing matches \"{query}\". Search covers the name, the Arabic name and the SKU."
   },
   "batches": {
     "title": "Batches",
@@ -320,7 +339,10 @@
       "QUARANTINED": "Quarantined",
       "DEPLETED": "Depleted",
       "EXPIRED": "Expired"
-    }
+    },
+    "daysColumn": "Days to expiry",
+    "over": "over",
+    "emptyBody": "A batch is a specific lot of a product with its own expiry date. Receive stock against a product and its batches appear here, expiring soonest first."
   },
   "deliveries": {
     "status": {
