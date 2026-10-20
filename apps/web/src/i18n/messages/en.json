@@ -26,7 +26,8 @@
     "analytics": "Analytics",
     "catalogue": "Catalogue",
     "audit": "Audit log",
-    "stocktake": "Stocktake"
+    "stocktake": "Stocktake",
+    "sections": "Sections"
   },
   "auth": {
     "signIn": "Sign in",

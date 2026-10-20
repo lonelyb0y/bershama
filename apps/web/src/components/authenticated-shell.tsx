@@ -86,7 +86,14 @@ export async function AuthenticatedShell({
     // stay legible over content passing underneath -- at the dashboard's 78% the text
     // loses its background every time a row scrolls behind it.
       <div className="min-h-dvh">
-      <header className="pf-glass-header sticky top-0 z-30">
+      <header
+        // Named. A banner and a main with no name are two landmarks a screen
+        // reader lists as "banner" and "main" -- which tells a person using the
+        // landmark list nothing about which is which, on a page that has a
+        // navigation in it.
+        aria-label={t('common.appName')}
+        className="pf-glass-header sticky top-0 z-30"
+      >
         <div className="mx-auto max-w-7xl px-4">
           <div className="flex h-16 items-center gap-4">
             <Link
@@ -117,14 +124,23 @@ export async function AuthenticatedShell({
               The scrollbar is hidden on purpose -- a visible one on a tab strip is
               noise, and the strip's own overflow is the affordance. */}
           <div data-testid="header-nav-strip" className="-mx-4 border-t border-[color:var(--border)]/30 lg:hidden">
-            <nav aria-label={t('nav.dashboard')} className="px-4">
+            {/* A different name from the navigation above, not the same one.
+                They are the same destinations in two arrangements, and two
+                landmarks with the same name are a landmark list that says
+                nothing. */}
+            <nav aria-label={t('nav.sections')} className="px-4">
               <AppNav surface={surface} role={session.role} />
             </nav>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl px-4 py-6">{children}</main>
+      <main
+        aria-label={t('common.appName')}
+        className="mx-auto max-w-7xl px-4 py-6"
+      >
+        {children}
+      </main>
       </div>
   );
 }
