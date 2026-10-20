@@ -150,22 +150,27 @@ export function AppNav({
      * tries to switch language.
      *
      * overflow-x-auto contains the overflow, and shrink-0 on the items keeps
-     * each label whole rather than letting the last one clip mid-word. xl, not
-     * lg: at ten destinations there is no honest way to fit these beside the
-     * theme button, the language switcher, the name and sign-out, so below xl
-     * the nav is hidden rather than shown wrong.
+     * each label whole rather than letting the last one clip mid-word.
      *
-     * scrollbar-width: none hides the bar on Firefox, where a visible one eats
-     * the height the header already does not have. The nav still scrolls with a
-     * wheel or a trackpad, and by keyboard, which is what a keyboard user
-     * needs; the scrollbar was a cosmetic cost for a sighted mouse user.
+     * The trailing fade in .pf-nav-scroll is what says there is more. It was
+     * removed once because it faded three destinations out of reach -- but that was
+     * when the nav did NOT scroll from lg up, so the mask permanently covered
+     * what was behind it. Now the strip scrolls at every width, so a destination
+     * under the fade moves out from under it when the strip is scrolled. The mask
+     * and the scroll have to agree, and now they do.
      */
     <nav
       aria-label={t('dashboard')}
-      // A scrolling strip rather than a wrapping one. Wrapping is what put "Sign out"
-      // across two lines; a strip that scrolls keeps every label on one line at every
-      // width, and the trailing fade is the affordance that says there is more.
-      className="pf-nav-scroll lg:flex-wrap lg:overflow-visible"
+      // A scrolling strip at every width, never a wrapping one.
+      //
+      // It used to wrap from lg up, and that was measured to be wrong at every
+      // desktop size: the header is capped at max-w-7xl, so the navigation never
+      // gets more than 742px however wide the window is, and the ten destinations
+      // need about 890. It wrapped at 1024, 1280, 1440 and 1920 alike -- and the
+      // header row is h-16, a fixed 64px, so the second row of items did not fit
+      // inside it. "Analytics" and "Audit log" rendered below the header's glass
+      // panel, on the page background, detached from the navigation they belong to.
+      className="pf-nav-scroll"
       >
       {items.map((item) => {
         const surfaceRoot = `/${surface === 'admin' ? 'admin' : surface}`;

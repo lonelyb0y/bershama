@@ -35,7 +35,19 @@ export default async function InventoryIndex({
   const [products, batches, lowStock] = await Promise.all([
     supabase.from('products').select('id', { count: 'exact', head: true }).eq('is_active', true),
     supabase.from('batches').select('id', { count: 'exact', head: true }).is('deleted_at', null),
-    supabase.from('stock_balances').select('id', { count: 'exact', head: true }).gt('qty_on_hand', 0),
+    // The column is product_id, not id.
+    //
+    // stock_balances is keyed on (tenant_id, location_id, product_id, batch_id) and
+    // has no `id` at all, so selecting one made PostgREST answer `42703: column
+    // stock_balances.id does not exist`. The count came back zero, the error was
+    // swallowed, and the page told a distributor they had no stock in a warehouse
+    // holding 650 units -- on the same screen as a dashboard saying 650.
+    //
+    // It is worth being clear about the failure mode: a count query that errors
+    // does not error visibly. It returns null, `?? 0` turns it into a number, and
+    // the number is wrong. A wrong count on a stock screen is worse than a broken
+    // one, because it is believed.
+    supabase.from('stock_balances').select('product_id', { count: 'exact', head: true }).gt('qty_on_hand', 0),
   ]);
 
   const doors = [

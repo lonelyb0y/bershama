@@ -67,7 +67,8 @@
     "stocktake": {
       "title": "Stocktake",
       "body": "Count what is on the shelf"
-    }
+    },
+    "batch": "Batch"
   },
   "requisitions": {
     "title": "Requisitions",
@@ -224,7 +225,9 @@
     "offlineNote": "This page needs a connection. A count taken without one cannot be recorded.",
     "reason": "Reason for a variance",
     "entered": "lines entered",
-    "expired": "Expired"
+    "expired": "Expired",
+    "expiringSoon": "Expiring soon",
+    "countPlaceholder": "Count"
   },
   "theme": {
     "label": "Theme",

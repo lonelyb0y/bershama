@@ -185,12 +185,16 @@ drift: ## Check the client error mapper against the codes the database raises
 api-types: ## Check the generated TS types against the api schema
 	python3 scripts/check-api-types.py
 
+.PHONY: i18n-keys
+i18n-keys: ## Check that every translation key the code asks for exists
+	node scripts/check-i18n-keys.mjs
+
 .PHONY: hosted-check
 hosted-check: ## Check the deployed project routes the api schema (needs HOSTED_* env)
 	@./scripts/check-hosted-schemas.sh
 
 .PHONY: check
-check: lint typecheck test secrets assertions drift api-types ## Fast checks, no database needed
+check: lint typecheck test secrets assertions drift api-types i18n-keys ## Fast checks, no database needed
 
 .PHONY: verify
 verify: check test-db build e2e ## Everything CI runs

@@ -111,7 +111,25 @@ export function LoginForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4" noValidate>
+    // method="post" and an action, so a submit that happens before React has
+    // hydrated cannot fall through to the browser's default GET.
+    //
+    // A form with neither is a GET to the current URL, and a GET puts every field in
+    // the query string. That put the password in the address bar, in the browser
+    // history, in the Referer of anything the page loaded next and in every server
+    // log on the way -- and it happened on a slow connection or a cold cache, which is
+    // precisely when a person is not looking.
+    //
+    // The action discards the body and returns to the form. It is not a second way
+    // to sign in: by the time the form is interactive the handler is attached and
+    // this never runs.
+    <form
+      onSubmit={onSubmit}
+      method="post"
+      action={`/api/auth/native-submit?locale=${locale}`}
+      className="space-y-4"
+      noValidate
+    >
       <div>
         <label
           htmlFor="email"

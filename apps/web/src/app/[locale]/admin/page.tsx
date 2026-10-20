@@ -463,9 +463,18 @@ export default async function AdminDashboard({
             />
             <StatCard
               label={t('marginOnStock')}
-              value={formatMoney(marginMinor, { locale, compact: true })}
+              // No sell prices means there is no margin to report.
+              //
+              // With retail at zero, margin is minus the entire cost of the stock on
+              // hand: the card said "-EGP 62K", on a red notched card, directly above
+              // the sentence "No sell prices entered yet". A number and a sentence that
+              // contradict each other, on a screen whose job is to be believed.
+              //
+              // The figure is the absence of a figure, so it is shown as one. The
+              // explanation stays in the hint, where it was already correct.
+              value={priced.length > 0 ? formatMoney(marginMinor, { locale, compact: true }) : '—'}
               hint={priced.length > 0 ? t('marginHint', { pct: percentFormat.format(marginMinor / Math.max(1, retailMinor)) }) : t('noPricesYet')}
-              tone={marginMinor >= 0 ? 'good' : 'bad'}
+              tone={priced.length === 0 ? 'neutral' : marginMinor >= 0 ? 'good' : 'bad'}
             />
             <StatCard
               label={t('expiring')}
