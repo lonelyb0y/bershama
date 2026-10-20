@@ -157,7 +157,15 @@ export function ProductTable({
                 >
                   {l.edit}
                 </Link>
-                <form action={setActiveAction}>
+                {/* Named, so the landmark list says which product each form
+                    belongs to instead of listing "form" five times. */}
+                <form
+                  action={setActiveAction}
+                  aria-label={(p.isActive ? l.actionDeactivate : l.actionReactivate).replace(
+                    '{name}',
+                    displayName(p),
+                  )}
+                >
                   <input type="hidden" name="id" value={p.id} />
                   <input type="hidden" name="active" value={String(!p.isActive)} />
                   <button

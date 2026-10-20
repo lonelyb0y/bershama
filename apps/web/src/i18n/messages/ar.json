@@ -26,7 +26,8 @@
     "analytics": "التحليلات",
     "catalogue": "الكتالوج",
     "audit": "سجل التدقيق",
-    "stocktake": "الجرد"
+    "stocktake": "الجرد",
+    "sections": "الأقسام"
   },
   "auth": {
     "signIn": "تسجيل الدخول",
