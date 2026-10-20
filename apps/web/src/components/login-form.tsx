@@ -33,14 +33,31 @@ export function LoginForm() {
   const locale = useLocale();
   const router = useRouter();
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  // The two fields are NOT React state.
+  //
+  // They were, and the form worked only when the bundle had loaded before the person
+  // started typing. A controlled input whose value lives in state is empty until React
+  // has hydrated: type into it first and the keystrokes go into the DOM, React's state
+  // never sees them, and the submit sends nothing. GoTrue's answer was literally
+  // "missing email or phone" -- the request had no email in it at all.
+  //
+  // It is worse than a failed sign-in, because hydration then re-renders the field and
+  // erases what was typed. On a slow connection or a cold cache, the email a person
+  // carefully typed could be deleted from under them as they reached for the button.
+  //
+  // So the fields are uncontrolled, and the submit handler reads them from the form
+  // itself. What the person typed is what gets sent, whenever they typed it.
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
+
+    // From the form, not from state. See the note on the fields above.
+    const form = new FormData(event.currentTarget);
+    const email = String(form.get('email') ?? '').trim();
+    const password = String(form.get('password') ?? '');
 
     // A token per submission, before the password is sent anywhere. v3 scores the
     // interaction rather than the credentials, so this has to run on the real submit
@@ -111,8 +128,7 @@ export function LoginForm() {
   }
 
   return (
-    // method="post" and an action, so a submit that happens before React has
-    // hydrated cannot fall through to the browser's default GET.
+    // method="post", and deliberately NO action attribute.
     //
     // A form with neither is a GET to the current URL, and a GET puts every field in
     // the query string. That put the password in the address bar, in the browser
@@ -120,16 +136,19 @@ export function LoginForm() {
     // log on the way -- and it happened on a slow connection or a cold cache, which is
     // precisely when a person is not looking.
     //
-    // The action discards the body and returns to the form. It is not a second way
-    // to sign in: by the time the form is interactive the handler is attached and
-    // this never runs.
-    <form
-      onSubmit={onSubmit}
-      method="post"
-      action={`/api/auth/native-submit?locale=${locale}`}
-      className="space-y-4"
-      noValidate
-    >
+    // method="post" puts the credentials in a request body instead. There is no
+    // action, so a submit that happens before React has hydrated POSTs to the page
+    // itself and is answered with a 405 -- a page route only answers GET. That is a
+    // confusing answer and it is the right one: the alternative is the password in a
+    // URL, and a confusing answer is cheaper than a leaked credential.
+    //
+    // An action attribute was tried and had to be taken back out. React 19 treats a
+    // form with a string action as a form action and submits it natively, and it does
+    // so *after* the submit handler has run: the password grant succeeded, and then
+    // the native POST navigated the browser to the action and cancelled the
+    // client-side navigation that was about to land on the dashboard. Every sign-in
+    // ended at /login with a valid session and no error anywhere.
+    <form onSubmit={onSubmit} method="post" className="space-y-4" noValidate>
       <div>
         <label
           htmlFor="email"
@@ -147,8 +166,10 @@ export function LoginForm() {
           dir="ltr"
           autoComplete="email"
           required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          // Uncontrolled, and read at submit time from the form. See the note on
+          // the fields in the component body: a controlled field is empty until
+          // React has hydrated, and hydration then erases what was typed.
+          defaultValue=""
           className="mt-1 w-full rounded-lg border bg-transparent px-3 py-2 text-sm"
         />
       </div>
@@ -165,8 +186,7 @@ export function LoginForm() {
           autoComplete="current-password"
           required
           minLength={12}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          defaultValue=""
           className="mt-1 w-full rounded-lg border bg-transparent px-3 py-2 text-sm"
         />
       </div>
