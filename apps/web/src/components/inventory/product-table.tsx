@@ -96,7 +96,10 @@ export function ProductTable({
       key: 'sku',
       header: l.columnSku,
       mobileLabel: l.columnSku,
-      className: 'font-mono text-xs',
+      // whitespace-nowrap: a SKU is an atomic identifier. Wrapped across two lines
+      // it is un-typeable into a search box, and it is the one string on this
+      // screen somebody copies.
+      className: 'whitespace-nowrap font-mono text-xs',
       render: (p) => <Ltr>{p.sku}</Ltr>,
     },
     {

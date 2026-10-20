@@ -91,7 +91,7 @@ export function BatchTable({
       header: l.lot,
       mobileLabel: l.lot,
       render: (r) => (
-        <span className="font-mono text-xs">
+        <span className="whitespace-nowrap font-mono text-xs">
           <Ltr>{r.lotNumber}</Ltr>
         </span>
       ),
@@ -132,7 +132,7 @@ export function BatchTable({
       mobileLabel: l.expiry,
       secondary: true,
       render: (r) => (
-        <span className="text-xs tabular-nums text-[color:var(--text-muted)]">
+        <span className="whitespace-nowrap text-xs tabular-nums text-[color:var(--text-muted)]">
           <Ltr>{r.expiryDate}</Ltr>
         </span>
       ),
