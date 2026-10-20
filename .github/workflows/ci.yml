@@ -85,6 +85,14 @@ jobs:
       - name: Generated types match the api schema
         run: make api-types
 
+      # A missing translation key does not fail a build. next-intl logs it, the page
+      # renders the key itself, and the app carries on -- which is how
+      # "inventory.batch" ended up as a column header and "stocktake.expiringSoon"
+      # as warning text, in production, on a live screen. Both were found by looking
+      # at the page rather than at the build.
+      - name: Every translation key exists
+        run: make i18n-keys
+
   # ── browser tests ─────────────────────────────────────────────────────────────
   #
   # This job exists because of a specific omission. Every product create and edit had

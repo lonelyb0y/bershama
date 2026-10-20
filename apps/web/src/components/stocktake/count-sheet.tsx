@@ -264,7 +264,10 @@ export function CountSheet({
                     </span>
                   </td>
 
-                  <td className="px-3 py-3">
+                  {/* text-end so the input sits under the right-aligned "Counted"
+                      header. It was left-aligned under a right-aligned heading, and
+                      the header was the only thing saying what the box was for. */}
+                  <td className="px-3 py-3 text-end">
                     <input
                       // Named by the row it sits in, which is how a table cell
                       // carries an accessible name.
@@ -274,35 +277,51 @@ export function CountSheet({
                       inputMode="numeric"
                       pattern="[0-9]*"
                       dir="ltr"
+                      // A shelf counter has to guess that the small empty box is
+                      // where the number goes, and that a blank means "not counted"
+                      // rather than zero. Both are said here.
+                      placeholder={t('countPlaceholder')}
                       value={raw}
                       onChange={(e) => {
                         const cleaned = e.target.value.replace(/[^0-9]/g, '');
                         if (cleaned !== e.target.value) e.target.value = cleaned;
                         setCount(row.batchId, cleaned);
                       }}
-                      className={`w-24 rounded-lg border px-2 py-1.5 text-end text-sm tabular-nums outline-none focus-visible:ring-2 ${
+                      className={`w-28 rounded-lg border px-2 py-1.5 text-end text-sm tabular-nums outline-none focus-visible:ring-2 placeholder:text-[color:var(--text-muted)] ${
                         failed ? 'border-[var(--color-stock-critical)]' : ''
                       }`}
                     />
                   </td>
 
                   <td className="px-3 py-3">
-                    <select
-                      aria-label={`${t('reason')}: ${name}`}
-                      dir="ltr"
-                      value={reasons[row.batchId] ?? ''}
-                      onChange={(e) => {
-                        setReasons((prev) => ({ ...prev, [row.batchId]: e.target.value }));
-                        reset();
-                      }}
-                      className="rounded-lg border px-2 py-1.5 text-sm outline-none focus-visible:ring-2"
-                    >
-                      {reasonOptions.map((o) => (
-                        <option key={o.value || 'none'} value={o.value}>
-                          {o.label}
-                        </option>
-                      ))}
-                    </select>
+                    {/* The reason only exists once there is a variance to explain.
+                        It was on every line, always, defaulting to "--", before a
+                        single number had been counted -- so most of what it collected
+                        was noise, and the reason column is part of the audit trail,
+                        which is the one record here that is supposed to mean
+                        something. */}
+                    {variance !== null && variance !== 0 ? (
+                      <select
+                        aria-label={`${t('reason')}: ${name}`}
+                        dir="ltr"
+                        value={reasons[row.batchId] ?? ''}
+                        onChange={(e) => {
+                          setReasons((prev) => ({ ...prev, [row.batchId]: e.target.value }));
+                          reset();
+                        }}
+                        className="rounded-lg border px-2 py-1.5 text-sm outline-none focus-visible:ring-2"
+                      >
+                        {reasonOptions.map((o) => (
+                          <option key={o.value || 'none'} value={o.value}>
+                            {o.label}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <span className="text-[color:var(--text-muted)]" aria-hidden="true">
+                        —
+                      </span>
+                    )}
                   </td>
                 </tr>
               );

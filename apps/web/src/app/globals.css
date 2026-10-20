@@ -701,14 +701,22 @@
   overflow-x: auto;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
-  /* The mask is gone. It was meant to be a trailing affordance saying "there is more",
-     and instead it faded three real destinations out of existence: Deliveries,
-     Alerts and Analytics sat behind the last 1.5rem and could not be reached, because
-     the scrollbar it was meant to hint at is hidden.
 
-     A nav that hides destinations is not a nav. If a surface has more items than fit,
-     they wrap onto the second row below lg -- which is what the two-row header is for.
-     Above lg the strip is not scrolled and there is nothing to hint at. */
+  /* The mask is back, and it is back because the scrolling came with it.
+     It was removed when the nav did not scroll from lg up: the strip was
+     overflow-visible there, so a fade at the right edge covered three real
+     destinations -- Deliveries, Alerts and Analytics -- permanently, and a nav
+     that hides destinations is not a nav.
+
+     Now the strip scrolls at every width, so anything under the fade moves out
+     from under it when the strip is scrolled. The mask and the scroll have to
+     agree; when they disagreed, the mask lied.
+
+     18px, and not the 1.5rem (24px) it was before: an edge that fades a whole
+     item out of reach is a different thing from an edge that dims the last few
+     pixels of one. A destination is never more than partly behind this. */
+  mask-image: linear-gradient(to right, #000 calc(100% - 18px), transparent);
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 18px), transparent);
 }
 
 .pf-nav-scroll::-webkit-scrollbar {
