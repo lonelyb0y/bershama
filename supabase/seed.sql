@@ -56,7 +56,7 @@ values
   (
     '11111111-0000-4000-8000-000000000101',
     'admin@demo.local',
-    crypt('PharmaFlow#2026', gen_salt('bf', 10)),
+    crypt('Bershama#2026', gen_salt('bf', 10)),
     now(),
     '{"provider":"email","providers":["email"]}'::jsonb,
     '{}'::jsonb, 'authenticated', 'authenticated'
@@ -64,7 +64,7 @@ values
   (
     '11111111-0000-4000-8000-000000000102',
     'pharmacy@demo.local',
-    crypt('PharmaFlow#2026', gen_salt('bf', 10)),
+    crypt('Bershama#2026', gen_salt('bf', 10)),
     now(),
     '{"provider":"email","providers":["email"]}'::jsonb,
     '{}'::jsonb, 'authenticated', 'authenticated'
@@ -72,7 +72,7 @@ values
   (
     '11111111-0000-4000-8000-000000000103',
     'driver@demo.local',
-    crypt('PharmaFlow#2026', gen_salt('bf', 10)),
+    crypt('Bershama#2026', gen_salt('bf', 10)),
     now(),
     '{"provider":"email","providers":["email"]}'::jsonb,
     '{}'::jsonb, 'authenticated', 'authenticated'

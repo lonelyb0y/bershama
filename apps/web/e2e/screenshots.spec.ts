@@ -46,7 +46,7 @@ for (const theme of ['light', 'dark'] as const) {
     // 1. Signed out: the login pages.
     for (const p of LOGIN_PAGES) {
       await page.goto(p.path);
-      await page.evaluate((t) => localStorage.setItem('pharmaflow:theme', t), theme);
+      await page.evaluate((t) => localStorage.setItem('bershama:theme', t), theme);
       await page.reload();
       // `domcontentloaded` rather than hydration: this file only captures and asserts a
       // 2xx, and the authenticated pages are server-rendered, so the pixels are correct
@@ -60,13 +60,13 @@ for (const theme of ['light', 'dark'] as const) {
     // 2. Sign in.
     await page.goto('/en/login');
     await page.getByLabel(/email address/i).fill('admin@demo.local');
-    await page.getByLabel(/password/i).fill('PharmaFlow#2026');
+    await page.getByLabel(/password/i).fill('Bershama#2026');
     await clickSignIn(page);
     await page.waitForURL('**/admin', { timeout: 20_000 });
 
     // 3. Signed in: everything behind the guard.
     for (const p of APP_PAGES) {
-await page.evaluate((t) => localStorage.setItem('pharmaflow:theme', t), theme);
+await page.evaluate((t) => localStorage.setItem('bershama:theme', t), theme);
         const res = await page.goto(p.path);
         const cls = await page.evaluate(() => document.documentElement.className);
 

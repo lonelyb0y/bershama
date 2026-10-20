@@ -44,7 +44,7 @@ test.describe('the app is reachable', () => {
     // A 500 here is what the deployed project returned with no environment
     // variables configured: requireEnv() threw on the first request.
     expect(response?.status(), 'the login page should render, not 500').toBe(200);
-    await expect(page.getByRole('heading', { name: /pharmaflow/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /bershama/i })).toBeVisible();
   });
 
   test('serves the Arabic sign-in page right to left', async ({ page }) => {

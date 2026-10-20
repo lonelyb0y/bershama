@@ -46,15 +46,15 @@ export const metadata: Metadata = {
     process.env.NEXT_PUBLIC_SITE_URL ?? 'https://pharmaflow-bay.vercel.app',
   ),
   title: {
-    default: 'PharmaFlow',
-    template: '%s · PharmaFlow',
+    default: 'Bershama',
+    template: '%s · Bershama',
   },
   description:
     'Pharmaceutical supply chain: batch-level inventory, expiry control, requisitions and live delivery tracking.',
-  applicationName: 'PharmaFlow',
+  applicationName: 'Bershama',
   appleWebApp: {
     capable: true,
-    title: 'PharmaFlow',
+    title: 'Bershama',
   },
   formatDetection: {
     // Medicine quantities and prices must never be auto-corrected or

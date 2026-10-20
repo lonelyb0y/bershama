@@ -1,5 +1,5 @@
 # ============================================================================
-# PharmaFlow
+# Bershama
 #
 # `make help` lists every target. The ones that matter day to day:
 #
@@ -25,7 +25,7 @@ SUPABASE_DIR := supabase
 .PHONY: help
 help: ## Show this help
 	@echo ""
-	@echo "PharmaFlow"
+	@echo "Bershama"
 	@echo ""
 	@grep -hE '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
 		| awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[1;36m%-16s\033[0m %s\n", $$1, $$2}'
@@ -110,7 +110,7 @@ link: ## Link the repository to a Supabase project
 
 .PHONY: test
 test: ## Run web unit tests
-	pnpm --filter @pharmaflow/web test
+	pnpm --filter @bershama/web test
 
 .PHONY: test-db
 test-db: ## Apply migrations and run the pgTAP suites (no Docker required)
@@ -125,15 +125,15 @@ e2e: ## Run Playwright end-to-end tests (starts the app itself)
 
 .PHONY: lint
 lint: ## Lint the web app
-	pnpm --filter @pharmaflow/web lint
+	pnpm --filter @bershama/web lint
 
 .PHONY: typecheck
 typecheck: ## Type-check the web app
-	pnpm --filter @pharmaflow/web typecheck
+	pnpm --filter @bershama/web typecheck
 
 .PHONY: build
 build: ## Production build
-	pnpm --filter @pharmaflow/web build
+	pnpm --filter @bershama/web build
 
 .PHONY: secrets
 secrets: ## Fail if a Supabase secret key appears in anything git would commit

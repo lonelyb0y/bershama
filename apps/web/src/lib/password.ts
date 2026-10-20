@@ -8,7 +8,7 @@
  * available on the Free plan** -- the toggle is greyed out and the Security Advisor keeps
  * reporting "Leaked Password Protection Disabled" until the project is upgraded to Pro.
  *
- * So on the Free plan nothing stands between a signup form and `PharmaFlow#2020`. This is
+ * So on the Free plan nothing stands between a signup form and `Bershama#2020`. This is
  * the free-tier mitigation: a policy that rejects the passwords breach corpora are built
  * from, without needing the corpus.
  *
@@ -242,7 +242,7 @@ function isSequential(password: string): boolean {
  * `email` is optional and, when given, is checked against the local part: a password
  * containing the user's own name or the domain is a password everyone who knows one
  * detail can guess. This is checked against the raw password rather than the normalised
- * one, because `ahmed@pharmaflow.com` normalises to something meaningless.
+ * one, because `ahmed@bershama.com` normalises to something meaningless.
  */
 export function assessPassword(password: string, email?: string): PasswordAssessment {
   const problems: PasswordProblem[] = [];

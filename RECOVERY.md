@@ -1,6 +1,6 @@
 # Recovery — resolved 2026-10-17
 
-**Status: recovered from `github.com/lonelyb0y/pharmaflow`. Working tree clean at
+**Status: recovered from `github.com/lonelyb0y/bershama`. Working tree clean at
 `74be355` ("M5 complete: cold chain readings (#75)"), tracking `origin/main`.**
 
 ## Verification
@@ -36,7 +36,7 @@ better and unnecessary:
 
 ```bash
 gh auth login -h github.com -p https -w -s repo   # private repo
-gh repo clone lonelyb0y/pharmaflow
+gh repo clone lonelyb0y/bershama
 pnpm install --frozen-lockfile
 ```
 

@@ -30,7 +30,7 @@ export function ServiceWorkerRegistration() {
 
     const register = () => {
       navigator.serviceWorker.register('/sw.js').catch((error: unknown) => {
-        console.warn('[pharmaflow] service worker registration failed', error);
+        console.warn('[bershama] service worker registration failed', error);
       });
     };
 

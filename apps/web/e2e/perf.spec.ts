@@ -14,9 +14,9 @@ import { clickSignIn } from './helpers/session';
  * test people delete when the number is bad, and the measurement is the point. Run
  * it with:
  *
- *   E2E_BASE_URL=https://pharmaflow-bay.vercel.app npx playwright test e2e/perf.spec.ts
+ *   E2E_BASE_URL=https://bershama-bay.vercel.app npx playwright test e2e/perf.spec.ts
  */
-const PASSWORD = 'PharmaFlow#2026';
+const PASSWORD = 'Bershama#2026';
 
 const SURFACES = [
   { name: 'dashboard', path: '/en/admin' },

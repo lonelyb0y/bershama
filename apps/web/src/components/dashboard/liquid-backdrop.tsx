@@ -163,7 +163,7 @@ function compile(gl: WebGL2RenderingContext, type: number, source: string): WebG
   if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
     // A shader that fails to compile is a bug worth seeing in the console rather
     // than a blank background nobody can explain.
-    console.error('[pharmaflow] backdrop shader failed:', gl.getShaderInfoLog(shader));
+    console.error('[bershama] backdrop shader failed:', gl.getShaderInfoLog(shader));
     gl.deleteShader(shader);
     return null;
   }
@@ -226,7 +226,7 @@ export function LiquidBackdrop({
     gl.attachShader(program, fragment);
     gl.linkProgram(program);
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-      console.error('[pharmaflow] backdrop program failed:', gl.getProgramInfoLog(program));
+      console.error('[bershama] backdrop program failed:', gl.getProgramInfoLog(program));
       return;
     }
     gl.useProgram(program);

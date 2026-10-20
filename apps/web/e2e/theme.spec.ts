@@ -103,7 +103,7 @@ test.describe('dark mode', () => {
     await page.emulateMedia({ colorScheme: 'light' });
     await surface(page);
     await page.evaluate(() => {
-      localStorage.setItem('pharmaflow:theme', 'dark');
+      localStorage.setItem('bershama:theme', 'dark');
     });
     await page.reload();
 
@@ -118,7 +118,7 @@ test.describe('dark mode', () => {
     // missed: an explicit light must beat a dark system preference.
     await page.emulateMedia({ colorScheme: 'dark' });
     await page.evaluate(() => {
-      localStorage.setItem('pharmaflow:theme', 'light');
+      localStorage.setItem('bershama:theme', 'light');
     });
     await page.reload();
 
@@ -140,9 +140,9 @@ test.describe('dark mode', () => {
      * painting the dark theme, the class would be present and this would fail.
      */
     await page.emulateMedia({ colorScheme: 'dark' });
-    await page.evaluate(() => localStorage.removeItem('pharmaflow:theme')).catch(() => {});
+    await page.evaluate(() => localStorage.removeItem('bershama:theme')).catch(() => {});
     await page.goto('/en/login');
-    await page.evaluate(() => localStorage.removeItem('pharmaflow:theme'));
+    await page.evaluate(() => localStorage.removeItem('bershama:theme'));
 
     const cls = await page.evaluate(() => document.documentElement.className);
     expect(cls, 'CSS should carry the system preference, not JavaScript').not.toContain('dark');
@@ -163,7 +163,7 @@ test.describe('dark mode', () => {
      */
     await page.emulateMedia({ colorScheme: 'light' });
     await page.goto('/en/login');
-    await page.evaluate(() => localStorage.setItem('pharmaflow:theme', 'dark'));
+    await page.evaluate(() => localStorage.setItem('bershama:theme', 'dark'));
 
     await page.goto('/en/login');
     await expect
@@ -192,7 +192,7 @@ test.describe('dark mode', () => {
     // the current document, and the inline script only runs on a fresh load --
     // so without the reload the class is correctly still `light` and the test
     // would be asserting a bug that is not there.
-    await page.evaluate(() => localStorage.setItem('pharmaflow:theme', 'dark'));
+    await page.evaluate(() => localStorage.setItem('bershama:theme', 'dark'));
     await page.reload();
     await expect.poll(() => page.evaluate(() => document.documentElement.className)).toContain('dark');
 

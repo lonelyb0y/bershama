@@ -1,6 +1,6 @@
 # Contributing
 
-PharmaFlow moves medicine and records an audit trail of what happened to it. The
+Bershama moves medicine and records an audit trail of what happened to it. The
 review bar reflects that.
 
 ## The rule that matters most

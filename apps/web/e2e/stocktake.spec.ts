@@ -21,7 +21,7 @@ import { clickSignIn } from './helpers/session';
  * a message: the bug produced a message that was accurate and useless, so asserting
  * on any specific string would have missed it.
  */
-const PASSWORD = 'PharmaFlow#2026';
+const PASSWORD = 'Bershama#2026';
 
 async function signIn(page: Page, email: string) {
   await page.goto('/en/login');

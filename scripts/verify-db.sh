@@ -23,7 +23,7 @@ set -euo pipefail
 PORT="${1:-55432}"
 SOCKET_DIR="$(mktemp -d /tmp/pf-verify-sock.XXXXXX)"
 PGDATA_DIR="$(mktemp -d /tmp/pf-verify-data.XXXXXX)"
-DB_NAME="pharmaflow_verify"
+DB_NAME="bershama_verify"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 export PGHOST="$SOCKET_DIR" PGPORT="$PORT" PGUSER=postgres

@@ -1,4 +1,4 @@
-// Internationalisation for PharmaFlow.
+// Internationalisation for Bershama.
 //
 // Two locales from the start: English and Arabic. Arabic is not an afterthought
 // here. The operator is in Egypt, staff will read Arabic, product names are
