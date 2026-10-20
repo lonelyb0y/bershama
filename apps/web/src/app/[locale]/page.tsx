@@ -4,6 +4,7 @@ import Link from 'next/link';
 
 import { LocaleSwitcher } from '@/components/locale-switcher';
 import { getSession, homeRouteForRole } from '@/lib/session';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
 import type { Locale } from '@/i18n/routing';
 
 /**
@@ -35,6 +36,24 @@ export default async function HomePage({
   // their role belongs on.
   if (session) {
     redirect(`/${locale}${homeRouteForRole(session.role)}`);
+  }
+
+  // Signed in, but with nothing to sign in *to*.
+  //
+  // getSession() is null for someone with no profiles row -- not because the session
+  // is absent, but because whoami has no row to return. That is the state every new
+  // person is in for a moment: authenticated by Google, or by a confirmed email, with
+  // no organisation yet. Without this check they land on the landing page, signed in
+  // and unable to do anything, with no indication that /setup is the next step.
+  //
+  // /setup is the route built for exactly that state, and it is the only thing that
+  // can end it.
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (user) {
+    redirect(`/${locale}/setup`);
   }
 
   return (

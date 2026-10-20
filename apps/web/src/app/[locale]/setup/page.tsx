@@ -2,7 +2,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { redirect } from 'next/navigation';
 
 import { SetupForm } from '@/components/setup-form';
-import { getSession } from '@/lib/session';
+import { getSession, homeRouteForRole } from '@/lib/session';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import type { Locale } from '@/i18n/routing';
 
@@ -42,7 +42,7 @@ export default async function SetupPage({
   // signed-in-but-profileless case is established directly, by asking the auth server who
   // they are rather than asking whether they have an organisation.
   const session = await getSession();
-  if (session) redirect(`/${locale}/admin`);
+  if (session) redirect(`/${locale}${homeRouteForRole(session.role)}`);
 
   const supabase = await createSupabaseServerClient();
   const { data: authData } = await supabase.auth.getUser();
