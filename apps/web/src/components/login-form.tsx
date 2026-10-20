@@ -111,8 +111,7 @@ export function LoginForm() {
   }
 
   return (
-    // method="post" and an action, so a submit that happens before React has
-    // hydrated cannot fall through to the browser's default GET.
+    // method="post", and deliberately NO action attribute.
     //
     // A form with neither is a GET to the current URL, and a GET puts every field in
     // the query string. That put the password in the address bar, in the browser
@@ -120,16 +119,19 @@ export function LoginForm() {
     // log on the way -- and it happened on a slow connection or a cold cache, which is
     // precisely when a person is not looking.
     //
-    // The action discards the body and returns to the form. It is not a second way
-    // to sign in: by the time the form is interactive the handler is attached and
-    // this never runs.
-    <form
-      onSubmit={onSubmit}
-      method="post"
-      action={`/api/auth/native-submit?locale=${locale}`}
-      className="space-y-4"
-      noValidate
-    >
+    // method="post" puts the credentials in a request body instead. There is no
+    // action, so a submit that happens before React has hydrated POSTs to the page
+    // itself and is answered with a 405 -- a page route only answers GET. That is a
+    // confusing answer and it is the right one: the alternative is the password in a
+    // URL, and a confusing answer is cheaper than a leaked credential.
+    //
+    // An action attribute was tried and had to be taken back out. React 19 treats a
+    // form with a string action as a form action and submits it natively, and it does
+    // so *after* the submit handler has run: the password grant succeeded, and then
+    // the native POST navigated the browser to the action and cancelled the
+    // client-side navigation that was about to land on the dashboard. Every sign-in
+    // ended at /login with a valid session and no error anywhere.
+    <form onSubmit={onSubmit} method="post" className="space-y-4" noValidate>
       <div>
         <label
           htmlFor="email"
