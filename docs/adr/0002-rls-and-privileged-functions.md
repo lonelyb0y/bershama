@@ -4,7 +4,7 @@ Status: Accepted — **amended during M2**, see the Amendment below.
 
 ## Context
 
-PharmaFlow's business logic is `SECURITY DEFINER` Postgres functions. That is not
+Bershama's business logic is `SECURITY DEFINER` Postgres functions. That is not
 a stylistic choice — it is how the product gets correctness. `post_stock_movement()`
 must append to the ledger and update the balance in one transaction, and
 `allocate_requisition_fefo()` must read available batches and write allocations

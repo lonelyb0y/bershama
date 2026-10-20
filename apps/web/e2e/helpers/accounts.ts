@@ -18,7 +18,7 @@
  * The defaults are the demo addresses, so a local run that changes nothing behaves
  * exactly as it did before.
  */
-export const E2E_PASSWORD = process.env.E2E_PASSWORD ?? 'PharmaFlow#2026';
+export const E2E_PASSWORD = process.env.E2E_PASSWORD ?? 'Bershama#2026';
 
 export const ADMIN_EMAIL = process.env.E2E_ADMIN_EMAIL ?? 'admin@demo.local';
 export const PHARMACY_EMAIL = process.env.E2E_PHARMACY_EMAIL ?? 'pharmacy@demo.local';

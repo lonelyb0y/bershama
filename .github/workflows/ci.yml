@@ -46,13 +46,13 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Lint
-        run: pnpm --filter @pharmaflow/web lint
+        run: pnpm --filter @bershama/web lint
 
       - name: Typecheck
-        run: pnpm --filter @pharmaflow/web typecheck
+        run: pnpm --filter @bershama/web typecheck
 
       - name: Unit tests
-        run: pnpm --filter @pharmaflow/web test
+        run: pnpm --filter @bershama/web test
 
       # The build needs these to exist, but the values are irrelevant: the build
       # compiles the code and prerenders static routes, and the authenticated
@@ -63,7 +63,7 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_build_placeholder
           SUPABASE_SECRET_KEY: sb_secret_build_placeholder
-        run: pnpm --filter @pharmaflow/web build
+        run: pnpm --filter @bershama/web build
 
       # Runs last because it is the most expensive scan. A leaked key in a pull
       # request is exactly the case this exists for, and finding it after the
@@ -135,7 +135,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Install Chromium
-        run: pnpm --filter @pharmaflow/web exec playwright install --with-deps chromium
+        run: pnpm --filter @bershama/web exec playwright install --with-deps chromium
 
       - name: Find this commit's preview deployment
         id: preview
@@ -240,11 +240,11 @@ jobs:
         env:
           E2E_BASE_URL: ${{ steps.preview.outputs.url }}
           E2E_BYPASS_TOKEN: ${{ secrets.VERCEL_PROTECTION_BYPASS }}
-          E2E_ADMIN_EMAIL: ci-admin@pharmaflow.test
+          E2E_ADMIN_EMAIL: ci-admin@bershama.test
           E2E_ADMIN_NAME: CI Admin
-          E2E_PHARMACY_EMAIL: ci-pharmacy@pharmaflow.test
-          E2E_DRIVER_EMAIL: ci-driver@pharmaflow.test
-          E2E_PASSWORD: PharmaFlow#2026
+          E2E_PHARMACY_EMAIL: ci-pharmacy@bershama.test
+          E2E_DRIVER_EMAIL: ci-driver@bershama.test
+          E2E_PASSWORD: Bershama#2026
           CI: true
         run: |
           # `timeout` around the run itself. A hung test otherwise holds the whole job
@@ -254,7 +254,7 @@ jobs:
           # stuck rather than slow, and it should say so in a minute rather than in half
           # an hour.
           timeout --signal=KILL 900 \
-            pnpm --filter @pharmaflow/web exec playwright test \
+            pnpm --filter @bershama/web exec playwright test \
               e2e/auth.spec.ts \
               e2e/header.spec.ts \
               e2e/theme.spec.ts \

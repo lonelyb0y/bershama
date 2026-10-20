@@ -59,16 +59,22 @@ describe('assessPassword', () => {
     it('does not reject the product name, or the seeded demo password', () => {
       // Both were in the blocklist at one point and both were removed.
       //
-      // `PharmaFlow#2026` is the seeded demo credential. If the policy rejected it, the demo
+      // `Bershama#2026` is the seeded demo credential. If the policy rejected it, the demo
       // accounts would be locked out of their own data -- the single most important
       // non-rejection in this file.
       //
-      // `pharmaflow` is this product's name. Blocking it punishes anyone who legitimately
+      // `bershama` is this product's name. Blocking it punishes anyone who legitimately
       // picks it for a reason we cannot see, and the list's job is to catch what appears in
       // breach corpora, which this does not. GoTrue's minimum length is the control that
       // does not have to make that judgement call.
-      expect(assessPassword('PharmaFlow#2026').ok).toBe(true);
-      expect(assessPassword('pharmaflow26').ok).toBe(true);
+      //
+      // The bare name is padded to clear the twelve-character minimum, because a
+      // shorter one would be rejected for its length and the assertion would pass for
+      // the wrong reason -- it would be testing the length rule and calling it a
+      // blocklist result. `pharmaflow26` was twelve characters by accident; the
+      // replacement is padded on purpose.
+      expect(assessPassword('Bershama#2026').ok).toBe(true);
+      expect(assessPassword('bershama2026').ok).toBe(true);
     });
   });
 
@@ -108,12 +114,12 @@ describe('assessPassword', () => {
 
   describe('self-reference', () => {
     it('rejects a password built from the user\'s own email', () => {
-      const verdict = assessPassword('ahmed.hassan.99', 'ahmed.hassan@pharmaflow.com');
+      const verdict = assessPassword('ahmed.hassan.99', 'ahmed.hassan@bershama.com');
       expect(verdict.problems).toContain('containsEmail');
     });
 
     it('rejects one built from the email domain', () => {
-      expect(assessPassword('pharmaflow-2026-x', 'ahmed@pharmaflow.com').problems).toContain(
+      expect(assessPassword('bershama-2026-x', 'ahmed@bershama.com').problems).toContain(
         'containsEmail',
       );
     });

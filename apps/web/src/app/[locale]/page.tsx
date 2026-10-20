@@ -8,7 +8,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import type { Locale } from '@/i18n/routing';
 
 /**
- * The landing page: what PharmaFlow is, for whom, and why it can be trusted with a
+ * The landing page: what Bershama is, for whom, and why it can be trusted with a
  * regulated product.
  *
  * This used to be a build-status page — milestone, technology stack, and a table of

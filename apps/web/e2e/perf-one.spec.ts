@@ -9,7 +9,7 @@ test('sample one surface repeatedly', async ({ page }) => {
   test.setTimeout(240_000);
   await page.goto('/en/login');
   await page.getByLabel(/email address/i).fill('admin@demo.local');
-  await page.getByLabel(/password/i).fill('PharmaFlow#2026');
+  await page.getByLabel(/password/i).fill('Bershama#2026');
   await clickSignIn(page);
   await page.waitForURL((u) => !u.pathname.includes('/login'));
 

@@ -56,7 +56,7 @@ async function signIn(page: Page, email: string, locale = 'en') {
     'driver@demo.local': `/${locale}/driver`,
     'pharmacy@demo.local': `/${locale}/pharmacy`,
   }[email];
-  return sharedSignIn(page, email, 'PharmaFlow#2026', landsOn);
+  return sharedSignIn(page, email, 'Bershama#2026', landsOn);
 }
 
 /**

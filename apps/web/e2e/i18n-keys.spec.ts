@@ -62,7 +62,7 @@ test('the signup form resolves its strength keys to strings', async ({ page }) =
   // normally see that as a change, this component derives `strength` on every keystroke
   // and starts it at null -- so the meter only exists once a change has been processed.
   // Typing keeps the test honest about what it is waiting for.
-  await password.pressSequentially('PharmaFlow#2026', { delay: 20 });
+  await password.pressSequentially('Bershama#2026', { delay: 20 });
 
   // `role="meter"` carries `aria-label={t('strength')}` and the live paragraph below it
   // carries `t('passwordGood')` or `t('strengthScale.N')`. Asserting on those two is a

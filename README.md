@@ -1,4 +1,4 @@
-# PharmaFlow
+# Bershama
 
 Pharmaceutical supply chain platform for a medicine distribution company.
 Batch-level inventory with lot and expiry control, requisitions, live delivery
@@ -88,7 +88,7 @@ writes the rows is the entire point.
 ### Repository layout
 
 ```
-pharmaflow/
+bershama/
 ├── apps/web/                 Next.js app (admin, pharmacy, distributor)
 │   └── src/
 │       ├── app/[locale]/     one route group per locale, three per role
@@ -211,7 +211,7 @@ reported as itself rather than as a mysterious schema failure.
 ## Demo accounts
 
 Created by `supabase/seed.sql`, never by a migration, so they cannot reach a
-hosted project. Password for all three: `PharmaFlow#2026`
+hosted project. Password for all three: `Bershama#2026`
 
 | Email | Role | Lands on |
 |---|---|---|
@@ -273,5 +273,5 @@ audit trail. Anyone running a modified version as a service owes its users the
 source of that version. Health-sector buyers read that as a commitment; a
 permissive license would read as an absence of one.
 
-Product name and branding are PharmaFlow's own. No mSupply or ERPNext names or
+Product name and branding are Bershama's own. No mSupply or ERPNext names or
 assets appear anywhere in this repository.

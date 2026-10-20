@@ -22,7 +22,7 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PGDATA_DIR="$(mktemp -d /tmp/pf-ledger-smoke.XXXXXX)"
 SOCKET_DIR="$(mktemp -d /tmp/pf-ledger-sock.XXXXXX)"
 
-export PGHOST="$SOCKET_DIR" PGPORT="$PORT" PGUSER=postgres PGDATABASE=pharmaflow_smoke
+export PGHOST="$SOCKET_DIR" PGPORT="$PORT" PGUSER=postgres PGDATABASE=bershama_smoke
 
 pass=0; fail=0
 ok()   { printf '\033[1;32m  ok\033[0m %s\n' "$*"; pass=$((pass+1)); }
@@ -34,7 +34,7 @@ trap cleanup EXIT
 
 initdb -D "$PGDATA_DIR" -U postgres --auth=trust -E UTF8 --locale=C >/dev/null 2>&1
 pg_ctl -D "$PGDATA_DIR" -o "-p $PORT -k $SOCKET_DIR" -l "$PGDATA_DIR/pg.log" -w start >/dev/null
-psql -q -d postgres -c "create database pharmaflow_smoke;" >/dev/null
+psql -q -d postgres -c "create database bershama_smoke;" >/dev/null
 
 psql -q -v ON_ERROR_STOP=1 -f "$REPO_ROOT/supabase/tests/0000_supabase_compat.sql" >/dev/null
 for f in "$REPO_ROOT"/supabase/migrations/*.sql; do

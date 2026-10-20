@@ -87,7 +87,7 @@ test.describe('live vehicle position', () => {
       geolocation: VAN,
     });
     const driver = await driverCtx.newPage();
-    await signIn(driver, 'driver@demo.local', 'PharmaFlow#2026', '**/driver');
+    await signIn(driver, 'driver@demo.local', 'Bershama#2026', '**/driver');
     await driver.goto('/en/driver', { waitUntil: 'domcontentloaded' });
 
     // Start the run if it is not already going. `/api/demo/rearm` leaves a run in
@@ -160,7 +160,7 @@ test.describe('live vehicle position', () => {
     // permitted to.
     const driverCtx = await browser.newContext({ locale: 'en-GB', permissions: [] });
     const driver = await driverCtx.newPage();
-    await signIn(driver, 'driver@demo.local', 'PharmaFlow#2026', '**/driver');
+    await signIn(driver, 'driver@demo.local', 'Bershama#2026', '**/driver');
     await driver.goto('/en/driver', { waitUntil: 'domcontentloaded' });
 
     const tripId = await driversRunId(driver);

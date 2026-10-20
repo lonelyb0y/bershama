@@ -66,7 +66,7 @@ export interface QueueStore {
   clear(id: string): Promise<void>;
 }
 
-const DB_NAME = 'pharmaflow-delivery';
+const DB_NAME = 'bershama-delivery';
 const DB_VERSION = 1;
 const PENDING = 'pending';
 const REFUSED = 'refused';
@@ -193,7 +193,7 @@ export function newIntentId(kind: DeliveryIntentKind, recordedAt: string): strin
 
 /** A stable per-device id, so two signatures from one handset are recognisable. */
 export function deviceId(): string {
-  const KEY = 'pharmaflow-device-id';
+  const KEY = 'bershama-device-id';
   if (typeof localStorage === 'undefined') return 'unknown';
   const existing = localStorage.getItem(KEY);
   if (existing) return existing;

@@ -1,5 +1,5 @@
 {
-  "name": "pharmaflow",
+  "name": "bershama",
   "version": "0.1.0",
   "private": true,
   "description": "Pharmaceutical supply chain platform: batch-level inventory, expiry control, requisitions, and live delivery tracking.",
@@ -9,12 +9,12 @@
   },
   "packageManager": "pnpm@12.6.0",
   "scripts": {
-    "dev": "pnpm --filter @pharmaflow/web dev",
-    "build": "pnpm --filter @pharmaflow/web build",
-    "start": "pnpm --filter @pharmaflow/web start",
-    "lint": "pnpm --filter @pharmaflow/web lint",
-    "typecheck": "pnpm --filter @pharmaflow/web typecheck",
-    "test": "pnpm --filter @pharmaflow/web test",
+    "dev": "pnpm --filter @bershama/web dev",
+    "build": "pnpm --filter @bershama/web build",
+    "start": "pnpm --filter @bershama/web start",
+    "lint": "pnpm --filter @bershama/web lint",
+    "typecheck": "pnpm --filter @bershama/web typecheck",
+    "test": "pnpm --filter @bershama/web test",
     "e2e": "playwright test",
     "e2e:install": "playwright install --with-deps chromium"
   },

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================================
-# PharmaFlow backup — fully remote, no local dependencies.
+# Bershama backup — fully remote, no local dependencies.
 #
 # The Supabase free tier has no downloadable backup and does not expose
 # direct Postgres (port 54321 is blocked). The only way in is the REST API
@@ -20,7 +20,7 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BACKUP_DIR="${REPO_ROOT}/backups"
 TIMESTAMP="$(date -u +%Y%m%dT%H%M%SZ)"
-BACKUP_NAME="pharmaflow-${TIMESTAMP}"
+BACKUP_NAME="bershama-${TIMESTAMP}"
 ARCHIVE="${BACKUP_DIR}/${BACKUP_NAME}.tar.gz"
 
 SUPABASE_URL="${SUPABASE_URL:-https://kswdttkwtqqlabcjsgcy.supabase.co}"
@@ -186,7 +186,7 @@ if [[ -n "${UPLOAD_DIR}" ]]; then
 fi
 
 log "Pruning (keep ${KEEP_LOCAL})"
-ls -t "${BACKUP_DIR}"/pharmaflow-*.tar.gz* 2>/dev/null | tail -n +$((KEEP_LOCAL + 1)) | while read -r old; do
+ls -t "${BACKUP_DIR}"/bershama-*.tar.gz* "${BACKUP_DIR}"/pharmaflow-*.tar.gz* 2>/dev/null | tail -n +$((KEEP_LOCAL + 1)) | while read -r old; do
   rm -f "${old}"
 done
 

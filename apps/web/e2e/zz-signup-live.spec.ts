@@ -7,7 +7,7 @@ import { expect, test } from '@playwright/test';
  * enabled, and it needs a unique address each run. Run it by hand when the onboarding path
  * changes:
  *
- *   E2E_BASE_URL=https://pharmaflow-bay.vercel.app \
+ *   E2E_BASE_URL=https://bershama-bay.vercel.app \
  *     pnpm exec playwright test e2e/zz-signup-live.spec.ts
  *
  * ## Two reasons it can legitimately stop early

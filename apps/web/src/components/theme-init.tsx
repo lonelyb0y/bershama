@@ -58,4 +58,4 @@ export function ThemeInit() {
   return null;
 }
 
-const KEY = 'pharmaflow:theme';
+const KEY = 'bershama:theme';

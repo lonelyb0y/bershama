@@ -29,7 +29,7 @@ import { useTranslations } from 'next-intl';
  * is right on the first paint and stays right when the OS preference changes
  * underneath it.
  */
-const KEY = 'pharmaflow:theme';
+const KEY = 'bershama:theme';
 
 function readDomTheme(): 'light' | 'dark' {
   return document.documentElement.classList.contains('dark') ? 'dark' : 'light';

@@ -99,7 +99,7 @@ test.describe('delivery map', () => {
   test('the driver gets a map whichever provider is configured', async ({ page }) => {
     test.setTimeout(120_000);
 
-    await signIn(page, 'driver@demo.local', 'PharmaFlow#2026', '**/driver');
+    await signIn(page, 'driver@demo.local', 'Bershama#2026', '**/driver');
     await page.goto('/en/driver', { waitUntil: 'domcontentloaded' });
     await page.evaluate(() => fetch('/api/demo/rearm', { method: 'POST' }));
     await page.reload({ waitUntil: 'domcontentloaded' });

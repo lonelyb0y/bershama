@@ -1,6 +1,6 @@
 # Runbook
 
-Operating PharmaFlow, and what to do when it breaks. Written for one person with
+Operating Bershama, and what to do when it breaks. Written for one person with
 one phone.
 
 ## Daily

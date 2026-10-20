@@ -144,7 +144,7 @@ for (const scheme of ['light', 'dark'] as const) {
   test(`every token pair meets its threshold in ${scheme} mode`, async ({ page }) => {
     await page.emulateMedia({ colorScheme: scheme });
     await page.goto('/en/login');
-    await page.evaluate((s) => localStorage.setItem('pharmaflow:theme', s), scheme);
+    await page.evaluate((s) => localStorage.setItem('bershama:theme', s), scheme);
     // The reload is what applies it: the stored preference is read by ThemeInit on
     // hydration, so setting localStorage without reloading leaves the page on the OS
     // default. Removing this line by accident measured light tokens under a dark OS and

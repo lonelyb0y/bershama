@@ -31,14 +31,14 @@ select plan(11);
 insert into auth.users (id, email, encrypted_password, email_confirmed_at,
                         raw_app_meta_data, raw_user_meta_data, aud, role)
 values
-  ('22222222-0000-4000-8000-000000000101', 'ci-admin@pharmaflow.test',
-   crypt('PharmaFlow#2026', gen_salt('bf', 10)), now(),
+  ('22222222-0000-4000-8000-000000000101', 'ci-admin@bershama.test',
+   crypt('Bershama#2026', gen_salt('bf', 10)), now(),
    '{"provider":"email","providers":["email"]}'::jsonb, '{}'::jsonb, 'authenticated', 'authenticated'),
-  ('22222222-0000-4000-8000-000000000102', 'ci-pharmacy@pharmaflow.test',
-   crypt('PharmaFlow#2026', gen_salt('bf', 10)), now(),
+  ('22222222-0000-4000-8000-000000000102', 'ci-pharmacy@bershama.test',
+   crypt('Bershama#2026', gen_salt('bf', 10)), now(),
    '{"provider":"email","providers":["email"]}'::jsonb, '{}'::jsonb, 'authenticated', 'authenticated'),
-  ('22222222-0000-4000-8000-000000000103', 'ci-driver@pharmaflow.test',
-   crypt('PharmaFlow#2026', gen_salt('bf', 10)), now(),
+  ('22222222-0000-4000-8000-000000000103', 'ci-driver@bershama.test',
+   crypt('Bershama#2026', gen_salt('bf', 10)), now(),
    '{"provider":"email","providers":["email"]}'::jsonb, '{}'::jsonb, 'authenticated', 'authenticated');
 
 -- ── refusal of an account that is not ours ────────────────────────────────────────

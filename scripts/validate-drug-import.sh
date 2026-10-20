@@ -28,7 +28,7 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PGDATA_DIR="$(mktemp -d /tmp/pf-drugs-validate.XXXXXX)"
 SOCKET_DIR="$(mktemp -d /tmp/pf-drugs-sock.XXXXXX)"
 PORT="${PF_VALIDATE_PORT:-54329}"
-DB_NAME=pharmaflow_drugs
+DB_NAME=bershama_drugs
 
 cleanup() {
   pg_ctl -D "$PGDATA_DIR" -m immediate stop >/dev/null 2>&1 || true

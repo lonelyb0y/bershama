@@ -30,7 +30,7 @@ import { clickSignIn } from './helpers/session';
  * to keep.
  */
 
-const PASSWORD = 'PharmaFlow#2026';
+const PASSWORD = 'Bershama#2026';
 
 /** Unique per run, so repeated runs do not collide on the SKU's uniqueness. */
 const marker = () => `E2E-${Date.now().toString(36).toUpperCase()}`;

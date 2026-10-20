@@ -23,10 +23,10 @@
 #   only between the two calls below.
 set -euo pipefail
 
-readonly ADMIN_EMAIL='ci-admin@pharmaflow.test'
-readonly PHARMACY_EMAIL='ci-pharmacy@pharmaflow.test'
-readonly DRIVER_EMAIL='ci-driver@pharmaflow.test'
-readonly FIXTURE_PASSWORD="${FIXTURE_PASSWORD:-PharmaFlow#2026}"
+readonly ADMIN_EMAIL='ci-admin@bershama.test'
+readonly PHARMACY_EMAIL='ci-pharmacy@bershama.test'
+readonly DRIVER_EMAIL='ci-driver@bershama.test'
+readonly FIXTURE_PASSWORD="${FIXTURE_PASSWORD:-Bershama#2026}"
 
 log()  { printf '\033[1;34m==>\033[1m %s\n' "$*"; }
 die()  { printf '\033[1;31m::error::%s\033[0m\n' "$*" >&2; exit 1; }

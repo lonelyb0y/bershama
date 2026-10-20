@@ -108,7 +108,7 @@ test.describe('navigation', () => {
         await page.goto(start);
         // Position, not accessible name. The logo link's aria-label is
         // t('common.appName'), which is Arabic on the Arabic page -- so a
-        // locator matching /pharmaflow/i finds the link in English and then
+        // locator matching /bershama/i finds the link in English and then
         // waits thirty seconds for a link that will never appear. The logo is
         // the first link in the header, which is also how a person identifies
         // it.

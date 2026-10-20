@@ -19,7 +19,7 @@ test.describe('the stop map', () => {
     await admin.evaluate(() => fetch('/api/demo/rearm', { method: 'POST' }));
     await adminCtx.close();
 
-    await signIn(page, 'driver@demo.local', 'PharmaFlow#2026', '**/driver');
+    await signIn(page, 'driver@demo.local', 'Bershama#2026', '**/driver');
     await page.goto('/en/driver', { waitUntil: 'domcontentloaded' });
   }
 

@@ -1,6 +1,6 @@
 # Architecture
 
-How PharmaFlow is put together, and why. For the schema itself see
+How Bershama is put together, and why. For the schema itself see
 [data-model.md](data-model.md); for the security argument see
 [security.md](security.md).
 

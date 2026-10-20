@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "PharmaFlow",
+    "appName": "Bershama",
     "loading": "Loading…",
     "error": "Something went wrong",
     "retry": "Try again",
@@ -34,7 +34,7 @@
     "email": "Email address",
     "password": "Password",
     "invalidCredentials": "Incorrect email or password.",
-    "inviteOnly": "PharmaFlow is invite-only. Ask your administrator for an invitation.",
+    "inviteOnly": "Bershama is invite-only. Ask your administrator for an invitation.",
     "sessionExpired": "Your session expired. Please sign in again.",
     "welcome": "Welcome back, {name}",
     "recaptcha": {},
@@ -170,7 +170,7 @@
     "scanDone": "Scan complete."
   },
   "m0": {
-    "title": "PharmaFlow",
+    "title": "Bershama",
     "subtitle": "Pharmaceutical supply chain",
     "milestone": "Milestone M0 · Foundation",
     "status": "Milestone status",
@@ -574,9 +574,9 @@
     "footnote": "You become the administrator of this organisation, and can invite colleagues once it exists."
   },
   "landing": {
-    "brand": "PharmaFlow",
+    "brand": "Bershama",
     "headline": "Pharmaceutical distribution, tracked from batch to delivery.",
-    "lede": "A pharmacy distributor cannot answer “where is that batch right now?” from a spreadsheet. PharmaFlow is the system that answers it: every batch carries its expiry and its location, every movement is written to an append-only ledger, and short-dated stock raises an alert before it becomes waste.",
+    "lede": "A pharmacy distributor cannot answer “where is that batch right now?” from a spreadsheet. Bershama is the system that answers it: every batch carries its expiry and its location, every movement is written to an append-only ledger, and short-dated stock raises an alert before it becomes waste.",
     "createOrg": "Create your organisation",
     "signIn": "Sign in",
     "capabilitiesHeading": "What it does",

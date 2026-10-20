@@ -134,7 +134,7 @@ page as the User Signups toggles, not in that block.
 > above asks for.
 
 The toggle changes nothing for the seeded demo users: it only rejects a password that
-matches one in HaveIBeenPwned, and `PharmaFlow#2026` is not one.
+matches one in HaveIBeenPwned, and `Bershama#2026` is not one.
 
 **Multi-factor authentication** -- Project Settings -> Authentication -> **MFA** ->
 enable the **TOTP** factor. Leave phone and WebAuthn off unless the deployment needs
