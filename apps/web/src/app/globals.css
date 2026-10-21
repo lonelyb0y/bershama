@@ -4,7 +4,15 @@
 /*
  ---break---
  */
-@custom-variant dark (&:is(.dark *));
+/*
+ * The dark utilities follow the same switch as the tokens.
+ *
+ * `.dark` on an ancestor, OR the root not being `.light` -- which is the default
+ * state, so `dark:` utilities apply without a class having to be written for it.
+ * Before this, a `dark:` utility was dead on a page whose root carried no class,
+ * which is the state a page is in before its script runs.
+ */
+@custom-variant dark (&:is(.dark *), :root:not(.light) *);
 
 /*
  * Design tokens.
@@ -48,96 +56,24 @@
   --color-brand-700: #155e75;
 }
 
-/*
- * Light is the default, declared first and unconditionally.
- *
- * The dark block used to sit ABOVE this one, wrapped in prefers-color-scheme. Two
- * `:root` selectors of equal specificity means the later one wins, so the dark
- * values were overwritten by the light values before they were ever read. The
- * stylesheet shipped a dark theme that could not apply, and nothing noticed
- * because it still parsed. Order is load-bearing here: light in :root, dark in
- * .dark, and never the reverse.
- */
 :root {
-  color-scheme: light;
-  /*
-   * Brand, per theme.
-   *
-   * These are theme-scoped rather than global because the same token is two
-   * different things. On a light page brand-600 is a button fill and white sits
-   * on it, so it has to be DARK. On a dark page brand-600 is a link or a text
-   * colour, so it has to be LIGHT. One value cannot be both, and that is not
-   * hypothetical: a single global brand-600 measured 3.79:1 against white --
-   * failing WCAG AA on every button label in the application -- while the same
-   * token as text on a dark surface measured 3.67:1. Measured, not estimated,
-   * by e2e/contrast.spec.ts.
-   */
-
-  --surface: oklch(0.99 0.002 260);
-  --surface-raised: oklch(1 0 0);
-  /* 3:1 against the surface, which is the WCAG 1.4.11 bar for a control boundary. An input border is the only thing separating a field from the page, so it is not decoration. At the previous 1.31:1 the fields were effectively invisible in light mode. */
-  --border: oklch(0.62 0.02 250);
-  --text: oklch(0.2 0.008 260);
-  --text-muted: oklch(0.5 0.01 260);
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-  --color-brand-50: #ecfeff;
-  --color-brand-100: #cffafe;
-  --color-brand-500: #0891b2;
-  --color-brand-600: #0e7490;
-  --color-brand-700: #155e75;
-  --color-brand-800: #164e63;
-}
-
-/*
- * Dark, selected explicitly by the theme script writing `class="dark"` onto
- * <html> before first paint.
- *
- * A class rather than a media query alone, because "follow my OS" is only one of
- * three answers. Someone counting stock in a bright warehouse wants light
- * regardless of what their laptop is set to, and someone checking a screen at
- * 2am wants dark while their OS insists on light. Both need to be expressible.
- *
- * The media query below still runs, for the "system" choice, and is scoped so it
- * cannot fight an explicit choice: :root:not(.light) keeps the OS preference
- * active until the user picks something specific either way.
- */
-:root.dark {
   color-scheme: dark;
 
   /*
-   * Bershama's dark palette. Every value here is one the generated design actually
-   * used -- the Stitch output contains nothing else, which is how you know a design
-   * system transferred rather than a prompt being loosely followed.
+   * Bershama's palette, and the base one.
+   *
+   * Dark is not a variant here, it is the ground. The arrangement used to be light
+   * in :root and dark in .dark, which meant that with no JavaScript and no stored
+   * preference the page fell through to the operating system's colour scheme -- so
+   * a visitor whose laptop was set to light saw a white page, which is the one
+   * thing this design is not.
+   *
+   * The base is now the design, and :root.light is the opt-in. That also means the
+   * stylesheet alone carries it: no script, no stored preference, no flash.
+   *
+   * Every value below is one the generated design actually used -- the Stitch
+   * output contains nothing else, which is how you know a design system
+   * transferred rather than a prompt being loosely followed.
    *
    * The order is deliberate: the canvas is the ground, the panels sit a step above
    * it, and the interactive planes a step above that. The ink is warm, so the
@@ -174,6 +110,7 @@
   --destructive: #f2555a;
   --input: #232326;
   --ring: #22d3ee;
+  --radius: 0.625rem;
 
   /* The series ramp. The accent leads, the status colours follow, and the last stop
      is a neutral so a five-series chart never has to invent a hue. */
@@ -212,6 +149,89 @@
   --color-brand-600: #67e8f9;
   --color-brand-700: #a5f3fc;
   --color-brand-800: #cffafe;
+}
+
+
+:root.light {
+  color-scheme: light;
+
+  /*
+   * The light palette. The opt-in, not the default.
+   *
+   * It is here for the pharmacist counting stock under a bright warehouse light and
+   * for the person who simply prefers a white page. Everything in it is a
+   * light-theme value; nothing here is the dark palette inverted, because the dark
+   * palette is not a dark light palette.
+   */
+
+  --surface: oklch(0.99 0.002 260);
+  --surface-raised: oklch(1 0 0);
+  --surface-2: oklch(0.97 0 0);
+  --surface-muted: oklch(0.97 0 0);
+  /* 3:1 against the surface, which is the WCAG 1.4.11 bar for a control boundary. An input border is the only thing separating a field from the page, so it is not decoration. */
+  --border: oklch(0.62 0.02 250);
+  --text: oklch(0.2 0.008 260);
+  --text-muted: oklch(0.5 0.01 260);
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+
+  /*
+   * Brand, per theme.
+   *
+   * These are theme-scoped rather than global because the same token is two
+   * different things. On a light page brand-600 is a button fill and white sits
+   * on it, so it has to be DARK. On a dark page brand-600 is a link or a text
+   * colour, so it has to be LIGHT. One value cannot be both, and that is not
+   * hypothetical: a single global brand-600 measured 3.79:1 against white --
+   * failing WCAG AA on every button label in the application -- while the same
+   * token as text on a dark surface measured 3.67:1. Measured, not estimated,
+   * by e2e/contrast.spec.ts.
+   */
+  --color-brand-50: #ecfeff;
+  --color-brand-100: #cffafe;
+  --color-brand-500: #0891b2;
+  --color-brand-600: #0e7490;
+  --color-brand-700: #155e75;
+  --color-brand-800: #164e63;
+
+  /*
+   * The three status colours, on a light surface. Spelled out rather than left to
+   * @theme, because the dark palette overrides them, and a cascade that depends on
+   * which block a value happens to live in is a cascade that surprises somebody.
+   */
+  --color-stock-ok: oklch(0.65 0.15 150);
+  --color-stock-warning: oklch(0.75 0.15 75);
+  --color-stock-critical: oklch(0.65 0.2 35);
+  --color-stock-expired: oklch(0.5 0.19 20);
 }
 
 /*
@@ -221,84 +241,6 @@
  * rule in the file is the only one that applies, and one of the two choices
  * would become unreachable.
  */
-@media (prefers-color-scheme: dark) {
-  :root:not(.light):not(.dark) {
-    color-scheme: dark;
-
-    /* The same palette as :root.dark, character for character.
-     *
-     * These two used to be written out separately, which is how they drifted. The
-     * list is now generated from one place, so a change to one is a change to both.
-     */
---surface: #121212;
-  --surface-raised: #1a1a1c;
-  --surface-2: #232326;
-  --surface-muted: #232326;
-  --border: rgba(255, 255, 255, 0.08);
-  --text: #f2efe9;
-  --text-muted: #a1a1aa;
-
-  --background: #121212;
-  --foreground: #f2efe9;
-  --card: #1a1a1c;
-  --card-foreground: #f2efe9;
-  --popover: #1a1a1c;
-  --popover-foreground: #f2efe9;
-
-  /* The accent is the one saturated thing on the page. It is a fill, so the text on
-     it is the canvas -- near-black on cyan, the highest contrast pair in the whole
-     application. */
-  --primary: #22d3ee;
-  --primary-foreground: #121212;
-  --secondary: #232326;
-  --secondary-foreground: #f2efe9;
-  --muted: #232326;
-  --muted-foreground: #a1a1aa;
-  --accent: #232326;
-  --accent-foreground: #f2efe9;
-  --destructive: #f2555a;
-  --input: #232326;
-  --ring: #22d3ee;
-
-  /* The series ramp. The accent leads, the status colours follow, and the last stop
-     is a neutral so a five-series chart never has to invent a hue. */
-  --chart-1: #22d3ee;
-  --chart-2: #3ecf8e;
-  --chart-3: #f5a524;
-  --chart-4: #f2555a;
-  --chart-5: #a1a1aa;
-
-  --sidebar: #1a1a1c;
-  --sidebar-foreground: #f2efe9;
-  --sidebar-primary: #22d3ee;
-  --sidebar-primary-foreground: #121212;
-  --sidebar-accent: #232326;
-  --sidebar-accent-foreground: #f2efe9;
-  --sidebar-border: rgba(255, 255, 255, 0.08);
-  --sidebar-ring: #22d3ee;
-
-  /* The three status colours, on a dark surface.
-   *
-   * These are the visual language of the whole product, and they are chosen so that
-   * none of them is mistaken for the accent: the accent is cyan, and a cyan accent
-   * beside a cyan "expiring" would be a mis-read at 2am. The amber and the red are
-   * the only warm things on the page, which is exactly why they mean danger.
-   */
-  --color-stock-ok: #3ecf8e;
-  --color-stock-warning: #f5a524;
-  --color-stock-critical: #f2555a;
-  --color-stock-expired: #f2555a;
-
-  /* The brand ramp, light. On a dark page brand-600 is a link or a text colour, so
-     it has to be light; see the note in :root. */
-  --color-brand-50: #0b2a31;
-  --color-brand-100: #0e3a44;
-  --color-brand-500: #22d3ee;
-  --color-brand-600: #67e8f9;
-  --color-brand-700: #a5f3fc;
-  --color-brand-800: #cffafe;
-  }
-}
 
 @layer base {
   * {
@@ -511,7 +453,7 @@
   }
 }
 
-:root.dark .pf-glass {
+:root:not(.light) .pf-glass {
   background-color: color-mix(in oklab, var(--surface-raised) 72%, transparent);
   border-color: color-mix(in oklab, var(--border) 45%, transparent);
   box-shadow:
@@ -780,7 +722,7 @@
   box-shadow: 0 1px 0 color-mix(in oklab, white 30%, transparent);
 }
 
-:root.dark .pf-glass-header {
+:root:not(.light) .pf-glass-header {
   background-color: color-mix(in oklab, var(--surface) 88%, transparent);
   border-bottom-color: color-mix(in oklab, var(--border) 35%, transparent);
   box-shadow: 0 1px 0 color-mix(in oklab, white 8%, transparent);
@@ -944,7 +886,7 @@
     0 18px 40px -22px color-mix(in oklab, var(--color-brand-800) 80%, transparent);
 }
 
-:root.dark .pf-hero {
+:root:not(.light) .pf-hero {
   background-color: color-mix(in oklab, var(--color-brand-700) 70%, black);
 }
 
@@ -959,6 +901,11 @@
 /* ── the editorial headline ────────────────────────────────────────────────── */
 
 .pf-display {
+  /* Space Grotesk, since that is the application's display face now. The size
+     and weight stay as they were: this class is the editorial headline, and
+     the landing page's smaller headings use the `font-display` utility instead
+     so that the size is theirs to choose. */
+  font-family: var(--font-display);
   font-size: clamp(1.75rem, 3.4vw, 2.75rem);
   font-weight: 700;
   letter-spacing: -0.03em;
@@ -1042,7 +989,7 @@
   animation: pf-sweep 1.4s ease-in-out infinite;
 }
 
-:root.dark .pf-skeleton::after {
+:root:not(.light) .pf-skeleton::after {
   background-image: linear-gradient(
     90deg,
     transparent 0%,
@@ -1069,7 +1016,7 @@
   }
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════════════════════════
    Motion.
 
    One vocabulary, and it is physics rather than easing curves. A linear
@@ -1085,7 +1032,20 @@
      2. The reveal is staggered, never simultaneous. A dashboard whose four
         figures appear together is a page that loaded; a dashboard whose figures
         arrive in sequence is a page that is reporting.
-   ═══════════════════════════════════════════════════════════════════════════ */
+
+   ── a note on what is NOT here ────────────────────────────────────────────────
+
+   The application already had a .pf-* vocabulary of its own: .pf-skeleton with
+   its hard-edged sweep, .pf-display for the editorial headline, .pf-nav-scroll
+   for the nav strip. An earlier version of this section defined .pf-display,
+   .pf-skeleton and a second @keyframes pf-sweep, which silently replaced the
+   originals rather than adding to them -- so a skeleton shimmer changed speed,
+   and a headline inherited a 44px size from a class meant for something else.
+
+   So: nothing here redefines a name the application already owns. The classes
+   below are new, and the ones that already existed were left exactly as they
+   were found.
+   ═══════════════════════════════════════════════════════════════════════════════ */
 
 :root {
   /* stiffness 100, damping 20 -- the default that feels weighted rather than
@@ -1141,37 +1101,30 @@
   animation: pf-breathe 2.4s var(--pf-ease) infinite;
 }
 
-/* The skeleton sweep. A loading state shaped like the thing that is loading. */
-@keyframes pf-sweep {
-  from {
-    background-position: -140% 0;
-  }
-  to {
-    background-position: 240% 0;
-  }
-}
-
-.pf-skeleton {
-  background: linear-gradient(
-    100deg,
-    var(--surface-raised) 20%,
-    var(--surface-2) 40%,
-    var(--surface-raised) 60%
-  );
-  background-size: 220% 100%;
-  animation: pf-sweep 1.6s var(--pf-ease) infinite;
-}
-
-/* The headline face, for the places that want it without a utility class. */
-.pf-display {
-  font-family: var(--font-display);
-  letter-spacing: -0.02em;
-}
-
 /* Every number in a dense screen is monospaced, so a column lines up. */
 .pf-mono {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
+}
+
+/*
+ * A horizontal rail of records.
+ *
+ * Not .pf-nav-scroll, which is the navigation's: it carries a 2px gap and an
+ * edge mask sized for the nav's own destinations. A rail of product records
+ * needs the opposite -- a real gap, and no mask, because a fade that never
+ * lifts is worse than no fade at all. The peeking card is the affordance.
+ */
+.pf-rail {
+  display: flex;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.pf-rail::-webkit-scrollbar {
+  display: none;
 }
 
 /*
@@ -1185,8 +1138,7 @@
 @media (prefers-reduced-motion: reduce) {
   .pf-reveal,
   .pf-stagger > *,
-  .pf-live-dot,
-  .pf-skeleton {
+  .pf-live-dot {
     animation: none;
   }
 }

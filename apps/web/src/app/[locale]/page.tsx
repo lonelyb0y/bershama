@@ -51,8 +51,10 @@ export default async function LandingPage({
   const rail = [
     { sku: 'PH-1001', name: 'Panadol Extra 500 mg Tablets', band: 'ok', label: 'In date' },
     { sku: 'PH-1002', name: 'Augmentin 875 mg/125 mg Film-Coated Tablets', band: 'ok', label: 'In date' },
-    { sku: 'PH-1003', name: 'NovoRapid FlexPen 100 IU/mL', band: 'soon', label: '14 days' },
+    { sku: 'PH-1003', name: 'NovoRapid FlexPen 100 IU/mL Solution for Injection', band: 'soon', label: '14 days' },
     { sku: 'PH-1004', name: 'ORS Sachet', band: 'ok', label: 'In date' },
+    { sku: 'PH-1005', name: 'Cefriaxone 1 g Powder for Solution', band: 'ok', label: 'In date' },
+    { sku: 'PH-1006', name: 'Influenza Vaccine 0.5 mL Prefilled Syringe', band: 'ok', label: 'In date' },
   ] as const;
 
   return (
@@ -68,7 +70,7 @@ export default async function LandingPage({
             <Logo />
           </Link>
 
-          <nav aria-label={tNav('primary')} className="pf-nav-scroll hidden items-center gap-1 lg:flex">
+          <nav aria-label={tNav('primary')} className="pf-rail hidden items-center gap-1 lg:flex">
             {['capabilities', 'compliance', 'network'].map((item) => (
               <a
                 key={item}
@@ -110,7 +112,7 @@ export default async function LandingPage({
             </p>
 
             <h1
-              className="pf-display mt-5 max-w-[16ch] text-[2.75rem] leading-[1.09] font-semibold sm:text-[2.75rem]"
+              className="font-display mt-5 max-w-[16ch] text-[2.75rem] leading-[1.09] font-semibold sm:text-[2.75rem]"
               style={{ ['--pf-i' as string]: 1 }}
             >
               {t('headline')}
@@ -241,7 +243,7 @@ export default async function LandingPage({
                 <path d="M9 21v-7h6v7" />
               </svg>
             </span>
-            <h2 className="pf-display mt-5 text-2xl font-semibold">{t('adminRole')}</h2>
+            <h2 className="font-display mt-5 text-2xl font-semibold">{t('adminRole')}</h2>
             <p className="mt-2.5 text-sm leading-[1.55] text-[var(--text-muted)]">
               {t('adminRoleBody')}
             </p>
@@ -266,7 +268,7 @@ export default async function LandingPage({
                 <path d="M8 7V5a4 4 0 0 1 8 0v2" />
               </svg>
             </span>
-            <h2 className="pf-display mt-5 text-2xl font-semibold">{t('pharmacyRole')}</h2>
+            <h2 className="font-display mt-5 text-2xl font-semibold">{t('pharmacyRole')}</h2>
             <p className="mt-2.5 text-sm leading-[1.55] text-[var(--text-muted)]">
               {t('pharmacyRoleBody')}
             </p>
@@ -282,7 +284,7 @@ export default async function LandingPage({
 
       {/* ── the capability band ────────────────────────────────────────────── */}
       <section className="mx-auto max-w-[1400px] px-4 py-10 sm:px-6">
-        <h2 className="pf-display text-2xl font-semibold">{t('capabilitiesHeading')}</h2>
+        <h2 className="font-display text-2xl font-semibold">{t('capabilitiesHeading')}</h2>
         <p className="mt-2 text-sm text-[var(--text-muted)]">{t('capabilitiesLede')}</p>
 
         <div className="mt-8 grid gap-x-10 gap-y-8 sm:grid-cols-2">
@@ -302,7 +304,7 @@ export default async function LandingPage({
               <p className="pf-mono text-[11px] tracking-[0.08em] text-[var(--text-muted)] uppercase">
                 {t(`capability.${key}.eyebrow`)}
               </p>
-              <h3 className="pf-display mt-2 text-lg font-medium">{heading}</h3>
+              <h3 className="font-display mt-2 text-lg font-medium">{heading}</h3>
               <p className="mt-1.5 text-sm leading-[1.55] text-[var(--text-muted)]">{body}</p>
             </div>
           ))}
@@ -335,7 +337,7 @@ export default async function LandingPage({
           which is the difference between a person swiping and a person giving up.
           The cards are narrow enough that the fifth always has an edge showing.
         */}
-        <ul className="pf-nav-scroll mt-4 flex items-stretch gap-3 pb-2">
+        <ul className="pf-rail mt-4 flex items-stretch gap-3 pb-2">
           {rail.map((item) => (
             <li
               key={item.sku}
@@ -347,7 +349,7 @@ export default async function LandingPage({
               </div>
               {/* Two lines, always. A product name is one to three lines long, and the
                   third line is what makes the row ragged. */}
-              <p className="pf-display mt-3 line-clamp-2 leading-snug font-medium">
+              <p className="font-display mt-3 line-clamp-2 text-[0.9375rem] leading-snug font-medium">
                 {item.name}
               </p>
               <p className="pf-mono mt-auto border-t border-[var(--border)] pt-3 text-[11px] text-[var(--text-muted)]">
@@ -372,7 +374,7 @@ export default async function LandingPage({
               */}
               <p
                 dir="rtl"
-                className="pf-display mt-4 text-2xl leading-tight font-semibold text-[var(--text)]"
+                className="font-display mt-4 text-2xl leading-tight font-semibold text-[var(--text)]"
               >
                 {t('slogan')}
               </p>

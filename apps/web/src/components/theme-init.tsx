@@ -23,16 +23,20 @@ import { useLayoutEffect } from 'react';
  * storage and writes one class name is exactly what it is for. The inline script
  * was solving a problem this hook solves natively.
  *
- * ── why the system preference still needs no JavaScript ──────────────────────
+ * ── why the default theme needs no JavaScript ─────────────────────────────────
  *
- * globals.css honours prefers-color-scheme on its own, through a media query
- * scoped to :root:not(.light):not(.dark). So with no stored preference and no
- * JavaScript at all, the right theme still applies -- correctly, with no flash,
- * and it keeps working if this component never runs.
+ * Dark is the BASE in globals.css, not a variant of it. So the common case -- a
+ * first-time visitor with no stored preference and, at the extreme, no JavaScript
+ * at all -- is served by the stylesheet alone, in the initial HTML, with no
+ * possible flash.
  *
- * This component's only job is the part CSS cannot do: override the OS when the
- * user has explicitly chosen. Absence of a stored preference is the system
- * state, deliberately, so there is one fewer key to keep in sync.
+ * That is a deliberate reversal. The palette used to be light in :root with dark
+ * in .dark, which meant the no-preference case fell through to the operating
+ * system's colour scheme, and a visitor whose laptop was set to light saw a white
+ * page -- the one thing this design is not. The product's own theme is now the
+ * ground, and the stylesheet says so.
+ *
+ * This component's only job is the part CSS cannot do: apply an explicit choice.
  */
 export function ThemeInit() {
   useLayoutEffect(() => {
@@ -43,19 +47,17 @@ export function ThemeInit() {
       stored = window.localStorage.getItem(KEY);
     } catch {
       // Private browsing in some browsers throws on access. A theme is a
-      // preference, not a requirement, so the CSS media query carries on.
+      // preference, not a requirement, so the base stylesheet carries on.
       return;
     }
 
-    // Bershama is dark-first.
-    //
-    // The absence of a stored preference used to mean "follow the OS", which meant a
-    // visitor whose laptop was set to light saw a white page -- the one thing this
-    // design is not. The default is now the product's own theme, and the toggle is
-    // how you leave it.
-    const dark = stored !== 'light';
-    root.classList.toggle('dark', dark);
-    root.classList.toggle('light', !dark);
+    // Nothing stored: leave the root unclassed. The base is the product's own
+    // theme, and writing a class here would be writing the class that CSS
+    // already implies.
+    if (stored !== 'light' && stored !== 'dark') return;
+
+    root.classList.toggle('light', stored === 'light');
+    root.classList.toggle('dark', stored === 'dark');
   }, []);
 
   // Renders nothing. The work is a side effect before paint, not markup.
