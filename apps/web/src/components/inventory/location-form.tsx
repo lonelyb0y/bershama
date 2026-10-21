@@ -156,10 +156,14 @@ function Field({
   placeholder?: string;
 }) {
   return (
-    <label className="block">
-      <span className="mb-1 block text-xs font-medium">
+    <label className="pf-field block">
+      <span className="pf-field__label">
         {label}
-        {required && <span className="text-red-500"> *</span>}
+        {required && (
+          <span aria-hidden="true" className="ms-1 text-[var(--color-stock-critical)]">
+            *
+          </span>
+        )}
       </span>
       <input
         name={name}

@@ -153,8 +153,8 @@ export function NewRunForm({
             className="w-full rounded-2xl border bg-transparent px-3"
           />
         </label>
-        <label className="block text-sm font-medium">
-          {labels.vehicle}
+        <label className="pf-field block">
+          <span className="pf-field__label">{labels.vehicle}</span>
           <select name="vehicle_id" defaultValue="" className="w-full rounded-2xl border bg-transparent px-3">
             {/* No vehicle is allowed: the van is not always known on the night before.
                 Dispatch is where it becomes required, which is the point at which the
@@ -219,8 +219,8 @@ export function AddStopForm({
 
       {!canPlan && <p className="text-xs text-current/60">{labels.notPlanned}</p>}
 
-      <label className="block text-sm font-medium">
-        {labels.facility}
+      <label className="pf-field block">
+        <span className="pf-field__label">{labels.facility}</span>
         <select
           name="facility_id"
           required
@@ -238,8 +238,8 @@ export function AddStopForm({
         </select>
       </label>
 
-      <label className="block text-sm font-medium">
-        {labels.requisition}
+      <label className="pf-field block">
+        <span className="pf-field__label">{labels.requisition}</span>
         <select name="requisition_id" defaultValue="" className="w-full rounded-2xl border bg-transparent px-3">
           {/* A stop with no requisition is a real thing -- a scheduled call, or a
               run planned before stock is approved -- so this is optional on purpose. */}
@@ -286,8 +286,8 @@ export function DispatchForm({
       <input placeholder=" " type="hidden" name="trip_id" value={tripId} />
       <Feedback state={state} messages={messages} summaryRef={summaryRef} success={labels.dispatched} />
 
-      <label className="block text-sm font-medium">
-        {labels.driver}
+      <label className="pf-field block">
+        <span className="pf-field__label">{labels.driver}</span>
         <select name="driver_id" required defaultValue="" className="w-full rounded-2xl border bg-transparent px-3">
           <option value="" disabled>
             —

@@ -187,29 +187,31 @@ export function SignSheet({
         />
       </label>
 
-      {/* A <label for> rather than a <legend>: a legend labels the fieldset, not the
-          control inside it, so a screen reader announcing this select read "group"
-          instead of "what this signature means" -- and the requirement that the
-          signature mean something went with it. */}
-      <label htmlFor={`meaning-${stopId}`} className="block text-sm font-medium">
-        {labels.meaning}
-      </label>
-      <select
-        id={`meaning-${stopId}`}
-        name="meaning"
-        required
-        defaultValue=""
-        className="w-full rounded-2xl border bg-transparent px-3"
-      >
-        <option value="" disabled>
-          —
-        </option>
-        {Object.entries(meanings).map(([value, label]) => (
-          <option key={value} value={value}>
-            {label}
+      <div className="pf-field">
+        <select
+          id={`meaning-${stopId}`}
+          name="meaning"
+          required
+          defaultValue=""
+          className="w-full rounded-2xl border bg-transparent px-3"
+        >
+          <option value="" disabled>
+            —
           </option>
-        ))}
-      </select>
+          {Object.entries(meanings).map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </select>
+        {/* A <label for> rather than a <legend>: a legend labels the fieldset,
+            not the control inside it, so a screen reader announcing this select
+            read "group" instead of "what this signature means" -- and the
+            requirement that the signature mean something went with it. */}
+        <label htmlFor={`meaning-${stopId}`} className="pf-field__label">
+          {labels.meaning}
+        </label>
+      </div>
 
       {unsigned ? (
         <label className="block space-y-1 text-sm">
@@ -265,8 +267,8 @@ export function FailStopForm({
   return (
     <form action={submit} className="space-y-2" data-testid={`fail-${stopId}`}>
       <input placeholder=" " type="hidden" name="stop_id" value={stopId} />
-      <label className="block text-sm font-medium">
-        {labels.reason}
+      <label className="pf-field block">
+        <span className="pf-field__label">{labels.reason}</span>
         <select name="reason" required defaultValue="" className="w-full rounded-2xl border bg-transparent px-3">
           <option value="" disabled>
             —
