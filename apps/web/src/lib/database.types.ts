@@ -45,6 +45,14 @@ export type Database = {
         isOneToOne: true
         isSetofReturn: false
       } },
+      ci_run_alert_scan: { Args: Record<PropertyKey, never>; Returns: {
+              raised: number,skipped: number
+            }[]
+                           },
+      ci_seed_fixture: { Args: { p_admin: string,p_driver: string,p_pharmacy: string }; Returns: Json
+                           },
+      ci_teardown_fixture: { Args: Record<PropertyKey, never>; Returns: Json
+                           },
       complete_stop: { Args: { p_device_id?: string,p_latitude?: number,p_longitude?: number,p_meaning: string,p_photo_url?: string,p_recipient_name: string,p_signature_data?: string,p_stop_id: string,p_unsigned_reason?: string }; Returns: Database["public"]['Tables']["delivery_stops"]['Row']
                           SetofOptions: {
         from: "*"
@@ -59,19 +67,6 @@ export type Database = {
         isOneToOne: true
         isSetofReturn: false
       } },
-      ci_run_alert_scan: { Args: Record<PropertyKey, never>; Returns: {
-              raised: number,skipped: number
-            }[]
-                           SetofOptions: {
-        from: "*"
-        to: "ci_run_alert_scan"
-        isOneToOne: false
-        isSetofReturn: true
-      } },
-      ci_seed_fixture: { Args: { p_admin: string,p_driver: string,p_pharmacy: string }; Returns: Json
-                           },
-      ci_teardown_fixture: { Args: Record<PropertyKey, never>; Returns: Json
-                           },
       create_batch: { Args: { p_expiry_date: string,p_lot_number: string,p_mfg_date: string,p_product_id: string,p_release_now?: boolean,p_supplier_name?: string,p_supplier_ref?: string,p_unit_cost_minor?: number }; Returns: Database["public"]['Tables']["batches"]['Row']
                           SetofOptions: {
         from: "*"
@@ -243,6 +238,13 @@ export type Database = {
         isOneToOne: true
         isSetofReturn: false
       } },
+      update_my_notifications: { Args: { p_deliveries?: boolean,p_expiry?: boolean,p_requisitions?: boolean }; Returns: Database["public"]['Tables']["profiles"]['Row']
+                          SetofOptions: {
+        from: "*"
+        to: "profiles"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
       update_my_profile: { Args: { p_full_name?: string,p_full_name_ar?: string,p_locale?: string,p_phone?: string }; Returns: Database["public"]['Tables']["profiles"]['Row']
                           SetofOptions: {
         from: "*"
@@ -265,7 +267,7 @@ export type Database = {
         isSetofReturn: false
       } },
       whoami: { Args: Record<PropertyKey, never>; Returns: {
-              currency_code: string,full_name: string,full_name_ar: string,locale: string,role: "TENANT_ADMIN"|"WAREHOUSE_MANAGER"|"DISPATCHER"|"DRIVER"|"PHARMACY_MANAGER"|"DISTRIBUTOR"|"ANALYST",tenant_id: string,tenant_slug: string,timezone: string,user_id: string,vat_rate: number
+              currency_code: string,full_name: string,full_name_ar: string,locale: string,notifications: Json,phone: string,role: "TENANT_ADMIN"|"WAREHOUSE_MANAGER"|"DISPATCHER"|"DRIVER"|"PHARMACY_MANAGER"|"DISTRIBUTOR"|"ANALYST",tenant_id: string,tenant_slug: string,timezone: string,user_id: string,vat_rate: number
             }[]
                            },
       write_off_stock: { Args: { p_batch_id: string,p_location_id: string,p_notes?: string,p_product_id: string,p_qty: number,p_reason_code: string }; Returns: number
@@ -283,6 +285,7 @@ export type Database = {
                   Row: {
                     acknowledged_at: string | null,acknowledged_by: string | null,created_at: string,data: NonNullable<Json>,entity_id: string | null,entity_type: string,first_seen_at: string,id: string,last_seen_at: string,message: string,occurrences: number,resolved_at: string | null,resolved_by: string | null,severity: "INFO"|"WARN"|"CRITICAL",status: "OPEN"|"ACK"|"RESOLVED"|"SNOOZED",tenant_id: string,type: "LOW_STOCK"|"NEAR_EXPIRY"|"EXPIRED"|"OVERSTOCK"|"ORDER_OVERDUE"|"DELIVERY_FAILED"|"COLD_CHAIN_BREACH"|"RECALL"|"STOCK_DRIFT"|"NEGATIVE_STOCK",updated_at: string
                   }
+                  ComputedFields: never
                   Insert: {
                     acknowledged_at?: string | null,acknowledged_by?: string | null,created_at?: string,data?: NonNullable<Json>,entity_id?: string | null,entity_type: string,first_seen_at?: string,id?: string,last_seen_at?: string,message: string,occurrences?: number,resolved_at?: string | null,resolved_by?: string | null,severity?: "INFO"|"WARN"|"CRITICAL",status?: "OPEN"|"ACK"|"RESOLVED"|"SNOOZED",tenant_id: string,type: "LOW_STOCK"|"NEAR_EXPIRY"|"EXPIRED"|"OVERSTOCK"|"ORDER_OVERDUE"|"DELIVERY_FAILED"|"COLD_CHAIN_BREACH"|"RECALL"|"STOCK_DRIFT"|"NEGATIVE_STOCK",updated_at?: string
                   }
@@ -314,6 +317,7 @@ isOneToOne: false
                   Row: {
                     action: string,actor_label: string | null,actor_role: "TENANT_ADMIN"|"WAREHOUSE_MANAGER"|"DISPATCHER"|"DRIVER"|"PHARMACY_MANAGER"|"DISTRIBUTOR"|"ANALYST" | null,actor_user_id: string | null,after: Json | null,before: Json | null,entity_id: string | null,entity_type: string,id: number,ip_address: unknown,occurred_at: string,request_id: string | null,tenant_id: string,user_agent: string | null
                   }
+                  ComputedFields: never
                   Insert: {
                     action: string,actor_label?: string | null,actor_role?: "TENANT_ADMIN"|"WAREHOUSE_MANAGER"|"DISPATCHER"|"DRIVER"|"PHARMACY_MANAGER"|"DISTRIBUTOR"|"ANALYST" | null,actor_user_id?: string | null,after?: Json | null,before?: Json | null,entity_id?: string | null,entity_type: string,id?: never,ip_address?: unknown,occurred_at?: string,request_id?: string | null,tenant_id: string,user_agent?: string | null
                   }
@@ -339,6 +343,7 @@ isOneToOne: false
                   Row: {
                     created_at: string,delete_reason: string | null,deleted_at: string | null,deleted_by: string | null,expiry_date: string,id: string,lot_number: string,mfg_date: string,product_id: string,received_at: string,released_at: string | null,released_by: string | null,status: "QUARANTINED"|"RELEASED"|"RECALLED"|"EXPIRED"|"DEPLETED",status_changed_at: string | null,status_changed_by: string | null,status_reason: string | null,supplier_name: string | null,supplier_ref: string | null,tenant_id: string,unit_cost_minor: number,updated_at: string
                   }
+                  ComputedFields: never
                   Insert: {
                     created_at?: string,delete_reason?: string | null,deleted_at?: string | null,deleted_by?: string | null,expiry_date: string,id?: string,lot_number: string,mfg_date: string,product_id: string,received_at?: string,released_at?: string | null,released_by?: string | null,status?: "QUARANTINED"|"RELEASED"|"RECALLED"|"EXPIRED"|"DEPLETED",status_changed_at?: string | null,status_changed_by?: string | null,status_reason?: string | null,supplier_name?: string | null,supplier_ref?: string | null,tenant_id: string,unit_cost_minor?: number,updated_at?: string
                   }
@@ -382,6 +387,7 @@ isOneToOne: false
                   Row: {
                     created_at: string,excursion_c: number | null,id: string,is_excursion: boolean | null,location_id: string,note: string | null,range_max_c: number | null,range_min_c: number | null,read_at: string,recorded_by: string | null,source: string,temp_c: number,tenant_id: string
                   }
+                  ComputedFields: never
                   Insert: {
                     created_at?: string,excursion_c?: number | null,id?: string,is_excursion?: boolean | null,location_id: string,note?: string | null,range_max_c?: number | null,range_min_c?: number | null,read_at?: string,recorded_by?: string | null,source?: string,temp_c: number,tenant_id: string
                   }
@@ -413,6 +419,7 @@ isOneToOne: false
                   Row: {
                     arrived_at: string | null,closed_at: string | null,created_at: string,delivered_at: string | null,eta: string | null,facility_id: string,failure_reason: string | null,id: string,latitude: number | null,longitude: number | null,requisition_id: string | null,sequence: number,status: "PENDING"|"ARRIVED"|"DELIVERED"|"FAILED"|"RETURNED"|"SKIPPED",tenant_id: string,trip_id: string,updated_at: string
                   }
+                  ComputedFields: never
                   Insert: {
                     arrived_at?: string | null,closed_at?: string | null,created_at?: string,delivered_at?: string | null,eta?: string | null,facility_id: string,failure_reason?: string | null,id?: string,latitude?: number | null,longitude?: number | null,requisition_id?: string | null,sequence: number,status?: "PENDING"|"ARRIVED"|"DELIVERED"|"FAILED"|"RETURNED"|"SKIPPED",tenant_id: string,trip_id: string,updated_at?: string
                   }
@@ -450,6 +457,7 @@ isOneToOne: false
                   Row: {
                     address: string | null,city: string | null,code: string,created_at: string,governorate: string | null,id: string,is_active: boolean,kind: "WAREHOUSE"|"PHARMACY"|"HOSPITAL"|"CLINIC",latitude: number | null,license_no: string | null,longitude: number | null,name_ar: string,name_en: string,phone: string | null,tenant_id: string,updated_at: string
                   }
+                  ComputedFields: never
                   Insert: {
                     address?: string | null,city?: string | null,code: string,created_at?: string,governorate?: string | null,id?: string,is_active?: boolean,kind: "WAREHOUSE"|"PHARMACY"|"HOSPITAL"|"CLINIC",latitude?: number | null,license_no?: string | null,longitude?: number | null,name_ar: string,name_en: string,phone?: string | null,tenant_id: string,updated_at?: string
                   }
@@ -469,6 +477,7 @@ isOneToOne: false
                   Row: {
                     accepted_at: string | null,created_at: string,email: string,expires_at: string,facility_id: string | null,full_name: string,id: string,invited_by: string | null,role: "TENANT_ADMIN"|"WAREHOUSE_MANAGER"|"DISPATCHER"|"DRIVER"|"PHARMACY_MANAGER"|"DISTRIBUTOR"|"ANALYST",status: string,tenant_id: string,token_hash: string
                   }
+                  ComputedFields: never
                   Insert: {
                     accepted_at?: string | null,created_at?: string,email: string,expires_at?: string,facility_id?: string | null,full_name: string,id?: string,invited_by?: string | null,role: "TENANT_ADMIN"|"WAREHOUSE_MANAGER"|"DISPATCHER"|"DRIVER"|"PHARMACY_MANAGER"|"DISTRIBUTOR"|"ANALYST",status?: string,tenant_id: string,token_hash: string
                   }
@@ -494,6 +503,7 @@ isOneToOne: false
                   Row: {
                     id: string,latitude: number,longitude: number,recorded_at: string,tenant_id: string,trip_id: string,updated_at: string
                   }
+                  ComputedFields: never
                   Insert: {
                     id?: string,latitude: number,longitude: number,recorded_at?: string,tenant_id: string,trip_id: string,updated_at?: string
                   }
@@ -519,6 +529,7 @@ isOneToOne: true
                   Row: {
                     atc_code: string | null,brand: string | null,created_at: string,drug_class: string | null,eda_reg_no: string | null,form: "TABLET"|"CAPSULE"|"SYRUP"|"SUSPENSION"|"INJECTION"|"VIAL"|"SACHET"|"CREAM"|"OINTMENT"|"SUPPOSITORY"|"DROPS"|"INHALER"|"PATCH"|"UNSPECIFIED",generic_name_ar: string | null,generic_name_en: string | null,gtin: string | null,id: string,is_active: boolean,is_cold_chain: boolean,is_controlled: boolean,is_serialised: boolean,manufacturer: string | null,name_ar: string,name_en: string,pack_size: number,requires_prescription: boolean,sell_price_minor: number,shelf_life_months: number,sku: string,source: string | null,strength: string,strength_unit: "mg"|"g"|"mcg"|"ml"|"IU"|"%"|"units" | null,tenant_id: string,uom: "BOX"|"STRIP"|"BOTTLE"|"TUBE"|"VIAL"|"SACHET"|"KIT",updated_at: string
                   }
+                  ComputedFields: never
                   Insert: {
                     atc_code?: string | null,brand?: string | null,created_at?: string,drug_class?: string | null,eda_reg_no?: string | null,form: "TABLET"|"CAPSULE"|"SYRUP"|"SUSPENSION"|"INJECTION"|"VIAL"|"SACHET"|"CREAM"|"OINTMENT"|"SUPPOSITORY"|"DROPS"|"INHALER"|"PATCH"|"UNSPECIFIED",generic_name_ar?: string | null,generic_name_en?: string | null,gtin?: string | null,id?: string,is_active?: boolean,is_cold_chain?: boolean,is_controlled?: boolean,is_serialised?: boolean,manufacturer?: string | null,name_ar: string,name_en: string,pack_size?: number,requires_prescription?: boolean,sell_price_minor?: number,shelf_life_months?: number,sku: string,source?: string | null,strength: string,strength_unit?: "mg"|"g"|"mcg"|"ml"|"IU"|"%"|"units" | null,tenant_id: string,uom?: "BOX"|"STRIP"|"BOTTLE"|"TUBE"|"VIAL"|"SACHET"|"KIT",updated_at?: string
                   }
@@ -536,13 +547,14 @@ isOneToOne: false
                   ]
                 },profiles: {
                   Row: {
-                    created_at: string,full_name: string,full_name_ar: string | null,id: string,is_active: boolean,last_seen_at: string | null,locale: string,phone: string | null,role: "TENANT_ADMIN"|"WAREHOUSE_MANAGER"|"DISPATCHER"|"DRIVER"|"PHARMACY_MANAGER"|"DISTRIBUTOR"|"ANALYST",tenant_id: string,updated_at: string
+                    created_at: string,full_name: string,full_name_ar: string | null,id: string,is_active: boolean,last_seen_at: string | null,locale: string,notifications: NonNullable<Json>,phone: string | null,role: "TENANT_ADMIN"|"WAREHOUSE_MANAGER"|"DISPATCHER"|"DRIVER"|"PHARMACY_MANAGER"|"DISTRIBUTOR"|"ANALYST",tenant_id: string,updated_at: string
                   }
+                  ComputedFields: never
                   Insert: {
-                    created_at?: string,full_name: string,full_name_ar?: string | null,id: string,is_active?: boolean,last_seen_at?: string | null,locale?: string,phone?: string | null,role: "TENANT_ADMIN"|"WAREHOUSE_MANAGER"|"DISPATCHER"|"DRIVER"|"PHARMACY_MANAGER"|"DISTRIBUTOR"|"ANALYST",tenant_id: string,updated_at?: string
+                    created_at?: string,full_name: string,full_name_ar?: string | null,id: string,is_active?: boolean,last_seen_at?: string | null,locale?: string,notifications?: NonNullable<Json>,phone?: string | null,role: "TENANT_ADMIN"|"WAREHOUSE_MANAGER"|"DISPATCHER"|"DRIVER"|"PHARMACY_MANAGER"|"DISTRIBUTOR"|"ANALYST",tenant_id: string,updated_at?: string
                   }
                   Update: {
-                    created_at?: string,full_name?: string,full_name_ar?: string | null,id?: string,is_active?: boolean,last_seen_at?: string | null,locale?: string,phone?: string | null,role?: "TENANT_ADMIN"|"WAREHOUSE_MANAGER"|"DISPATCHER"|"DRIVER"|"PHARMACY_MANAGER"|"DISTRIBUTOR"|"ANALYST",tenant_id?: string,updated_at?: string
+                    created_at?: string,full_name?: string,full_name_ar?: string | null,id?: string,is_active?: boolean,last_seen_at?: string | null,locale?: string,notifications?: NonNullable<Json>,phone?: string | null,role?: "TENANT_ADMIN"|"WAREHOUSE_MANAGER"|"DISPATCHER"|"DRIVER"|"PHARMACY_MANAGER"|"DISTRIBUTOR"|"ANALYST",tenant_id?: string,updated_at?: string
                   }
                   Relationships: [
                     {
@@ -557,6 +569,7 @@ isOneToOne: false
                   Row: {
                     device_id: string | null,id: string,meaning: string,photo_url: string | null,recipient_name: string,signature_data: string | null,signed_at: string,stop_id: string,tenant_id: string,unsigned_reason: string | null
                   }
+                  ComputedFields: never
                   Insert: {
                     device_id?: string | null,id?: string,meaning: string,photo_url?: string | null,recipient_name: string,signature_data?: string | null,signed_at?: string,stop_id: string,tenant_id: string,unsigned_reason?: string | null
                   }
@@ -582,6 +595,7 @@ isOneToOne: false
                   Row: {
                     created_at: string,facility_id: string,id: string,is_active: boolean,lead_time_days: number,max_qty: number,min_qty: number,notes: string | null,product_id: string,tenant_id: string,updated_at: string
                   }
+                  ComputedFields: never
                   Insert: {
                     created_at?: string,facility_id: string,id?: string,is_active?: boolean,lead_time_days?: number,max_qty: number,min_qty: number,notes?: string | null,product_id: string,tenant_id: string,updated_at?: string
                   }
@@ -613,6 +627,7 @@ isOneToOne: false
                   Row: {
                     created_at: string,id: string,product_id: string,qty_allocated: number | null,qty_requested: number,requisition_id: string,shortage_qty: number | null,tenant_id: string
                   }
+                  ComputedFields: never
                   Insert: {
                     created_at?: string,id?: string,product_id: string,qty_allocated?: number | null,qty_requested: number,requisition_id: string,shortage_qty?: number | null,tenant_id: string
                   }
@@ -644,6 +659,7 @@ isOneToOne: false
                   Row: {
                     code: string,created_at: string,decided_at: string | null,decided_by: string | null,decision_note: string | null,facility_id: string,id: string,justification: string | null,requested_at: string,requested_by: string | null,status: string,submitted_at: string | null,tenant_id: string,updated_at: string
                   }
+                  ComputedFields: never
                   Insert: {
                     code: string,created_at?: string,decided_at?: string | null,decided_by?: string | null,decision_note?: string | null,facility_id: string,id?: string,justification?: string | null,requested_at?: string,requested_by?: string | null,status?: string,submitted_at?: string | null,tenant_id: string,updated_at?: string
                   }
@@ -681,6 +697,7 @@ isOneToOne: false
                   Row: {
                     batch_id: string,location_id: string,product_id: string,qty_on_hand: number,qty_reserved: number,tenant_id: string,updated_at: string
                   }
+                  ComputedFields: never
                   Insert: {
                     batch_id: string,location_id: string,product_id: string,qty_on_hand?: number,qty_reserved?: number,tenant_id: string,updated_at?: string
                   }
@@ -718,6 +735,7 @@ isOneToOne: false
                   Row: {
                     at_risk_batches: number,created_at: string,expiry_risk_minor: number,facility_id: string,product_id: string,qty_on_hand: number,qty_reserved: number,snapshot_on: string,tenant_id: string,value_minor: number
                   }
+                  ComputedFields: never
                   Insert: {
                     at_risk_batches?: number,created_at?: string,expiry_risk_minor?: number,facility_id: string,product_id: string,qty_on_hand?: number,qty_reserved?: number,snapshot_on: string,tenant_id: string,value_minor?: number
                   }
@@ -749,6 +767,7 @@ isOneToOne: false
                   Row: {
                     actor_user_id: string | null,batch_id: string,created_at: string,facility_id: string,id: number,location_id: string,notes: string | null,occurred_at: string,product_id: string,qty_delta: number,reason_code: string | null,reference_id: string | null,reference_type: string | null,serial_id: string | null,tenant_id: string,txn_type: "RECEIPT"|"TRANSFER_IN"|"COUNT_GAIN"|"RECALL_RELEASE"|"ISSUE"|"DISPENSE"|"TRANSFER_OUT"|"COUNT_LOSS"|"WRITE_OFF"|"RECALL_QUARANTINE"|"ADJUSTMENT"|"RETURN",unit_cost_minor: number | null
                   }
+                  ComputedFields: never
                   Insert: {
                     actor_user_id?: string | null,batch_id: string,created_at?: string,facility_id: string,id?: never,location_id: string,notes?: string | null,occurred_at?: string,product_id: string,qty_delta: number,reason_code?: string | null,reference_id?: string | null,reference_type?: string | null,serial_id?: string | null,tenant_id: string,txn_type: "RECEIPT"|"TRANSFER_IN"|"COUNT_GAIN"|"RECALL_RELEASE"|"ISSUE"|"DISPENSE"|"TRANSFER_OUT"|"COUNT_LOSS"|"WRITE_OFF"|"RECALL_QUARANTINE"|"ADJUSTMENT"|"RETURN",unit_cost_minor?: number | null
                   }
@@ -798,6 +817,7 @@ isOneToOne: false
                   Row: {
                     code: string,created_at: string,facility_id: string,id: string,is_active: boolean,kind: "RECEIVING"|"QUARANTINE"|"AMBIENT"|"COLD"|"FREEZER"|"IN_TRANSIT"|"BIN"|"DISPENSE",name_ar: string,name_en: string,temp_max_c: number | null,temp_min_c: number | null,tenant_id: string,updated_at: string
                   }
+                  ComputedFields: never
                   Insert: {
                     code: string,created_at?: string,facility_id: string,id?: string,is_active?: boolean,kind: "RECEIVING"|"QUARANTINE"|"AMBIENT"|"COLD"|"FREEZER"|"IN_TRANSIT"|"BIN"|"DISPENSE",name_ar: string,name_en: string,temp_max_c?: number | null,temp_min_c?: number | null,tenant_id: string,updated_at?: string
                   }
@@ -823,6 +843,7 @@ isOneToOne: false
                   Row: {
                     country_code: string,created_at: string,currency_code: string,id: string,locale_default: string,min_shelf_life_pct: number,name_ar: string | null,name_en: string,settings: NonNullable<Json>,slug: string,timezone: string,updated_at: string,vat_rate: number
                   }
+                  ComputedFields: never
                   Insert: {
                     country_code?: string,created_at?: string,currency_code?: string,id?: string,locale_default?: string,min_shelf_life_pct?: number,name_ar?: string | null,name_en: string,settings?: NonNullable<Json>,slug: string,timezone?: string,updated_at?: string,vat_rate?: number
                   }
@@ -836,6 +857,7 @@ isOneToOne: false
                   Row: {
                     created_at: string,driver_id: string | null,ended_at: string | null,id: string,notes: string | null,run_date: string,started_at: string | null,status: "PLANNED"|"DISPATCHED"|"IN_TRANSIT"|"COMPLETED"|"CANCELLED",tenant_id: string,updated_at: string,vehicle_id: string | null
                   }
+                  ComputedFields: never
                   Insert: {
                     created_at?: string,driver_id?: string | null,ended_at?: string | null,id?: string,notes?: string | null,run_date: string,started_at?: string | null,status?: "PLANNED"|"DISPATCHED"|"IN_TRANSIT"|"COMPLETED"|"CANCELLED",tenant_id: string,updated_at?: string,vehicle_id?: string | null
                   }
@@ -867,6 +889,7 @@ isOneToOne: false
                   Row: {
                     code: string,created_at: string,description: string | null,id: string,is_active: boolean,plate_number: string | null,tenant_id: string,updated_at: string
                   }
+                  ComputedFields: never
                   Insert: {
                     code: string,created_at?: string,description?: string | null,id?: string,is_active?: boolean,plate_number?: string | null,tenant_id: string,updated_at?: string
                   }
@@ -889,6 +912,7 @@ isOneToOne: false
                   Row: {
                     batch_id: string | null,days_to_expiry: number | null,expiry_band: string | null,expiry_date: string | null,facility_id: string | null,location_id: string | null,lot_number: string | null,name_ar: string | null,name_en: string | null,product_id: string | null,qty_available: number | null,qty_on_hand: number | null,sku: string | null,stock_value_minor: number | null,tenant_id: string | null,unit_cost_minor: number | null
                   }
+                  ComputedFields: never
                   Relationships: [
                     {
       foreignKeyName: "stock_balances_batch_id_fkey"
@@ -926,6 +950,7 @@ isOneToOne: false
                   Row: {
                     batch_id: string | null,batch_status: "QUARANTINED"|"RELEASED"|"RECALLED"|"EXPIRED"|"DEPLETED" | null,days_to_expiry: number | null,expiry_date: string | null,facility_id: string | null,location_code: string | null,location_id: string | null,location_kind: "RECEIVING"|"QUARANTINE"|"AMBIENT"|"COLD"|"FREEZER"|"IN_TRANSIT"|"BIN"|"DISPENSE" | null,lot_number: string | null,mfg_date: string | null,product_id: string | null,qty_available: number | null,qty_on_hand: number | null,qty_reserved: number | null,stock_value_minor: number | null,tenant_id: string | null,unit_cost_minor: number | null,updated_at: string | null
                   }
+                  ComputedFields: never
                   Relationships: [
                     {
       foreignKeyName: "stock_balances_batch_id_fkey"
@@ -963,6 +988,7 @@ isOneToOne: false
                   Row: {
                     batch_count: number | null,days_to_earliest_expiry: number | null,earliest_expiry: string | null,facility_id: string | null,location_id: string | null,product_id: string | null,qty_available: number | null,qty_on_hand: number | null,qty_reserved: number | null,released_batches: number | null,stock_value_minor: number | null,tenant_id: string | null
                   }
+                  ComputedFields: never
                   Relationships: [
                     {
       foreignKeyName: "stock_balances_location_id_fkey"
@@ -994,6 +1020,7 @@ isOneToOne: false
                   Row: {
                     days_to_earliest_expiry: number | null,earliest_expiry: string | null,product_id: string | null,qty_available: number | null,qty_on_hand: number | null,qty_reserved: number | null,stock_value_minor: number | null,tenant_id: string | null
                   }
+                  ComputedFields: never
                   Relationships: [
                     {
       foreignKeyName: "stock_balances_product_id_fkey"
@@ -1013,6 +1040,7 @@ isOneToOne: false
                   Row: {
                     avg_unit_cost_minor: number | null,name_ar: string | null,name_en: string | null,product_id: string | null,qty_on_hand: number | null,sku: string | null,tenant_id: string | null,value_minor: number | null
                   }
+                  ComputedFields: never
                   Relationships: [
                     {
       foreignKeyName: "stock_balances_product_id_fkey"
@@ -1031,15 +1059,734 @@ isOneToOne: false
                 }
           }
           Functions: {
+      ack_alert: { Args: { p_alert_id: string,p_note?: string }; Returns: {
+              acknowledged_at: string | null,
+acknowledged_by: string | null,
+created_at: string,
+data: NonNullable<Json>,
+entity_id: string | null,
+entity_type: string,
+first_seen_at: string,
+id: string,
+last_seen_at: string,
+message: string,
+occurrences: number,
+resolved_at: string | null,
+resolved_by: string | null,
+severity: "INFO"|"WARN"|"CRITICAL",
+status: "OPEN"|"ACK"|"RESOLVED"|"SNOOZED",
+tenant_id: string,
+type: "LOW_STOCK"|"NEAR_EXPIRY"|"EXPIRED"|"OVERSTOCK"|"ORDER_OVERDUE"|"DELIVERY_FAILED"|"COLD_CHAIN_BREACH"|"RECALL"|"STOCK_DRIFT"|"NEGATIVE_STOCK",
+updated_at: string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "alert_events"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+      add_requisition_line: { Args: { p_product_id: string,p_qty_requested: number,p_requisition_id: string }; Returns: {
+              created_at: string,
+id: string,
+product_id: string,
+qty_allocated: number | null,
+qty_requested: number,
+requisition_id: string,
+shortage_qty: number | null,
+tenant_id: string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "requisition_lines"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+      add_trip_stop: { Args: { p_facility_id: string,p_requisition_id?: string,p_sequence?: number,p_trip_id: string }; Returns: {
+              arrived_at: string | null,
+closed_at: string | null,
+created_at: string,
+delivered_at: string | null,
+eta: string | null,
+facility_id: string,
+failure_reason: string | null,
+id: string,
+latitude: number | null,
+longitude: number | null,
+requisition_id: string | null,
+sequence: number,
+status: "PENDING"|"ARRIVED"|"DELIVERED"|"FAILED"|"RETURNED"|"SKIPPED",
+tenant_id: string,
+trip_id: string,
+updated_at: string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "delivery_stops"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+      adjust_stock: { Args: { p_batch_id: string,p_location_id: string,p_notes?: string,p_product_id: string,p_qty_delta: number,p_reason_code: string }; Returns: number
+                           },
+      allocate_requisition: { Args: { p_requisition_id: string }; Returns: {
+              allocated: number,line_product: string,requested: number,requisition_id: string,shortage: number
+            }[]
+                           },
+      arrive_at_stop: { Args: { p_latitude?: number,p_longitude?: number,p_stop_id: string }; Returns: {
+              arrived_at: string | null,
+closed_at: string | null,
+created_at: string,
+delivered_at: string | null,
+eta: string | null,
+facility_id: string,
+failure_reason: string | null,
+id: string,
+latitude: number | null,
+longitude: number | null,
+requisition_id: string | null,
+sequence: number,
+status: "PENDING"|"ARRIVED"|"DELIVERED"|"FAILED"|"RETURNED"|"SKIPPED",
+tenant_id: string,
+trip_id: string,
+updated_at: string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "delivery_stops"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+      ci_run_alert_scan: { Args: Record<PropertyKey, never>; Returns: {
+              raised: number,skipped: number
+            }[]
+                           },
+      ci_seed_fixture: { Args: { p_admin: string,p_driver: string,p_pharmacy: string }; Returns: Json
+                           },
+      ci_teardown_fixture: { Args: Record<PropertyKey, never>; Returns: Json
+                           },
+      complete_stop: { Args: { p_device_id?: string,p_latitude?: number,p_longitude?: number,p_meaning: string,p_photo_url?: string,p_recipient_name: string,p_signature_data?: string,p_stop_id: string,p_unsigned_reason?: string }; Returns: {
+              arrived_at: string | null,
+closed_at: string | null,
+created_at: string,
+delivered_at: string | null,
+eta: string | null,
+facility_id: string,
+failure_reason: string | null,
+id: string,
+latitude: number | null,
+longitude: number | null,
+requisition_id: string | null,
+sequence: number,
+status: "PENDING"|"ARRIVED"|"DELIVERED"|"FAILED"|"RETURNED"|"SKIPPED",
+tenant_id: string,
+trip_id: string,
+updated_at: string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "delivery_stops"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+      complete_trip: { Args: { p_trip_id: string }; Returns: {
+              created_at: string,
+driver_id: string | null,
+ended_at: string | null,
+id: string,
+notes: string | null,
+run_date: string,
+started_at: string | null,
+status: "PLANNED"|"DISPATCHED"|"IN_TRANSIT"|"COMPLETED"|"CANCELLED",
+tenant_id: string,
+updated_at: string,
+vehicle_id: string | null
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "trips"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+      create_batch: { Args: { p_expiry_date: string,p_lot_number: string,p_mfg_date: string,p_product_id: string,p_release_now?: boolean,p_supplier_name?: string,p_supplier_ref?: string,p_unit_cost_minor?: number }; Returns: {
+              created_at: string,
+delete_reason: string | null,
+deleted_at: string | null,
+deleted_by: string | null,
+expiry_date: string,
+id: string,
+lot_number: string,
+mfg_date: string,
+product_id: string,
+received_at: string,
+released_at: string | null,
+released_by: string | null,
+status: "QUARANTINED"|"RELEASED"|"RECALLED"|"EXPIRED"|"DEPLETED",
+status_changed_at: string | null,
+status_changed_by: string | null,
+status_reason: string | null,
+supplier_name: string | null,
+supplier_ref: string | null,
+tenant_id: string,
+unit_cost_minor: number,
+updated_at: string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "batches"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+      create_location: { Args: { p_code: string,p_facility_id: string,p_kind?: string,p_name_ar: string,p_name_en: string,p_temp_max_c?: number,p_temp_min_c?: number }; Returns: {
+              code: string,
+created_at: string,
+facility_id: string,
+id: string,
+is_active: boolean,
+kind: "RECEIVING"|"QUARANTINE"|"AMBIENT"|"COLD"|"FREEZER"|"IN_TRANSIT"|"BIN"|"DISPENSE",
+name_ar: string,
+name_en: string,
+temp_max_c: number | null,
+temp_min_c: number | null,
+tenant_id: string,
+updated_at: string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "storage_locations"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+      create_product: { Args: { p_atc_code?: string,p_brand?: string,p_eda_reg_no?: string,p_form?: string,p_generic_name_ar?: string,p_generic_name_en?: string,p_gtin?: string,p_is_cold_chain?: boolean,p_is_controlled?: boolean,p_name_ar: string,p_name_en: string,p_pack_size?: number,p_requires_prescription?: boolean,p_sell_price_minor?: number,p_shelf_life_months?: number,p_sku: string,p_strength?: string,p_strength_unit?: string,p_uom?: string }; Returns: {
+              atc_code: string | null,
+brand: string | null,
+created_at: string,
+drug_class: string | null,
+eda_reg_no: string | null,
+form: "TABLET"|"CAPSULE"|"SYRUP"|"SUSPENSION"|"INJECTION"|"VIAL"|"SACHET"|"CREAM"|"OINTMENT"|"SUPPOSITORY"|"DROPS"|"INHALER"|"PATCH"|"UNSPECIFIED",
+generic_name_ar: string | null,
+generic_name_en: string | null,
+gtin: string | null,
+id: string,
+is_active: boolean,
+is_cold_chain: boolean,
+is_controlled: boolean,
+is_serialised: boolean,
+manufacturer: string | null,
+name_ar: string,
+name_en: string,
+pack_size: number,
+requires_prescription: boolean,
+sell_price_minor: number,
+shelf_life_months: number,
+sku: string,
+source: string | null,
+strength: string,
+strength_unit: "mg"|"g"|"mcg"|"ml"|"IU"|"%"|"units" | null,
+tenant_id: string,
+uom: "BOX"|"STRIP"|"BOTTLE"|"TUBE"|"VIAL"|"SACHET"|"KIT",
+updated_at: string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "products"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+      create_requisition: { Args: { p_facility_id: string,p_justification?: string }; Returns: {
+              code: string,
+created_at: string,
+decided_at: string | null,
+decided_by: string | null,
+decision_note: string | null,
+facility_id: string,
+id: string,
+justification: string | null,
+requested_at: string,
+requested_by: string | null,
+status: string,
+submitted_at: string | null,
+tenant_id: string,
+updated_at: string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "requisitions"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+      create_trip: { Args: { p_notes?: string,p_run_date: string,p_vehicle_id?: string }; Returns: {
+              created_at: string,
+driver_id: string | null,
+ended_at: string | null,
+id: string,
+notes: string | null,
+run_date: string,
+started_at: string | null,
+status: "PLANNED"|"DISPATCHED"|"IN_TRANSIT"|"COMPLETED"|"CANCELLED",
+tenant_id: string,
+updated_at: string,
+vehicle_id: string | null
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "trips"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+      create_vehicle: { Args: { p_code: string,p_description?: string,p_plate_number?: string }; Returns: {
+              code: string,
+created_at: string,
+description: string | null,
+id: string,
+is_active: boolean,
+plate_number: string | null,
+tenant_id: string,
+updated_at: string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "vehicles"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+      current_tenant_id: { Args: Record<PropertyKey, never>; Returns: string
+                           },
       dearmor: { Args: { "": string }; Returns: string
                            },
+      dispatch_trip: { Args: { p_driver_id: string,p_trip_id: string }; Returns: {
+              created_at: string,
+driver_id: string | null,
+ended_at: string | null,
+id: string,
+notes: string | null,
+run_date: string,
+started_at: string | null,
+status: "PLANNED"|"DISPATCHED"|"IN_TRANSIT"|"COMPLETED"|"CANCELLED",
+tenant_id: string,
+updated_at: string,
+vehicle_id: string | null
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "trips"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+      fail_stop: { Args: { p_reason: string,p_stop_id: string }; Returns: {
+              arrived_at: string | null,
+closed_at: string | null,
+created_at: string,
+delivered_at: string | null,
+eta: string | null,
+facility_id: string,
+failure_reason: string | null,
+id: string,
+latitude: number | null,
+longitude: number | null,
+requisition_id: string | null,
+sequence: number,
+status: "PENDING"|"ARRIVED"|"DELIVERED"|"FAILED"|"RETURNED"|"SKIPPED",
+tenant_id: string,
+trip_id: string,
+updated_at: string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "delivery_stops"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
       fips_mode: { Args: Record<PropertyKey, never>; Returns: boolean
                            },
       gen_random_uuid: { Args: Record<PropertyKey, never>; Returns: string
                            },
       gen_salt: { Args: { "": string }; Returns: string
                            },
+      get_batch_stock: { Args: { p_batch_id: string }; Returns: {
+              batch_id: string,days_to_expiry: number,expiry_date: string,facility_id: string,location_code: string,location_id: string,lot_number: string,mfg_date: string,product_id: string,product_name_ar: string,product_name_en: string,qty_available: number,qty_on_hand: number,qty_reserved: number,status: "QUARANTINED"|"RELEASED"|"RECALLED"|"EXPIRED"|"DEPLETED",unit_cost_minor: number
+            }[]
+                           },
+      get_product: { Args: { p_product_id: string }; Returns: Json
+                           },
+      issue_stock: { Args: { p_batch_id: string,p_location_id: string,p_notes?: string,p_product_id: string,p_qty: number,p_reference_id?: string,p_reference_type?: string }; Returns: number
+                           },
       pgp_armor_headers: { Args: { "": string }; Returns: Record<string, unknown>[]
+                           },
+      provision_tenant: { Args: { p_country_code?: string,p_full_name: string,p_org_name: string,p_timezone?: string }; Returns: string
+                           },
+      quarantine_batch: { Args: { p_batch_id: string,p_reason: string }; Returns: {
+              created_at: string,
+delete_reason: string | null,
+deleted_at: string | null,
+deleted_by: string | null,
+expiry_date: string,
+id: string,
+lot_number: string,
+mfg_date: string,
+product_id: string,
+received_at: string,
+released_at: string | null,
+released_by: string | null,
+status: "QUARANTINED"|"RELEASED"|"RECALLED"|"EXPIRED"|"DEPLETED",
+status_changed_at: string | null,
+status_changed_by: string | null,
+status_reason: string | null,
+supplier_name: string | null,
+supplier_ref: string | null,
+tenant_id: string,
+unit_cost_minor: number,
+updated_at: string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "batches"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+      recall_batch: { Args: { p_batch_id: string,p_reason: string }; Returns: {
+              created_at: string,
+delete_reason: string | null,
+deleted_at: string | null,
+deleted_by: string | null,
+expiry_date: string,
+id: string,
+lot_number: string,
+mfg_date: string,
+product_id: string,
+received_at: string,
+released_at: string | null,
+released_by: string | null,
+status: "QUARANTINED"|"RELEASED"|"RECALLED"|"EXPIRED"|"DEPLETED",
+status_changed_at: string | null,
+status_changed_by: string | null,
+status_reason: string | null,
+supplier_name: string | null,
+supplier_ref: string | null,
+tenant_id: string,
+unit_cost_minor: number,
+updated_at: string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "batches"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+      receive_stock: { Args: { p_batch_id: string,p_location_id: string,p_notes?: string,p_product_id: string,p_qty: number,p_supplier_ref?: string,p_unit_cost_minor?: number }; Returns: number
+                           },
+      record_cold_reading: { Args: { p_location_id: string,p_note?: string,p_read_at?: string,p_source?: string,p_temp_c: number }; Returns: string
+                           },
+      reject_requisition: { Args: { p_note: string,p_requisition_id: string }; Returns: {
+              code: string,
+created_at: string,
+decided_at: string | null,
+decided_by: string | null,
+decision_note: string | null,
+facility_id: string,
+id: string,
+justification: string | null,
+requested_at: string,
+requested_by: string | null,
+status: string,
+submitted_at: string | null,
+tenant_id: string,
+updated_at: string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "requisitions"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+      release_batch: { Args: { p_batch_id: string,p_reason?: string }; Returns: {
+              created_at: string,
+delete_reason: string | null,
+deleted_at: string | null,
+deleted_by: string | null,
+expiry_date: string,
+id: string,
+lot_number: string,
+mfg_date: string,
+product_id: string,
+received_at: string,
+released_at: string | null,
+released_by: string | null,
+status: "QUARANTINED"|"RELEASED"|"RECALLED"|"EXPIRED"|"DEPLETED",
+status_changed_at: string | null,
+status_changed_by: string | null,
+status_reason: string | null,
+supplier_name: string | null,
+supplier_ref: string | null,
+tenant_id: string,
+unit_cost_minor: number,
+updated_at: string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "batches"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+      release_requisition: { Args: { p_requisition_id: string }; Returns: undefined
+                           },
+      remove_requisition_line: { Args: { p_line_id: string }; Returns: undefined
+                           },
+      reorder_needs: { Args: { p_facility_id?: string }; Returns: {
+              days_of_cover: number,facility_id: string,lead_time_days: number,max_qty: number,min_qty: number,name_ar: string,name_en: string,product_id: string,qty_available: number,qty_on_hand: number,qty_reserved: number,sku: string,suggested_qty: number
+            }[]
+                           },
+      report_position: { Args: { p_latitude: number,p_longitude: number,p_recorded_at?: string,p_trip_id: string }; Returns: string
+                           },
+      reset_demo_run: { Args: Record<PropertyKey, never>; Returns: {
+              positions_cleared: number,proofs_removed: number,stops_reset: number
+            }[]
+                           },
+      resolve_alert: { Args: { p_alert_id: string,p_note?: string }; Returns: {
+              acknowledged_at: string | null,
+acknowledged_by: string | null,
+created_at: string,
+data: NonNullable<Json>,
+entity_id: string | null,
+entity_type: string,
+first_seen_at: string,
+id: string,
+last_seen_at: string,
+message: string,
+occurrences: number,
+resolved_at: string | null,
+resolved_by: string | null,
+severity: "INFO"|"WARN"|"CRITICAL",
+status: "OPEN"|"ACK"|"RESOLVED"|"SNOOZED",
+tenant_id: string,
+type: "LOW_STOCK"|"NEAR_EXPIRY"|"EXPIRED"|"OVERSTOCK"|"ORDER_OVERDUE"|"DELIVERY_FAILED"|"COLD_CHAIN_BREACH"|"RECALL"|"STOCK_DRIFT"|"NEGATIVE_STOCK",
+updated_at: string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "alert_events"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+      run_alert_scan: { Args: Record<PropertyKey, never>; Returns: {
+              raised: number,skipped: number
+            }[]
+                           },
+      run_alert_scan_for_tenant: { Args: Record<PropertyKey, never>; Returns: {
+              raised: number,skipped: number
+            }[]
+                           },
+      search_products: { Args: { p_expiry_band?: string,p_limit?: number,p_offset?: number,p_query?: string }; Returns: {
+              atc_code: string,brand: string,earliest_expiry: string,form: "TABLET"|"CAPSULE"|"SYRUP"|"SUSPENSION"|"INJECTION"|"VIAL"|"SACHET"|"CREAM"|"OINTMENT"|"SUPPOSITORY"|"DROPS"|"INHALER"|"PATCH"|"UNSPECIFIED",generic_name_ar: string,generic_name_en: string,gtin: string,id: string,is_active: boolean,is_cold_chain: boolean,name_ar: string,name_en: string,pack_size: number,qty_available: number,qty_on_hand: number,requires_prescription: boolean,sku: string,strength: string,total_count: number,uom: "BOX"|"STRIP"|"BOTTLE"|"TUBE"|"VIAL"|"SACHET"|"KIT"
+            }[]
+                           },
+      set_product_active: { Args: { p_active: boolean,p_id: string }; Returns: {
+              atc_code: string | null,
+brand: string | null,
+created_at: string,
+drug_class: string | null,
+eda_reg_no: string | null,
+form: "TABLET"|"CAPSULE"|"SYRUP"|"SUSPENSION"|"INJECTION"|"VIAL"|"SACHET"|"CREAM"|"OINTMENT"|"SUPPOSITORY"|"DROPS"|"INHALER"|"PATCH"|"UNSPECIFIED",
+generic_name_ar: string | null,
+generic_name_en: string | null,
+gtin: string | null,
+id: string,
+is_active: boolean,
+is_cold_chain: boolean,
+is_controlled: boolean,
+is_serialised: boolean,
+manufacturer: string | null,
+name_ar: string,
+name_en: string,
+pack_size: number,
+requires_prescription: boolean,
+sell_price_minor: number,
+shelf_life_months: number,
+sku: string,
+source: string | null,
+strength: string,
+strength_unit: "mg"|"g"|"mcg"|"ml"|"IU"|"%"|"units" | null,
+tenant_id: string,
+uom: "BOX"|"STRIP"|"BOTTLE"|"TUBE"|"VIAL"|"SACHET"|"KIT",
+updated_at: string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "products"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+      snapshot_stock: { Args: { p_facility_id?: string,p_snapshot_on?: string }; Returns: {
+              at_risk_value_minor: number,products_written: number,snapshot_on: string,total_value_minor: number
+            }[]
+                           },
+      start_trip: { Args: { p_trip_id: string }; Returns: {
+              created_at: string,
+driver_id: string | null,
+ended_at: string | null,
+id: string,
+notes: string | null,
+run_date: string,
+started_at: string | null,
+status: "PLANNED"|"DISPATCHED"|"IN_TRANSIT"|"COMPLETED"|"CANCELLED",
+tenant_id: string,
+updated_at: string,
+vehicle_id: string | null
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "trips"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+      stock_take: { Args: { p_batch_id: string,p_counted_qty: number,p_location_id: string,p_notes?: string,p_product_id: string,p_reason_code: string }; Returns: number
+                           },
+      submit_requisition: { Args: { p_requisition_id: string }; Returns: {
+              code: string,
+created_at: string,
+decided_at: string | null,
+decided_by: string | null,
+decision_note: string | null,
+facility_id: string,
+id: string,
+justification: string | null,
+requested_at: string,
+requested_by: string | null,
+status: string,
+submitted_at: string | null,
+tenant_id: string,
+updated_at: string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "requisitions"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+      touch: { Args: Record<PropertyKey, never>; Returns: undefined
+                           },
+      transfer_stock: { Args: { p_batch_id: string,p_from_location: string,p_notes?: string,p_product_id: string,p_qty: number,p_reason_code?: string,p_to_location: string }; Returns: number
+                           },
+      update_location: { Args: { p_code: string,p_id: string,p_kind?: string,p_name_ar: string,p_name_en: string,p_temp_max_c?: number,p_temp_min_c?: number }; Returns: {
+              code: string,
+created_at: string,
+facility_id: string,
+id: string,
+is_active: boolean,
+kind: "RECEIVING"|"QUARANTINE"|"AMBIENT"|"COLD"|"FREEZER"|"IN_TRANSIT"|"BIN"|"DISPENSE",
+name_ar: string,
+name_en: string,
+temp_max_c: number | null,
+temp_min_c: number | null,
+tenant_id: string,
+updated_at: string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "storage_locations"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+      update_my_notifications: { Args: { p_deliveries?: boolean,p_expiry?: boolean,p_requisitions?: boolean }; Returns: {
+              created_at: string,
+full_name: string,
+full_name_ar: string | null,
+id: string,
+is_active: boolean,
+last_seen_at: string | null,
+locale: string,
+notifications: NonNullable<Json>,
+phone: string | null,
+role: "TENANT_ADMIN"|"WAREHOUSE_MANAGER"|"DISPATCHER"|"DRIVER"|"PHARMACY_MANAGER"|"DISTRIBUTOR"|"ANALYST",
+tenant_id: string,
+updated_at: string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "profiles"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+      update_my_profile: { Args: { p_full_name?: string,p_full_name_ar?: string,p_locale?: string,p_phone?: string }; Returns: {
+              created_at: string,
+full_name: string,
+full_name_ar: string | null,
+id: string,
+is_active: boolean,
+last_seen_at: string | null,
+locale: string,
+notifications: NonNullable<Json>,
+phone: string | null,
+role: "TENANT_ADMIN"|"WAREHOUSE_MANAGER"|"DISPATCHER"|"DRIVER"|"PHARMACY_MANAGER"|"DISTRIBUTOR"|"ANALYST",
+tenant_id: string,
+updated_at: string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "profiles"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+      update_product: { Args: { p_atc_code?: string,p_brand?: string,p_eda_reg_no?: string,p_form?: string,p_generic_name_ar?: string,p_generic_name_en?: string,p_gtin?: string,p_id: string,p_is_active?: boolean,p_is_cold_chain?: boolean,p_is_controlled?: boolean,p_name_ar: string,p_name_en: string,p_pack_size?: number,p_requires_prescription?: boolean,p_sell_price_minor?: number,p_shelf_life_months?: number,p_sku: string,p_strength?: string,p_strength_unit?: string,p_uom?: string }; Returns: {
+              atc_code: string | null,
+brand: string | null,
+created_at: string,
+drug_class: string | null,
+eda_reg_no: string | null,
+form: "TABLET"|"CAPSULE"|"SYRUP"|"SUSPENSION"|"INJECTION"|"VIAL"|"SACHET"|"CREAM"|"OINTMENT"|"SUPPOSITORY"|"DROPS"|"INHALER"|"PATCH"|"UNSPECIFIED",
+generic_name_ar: string | null,
+generic_name_en: string | null,
+gtin: string | null,
+id: string,
+is_active: boolean,
+is_cold_chain: boolean,
+is_controlled: boolean,
+is_serialised: boolean,
+manufacturer: string | null,
+name_ar: string,
+name_en: string,
+pack_size: number,
+requires_prescription: boolean,
+sell_price_minor: number,
+shelf_life_months: number,
+sku: string,
+source: string | null,
+strength: string,
+strength_unit: "mg"|"g"|"mcg"|"ml"|"IU"|"%"|"units" | null,
+tenant_id: string,
+uom: "BOX"|"STRIP"|"BOTTLE"|"TUBE"|"VIAL"|"SACHET"|"KIT",
+updated_at: string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "products"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+      update_tenant_settings: { Args: { p_patch: Json }; Returns: {
+              country_code: string,
+created_at: string,
+currency_code: string,
+id: string,
+locale_default: string,
+min_shelf_life_pct: number,
+name_ar: string | null,
+name_en: string,
+settings: NonNullable<Json>,
+slug: string,
+timezone: string,
+updated_at: string,
+vat_rate: number
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "tenants"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+      whoami: { Args: Record<PropertyKey, never>; Returns: {
+              currency_code: string,full_name: string,full_name_ar: string,locale: string,role: "TENANT_ADMIN"|"WAREHOUSE_MANAGER"|"DISPATCHER"|"DRIVER"|"PHARMACY_MANAGER"|"DISTRIBUTOR"|"ANALYST",tenant_id: string,tenant_slug: string,timezone: string,user_id: string,vat_rate: number
+            }[]
+                           },
+      write_off_stock: { Args: { p_batch_id: string,p_location_id: string,p_notes?: string,p_product_id: string,p_qty: number,p_reason_code: string }; Returns: number
                            }
           }
           Enums: {
@@ -1167,4 +1914,3 @@ export const Constants = {
           }
         }
 } as const
-

@@ -1289,6 +1289,46 @@
 }
 
 /*
+ * The theme cross-fade.
+ *
+ * The browser's default root transition is a 250ms linear-ish fade. This one is
+ * a spring, and a little longer, because the palette change is a large one:
+ * a warm charcoal becoming a warm parchment, or the other way round, and a
+ * linear fade makes that read as a fade of a *photograph* rather than a change
+ * of *lighting*.
+ *
+ * `::view-transition-old(root)` is scaled very slightly as it leaves, so the
+ * page appears to settle rather than dissolve.
+ */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 340ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+::view-transition-old(root) {
+  animation-name: pf-theme-out;
+}
+
+::view-transition-new(root) {
+  animation-name: pf-theme-in;
+}
+
+@keyframes pf-theme-out {
+  to {
+    opacity: 0;
+    transform: scale(0.995);
+  }
+}
+
+@keyframes pf-theme-in {
+  from {
+    opacity: 0;
+    transform: scale(1.005);
+  }
+}
+
+/*
  * Reduced motion is not optional.
  *
  * The reveals are decoration over content that is already there, so removing them
@@ -1307,7 +1347,17 @@
     transition: none;
   }
 
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+
   .pf-field__label {
     transition: none;
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
   }
 }

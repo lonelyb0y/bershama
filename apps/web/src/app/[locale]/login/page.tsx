@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 
 import { LoginForm } from '@/components/login-form';
 import { GoogleSignInButton } from '@/components/google-signin-button';
-import { LocaleSwitcher } from '@/components/locale-switcher';
+import { LocaleFooterLink } from '@/components/locale-footer-link';
 import { Logo } from '@/components/logo';
 import { getSession, homeRouteForRole } from '@/lib/session';
 import type { Locale } from '@/i18n/routing';
@@ -42,7 +42,6 @@ export default async function LoginPage({
     <main className="mx-auto flex min-h-dvh max-w-sm flex-col gap-6 p-6">
       <div className="flex items-center justify-between gap-4">
         <Logo />
-        <LocaleSwitcher />
       </div>
 
       <div>
@@ -63,6 +62,15 @@ export default async function LoginPage({
       </div>
 
       <GoogleSignInButton label={t('continueWithGoogle')} />
+
+      {/* The one place a signed-out visitor can change the language. It is a
+          footer link rather than a header switcher because the header is where
+          every other screen keeps its two permanent controls, and a language
+          switch is not needed on every screen -- only on the ones where
+          somebody has to be able to READ before they can sign in. */}
+      <div className="mt-auto pt-4">
+        <LocaleFooterLink />
+      </div>
     </main>
   );
 }

@@ -1,7 +1,6 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 
-import { LocaleSwitcher } from '@/components/locale-switcher';
 import { Logo } from '@/components/logo';
 import type { Locale } from '@/i18n/routing';
 
@@ -98,7 +97,6 @@ export default async function LandingPage({
           </nav>
 
           <div className="ms-auto flex shrink-0 items-center gap-2">
-            <LocaleSwitcher />
             <Link
               href={`/${locale}/login`}
               className="rounded-md px-3 py-2 text-sm font-medium text-[var(--text-muted)] transition-colors hover:text-[var(--text)]"
