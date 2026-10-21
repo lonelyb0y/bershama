@@ -86,7 +86,10 @@ test.describe('the list surfaces render', () => {
         // thing that breaks: it is absolutely positioned over the control, and
         // a control that does not reserve room for it puts a caption on top of
         // a text field.
-        await expect(page.getByTestId('email') ?? page.getByRole('textbox').first()).toBeVisible();
+        // By the accessible name, not a test id: the field's name is what a
+        // screen reader reads, so an assertion on it is an assertion about the
+        // thing being reachable, not about a selector that happens to exist.
+        await expect(page.getByLabel(/email address/i).first()).toBeVisible();
         await expect(page.getByRole('heading', { name: /live inventory telemetry/i })).toBeVisible();
       }
 
