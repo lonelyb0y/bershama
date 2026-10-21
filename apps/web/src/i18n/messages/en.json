@@ -707,6 +707,11 @@
       "infrastructure": {
         "items": "System status | Cairo gateway | Telemetry nodes"
       }
+    },
+    "status": {
+      "expired": "Expired",
+      "inDate": "In date",
+      "days": "{days, plural, one {# day} other {# days}}"
     }
   },
   "pharmacy": {

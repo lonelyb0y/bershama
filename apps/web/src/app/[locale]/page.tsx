@@ -43,19 +43,34 @@ export default async function LandingPage({
   // three that the inventory console shows, so the landing page and the product
   // speak with the same voice.
   const telemetry = [
-    { lot: 'LOT-2026-A0412', product: 'Panadol Extra 500 mg Tablets', qty: '240', band: 'soon', days: '8 days' },
-    { lot: 'LOT-2025-C0442', product: 'Panadol Extra 500 mg Tablets', qty: '60', band: 'expired', days: 'Expired' },
-    { lot: 'LOT-2026-B1180', product: 'Augmentin 875 mg/125 mg', qty: '80', band: 'ok', days: '240 days' },
+    { lot: 'LOT-2026-A0412', product: 'Panadol Extra 500 mg Tablets', qty: '240', band: 'soon', days: 8 },
+    { lot: 'LOT-2025-C0442', product: 'Panadol Extra 500 mg Tablets', qty: '60', band: 'expired', days: null },
+    { lot: 'LOT-2026-B1180', product: 'Augmentin 875 mg/125 mg', qty: '80', band: 'ok', days: 240 },
   ] as const;
 
   const rail = [
-    { sku: 'PH-1001', name: 'Panadol Extra 500 mg Tablets', band: 'ok', label: 'In date' },
-    { sku: 'PH-1002', name: 'Augmentin 875 mg/125 mg Film-Coated Tablets', band: 'ok', label: 'In date' },
-    { sku: 'PH-1003', name: 'NovoRapid FlexPen 100 IU/mL Solution for Injection', band: 'soon', label: '14 days' },
-    { sku: 'PH-1004', name: 'ORS Sachet', band: 'ok', label: 'In date' },
-    { sku: 'PH-1005', name: 'Cefriaxone 1 g Powder for Solution', band: 'ok', label: 'In date' },
-    { sku: 'PH-1006', name: 'Influenza Vaccine 0.5 mL Prefilled Syringe', band: 'ok', label: 'In date' },
+    { sku: 'PH-1001', name: 'Panadol Extra 500 mg Tablets', band: 'ok', days: null },
+    { sku: 'PH-1002', name: 'Augmentin 875 mg/125 mg Film-Coated Tablets', band: 'ok', days: null },
+    { sku: 'PH-1003', name: 'NovoRapid FlexPen 100 IU/mL Solution for Injection', band: 'soon', days: 14 },
+    { sku: 'PH-1004', name: 'ORS Sachet', band: 'ok', days: null },
+    { sku: 'PH-1005', name: 'Cefriaxone 1 g Powder for Solution', band: 'ok', days: null },
+    { sku: 'PH-1006', name: 'Influenza Vaccine 0.5 mL Prefilled Syringe', band: 'ok', days: null },
   ] as const;
+
+  /*
+   * A status, as a word.
+   *
+   * The days are a count, so they are an ICU plural -- Arabic has six of them, and
+   * "# أيام" is not the same sentence as "# يومًا". Hard-coding "8 days" here put
+   * English on the Arabic page, which is exactly the defect the translation test
+   * exists to catch: a key that is missing is loud, a key that is right is
+   * invisible, and a string that never went through the message files at all is
+   * invisible in both senses.
+   */
+  const bandLabel = (band: 'ok' | 'soon' | 'expired', days: number | null): string => {
+    if (days !== null) return t('status.days', { days });
+    return band === 'expired' ? t('status.expired') : t('status.inDate');
+  };
 
   return (
     <main className="min-h-[100dvh] bg-[var(--surface)] text-[var(--text)]">
@@ -70,7 +85,7 @@ export default async function LandingPage({
             <Logo />
           </Link>
 
-          <nav aria-label={tNav('primary')} className="pf-rail hidden items-center gap-1 lg:flex">
+          <nav aria-label={tNav('primary')} className="hidden items-center gap-1 lg:flex">
             {['capabilities', 'compliance', 'network'].map((item) => (
               <a
                 key={item}
@@ -216,7 +231,7 @@ export default async function LandingPage({
                     <td className="max-w-[10rem] truncate px-2 py-2.5">{row.product}</td>
                     <td className="pf-mono px-2 py-2.5 text-end tabular-nums">{row.qty}</td>
                     <td className="px-2 py-2.5 text-end">
-                      <StatusBand band={row.band}>{row.days}</StatusBand>
+                      <StatusBand band={row.band}>{bandLabel(row.band, row.days)}</StatusBand>
                     </td>
                   </tr>
                 ))}
@@ -345,7 +360,7 @@ export default async function LandingPage({
             >
               <div className="flex items-center justify-between gap-2">
                 <span className="pf-mono text-xs text-[var(--primary)]">{item.sku}</span>
-                <StatusBand band={item.band}>{item.label}</StatusBand>
+                <StatusBand band={item.band}>{bandLabel(item.band, item.days)}</StatusBand>
               </div>
               {/* Two lines, always. A product name is one to three lines long, and the
                   third line is what makes the row ragged. */}
