@@ -156,7 +156,7 @@ export function ProductTable({
                   // "Edit" is ten identical announcements, and a screen reader user
                   // has no way to tell which product any of them belongs to.
                   aria-label={l.actionEdit.replace('{name}', displayName(p))}
-                  className="rounded-md border px-2.5 py-1.5 text-xs font-medium hover:bg-[color:var(--text-muted)]/10"
+                  className="rounded-md border px-3 py-2 text-xs font-medium hover:bg-[color:var(--text-muted)]/10"
                 >
                   {l.edit}
                 </Link>
@@ -177,7 +177,7 @@ export function ProductTable({
                       '{name}',
                       displayName(p),
                     )}
-                    className="rounded-md border px-2.5 py-1.5 text-xs font-medium hover:bg-[color:var(--text-muted)]/10"
+                    className="rounded-md border px-3 py-2 text-xs font-medium hover:bg-[color:var(--text-muted)]/10"
                   >
                     {p.isActive ? l.deactivate : l.reactivate}
                   </button>

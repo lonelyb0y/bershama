@@ -15,15 +15,15 @@
     "customColor": "#22D3EE",
     "saturation": 3
   },
-  "designSystemId": "3577555023851382865",
+  "designSystemId": "6705731965464402504",
   "screens": {
     "landing": {
-      "id": "28bf16eb13ae4b7ca69d7386afbef632",
-      "sourceScreen": "projects/3401416261192633237/screens/28bf16eb13ae4b7ca69d7386afbef632",
+      "id": "63230ef165154116888d3f85d2912f6a",
+      "sourceScreen": "projects/3401416261192633237/screens/63230ef165154116888d3f85d2912f6a",
       "x": 0,
       "y": 0,
       "width": "2560",
-      "height": "4350"
+      "height": "4432"
     },
     "inventory": {
       "id": "ec25d3ac8e184aaa95399f670e4c17ba",
@@ -34,12 +34,12 @@
       "height": "2542"
     },
     "deliveries": {
-      "id": "a83d3f2bf20c4e4499d4028ec2e30973",
-      "sourceScreen": "projects/3401416261192633237/screens/a83d3f2bf20c4e4499d4028ec2e30973",
+      "id": "585b8a798fb3413ea7bda9ece427d9c5",
+      "sourceScreen": "projects/3401416261192633237/screens/585b8a798fb3413ea7bda9ece427d9c5",
       "x": 0,
       "y": 0,
       "width": "2560",
-      "height": "2498"
+      "height": "2088"
     },
     "auth": {
       "id": "24d6d36170c44425bf39eb8b81f51f50",
@@ -48,6 +48,126 @@
       "y": 0,
       "width": "2560",
       "height": "2048"
+    },
+    "alerts": {
+      "id": "67d1fd017ff243ba824ef41263b8ae53",
+      "sourceScreen": "projects/3401416261192633237/screens/67d1fd017ff243ba824ef41263b8ae53",
+      "x": 0,
+      "y": 0,
+      "width": "2560",
+      "height": "2048"
+    },
+    "analytics": {
+      "id": "05ac64c8dea8441c857442f9ff7d1c4d",
+      "sourceScreen": "projects/3401416261192633237/screens/05ac64c8dea8441c857442f9ff7d1c4d",
+      "x": 0,
+      "y": 0,
+      "width": "2560",
+      "height": "2658"
+    },
+    "batches": {
+      "id": "72623457f3094bd2b73d80eae9678490",
+      "sourceScreen": "projects/3401416261192633237/screens/72623457f3094bd2b73d80eae9678490",
+      "x": 0,
+      "y": 0,
+      "width": "2560",
+      "height": "2048"
+    },
+    "catalogue": {
+      "id": "36b30d16e1a84fc493a8f7b897f05f86",
+      "sourceScreen": "projects/3401416261192633237/screens/36b30d16e1a84fc493a8f7b897f05f86",
+      "x": 0,
+      "y": 0,
+      "width": "2560",
+      "height": "2048"
+    },
+    "dashboard": {
+      "id": "f9bd593b408d4fe29e6b4b707d2a102a",
+      "sourceScreen": "projects/3401416261192633237/screens/f9bd593b408d4fe29e6b4b707d2a102a",
+      "x": 0,
+      "y": 0,
+      "width": "2560",
+      "height": "2478"
+    },
+    "distributor": {
+      "id": "308d6cbca01540d5bf7caee413159760",
+      "sourceScreen": "projects/3401416261192633237/screens/308d6cbca01540d5bf7caee413159760",
+      "x": 0,
+      "y": 0,
+      "width": "2560",
+      "height": "2048"
+    },
+    "driver": {
+      "id": "58318337aa3f4aa2abb7033d4d05cb4e",
+      "sourceScreen": "projects/3401416261192633237/screens/58318337aa3f4aa2abb7033d4d05cb4e",
+      "x": 0,
+      "y": 0,
+      "width": "780",
+      "height": "2670"
+    },
+    "inventory-hub": {
+      "id": "ac93cbc9330f4d4a9a17768259adf076",
+      "sourceScreen": "projects/3401416261192633237/screens/ac93cbc9330f4d4a9a17768259adf076",
+      "x": 0,
+      "y": 0,
+      "width": "2560",
+      "height": "2048"
+    },
+    "pharmacy": {
+      "id": "860577d0f5c447d5b7402465c6d6b4ce",
+      "sourceScreen": "projects/3401416261192633237/screens/860577d0f5c447d5b7402465c6d6b4ce",
+      "x": 0,
+      "y": 0,
+      "width": "2560",
+      "height": "2048"
+    },
+    "requisitions": {
+      "id": "a84c900d7736460f9d45f3018d66a0d4",
+      "sourceScreen": "projects/3401416261192633237/screens/a84c900d7736460f9d45f3018d66a0d4",
+      "x": 0,
+      "y": 0,
+      "width": "2560",
+      "height": "2562"
+    },
+    "settings": {
+      "id": "e31c0df63b9e4398a4b8c6c1fb1de7e5",
+      "sourceScreen": "projects/3401416261192633237/screens/e31c0df63b9e4398a4b8c6c1fb1de7e5",
+      "x": 0,
+      "y": 0,
+      "width": "2560",
+      "height": "3112"
+    },
+    "setup": {
+      "id": "89ccd1d7649e402abe6af47955b6261d",
+      "sourceScreen": "projects/3401416261192633237/screens/89ccd1d7649e402abe6af47955b6261d",
+      "x": 0,
+      "y": 0,
+      "width": "2560",
+      "height": "2048"
+    },
+    "sign-in": {
+      "id": "ffbaf8bc80674a70b72749a075a759eb",
+      "sourceScreen": "projects/3401416261192633237/screens/ffbaf8bc80674a70b72749a075a759eb",
+      "x": 0,
+      "y": 0,
+      "width": "2560",
+      "height": "2120"
+    },
+    "sign-up": {
+      "id": "61c52b5541284f9e9d6ae8e0c8e8f17f",
+      "sourceScreen": "projects/3401416261192633237/screens/61c52b5541284f9e9d6ae8e0c8e8f17f",
+      "x": 0,
+      "y": 0,
+      "width": "2560",
+      "height": "2048"
+    },
+    "stocktake": {
+      "id": "cc78cad4b263470bba39bce4326fa821",
+      "sourceScreen": "projects/3401416261192633237/screens/cc78cad4b263470bba39bce4326fa821",
+      "x": 0,
+      "y": 0,
+      "width": "780",
+      "height": "2354"
     }
   },
   "metadata": {

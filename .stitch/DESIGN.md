@@ -125,61 +125,85 @@ Copy this block verbatim into every generation prompt.
 DESIGN SYSTEM — Bershama (apply exactly, no substitutions)
 
 ATMOSPHERE
-A night-shift operations console for an Egyptian pharmaceutical supply chain.
-Near-black, dense, high-signal, modern and slightly disruptive. Not a medical
-website. Every pixel is either data or a control.
+A night-shift operations console for the Egyptian pharmaceutical supply chain.
+Near-black, dense, high-signal, modern and slightly disruptive. It is a
+WORKING CONSOLE, not a medical brochure. Every pixel is either data or a
+control. Warm, because a pharmacy works on paper and a screen that looks like
+paper reads as a working surface.
 
 COLOUR — use these exact hex values
-  Off-Black Canvas   #121212   page background
-  Raised Slate       #1A1A1C   panels, header, table shell
-  Lifted Graphite    #232326   hovered rows, header bands, inputs
-  Deep Well          #0D0D0E   recessed strips
-  Bone White         #F2EFE9   primary text
-  Ash Grey           #A1A1AA   secondary text, metadata
-  Dim Slate          #5C5C66   tertiary, disabled
-  Hairline           rgba(255,255,255,0.08)   borders, rules
-  Signal Cyan        #22D3EE   the ONLY accent — CTAs, active nav, focus, primary data
-  Vital Red          #F2555A   expired, critical  (shape: triangle)
-  Caution Amber      #F5A524   expiring soon, low stock (shape: circle)
-  Stable Green       #3ECF8E   in date, delivered (shape: diamond)
+  Surfaces
+    #141613   canvas, dark theme          #F6F3EC   canvas, light theme
+    #1C1F1B   panel, dark theme           #FFFFFF   panel, light theme
+    #232924   interactive plane, dark     #EFEBE2   interactive plane, light
+    #666660   control edge, dark          #8C8A80   control edge, light
+  Ink
+    #F1EFE8   primary, dark theme         #1B1915   primary, light theme
+    #A6A499   secondary, dark theme       #6B6557   secondary, light theme
+  The ONE accent
+    #43B189   accent, dark theme          #0F6B4F   accent, light theme
+    #6FD1AC   accent text, dark           #0B553E   accent text, light
+  Status — never the accent, never alone
+    #8C958A   in date, NEUTRAL (dark)     #5D6A60   in date, NEUTRAL (light)
+    #E2A43C   expiring soon (dark)        #8A5206   expiring soon (light)
+    #E86A55   expired, critical (dark)    #A82A16   expired, critical (light)
+  Chart series, in this order
+    #43B189  #6FD1AC  #E2A43C  #E86A55  #A6A499
+
+  IN-DATE IS DELIBERATELY NEUTRAL. A shelf holding four hundred good batches
+  should not be a wall of green. The eye goes to the amber and the red, and to
+  nothing else. Only the two states that need attention carry a colour.
 
 TYPOGRAPHY
-  Display  Space Grotesk, tracking -0.02em, weight-led hierarchy, never oversized
-  Body     Plus Jakarta Sans, line-height 1.55, max 65ch measure
+  Display  Outfit, tracking -0.02em, weight-led, never oversized
+  Body     Nunito Sans, line-height 1.55, max 65ch measure
   Mono     JetBrains Mono — ALL numbers on dense screens are monospace
-  Arabic   IBM Plex Sans Arabic, RTL, Latin numerals for SKUs, lots, quantities
+  Arabic   Cairo, RTL, Latin numerals for SKUs, lots, quantities, timestamps
   Scale    11 / 12 / 13 / 15 / 18 / 24 / 32 / 44px
 
 COMPONENTS
-  Buttons   flat, no outer glow, 10px radius, 36px dense / 44px touch,
-             -1px translate on active, primary = Signal Cyan fill on Off-Black text
-  Tables    36px rows, 13px type, mono right-aligned numerals, Lifted Graphite header
-             band, hairline rules, sticky header, row actions on hover and focus
-  Cards     16px radius, Raised Slate fill, hairline border, shadow tinted to the
-             background hue; on dense surfaces use a border-top divider instead
-  Inputs    label above (never placeholder-as-label), 44px min height, 2px cyan focus ring
-  Loaders   skeletal shimmer matching exact layout dimensions, never a spinner
-  Badges    11px pill, 1px border, shape glyph then the word
+  Buttons   flat, no glow, rounded-xl (10px), 36px dense / 44px touch,
+            -1px translate on active, primary = accent fill on canvas text
+  Fields    rounded-2xl (16px), and the LABEL LIVES INSIDE THE FIELD. It sits
+            where the text will go and rises to the top edge on focus or fill.
+            The <label> element is still there and still associated — a
+            placeholder is not a label.
+  Tables    36px rows, 13px type, mono right-aligned numerals, a raised
+            header band, hairline rules, sticky header, row actions on hover
+  Cards     rounded-3xl, raised panel fill, hairline border; on dense surfaces
+            use a border-top divider instead of a card
+  Inputs    44px minimum height, 2px accent focus ring, 16px radius
+  Loaders   skeletal shimmer matching the exact layout dimensions, no spinner
+  Badges    11px pill, 1px border, the shape glyph THEN the word
+
+SPACING — a 4px grid, named
+  4 / 8 / 12 / 16 / 24 / 32 / 48 / 64 / 96px
+  A component's internal padding is ONE step. The gap to the nearest
+  neighbour is TWO steps larger than the gap inside it. NO HALF STEPS —
+  not px-2.5, not gap-1.5, not mt-0.5. One exception: 2px, for the padding
+  inside a badge or the gap between an icon and its label.
 
 LAYOUT
-  Grid-first, 1400px max measure, centred. Hero is a split screen, left-aligned,
-  never centred. Feature blocks are a 2-column zig-zag or a horizontal scroll strip.
-  Never three equal cards in a row. Single column below 768px with no horizontal
-  overflow. Full-height surfaces use min-h-[100dvh], never h-screen.
+  Grid-first, 1400px max measure, centred. A hero is a split screen,
+  left-aligned, never centred. Feature blocks are a 2-column zig-zag or a
+  horizontal scroll strip. Never three equal cards in a row. Single column
+  below 768px with no horizontal overflow. Full-height surfaces use
+  min-h-[100dvh], never h-screen.
 
 MOTION
-  Spring physics by default (stiffness 100, damping 20). Staggered fade-up reveals
-  for dashboard data cards. Perpetual micro-loops on live indicators and skeleton
-  shimmer. Animate transform and opacity only, never top/left/width/height.
+  Spring physics by default (stiffness 100, damping 20). Bars GROW into
+  place. Staggered fade-ups for dashboard data, 60ms per step, capped at
+  eight. Animate transform and opacity only. Never animate a number that a
+  person is reading.
 
 NEVER
-  No emojis. No Inter. No generic serif. No pure black #000000. No neon or outer glow
-  shadows. No gradient text on large headings. No custom cursors. No overlapping
-  elements. No three-equal-card rows. No centred hero. No circular spinners. No
+  No emojis. No Inter. No generic serif. No pure black #000000. No neon or
+  outer-glow shadows. No gradient text on large headings. No custom cursors.
+  No three-equal-card rows. No centred hero. No circular spinners. No
   "Scroll to explore" or scroll arrows. No AI copywriting cliches (Elevate,
   Seamless, Unleash, Next-Gen). No generic names (John Doe, Acme, Nexus). No
-  fabricated statistics or uptime metrics — use real data or a clear placeholder.
-  No "LABEL // YEAR" formatting. No horizontal scroll on mobile.
+  fabricated statistics or uptime figures — real data or a clear
+  placeholder. No "LABEL // YEAR" formatting. No horizontal scroll on mobile.
 ```
 
 ## 7. Anti-Patterns (Banned)

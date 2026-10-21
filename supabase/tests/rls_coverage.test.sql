@@ -298,6 +298,11 @@ select is_empty(
     and p.proname <> all (array[
       -- identity and self-service (M1)
       'update_my_profile', 'update_tenant_settings', 'touch',
+      -- The account settings. It writes the caller's own profile row, and it
+      -- calls private.write_audit() to record that it did -- and `private` is a
+      -- schema a client role cannot name, so an INVOKER version would be a
+      -- 42501. Same reason as every other function on this list.
+      'update_my_notifications',
       -- stock and batch writes (M2); each calls private.require_inventory_write()
       'receive_stock', 'issue_stock', 'adjust_stock', 'write_off_stock',
       'transfer_stock',

@@ -39,7 +39,17 @@ export interface AuditLogRow {
     // record with no Arabic name on file, where the interface falls back to the
     // Latin spelling rather than rendering an empty header.
     full_name_ar: string | null;
+    // The phone number, which the account settings edit and a delivery uses to
+    // reach the person.
+    phone: string | null;
     locale: 'en' | 'ar';
+    // The notification preferences. A jsonb column with three booleans in it,
+    // and the database will not accept a fourth key -- the constraint says so.
+    notifications: {
+      expiry?: boolean;
+      deliveries?: boolean;
+      requisitions?: boolean;
+    } | null;
   tenant_slug: string;
   currency_code: 'EGP' | 'SAR' | 'AED' | 'USD';
   vat_rate: number | string;

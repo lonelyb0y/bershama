@@ -1,8 +1,9 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 
-import { LocaleSwitcher } from '@/components/locale-switcher';
 import { Logo } from '@/components/logo';
+import { MarketingHeader } from '@/components/marketing-header';
+import { HomeBackground } from '@/components/home-background';
 import type { Locale } from '@/i18n/routing';
 
 /**
@@ -36,8 +37,6 @@ export default async function LandingPage({
   setRequestLocale(locale);
 
   const t = await getTranslations('landing');
-  const tNav = await getTranslations('nav');
-  const tCommon = await getTranslations('common');
 
   // The three rows in the operations panel, and the rail beneath the hero. The same
   // three that the inventory console shows, so the landing page and the product
@@ -74,49 +73,15 @@ export default async function LandingPage({
 
   return (
     <main className="min-h-[100dvh] bg-[var(--surface)] text-[var(--text)]">
-      {/* ── the top bar ─────────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-30 border-b border-[var(--border)] bg-[var(--surface)]/92 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-[1400px] items-center gap-6 px-4 sm:px-6">
-          <Link
-            href={`/${locale}`}
-            className="shrink-0 rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]"
-            aria-label={tCommon('appName')}
-          >
-            <Logo />
-          </Link>
+      {/* The animated background. It is decoration, it is deferred past the LCP
+          paint, and it never loads at all for a reader who has asked for
+          reduced motion or whose device has no WebGL. */}
+      <HomeBackground />
 
-          <nav aria-label={tNav('primary')} className="hidden items-center gap-1 lg:flex">
-            {['capabilities', 'compliance', 'network'].map((item) => (
-              <a
-                key={item}
-                href={`#${item}`}
-                className="rounded-md px-2.5 py-1.5 font-mono text-xs text-[var(--text-muted)] transition-colors hover:text-[var(--text)]"
-              >
-                {tNav(item)}
-              </a>
-            ))}
-          </nav>
-
-          <div className="ms-auto flex shrink-0 items-center gap-2">
-            <LocaleSwitcher />
-            <Link
-              href={`/${locale}/login`}
-              className="rounded-md px-3 py-2 text-sm font-medium text-[var(--text-muted)] transition-colors hover:text-[var(--text)]"
-            >
-              {t('signIn')}
-            </Link>
-            <Link
-              href={`/${locale}/signup`}
-              className="rounded-[10px] bg-[var(--primary)] px-3.5 py-2 text-sm font-semibold text-[var(--primary-foreground)] transition-[filter,transform] active:translate-y-px"
-            >
-              {t('createOrg')}
-            </Link>
-          </div>
-        </div>
-      </header>
+      <MarketingHeader />
 
       {/* ── the hero ───────────────────────────────────────────────────────── */}
-      <section className="mx-auto max-w-[1400px] px-4 pt-14 pb-16 sm:px-6 sm:pt-20">
+      <section className="mx-auto max-w-[1400px] px-4 pt-10 pb-16 sm:px-6 sm:pt-14">
         <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
           <div className="pf-stagger">
             <p
@@ -146,7 +111,7 @@ export default async function LandingPage({
             >
               <Link
                 href={`/${locale}/signup`}
-                className="group inline-flex items-center gap-2 rounded-[10px] bg-[var(--primary)] px-4 py-2.5 text-sm font-semibold text-[var(--primary-foreground)] transition-[filter,transform] active:translate-y-px"
+                className="group inline-flex items-center gap-2 rounded-[10px] bg-[var(--primary)] px-4 py-3 text-sm font-semibold text-[var(--primary-foreground)] transition-[filter,transform] active:translate-y-px"
               >
                 {t('createOrg')}
                 <span aria-hidden="true" className="transition-transform group-hover:translate-x-0.5">
@@ -155,7 +120,7 @@ export default async function LandingPage({
               </Link>
               <a
                 href="#capabilities"
-                className="rounded-[10px] border border-[var(--border)] bg-[var(--surface-2)] px-4 py-2.5 text-sm font-medium text-[var(--text)] transition-colors hover:border-[var(--sidebar-ring)]"
+                className="rounded-[10px] border border-[var(--border)] bg-[var(--surface-2)] px-4 py-3 text-sm font-medium text-[var(--text)] transition-colors hover:border-[var(--sidebar-ring)]"
               >
                 {t('talkToSales')}
               </a>
@@ -196,7 +161,7 @@ export default async function LandingPage({
           >
             <div className="flex items-center justify-between gap-2">
               <h2 className="pf-mono flex items-center gap-2 text-[11px] tracking-[0.08em] text-[var(--text-muted)] uppercase">
-                <span aria-hidden="true" className="pf-live-dot size-1.5 rounded-full bg-[var(--primary)]" />
+                <span aria-hidden="true" className="pf-live-dot size-2 rounded-full bg-[var(--primary)]" />
                 {t('liveTelemetry')}
               </h2>
               <span className="pf-mono text-[11px] text-[var(--text-muted)]">
@@ -225,12 +190,12 @@ export default async function LandingPage({
               <tbody>
                 {telemetry.map((row) => (
                   <tr key={row.lot} className="border-b border-[var(--border)] last:border-0">
-                    <td className="pf-mono px-2 py-2.5 whitespace-nowrap text-[var(--primary)]">
+                    <td className="pf-mono px-2 py-3 whitespace-nowrap text-[var(--primary)]">
                       {row.lot}
                     </td>
-                    <td className="max-w-[10rem] truncate px-2 py-2.5">{row.product}</td>
-                    <td className="pf-mono px-2 py-2.5 text-end tabular-nums">{row.qty}</td>
-                    <td className="px-2 py-2.5 text-end">
+                    <td className="max-w-[10rem] truncate px-2 py-3">{row.product}</td>
+                    <td className="pf-mono px-2 py-3 text-end tabular-nums">{row.qty}</td>
+                    <td className="px-2 py-3 text-end">
                       <StatusBand band={row.band}>{bandLabel(row.band, row.days)}</StatusBand>
                     </td>
                   </tr>
@@ -259,7 +224,7 @@ export default async function LandingPage({
               </svg>
             </span>
             <h2 className="font-display mt-5 text-2xl font-semibold">{t('adminRole')}</h2>
-            <p className="mt-2.5 text-sm leading-[1.55] text-[var(--text-muted)]">
+            <p className="mt-3 text-sm leading-[1.55] text-[var(--text-muted)]">
               {t('adminRoleBody')}
             </p>
             <a
@@ -284,7 +249,7 @@ export default async function LandingPage({
               </svg>
             </span>
             <h2 className="font-display mt-5 text-2xl font-semibold">{t('pharmacyRole')}</h2>
-            <p className="mt-2.5 text-sm leading-[1.55] text-[var(--text-muted)]">
+            <p className="mt-3 text-sm leading-[1.55] text-[var(--text-muted)]">
               {t('pharmacyRoleBody')}
             </p>
             <a
@@ -320,7 +285,7 @@ export default async function LandingPage({
                 {t(`capability.${key}.eyebrow`)}
               </p>
               <h3 className="font-display mt-2 text-lg font-medium">{heading}</h3>
-              <p className="mt-1.5 text-sm leading-[1.55] text-[var(--text-muted)]">{body}</p>
+              <p className="mt-2 text-sm leading-[1.55] text-[var(--text-muted)]">{body}</p>
             </div>
           ))}
         </div>
@@ -410,7 +375,7 @@ export default async function LandingPage({
                   <h3 className="pf-mono text-[11px] tracking-[0.08em] text-[var(--text-muted)] uppercase">
                     {heading}
                   </h3>
-                  <ul className="mt-3 space-y-1.5 text-sm text-[var(--text-muted)]">
+                  <ul className="mt-3 space-y-2 text-sm text-[var(--text-muted)]">
                     {(
                       (t.raw(`footer.${key}.items`) as unknown as string).split('|')
                     ).map((item) => (

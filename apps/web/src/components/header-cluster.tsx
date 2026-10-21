@@ -12,8 +12,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Link } from '@/i18n/routing';
 import { ThemeToggle } from './theme-toggle';
-import { LocaleSwitcher } from './locale-switcher';
 
 /**
  * The right-hand cluster of the header: theme, language, and who you are.
@@ -60,7 +60,6 @@ export function HeaderCluster({
     // cost of that was thirty seconds per width and a message about a box.
     <div data-testid="header-cluster" className="flex shrink-0 items-center gap-2">
       <ThemeToggle />
-      <LocaleSwitcher />
 
       <DropdownMenu open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger
@@ -110,6 +109,9 @@ export function HeaderCluster({
               </span>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            <DropdownMenuItem render={<Link href="/settings" />} className="cursor-pointer">
+              {t('nav.settings')}
+            </DropdownMenuItem>
           {/* Sign-out is a POST, so it is a form and not a link: a link would
               prefetch it, and it would not work with JavaScript disabled.
 

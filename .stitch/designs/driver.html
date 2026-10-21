@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Bershama Logistics — Driver Run Console</title>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Fonts: Outfit (Headline), Nunito Sans (Body), JetBrains Mono (Data/Labels), Cairo (Bilingual) -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;family=Nunito+Sans:wght@400;600;700&amp;family=Outfit:wght@500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS with custom configuration -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-secondary-fixed-variant": "#404940",
+            "outline-variant": "#3e4943",
+            "inverse-surface": "#e3e3dd",
+            "surface": "#121411",
+            "on-primary-fixed-variant": "#00513a",
+            "surface-bright": "#383a36",
+            "on-primary-container": "#003e2c",
+            "on-secondary": "#2a332a",
+            "on-secondary-container": "#afb8ac",
+            "surface-container": "#1e201d",
+            "surface-container-lowest": "#0d0f0c",
+            "on-secondary-fixed": "#161d16",
+            "surface-dim": "#121411",
+            "on-background": "#e3e3dd",
+            "background": "#121411",
+            "on-primary": "#003827",
+            "on-tertiary-fixed-variant": "#614000",
+            "error-container": "#93000a",
+            "inverse-primary": "#006c4e",
+            "tertiary-fixed": "#ffddb0",
+            "primary": "#6fdaaf",
+            "on-error-container": "#ffdad6",
+            "on-tertiary-fixed": "#281800",
+            "on-primary-fixed": "#002115",
+            "on-tertiary": "#442c00",
+            "primary-fixed-dim": "#6fdaaf",
+            "surface-tint": "#6fdaaf",
+            "surface-variant": "#333532",
+            "on-surface-variant": "#bdcac1",
+            "secondary-fixed": "#dce5d9",
+            "primary-container": "#43b189",
+            "on-tertiary-container": "#4b3000",
+            "surface-container-high": "#292b27",
+            "primary-fixed": "#8cf7ca",
+            "secondary": "#c0c9bd",
+            "surface-container-low": "#1a1c19",
+            "surface-container-highest": "#333532",
+            "inverse-on-surface": "#2f312d",
+            "tertiary": "#fcbb51",
+            "tertiary-container": "#cf932c",
+            "error": "#ffb4ab",
+            "on-surface": "#e3e3dd",
+            "on-error": "#690005",
+            "outline": "#87948c",
+            "secondary-container": "#404940",
+            "secondary-fixed-dim": "#c0c9bd",
+            "tertiary-fixed-dim": "#fcbb51"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "gutter": "0.75rem",
+            "space-xl": "2rem",
+            "gutter-tablet": "1rem",
+            "space-xs": "0.25rem",
+            "space-sm": "0.5rem",
+            "space-md": "0.75rem",
+            "space-lg": "1.25rem",
+            "margin-tablet": "1.5rem",
+            "margin": "1rem"
+          },
+          "fontFamily": {
+            "body-lg": ["Nunito Sans"],
+            "headline-lg": ["Outfit"],
+            "label-md": ["JetBrains Mono"],
+            "body-sm": ["Nunito Sans"],
+            "data-sm": ["JetBrains Mono"],
+            "headline-sm": ["Outfit"],
+            "headline-lg-mobile": ["Outfit"],
+            "body-md": ["Nunito Sans"],
+            "data-md": ["JetBrains Mono"],
+            "data-lg": ["JetBrains Mono"],
+            "headline-md": ["Outfit"],
+            "arabic": ["Cairo"]
+          },
+          "fontSize": {
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "500" }],
+            "headline-lg": ["30px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "label-md": ["11px", { "lineHeight": "14px", "letterSpacing": "0.06em", "fontWeight": "600" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "data-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+            "headline-sm": ["16px", { "lineHeight": "22px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "headline-lg-mobile": ["24px", { "lineHeight": "30px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
+            "data-md": ["15px", { "lineHeight": "20px", "fontWeight": "600" }],
+            "data-lg": ["24px", { "lineHeight": "28px", "fontWeight": "700" }],
+            "headline-md": ["20px", { "lineHeight": "26px", "letterSpacing": "-0.02em", "fontWeight": "600" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    /* Touch optimization for logistics gloves */
+    * {
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    input, textarea {
+      user-select: auto;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface antialiased min-h-[884px] flex flex-col selection:bg-primary-container selection:text-surface pb-[88px]">
+<!-- TOP APP BAR (Shared Component Anchor) -->
+<header class="bg-surface dark:bg-surface border-b border-outline-variant dark:border-outline-variant flex justify-between items-center w-full px-margin h-16 min-h-[48px] sticky top-0 z-40">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 flex items-center justify-center rounded bg-surface-container border border-outline-variant text-primary">
+<span class="material-symbols-outlined" data-icon="local_shipping">local_shipping</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-semibold text-primary dark:text-primary tracking-tight">Bershama Logistics</h1>
+<p class="font-data-sm text-data-sm text-outline flex items-center gap-1">
+<span>EDA FLEET OPS</span>
+<span class="w-1 h-1 rounded-full bg-outline"></span>
+<span class="font-arabic text-on-surface-variant">القاهرة الكبرى</span>
+</p>
+</div>
+</div>
+<button aria-label="Emergency Cold-Chain Hotline" class="w-12 h-12 flex items-center justify-center rounded border border-error bg-surface-container text-error active:bg-error active:text-surface transition-transform duration-75 active:scale-95" title="Report Emergency Cold-Chain Breach">
+<span class="material-symbols-outlined text-[24px]" data-icon="emergency">emergency</span>
+</button>
+</header>
+<!-- TELEMETRY & DRIVER METRICS STRIP -->
+<section class="bg-surface-container-low px-margin py-space-sm border-b border-outline-variant">
+<div class="grid grid-cols-3 gap-space-xs text-center">
+<!-- Van Unit -->
+<div class="bg-surface p-space-xs rounded border border-outline-variant/60 flex flex-col justify-center items-center min-h-[46px]">
+<span class="font-label-md text-[10px] text-outline uppercase tracking-wider">UNIT</span>
+<span class="font-data-sm text-data-sm text-on-surface font-bold">VAN-1</span>
+</div>
+<!-- Live Temp (Critical Telematics) -->
+<div class="bg-surface p-space-xs rounded border border-primary/40 flex flex-col justify-center items-center min-h-[46px]">
+<span class="font-label-md text-[10px] text-outline uppercase tracking-wider flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+          CABIN TEMP
+        </span>
+<span class="font-data-md text-data-md text-primary font-bold">2.8 °C</span>
+</div>
+<!-- Driver ID -->
+<div class="bg-surface p-space-xs rounded border border-outline-variant/60 flex flex-col justify-center items-center min-h-[46px]">
+<span class="font-label-md text-[10px] text-outline uppercase tracking-wider">DRIVER</span>
+<span class="font-data-sm text-data-sm text-on-surface truncate max-w-full px-1">A. Hassan</span>
+</div>
+</div>
+</section>
+<!-- MAIN VIEWPORT CANVAS -->
+<main class="flex-1 px-margin pt-space-md space-y-space-md max-w-xl mx-auto w-full">
+<!-- RUN REFERENCE & PROGRESS SUMMARY -->
+<section class="bg-surface-container rounded-lg p-space-md border border-outline-variant">
+<div class="flex items-start justify-between">
+<div>
+<span class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-on-surface block tracking-tight">Today</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Wednesday, 21 October 2026</p>
+<div class="mt-space-xs inline-flex items-center gap-1.5 bg-surface px-2 py-0.5 rounded border border-outline-variant/40">
+<span class="font-label-md text-[10px] text-outline uppercase">MANIFEST:</span>
+<span class="font-data-sm text-data-sm text-primary tracking-wider">RUN-2026-10-21</span>
+</div>
+</div>
+<div class="text-right flex flex-col items-end">
+<div class="px-2.5 py-1 bg-surface-container-high rounded border border-outline-variant">
+<span class="font-data-sm text-data-sm text-on-surface font-bold">2 of 6</span>
+<span class="font-label-md text-[10px] text-outline ml-1">STOPS DONE</span>
+</div>
+<!-- Visual Step Segments -->
+<div class="flex gap-1 mt-2">
+<span class="w-4 h-1.5 rounded-sm bg-primary-container"></span>
+<span class="w-4 h-1.5 rounded-sm bg-primary-container"></span>
+<span class="w-4 h-1.5 rounded-sm bg-primary animate-pulse"></span>
+<span class="w-4 h-1.5 rounded-sm bg-surface-container-highest"></span>
+<span class="w-4 h-1.5 rounded-sm bg-surface-container-highest"></span>
+<span class="w-4 h-1.5 rounded-sm bg-surface-container-highest"></span>
+</div>
+</div>
+</div>
+</section>
+<!-- OPERATIONAL QUICK COMMANDS (Glove Friendly, 48px min touch target) -->
+<div class="grid grid-cols-2 gap-space-sm">
+<button class="min-h-[48px] h-12 bg-surface-container border border-outline-variant hover:border-outline text-on-surface rounded flex items-center justify-center gap-2 active:bg-surface-container-high transition-colors" onclick="alert('Dispatch hotline dialed: +20 2 2795 8100')">
+<span class="material-symbols-outlined text-outline" data-icon="call">call</span>
+<span class="font-body-md text-body-md font-semibold">Call Dispatch</span>
+</button>
+<button class="min-h-[48px] h-12 bg-surface-container border border-outline-variant hover:border-outline text-on-surface rounded flex items-center justify-center gap-2 active:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-outline" data-icon="description">description</span>
+<span class="font-body-md text-body-md font-semibold">Manifest File</span>
+</button>
+</div>
+<!-- STOP CARDS STACK -->
+<section aria-label="Run Stops Schedule" class="space-y-space-md">
+<!-- STOP 4: NEXT STOP / IN TRANSIT (Primary Focus) -->
+<article class="bg-surface-container-low rounded-lg border-2 border-primary/70 p-space-md space-y-space-md shadow-none relative overflow-hidden">
+<!-- Top Operational Ribbon -->
+<div class="flex items-center justify-between pb-space-xs border-b border-outline-variant/60">
+<div class="flex items-center gap-space-sm">
+<!-- Number Circle Badge -->
+<div class="w-10 h-10 rounded-full bg-primary-container text-surface flex items-center justify-center font-data-lg text-data-lg font-bold border border-primary">
+              4
+            </div>
+<div>
+<span class="font-label-md text-label-md text-primary font-bold uppercase tracking-wider flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-primary inline-block"></span>
+                NEXT STOP • IN TRANSIT
+              </span>
+<span class="font-data-sm text-data-sm text-outline">ETA: 14:12 (8 mins)</span>
+</div>
+</div>
+<button aria-label="Open Navigation to Orchard Branch" class="w-11 h-11 flex items-center justify-center rounded bg-surface border border-outline-variant text-on-surface active:bg-surface-container-high">
+<span class="material-symbols-outlined text-[22px]" data-icon="turn_right">turn_right</span>
+</button>
+</div>
+<!-- Facility & Address -->
+<div>
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface">Orchard Branch Pharmacy</h2>
+<p class="font-body-md text-body-md text-on-surface-variant flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-[16px] text-outline" data-icon="location_on">location_on</span>
+            12 Sherif St, Zamalek, Cairo
+          </p>
+</div>
+<!-- Cargo Manifest Breakdown -->
+<div class="bg-surface rounded p-space-sm border border-outline-variant/70 space-y-space-xs">
+<div class="flex justify-between items-center text-outline">
+<span class="font-label-md text-label-md uppercase">CARGO PAYLOAD</span>
+<span class="font-data-sm text-data-sm font-bold text-on-surface">6 lines</span>
+</div>
+<!-- Line Badges -->
+<div class="flex flex-wrap gap-1.5 pt-1">
+<span class="inline-flex items-center gap-1 bg-surface-container px-2 py-1 rounded border border-primary/50 text-primary font-data-sm text-data-sm">
+<span class="material-symbols-outlined text-[14px]" data-icon="ac_unit">ac_unit</span>
+              Cold-chain 2°C–8°C: 2 lines
+            </span>
+<span class="inline-flex items-center gap-1 bg-surface-container px-2 py-1 rounded border border-outline-variant text-secondary font-data-sm text-data-sm">
+<span class="material-symbols-outlined text-[14px]" data-icon="shelves">shelves</span>
+              Ambient: 4 lines
+            </span>
+</div>
+</div>
+<!-- Primary Action Target (Min 52px glove target) -->
+<button class="w-full min-h-[52px] h-[52px] bg-primary-container text-surface font-headline-sm text-headline-sm font-bold rounded flex items-center justify-center gap-2 active:bg-primary transition-colors">
+<span class="material-symbols-outlined text-[24px]" data-icon="where_to_vote">where_to_vote</span>
+<span>Arrive</span>
+</button>
+</article>
+<!-- STOP 5: AT LOCATION / OFFLOADING -->
+<article class="bg-surface-container-low rounded-lg border border-outline-variant p-space-md space-y-space-md">
+<!-- Top Operational Ribbon -->
+<div class="flex items-center justify-between pb-space-xs border-b border-outline-variant/60">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-full bg-surface-container-high text-on-surface flex items-center justify-center font-data-lg text-data-lg font-bold border border-outline">
+              5
+            </div>
+<div>
+<span class="font-label-md text-label-md text-tertiary font-bold uppercase tracking-wider flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-tertiary inline-block"></span>
+                OFFLOADING
+              </span>
+<span class="font-data-sm text-data-sm text-outline">Giza Sector Gate 3</span>
+</div>
+</div>
+<span class="font-data-sm text-data-sm text-tertiary bg-tertiary-container/20 px-2 py-0.5 rounded border border-tertiary/40">
+            PIN VERIFY
+          </span>
+</div>
+<!-- Facility & Address -->
+<div>
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface">Nile Pharmacy</h2>
+<p class="font-body-md text-body-md text-on-surface-variant flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-[16px] text-outline" data-icon="location_on">location_on</span>
+            88 Tahrir St, Downtown, Cairo
+          </p>
+</div>
+<!-- Cargo Manifest Breakdown -->
+<div class="bg-surface rounded p-space-sm border border-outline-variant/70 space-y-space-xs">
+<div class="flex justify-between items-center text-outline">
+<span class="font-label-md text-label-md uppercase">CARGO PAYLOAD</span>
+<span class="font-data-sm text-data-sm font-bold text-on-surface">2 lines</span>
+</div>
+<div class="space-y-1 pt-1 font-data-sm text-data-sm">
+<div class="flex justify-between items-center text-on-surface bg-surface-container-low px-2 py-1 rounded">
+<span class="text-primary font-medium">1. Insulin Glargine 100 U/mL</span>
+<span class="text-outline">40 Vials</span>
+</div>
+<div class="flex justify-between items-center text-on-surface bg-surface-container-low px-2 py-1 rounded">
+<span class="text-secondary font-medium">2. Amoxicillin 500mg</span>
+<span class="text-outline">120 Packs</span>
+</div>
+</div>
+</div>
+<!-- Wide Action Button: Collect Signature (Min 48px) -->
+<button class="w-full min-h-[48px] h-12 bg-surface-container-highest border border-outline text-on-surface font-headline-sm text-headline-sm font-bold rounded flex items-center justify-center gap-2 active:bg-primary-container active:text-surface transition-colors">
+<span class="material-symbols-outlined text-[22px]" data-icon="draw">draw</span>
+<span>Collect signature</span>
+</button>
+</article>
+<!-- STOP 6: QUEUED / SCHEDULED -->
+<article class="bg-surface-container-low rounded-lg border border-outline-variant/60 p-space-md space-y-space-md opacity-90">
+<!-- Top Operational Ribbon -->
+<div class="flex items-center justify-between pb-space-xs border-b border-outline-variant/60">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-full bg-surface-container text-secondary flex items-center justify-center font-data-lg text-data-lg font-bold border border-outline-variant">
+              6
+            </div>
+<div>
+<span class="font-label-md text-label-md text-outline font-bold uppercase tracking-wider">
+                QUEUED
+              </span>
+<span class="font-data-sm text-data-sm text-outline">Estimated 15:45</span>
+</div>
+</div>
+<span class="font-label-md text-[10px] text-outline border border-outline-variant px-2 py-0.5 rounded">
+            FINAL DROP
+          </span>
+</div>
+<!-- Facility & Address -->
+<div>
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface">Green Cross Pharmacy</h2>
+<p class="font-body-md text-body-md text-on-surface-variant flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-[16px] text-outline" data-icon="location_on">location_on</span>
+            14 Mohamed Farid St, Zamalek, Cairo
+          </p>
+</div>
+<!-- Cargo Manifest Summary -->
+<div class="bg-surface rounded p-space-sm border border-outline-variant/60 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-[20px]" data-icon="inventory_2">inventory_2</span>
+<span class="font-data-sm text-data-sm text-on-surface">3 lines assigned</span>
+</div>
+<span class="font-label-md text-[10px] text-primary bg-primary-container/20 px-2 py-0.5 rounded border border-primary/30">
+            EDA SEAL OK
+          </span>
+</div>
+<!-- Wide Action Button: Complete (Min 48px) -->
+<button class="w-full min-h-[48px] h-12 bg-surface-container border border-outline-variant text-secondary font-headline-sm text-headline-sm font-semibold rounded flex items-center justify-center gap-2 active:bg-surface-bright transition-colors">
+<span class="material-symbols-outlined text-[22px]" data-icon="check_circle">check_circle</span>
+<span>Complete</span>
+</button>
+</article>
+</section>
+<!-- EDA REGULATORY LOGICAL FOOTER -->
+<footer class="pt-space-xs pb-space-lg text-center">
+<div class="inline-flex items-center gap-2 text-outline font-data-sm text-data-sm">
+<span class="material-symbols-outlined text-[16px]" data-icon="verified_user">verified_user</span>
+<span>EDA TELEMETRY LINK ACTIVE • SYNC: 14:04:18 CLT</span>
+</div>
+</footer>
+</main>
+<!-- BOTTOM NAV BAR (Shared Component Anchor) -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center h-[72px] px-margin bg-surface-container-low dark:bg-surface-container-low border-t border-outline-variant dark:border-outline-variant">
+<!-- Item 1: Scan -->
+<button aria-label="Scan barcode" class="flex flex-col items-center justify-center min-w-[48px] min-h-[48px] p-space-xs text-on-surface-variant dark:text-on-surface-variant active:bg-surface-bright dark:active:bg-surface-bright transition-colors duration-100">
+<span class="material-symbols-outlined text-[24px]" data-icon="barcode_scanner">barcode_scanner</span>
+<span class="font-label-md text-label-md mt-0.5">Scan</span>
+</button>
+<!-- Item 2: Route (ACTIVE TAB FOR DRIVER RUN SCREEN) -->
+<button aria-label="Active Run Route" class="flex flex-col items-center justify-center min-w-[48px] min-h-[48px] p-space-xs text-primary dark:text-primary border-b-2 border-primary dark:border-primary font-semibold active:bg-surface-bright dark:active:bg-surface-bright transition-colors duration-100">
+<span class="material-symbols-outlined text-[24px]" data-icon="navigation" data-weight="fill" style="font-variation-settings: 'FILL' 1;">navigation</span>
+<span class="font-label-md text-label-md mt-0.5">Route</span>
+</button>
+<!-- Item 3: Sync -->
+<button aria-label="Cloud and EDA sync" class="flex flex-col items-center justify-center min-w-[48px] min-h-[48px] p-space-xs text-on-surface-variant dark:text-on-surface-variant active:bg-surface-bright dark:active:bg-surface-bright transition-colors duration-100">
+<span class="material-symbols-outlined text-[24px]" data-icon="sync">sync</span>
+<span class="font-label-md text-label-md mt-0.5">Sync</span>
+</button>
+<!-- Item 4: Cold-Chain -->
+<button aria-label="Cold chain monitoring telemetry" class="flex flex-col items-center justify-center min-w-[48px] min-h-[48px] p-space-xs text-on-surface-variant dark:text-on-surface-variant active:bg-surface-bright dark:active:bg-surface-bright transition-colors duration-100">
+<span class="material-symbols-outlined text-[24px]" data-icon="ac_unit">ac_unit</span>
+<span class="font-label-md text-label-md mt-0.5">Cold-Chain</span>
+</button>
+</nav>
+</body></html>

@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Bershama Operations Console — Product Catalogue</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Nunito+Sans:wght@300;400;500;600;700&amp;family=Outfit:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-surface": "#e3e3dd",
+            "surface-container-highest": "#333532",
+            "outline": "#87948c",
+            "on-tertiary": "#650902",
+            "on-surface-variant": "#bdcac1",
+            "on-error-container": "#ffdad6",
+            "on-error": "#690005",
+            "inverse-primary": "#006c4e",
+            "surface-container-lowest": "#0d0f0c",
+            "tertiary-container": "#fa7761",
+            "primary-fixed": "#8cf7ca",
+            "surface-container-low": "#1a1c19",
+            "secondary-fixed": "#ffddb0",
+            "primary-container": "#43b189",
+            "on-secondary-container": "#3b2500",
+            "on-primary": "#003827",
+            "inverse-on-surface": "#2f312d",
+            "on-tertiary-fixed": "#400200",
+            "tertiary-fixed": "#ffdad4",
+            "surface-dim": "#121411",
+            "primary": "#6fdaaf",
+            "surface-tint": "#6fdaaf",
+            "on-primary-fixed": "#002115",
+            "surface-container-high": "#292b27",
+            "inverse-surface": "#e3e3dd",
+            "surface": "#121411",
+            "on-secondary-fixed": "#281800",
+            "on-tertiary-container": "#6d1005",
+            "surface-bright": "#383a36",
+            "error-container": "#93000a",
+            "secondary-container": "#bf861e",
+            "on-tertiary-fixed-variant": "#862214",
+            "on-background": "#e3e3dd",
+            "primary-fixed-dim": "#6fdaaf",
+            "on-primary-fixed-variant": "#00513a",
+            "tertiary-fixed-dim": "#ffb4a7",
+            "secondary": "#fcbb51",
+            "surface-container": "#1e201d",
+            "on-secondary-fixed-variant": "#614000",
+            "on-primary-container": "#003e2c",
+            "secondary-fixed-dim": "#fcbb51",
+            "background": "#121411",
+            "tertiary": "#ffb4a7",
+            "outline-variant": "#3e4943",
+            "error": "#ffb4ab",
+            "surface-variant": "#333532",
+            "on-secondary": "#442c00"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-sm": "0.5rem",
+            "gutter": "0.75rem",
+            "space-xl": "1.5rem",
+            "space-lg": "1rem",
+            "space-xs": "0.25rem",
+            "space-md": "0.75rem",
+            "margin": "1rem"
+          },
+          "fontFamily": {
+            "headline-sm": ["Outfit"],
+            "display-lg": ["Outfit"],
+            "display-lg-mobile": ["Outfit"],
+            "headline-md": ["Outfit"],
+            "headline-lg": ["Outfit"],
+            "label-lg": ["JetBrains Mono"],
+            "body-sm": ["Nunito Sans"],
+            "label-sm": ["JetBrains Mono"],
+            "body-lg": ["Nunito Sans"],
+            "body-md": ["Nunito Sans"],
+            "label-md": ["JetBrains Mono"],
+            "arabic-body": ["Cairo"]
+          },
+          "fontSize": {
+            "headline-sm": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "display-lg": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "display-lg-mobile": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "label-lg": ["13px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+            "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+            "label-sm": ["10px", { "lineHeight": "12px", "letterSpacing": "0.05em", "fontWeight": "400" }],
+            "body-lg": ["15px", { "lineHeight": "22px", "fontWeight": "400" }],
+            "body-md": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "label-md": ["11px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "500" }]
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-background text-on-surface antialiased min-h-screen flex flex-col font-body-md selection:bg-primary-container selection:text-on-primary-container">
+<!-- TOP APP BAR -->
+<header class="flex justify-between items-center w-full px-space-lg h-14 border-b border-outline-variant/25 bg-surface-container-low dark:bg-surface-container-lowest sticky top-0 z-50">
+<!-- Brand Anchor & Top-level Navigation -->
+<div class="flex items-center gap-space-xl">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="inventory_2">inventory_2</span>
+<span class="text-headline-md font-headline-md text-on-surface tracking-tight font-semibold">Bershama</span>
+<span class="text-label-sm font-label-sm px-1.5 py-0.5 rounded bg-surface-container-high border border-outline-variant/30 text-on-surface-variant uppercase">HUB-04</span>
+</div>
+<nav class="hidden md:flex items-center gap-space-lg text-body-md font-body-md">
+<a class="text-primary dark:text-primary border-b-2 border-primary dark:border-primary pb-1 font-headline-md transition-all" href="#catalogue">Catalogue</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant font-body-md hover:text-primary dark:hover:text-primary transition-colors duration-150" href="#inventory">Inventory</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant font-body-md hover:text-primary dark:hover:text-primary transition-colors duration-150" href="#deliveries">Deliveries</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant font-body-md hover:text-primary dark:hover:text-primary transition-colors duration-150 flex items-center gap-1" href="#cold-chain">
+<span class="material-symbols-outlined text-[15px]" data-icon="ac_unit">ac_unit</span>
+<span>Cold-Chain</span>
+</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant font-body-md hover:text-primary dark:hover:text-primary transition-colors duration-150" href="#compliance">Compliance</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant font-body-md hover:text-primary dark:hover:text-primary transition-colors duration-150" href="#audit">Audit Trail</a>
+</nav>
+</div>
+<!-- Right Telemetry & Operator Controls -->
+<div class="flex items-center gap-space-md">
+<!-- Live Node Status Indicator -->
+<div class="hidden lg:flex items-center gap-2 px-2.5 py-1 rounded bg-surface-container border border-outline-variant/20 text-label-sm font-label-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+<span class="text-on-surface-variant">CAIRO-GATE-04</span>
+<span class="text-primary font-mono">4.2°C SYNC</span>
+</div>
+<!-- Trailing Language Action -->
+<button class="px-2 py-1 rounded text-body-sm font-arabic-body text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors duration-150">
+        العربية
+      </button>
+<!-- Trailing Icon Action: Sensors -->
+<button class="w-8 h-8 rounded flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors duration-150 relative" title="Sensors Telemetry">
+<span class="material-symbols-outlined text-[18px]" data-icon="sensors">sensors</span>
+</button>
+<!-- Trailing Icon Action: Notifications -->
+<button class="w-8 h-8 rounded flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors duration-150 relative" title="System Notifications">
+<span class="material-symbols-outlined text-[18px]" data-icon="notifications">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-secondary"></span>
+</button>
+<!-- Trailing Operator Identity -->
+<div class="flex items-center gap-2 pl-2 border-l border-outline-variant/20">
+<span class="material-symbols-outlined text-[24px] text-on-surface-variant" data-icon="account_circle">account_circle</span>
+<div class="hidden sm:flex flex-col text-left">
+<span class="text-label-md font-label-md leading-tight text-on-surface">Ahmed Hassan</span>
+<span class="text-label-sm font-label-sm leading-tight text-on-surface-variant">Administrator</span>
+</div>
+</div>
+</div>
+</header>
+<!-- MAIN OPERATIONAL WORKSPACE -->
+<main class="flex-1 w-full max-w-[1720px] mx-auto px-space-lg py-space-md flex flex-col gap-space-md">
+<!-- PAGE HEADER -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md pt-space-xs">
+<div>
+<div class="flex items-center gap-space-sm">
+<h1 class="font-headline-lg text-headline-lg tracking-tight font-semibold text-on-surface">Catalogue</h1>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high border border-outline-variant/30 text-label-md font-label-md text-primary">Active Formulary</span>
+</div>
+<p class="font-label-md text-label-md text-on-surface-variant mt-0.5 tracking-normal">
+          6 products registered in active formulary • Node 04 Central Hub (Cairo-Alexandria Cold Corridor)
+        </p>
+</div>
+<!-- Action Cluster -->
+<div class="flex items-center gap-space-sm">
+<!-- 44px Search Field -->
+<div class="relative w-full sm:w-80">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-variant" data-icon="search">search</span>
+<input class="w-full h-11 pl-9 pr-8 bg-surface-container border border-outline-variant/30 rounded-xl font-label-md text-label-md text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all" placeholder="Search product, SKU or ATC code" type="text"/>
+<kbd class="hidden sm:inline-block absolute right-2.5 top-1/2 -translate-y-1/2 px-1.5 py-0.5 text-label-sm font-label-sm rounded bg-surface-container-highest text-on-surface-variant border border-outline-variant/30">⌘K</kbd>
+</div>
+<!-- Primary Operational Action: New Product -->
+<button class="h-11 px-space-lg rounded-xl bg-primary-container text-on-primary-container font-headline-sm text-headline-sm font-semibold flex items-center gap-2 hover:bg-primary transition-all duration-150 active:scale-[0.98] shadow-sm whitespace-nowrap">
+<span class="material-symbols-outlined text-[18px]" data-icon="add">add</span>
+<span>New product</span>
+</button>
+</div>
+</div>
+<!-- FILTER TOOLBAR -->
+<div class="bg-surface-container border border-outline-variant/25 rounded-xl px-space-md py-space-sm flex flex-wrap items-center justify-between gap-space-sm">
+<div class="flex flex-wrap items-center gap-space-sm">
+<!-- Form Selector -->
+<div class="relative">
+<select class="h-9 pl-3 pr-8 bg-surface-container-low border border-outline-variant/30 rounded-lg text-body-md font-body-md text-on-surface focus:border-primary focus:ring-0 appearance-none cursor-pointer">
+<option value="all">All forms (Tablet, Sachet, Solution...)</option>
+<option value="tablet">Tablet</option>
+<option value="sachet">Sachet</option>
+<option value="solution">Solution</option>
+<option value="powder">Powder</option>
+<option value="syringe">Syringe</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-[16px] text-on-surface-variant pointer-events-none" data-icon="expand_more">expand_more</span>
+</div>
+<!-- Strength Selector -->
+<div class="relative">
+<select class="h-9 pl-3 pr-8 bg-surface-container-low border border-outline-variant/30 rounded-lg text-body-md font-body-md text-on-surface focus:border-primary focus:ring-0 appearance-none cursor-pointer">
+<option value="all">All strengths</option>
+<option value="500mg">500 mg</option>
+<option value="875-125mg">875/125 mg</option>
+<option value="100iu">100 IU/mL</option>
+<option value="1g">1 g</option>
+<option value="0.5ml">0.5 mL</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-[16px] text-on-surface-variant pointer-events-none" data-icon="expand_more">expand_more</span>
+</div>
+<div class="h-5 w-px bg-outline-variant/30 hidden sm:block mx-1"></div>
+<!-- Prescription Only Toggle Pill -->
+<label class="h-9 px-3 rounded-lg bg-surface-container-low border border-outline-variant/30 flex items-center gap-2 cursor-pointer hover:border-outline-variant/60 transition-colors select-none">
+<input class="w-3.5 h-3.5 rounded border-outline-variant/50 text-primary-container focus:ring-0 focus:ring-offset-0 bg-surface-container-lowest" type="checkbox"/>
+<span class="text-body-md font-body-md text-on-surface">Prescription only (Rx)</span>
+</label>
+<!-- Cold Chain Toggle Pill -->
+<label class="h-9 px-3 rounded-lg bg-surface-container-low border border-outline-variant/30 flex items-center gap-2 cursor-pointer hover:border-outline-variant/60 transition-colors select-none">
+<input class="w-3.5 h-3.5 rounded border-outline-variant/50 text-primary-container focus:ring-0 focus:ring-offset-0 bg-surface-container-lowest" type="checkbox"/>
+<span class="material-symbols-outlined text-[15px] text-primary" data-icon="ac_unit">ac_unit</span>
+<span class="text-body-md font-body-md text-on-surface">Cold chain</span>
+</label>
+</div>
+<!-- Display Options Tool -->
+<button class="h-9 px-3 rounded-lg bg-surface-container-low hover:bg-surface-container-high border border-outline-variant/30 text-on-surface-variant hover:text-on-surface text-body-sm font-body-sm flex items-center gap-1.5 transition-colors duration-150">
+<span class="material-symbols-outlined text-[16px]" data-icon="view_column">view_column</span>
+<span>Display options</span>
+</button>
+</div>
+<!-- DENSE OPERATIONAL DATA TABLE CONTAINER -->
+<div class="bg-surface-container border border-outline-variant/25 rounded-xl overflow-hidden shadow-sm flex flex-col flex-1">
+<div class="overflow-x-auto w-full">
+<table class="w-full text-left border-collapse min-w-[960px]">
+<!-- Sticky Header Band -->
+<thead>
+<tr class="bg-surface-container-lowest border-b border-outline-variant/30 text-label-md font-label-md text-on-surface-variant">
+<th class="py-2.5 px-4 uppercase tracking-wider font-medium" scope="col">Product</th>
+<th class="py-2.5 px-3 uppercase tracking-wider font-medium w-28" scope="col">SKU</th>
+<th class="py-2.5 px-3 uppercase tracking-wider font-medium w-28" scope="col">Form</th>
+<th class="py-2.5 px-3 uppercase tracking-wider font-medium w-32" scope="col">Strength</th>
+<th class="py-2.5 px-3 uppercase tracking-wider font-medium w-36" scope="col">Cold</th>
+<th class="py-2.5 px-3 uppercase tracking-wider font-medium w-32" scope="col">Status</th>
+<th class="py-2.5 px-3 w-16 text-right" scope="col"><span class="sr-only">Actions</span></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/15 text-body-md font-body-md">
+<!-- ROW 1 -->
+<tr class="group hover:bg-surface-container-high transition-colors duration-100">
+<td class="py-2 px-4">
+<div class="font-headline-sm text-[13px] leading-tight text-on-surface font-semibold">Panadol Extra 500 mg Tablets</div>
+<div class="text-body-sm text-[12px] leading-normal text-on-surface-variant">Paracetamol / Caffeine</div>
+</td>
+<td class="py-2 px-3 font-label-md text-label-md text-on-surface-variant">PH-1001</td>
+<td class="py-2 px-3">
+<span class="inline-block px-1.5 py-0.5 rounded text-[11px] font-mono tracking-wider bg-surface-container-highest text-on-surface uppercase border border-outline-variant/20">TABLET</span>
+</td>
+<td class="py-2 px-3 font-label-md text-label-md text-on-surface">500 mg</td>
+<td class="py-2 px-3 font-label-md text-label-md text-on-surface-variant/60">—</td>
+<td class="py-2 px-3">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-label-sm font-label-sm bg-[#8C958A]/15 text-[#8C958A] border border-[#8C958A]/30">
+<span class="w-1 h-1 rounded-full bg-[#8C958A]"></span>
+                  In formulary
+                </span>
+</td>
+<td class="py-2 px-3 text-right">
+<button class="opacity-0 group-hover:opacity-100 px-2.5 py-1 rounded bg-surface-container-high hover:bg-primary-container hover:text-on-primary-container text-on-surface text-label-sm font-label-sm transition-all duration-150 border border-outline-variant/30">
+                  Edit
+                </button>
+</td>
+</tr>
+<!-- ROW 2 -->
+<tr class="group hover:bg-surface-container-high transition-colors duration-100">
+<td class="py-2 px-4">
+<div class="font-headline-sm text-[13px] leading-tight text-on-surface font-semibold">Augmentin 875 mg/125 mg Film-Coated Tablets</div>
+<div class="text-body-sm text-[12px] leading-normal text-on-surface-variant">Amoxicillin / Clavulanate</div>
+</td>
+<td class="py-2 px-3 font-label-md text-label-md text-on-surface-variant">PH-1002</td>
+<td class="py-2 px-3">
+<span class="inline-block px-1.5 py-0.5 rounded text-[11px] font-mono tracking-wider bg-surface-container-highest text-on-surface uppercase border border-outline-variant/20">TABLET</span>
+</td>
+<td class="py-2 px-3 font-label-md text-label-md text-on-surface">875/125 mg</td>
+<td class="py-2 px-3 font-label-md text-label-md text-on-surface-variant/60">—</td>
+<td class="py-2 px-3">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-label-sm font-label-sm bg-[#8C958A]/15 text-[#8C958A] border border-[#8C958A]/30">
+<span class="w-1 h-1 rounded-full bg-[#8C958A]"></span>
+                  In formulary
+                </span>
+</td>
+<td class="py-2 px-3 text-right">
+<button class="opacity-0 group-hover:opacity-100 px-2.5 py-1 rounded bg-surface-container-high hover:bg-primary-container hover:text-on-primary-container text-on-surface text-label-sm font-label-sm transition-all duration-150 border border-outline-variant/30">
+                  Edit
+                </button>
+</td>
+</tr>
+<!-- ROW 3 -->
+<tr class="group hover:bg-surface-container-high transition-colors duration-100 bg-surface-container-low/40">
+<td class="py-2 px-4">
+<div class="font-headline-sm text-[13px] leading-tight text-on-surface font-semibold">NovoRapid FlexPen 100 IU/mL Solution for Injection</div>
+<div class="text-body-sm text-[12px] leading-normal text-on-surface-variant">Insulin Aspart</div>
+</td>
+<td class="py-2 px-3 font-label-md text-label-md text-on-surface-variant">PH-1003</td>
+<td class="py-2 px-3">
+<span class="inline-block px-1.5 py-0.5 rounded text-[11px] font-mono tracking-wider bg-surface-container-highest text-on-surface uppercase border border-outline-variant/20">SOLUTION</span>
+</td>
+<td class="py-2 px-3 font-label-md text-label-md text-on-surface">100 IU/mL</td>
+<td class="py-2 px-3">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-label-sm font-label-sm bg-primary/10 text-primary border border-primary/30">
+<span class="material-symbols-outlined text-[13px]" data-icon="ac_unit">ac_unit</span>
+                  2°C - 8°C
+                </span>
+</td>
+<td class="py-2 px-3">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-label-sm font-label-sm bg-[#8C958A]/15 text-[#8C958A] border border-[#8C958A]/30">
+<span class="w-1 h-1 rounded-full bg-[#8C958A]"></span>
+                  In formulary
+                </span>
+</td>
+<td class="py-2 px-3 text-right">
+<button class="opacity-0 group-hover:opacity-100 px-2.5 py-1 rounded bg-surface-container-high hover:bg-primary-container hover:text-on-primary-container text-on-surface text-label-sm font-label-sm transition-all duration-150 border border-outline-variant/30">
+                  Edit
+                </button>
+</td>
+</tr>
+<!-- ROW 4 -->
+<tr class="group hover:bg-surface-container-high transition-colors duration-100">
+<td class="py-2 px-4">
+<div class="font-headline-sm text-[13px] leading-tight text-on-surface font-semibold">ORS Sachet</div>
+<div class="text-body-sm text-[12px] leading-normal text-on-surface-variant">Oral Rehydration Salts WHO Formula</div>
+</td>
+<td class="py-2 px-3 font-label-md text-label-md text-on-surface-variant">PH-1004</td>
+<td class="py-2 px-3">
+<span class="inline-block px-1.5 py-0.5 rounded text-[11px] font-mono tracking-wider bg-surface-container-highest text-on-surface uppercase border border-outline-variant/20">SACHET</span>
+</td>
+<td class="py-2 px-3 font-label-md text-label-md text-on-surface-variant/60">—</td>
+<td class="py-2 px-3 font-label-md text-label-md text-on-surface-variant/60">—</td>
+<td class="py-2 px-3">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-label-sm font-label-sm bg-[#8C958A]/15 text-[#8C958A] border border-[#8C958A]/30">
+<span class="w-1 h-1 rounded-full bg-[#8C958A]"></span>
+                  In formulary
+                </span>
+</td>
+<td class="py-2 px-3 text-right">
+<button class="opacity-0 group-hover:opacity-100 px-2.5 py-1 rounded bg-surface-container-high hover:bg-primary-container hover:text-on-primary-container text-on-surface text-label-sm font-label-sm transition-all duration-150 border border-outline-variant/30">
+                  Edit
+                </button>
+</td>
+</tr>
+<!-- ROW 5 -->
+<tr class="group hover:bg-surface-container-high transition-colors duration-100 bg-surface-container-low/40">
+<td class="py-2 px-4">
+<div class="font-headline-sm text-[13px] leading-tight text-on-surface font-semibold">Cefriaxone 1 g Powder for Solution</div>
+<div class="text-body-sm text-[12px] leading-normal text-on-surface-variant">Ceftriaxone Sodium</div>
+</td>
+<td class="py-2 px-3 font-label-md text-label-md text-on-surface-variant">PH-1005</td>
+<td class="py-2 px-3">
+<span class="inline-block px-1.5 py-0.5 rounded text-[11px] font-mono tracking-wider bg-surface-container-highest text-on-surface uppercase border border-outline-variant/20">POWDER</span>
+</td>
+<td class="py-2 px-3 font-label-md text-label-md text-on-surface">1 g</td>
+<td class="py-2 px-3">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-label-sm font-label-sm bg-primary/10 text-primary border border-primary/30">
+<span class="material-symbols-outlined text-[13px]" data-icon="ac_unit">ac_unit</span>
+                  Cold chain
+                </span>
+</td>
+<td class="py-2 px-3">
+<!-- Amber status for low reserve -->
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-label-sm font-label-sm bg-secondary/15 text-secondary border border-secondary/35">
+<span class="w-1 h-1 rounded-full bg-secondary"></span>
+                  Low reserve
+                </span>
+</td>
+<td class="py-2 px-3 text-right">
+<button class="opacity-0 group-hover:opacity-100 px-2.5 py-1 rounded bg-surface-container-high hover:bg-primary-container hover:text-on-primary-container text-on-surface text-label-sm font-label-sm transition-all duration-150 border border-outline-variant/30">
+                  Edit
+                </button>
+</td>
+</tr>
+<!-- ROW 6 -->
+<tr class="group hover:bg-surface-container-high transition-colors duration-100 bg-surface-container-low/40">
+<td class="py-2 px-4">
+<div class="font-headline-sm text-[13px] leading-tight text-on-surface font-semibold">Influenza Vaccine 0.5 mL Prefilled Syringe</div>
+<div class="text-body-sm text-[12px] leading-normal text-on-surface-variant">Quadrivalent Inactivated Influenza Antigen</div>
+</td>
+<td class="py-2 px-3 font-label-md text-label-md text-on-surface-variant">PH-1006</td>
+<td class="py-2 px-3">
+<span class="inline-block px-1.5 py-0.5 rounded text-[11px] font-mono tracking-wider bg-surface-container-highest text-on-surface uppercase border border-outline-variant/20">SYRINGE</span>
+</td>
+<td class="py-2 px-3 font-label-md text-label-md text-on-surface">0.5 mL</td>
+<td class="py-2 px-3">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-label-sm font-label-sm bg-primary/10 text-primary border border-primary/30">
+<span class="material-symbols-outlined text-[13px]" data-icon="ac_unit">ac_unit</span>
+                  2°C - 8°C
+                </span>
+</td>
+<td class="py-2 px-3">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-label-sm font-label-sm bg-[#8C958A]/15 text-[#8C958A] border border-[#8C958A]/30">
+<span class="w-1 h-1 rounded-full bg-[#8C958A]"></span>
+                  In formulary
+                </span>
+</td>
+<td class="py-2 px-3 text-right">
+<button class="opacity-0 group-hover:opacity-100 px-2.5 py-1 rounded bg-surface-container-high hover:bg-primary-container hover:text-on-primary-container text-on-surface text-label-sm font-label-sm transition-all duration-150 border border-outline-variant/30">
+                  Edit
+                </button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- FOOTER / PAGINATION BAND -->
+<div class="mt-auto border-t border-outline-variant/20 bg-surface-container-low px-4 py-2.5 flex flex-col sm:flex-row items-center justify-between gap-2">
+<div class="text-label-md font-label-md text-on-surface-variant">
+          Showing <span class="text-on-surface font-semibold">6</span> of <span class="text-on-surface font-semibold">6</span> active pharmaceutical formulations
+        </div>
+<div class="flex items-center gap-3">
+<!-- Rows per page selector -->
+<div class="flex items-center gap-1.5 text-label-sm font-label-sm text-on-surface-variant">
+<span>Rows:</span>
+<select class="h-7 px-2 bg-surface-container border border-outline-variant/30 rounded text-label-sm font-label-sm text-on-surface focus:ring-0 focus:border-primary">
+<option>50 / page</option>
+<option>100 / page</option>
+<option>250 / page</option>
+</select>
+</div>
+<div class="h-4 w-px bg-outline-variant/30"></div>
+<!-- Page Indicator & Controls -->
+<div class="flex items-center gap-1 text-label-sm font-label-sm text-on-surface-variant">
+<span class="px-2">Page 1 of 1</span>
+<button class="w-7 h-7 rounded flex items-center justify-center bg-surface-container border border-outline-variant/20 text-on-surface-variant/40 cursor-not-allowed" disabled="">
+<span class="material-symbols-outlined text-[14px]" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="w-7 h-7 rounded flex items-center justify-center bg-surface-container border border-outline-variant/20 text-on-surface-variant/40 cursor-not-allowed" disabled="">
+<span class="material-symbols-outlined text-[14px]" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- REGULATORY FOOTER (SHARED COMPONENT ANCHOR) -->
+<footer class="w-full py-space-md px-space-lg border-t border-outline-variant/20 bg-surface-container-lowest flex flex-col md:flex-row justify-between items-center gap-space-sm mt-auto">
+<div class="flex flex-col sm:flex-row items-center gap-x-space-md gap-y-1 text-center sm:text-left">
+<span class="text-headline-md font-headline-md text-on-surface">Bershama</span>
+<p class="text-label-sm font-label-sm text-on-surface-variant">
+        © 2025 Bershama Pharmaceutical Supply Operations. EDA License No. 4481-B / Cold-Chain Division. Compliance audited under WHO GDP (Good Distribution Practices) Annex 5.
+      </p>
+</div>
+<!-- Regulatory Links -->
+<div class="flex flex-wrap items-center justify-center gap-space-md text-body-sm font-body-sm text-on-surface-variant">
+<a class="hover:text-primary transition-colors duration-150" href="#who-gdp">WHO GDP Certification</a>
+<a class="hover:text-primary transition-colors duration-150" href="#eda-license">EDA License Verification</a>
+<a class="hover:text-primary transition-colors duration-150" href="#cold-audit">Cold-Chain Audit Protocol</a>
+<a class="hover:text-primary transition-colors duration-150" href="#pharmacovigilance">Pharmacovigilance Telemetry</a>
+<a class="hover:text-primary transition-colors duration-150" href="#incidents">System Incident Log</a>
+</div>
+</footer>
+</body></html>

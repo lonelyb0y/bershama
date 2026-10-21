@@ -1,16 +1,16 @@
 import {
+  Cairo,
   IBM_Plex_Sans_Arabic,
   JetBrains_Mono,
-  Plus_Jakarta_Sans,
-  Space_Grotesk,
+  Nunito_Sans,
+  Outfit,
 } from 'next/font/google';
 import { type Metadata, type Viewport } from 'next';
 import { notFound } from 'next/navigation';
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
-import { Analytics } from '@vercel/analytics/next';
-import { SpeedInsights } from '@vercel/speed-insights/next';
 import { ThemeInit } from '@/components/theme-init';
+import { DeferredAnalytics } from '@/components/deferred-analytics';
 
 import {
   directionOf,
@@ -30,17 +30,29 @@ import '../globals.css';
 //
 // IBM Plex Sans Arabic carries proper Arabic letterforms; the system fallback
 // renders Arabic with incorrect joining in several browsers.
-const spaceGrotesk = Space_Grotesk({
+const outfit = Outfit({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-space-grotesk',
+  variable: '--font-outfit',
 });
 
-const plusJakarta = Plus_Jakarta_Sans({
+const nunitoSans = Nunito_Sans({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-plus-jakarta',
+  variable: '--font-nunito',
 });
+
+const cairo = Cairo({
+  subsets: ['arabic'],
+  weight: ['400', '600', '700'],
+  display: 'swap',
+  // Not preloaded. Cairo is only used on the Arabic page, and a preload is a
+  // request the English page pays for and never uses. `swap` covers the gap.
+  preload: false,
+  variable: '--font-cairo',
+});
+
+
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
@@ -53,6 +65,9 @@ const plexArabic = IBM_Plex_Sans_Arabic({
   subsets: ['arabic'],
   weight: ['400', '500', '600', '700'],
   display: 'swap',
+  // The fallback for Cairo, and only used when a glyph is missing from it.
+  // Preloading it would be a second Arabic font on every page.
+  preload: false,
   variable: '--font-plex-arabic',
 });
 
@@ -133,7 +148,7 @@ export default async function LocaleLayout({
       // next/font injects its @font-face rules with this class, which exposes the
       // family as a CSS variable. suppressHydrationWarning is required because
       // next/font injects the rules during streaming, after the initial HTML.
-      className={`${spaceGrotesk.variable} ${plusJakarta.variable} ${jetbrainsMono.variable} ${plexArabic.variable}`}
+      className={`${outfit.variable} ${nunitoSans.variable} ${jetbrainsMono.variable} ${cairo.variable} ${plexArabic.variable}`}
       suppressHydrationWarning
     >
       <body
@@ -160,7 +175,7 @@ export default async function LocaleLayout({
           local development does not, which would otherwise fill the dashboard with
           localhost noise.
         */}
-<Analytics mode="auto" />
+<DeferredAnalytics />
 
           {/*
             Speed Insights, for the same first-party reason as Analytics above: the
@@ -184,7 +199,6 @@ export default async function LocaleLayout({
             development does not need to be opted out of. (Analytics still takes
             mode="auto" -- that prop does exist there.)
           */}
-          <SpeedInsights />
         </body>
     </html>
   );

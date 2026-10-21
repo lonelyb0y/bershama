@@ -189,12 +189,16 @@ api-types: ## Check the generated TS types against the api schema
 i18n-keys: ## Check that every translation key the code asks for exists
 	node scripts/check-i18n-keys.mjs
 
+.PHONY: spacing
+spacing: ## Check that every spacing value is on the 4px grid
+	node scripts/check-spacing.mjs
+
 .PHONY: hosted-check
 hosted-check: ## Check the deployed project routes the api schema (needs HOSTED_* env)
 	@./scripts/check-hosted-schemas.sh
 
 .PHONY: check
-check: lint typecheck test secrets assertions drift api-types i18n-keys ## Fast checks, no database needed
+check: lint typecheck test secrets assertions drift api-types i18n-keys spacing ## Fast checks, no database needed
 
 .PHONY: verify
 verify: check test-db build e2e ## Everything CI runs

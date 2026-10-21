@@ -185,19 +185,19 @@ export function CountSheet({
           <caption className="sr-only">{t('title')}</caption>
           <thead>
             <tr className="border-b">
-              <th scope="col" className="px-3 py-2.5 text-start font-medium text-[color:var(--text-muted)]">
+              <th scope="col" className="px-3 py-3 text-start font-medium text-[color:var(--text-muted)]">
                 {tInv('batch')}
               </th>
-              <th scope="col" className="px-3 py-2.5 text-end font-medium text-[color:var(--text-muted)]">
+              <th scope="col" className="px-3 py-3 text-end font-medium text-[color:var(--text-muted)]">
                 {t('systemQty')}
               </th>
-              <th scope="col" className="px-3 py-2.5 text-end font-medium text-[color:var(--text-muted)]">
+              <th scope="col" className="px-3 py-3 text-end font-medium text-[color:var(--text-muted)]">
                 {t('variance')}
               </th>
-              <th scope="col" className="px-3 py-2.5 text-end font-medium text-[color:var(--text-muted)]">
+              <th scope="col" className="px-3 py-3 text-end font-medium text-[color:var(--text-muted)]">
                 {t('counted')}
               </th>
-              <th scope="col" className="px-3 py-2.5 text-start font-medium text-[color:var(--text-muted)]">
+              <th scope="col" className="px-3 py-3 text-start font-medium text-[color:var(--text-muted)]">
                 {t('reason')}
               </th>
             </tr>
@@ -287,7 +287,7 @@ export function CountSheet({
                         if (cleaned !== e.target.value) e.target.value = cleaned;
                         setCount(row.batchId, cleaned);
                       }}
-                      className={`min-h-11 w-28 rounded-lg border px-2 py-1.5 text-end text-sm tabular-nums outline-none focus-visible:ring-2 placeholder:text-[color:var(--text-muted)] ${
+                      className={`min-h-11 w-28 rounded-lg border px-2 py-2 text-end text-sm tabular-nums outline-none focus-visible:ring-2 placeholder:text-[color:var(--text-muted)] ${
                         failed ? 'border-[var(--color-stock-critical)]' : ''
                       }`}
                     />
@@ -309,7 +309,7 @@ export function CountSheet({
                           setReasons((prev) => ({ ...prev, [row.batchId]: e.target.value }));
                           reset();
                         }}
-                        className="min-h-11 rounded-lg border px-2 py-1.5 text-sm outline-none focus-visible:ring-2"
+                        className="min-h-11 rounded-lg border px-2 py-2 text-sm outline-none focus-visible:ring-2"
                       >
                         {reasonOptions.map((o) => (
                           <option key={o.value || 'none'} value={o.value}>

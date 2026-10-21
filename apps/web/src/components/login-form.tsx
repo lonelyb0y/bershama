@@ -149,13 +149,12 @@ export function LoginForm() {
     // client-side navigation that was about to land on the dashboard. Every sign-in
     // ended at /login with a valid session and no error anywhere.
     <form onSubmit={onSubmit} method="post" className="space-y-4" noValidate>
-      <div>
-        <label
-          htmlFor="email"
-          className="block text-sm font-medium"
-        >
-          {t('email')}
-        </label>
+      {/*
+        The label lives inside the field and rises out of it, like every other
+        form in the product. It is still a real <label for>, so the accessible
+        name is unchanged; only the position moved.
+      */}
+      <div className="pf-field">
         <input
           id="email"
           name="email"
@@ -170,14 +169,17 @@ export function LoginForm() {
           // the fields in the component body: a controlled field is empty until
           // React has hydrated, and hydration then erases what was typed.
           defaultValue=""
-          className="mt-1 w-full rounded-lg border bg-transparent px-3 py-2 text-sm"
+          // A single space, so that `:placeholder-shown` can tell an empty
+          // field from a filled one. The label is what the person reads.
+          placeholder=" "
+          className="w-full rounded-2xl border bg-transparent px-3 text-sm"
         />
+        <label htmlFor="email" className="pf-field__label">
+          {t('email')}
+        </label>
       </div>
 
-      <div>
-        <label htmlFor="password" className="block text-sm font-medium">
-          {t('password')}
-        </label>
+      <div className="pf-field">
         <input
           id="password"
           name="password"
@@ -187,8 +189,12 @@ export function LoginForm() {
           required
           minLength={12}
           defaultValue=""
-          className="mt-1 w-full rounded-lg border bg-transparent px-3 py-2 text-sm"
+          placeholder=" "
+          className="w-full rounded-2xl border bg-transparent px-3 text-sm"
         />
+        <label htmlFor="password" className="pf-field__label">
+          {t('password')}
+        </label>
       </div>
 
       {error ? (
@@ -205,7 +211,7 @@ export function LoginForm() {
       <button
         type="submit"
         disabled={isPending}
-        className="w-full rounded-lg bg-[var(--color-brand-600)] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[var(--color-brand-700)] disabled:opacity-60"
+        className="w-full rounded-lg bg-[var(--color-brand-600)] px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-[var(--color-brand-700)] disabled:opacity-60"
       >
         {isPending ? '…' : t('signIn')}
       </button>

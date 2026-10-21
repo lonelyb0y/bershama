@@ -68,15 +68,48 @@ export function ThemeToggle() {
 
   const toggle = useCallback(() => {
     const next = isDark ? 'light' : 'dark';
-    document.documentElement.classList.toggle('dark', next === 'dark');
-    document.documentElement.classList.toggle('light', next === 'light');
 
-    try {
-      window.localStorage.setItem(KEY, next);
-    } catch {
-      // A preference is not worth an exception. Private browsing in some
-      // browsers throws on localStorage writes, and the class is already set.
+    const apply = () => {
+      document.documentElement.classList.toggle('dark', next === 'dark');
+      document.documentElement.classList.toggle('light', next === 'light');
+
+      try {
+        window.localStorage.setItem(KEY, next);
+      } catch {
+        // A preference is not worth an exception. Private browsing in some
+        // browsers throws on localStorage writes, and the class is already set.
+      }
+    };
+
+    /*
+     * The cross-fade.
+     *
+     * A theme change repaints every surface on the page at once, and without
+     * help it reads as a flash -- which is a much worse experience than a
+     * deliberate transition, because the eye reads the flash as a glitch and
+     * the transition as an intention.
+     *
+     * The View Transitions API does this properly: the browser snapshots the
+     * old page, applies the change, and cross-fades between the two on the
+     * compositor. No JavaScript animation, no layout thrash, and it is
+     * interruptible -- pressing the button again mid-transition picks up from
+     * where it is.
+     *
+     * Two conditions skip it entirely:
+     *
+     *   - The browser has no View Transitions. The change is then instant,
+     *     which is what everybody had before.
+     *   - The reader has asked for reduced motion. A full-page cross-fade is
+     *     exactly the kind of thing that setting is about, so the change is
+     *     instant and silent.
+     */
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!document.startViewTransition || reduced) {
+      apply();
+      return;
     }
+
+    document.startViewTransition(apply);
   }, [isDark]);
 
   return (

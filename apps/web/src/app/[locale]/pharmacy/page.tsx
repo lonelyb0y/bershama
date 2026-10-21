@@ -81,7 +81,7 @@ export default async function PharmacyDashboard({
           action={
             <Link
               href="/pharmacy"
-              className="rounded-lg border px-3 py-1.5 text-sm font-medium hover:bg-[color:var(--text-muted)]/10"
+              className="rounded-lg border px-3 py-2 text-sm font-medium hover:bg-[color:var(--text-muted)]/10"
             >
               {t('browseCatalogue')}
             </Link>

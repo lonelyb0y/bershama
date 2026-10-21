@@ -185,14 +185,14 @@ export function SignupForm({ locale }: { locale: string }) {
     <form onSubmit={onSubmit} className="space-y-4" noValidate>
       <div>
         <h1 className="pf-display">{t('title')}</h1>
-        <p className="mt-1 text-sm text-[color:var(--text-muted)]">{t('subtitle')}</p>
+        <p className="text-sm text-[color:var(--text-muted)]">{t('subtitle')}</p>
       </div>
 
-      <div>
-        <label htmlFor="org" className="block text-sm font-medium">
+      <div className="pf-field">
+        <label htmlFor="org" className="pf-field__label">
           {t('organisation')}
         </label>
-        <input
+        <input placeholder=" "
           id="org"
           value={orgName}
           onChange={(e) => setOrgName(e.target.value)}
@@ -201,15 +201,15 @@ export function SignupForm({ locale }: { locale: string }) {
           maxLength={160}
           autoComplete="organization"
           data-testid="signup-org"
-          className="mt-1 w-full rounded-lg border bg-transparent px-3 py-2 text-sm"
+          className="w-full rounded-2xl border bg-transparent px-3 text-sm"
         />
       </div>
 
-      <div>
-        <label htmlFor="name" className="block text-sm font-medium">
+      <div className="pf-field">
+        <label htmlFor="name" className="pf-field__label">
           {t('fullName')}
         </label>
-        <input
+        <input placeholder=" "
           id="name"
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
@@ -218,15 +218,15 @@ export function SignupForm({ locale }: { locale: string }) {
           maxLength={120}
           autoComplete="name"
           data-testid="signup-name"
-          className="mt-1 w-full rounded-lg border bg-transparent px-3 py-2 text-sm"
+          className="w-full rounded-2xl border bg-transparent px-3 text-sm"
         />
       </div>
 
-      <div>
-        <label htmlFor="email" className="block text-sm font-medium">
+      <div className="pf-field">
+        <label htmlFor="email" className="pf-field__label">
           {t('email')}
         </label>
-        <input
+        <input placeholder=" "
           id="email"
           type="email"
           value={email}
@@ -234,15 +234,15 @@ export function SignupForm({ locale }: { locale: string }) {
           required
           autoComplete="email"
           data-testid="signup-email"
-          className="mt-1 w-full rounded-lg border bg-transparent px-3 py-2 text-sm"
+          className="w-full rounded-2xl border bg-transparent px-3 text-sm"
         />
       </div>
 
-      <div>
-        <label htmlFor="new-password" className="block text-sm font-medium">
+      <div className="pf-field">
+        <label htmlFor="new-password" className="pf-field__label">
           {t('password')}
         </label>
-        <input
+        <input placeholder=" "
           id="new-password"
           type="password"
           value={password}
@@ -251,9 +251,9 @@ export function SignupForm({ locale }: { locale: string }) {
           minLength={8}
           autoComplete="new-password"
           data-testid="signup-password"
-          className="mt-1 w-full rounded-lg border bg-transparent px-3 py-2 text-sm"
+          className="w-full rounded-2xl border bg-transparent px-3 text-sm"
         />
-        <p className="mt-1 text-xs text-[color:var(--text-muted)]">
+        <p className="text-xs text-[color:var(--text-muted)]">
           {t('passwordHint', { n: MIN_LENGTH })}
         </p>
 
@@ -276,14 +276,14 @@ export function SignupForm({ locale }: { locale: string }) {
                 />
               ))}
             </div>
-            <p className="mt-1.5 text-xs text-[color:var(--text-muted)]" aria-live="polite">
+            <p className="mt-2 text-xs text-[color:var(--text-muted)]" aria-live="polite">
               {assessment.ok ? t('passwordGood') : t(`strengthScale.${strength}`)}
             </p>
 
             {/* Every outstanding problem, not just the first, so the meter never reads as
                 "not moving" the way the coverage table's single figure did. */}
             {assessment.problems.length > 0 && (
-              <ul className="mt-1.5 space-y-0.5 text-xs text-[color:var(--color-warn)]">
+              <ul className="mt-2 space-y-0.5 text-xs text-[color:var(--color-warn)]">
                 {assessment.problems.map((problem) => (
                   <li key={problem} data-testid={`password-problem-${problem}`}>
                     {t(`passwordRules.${problem}`)}
@@ -308,7 +308,7 @@ export function SignupForm({ locale }: { locale: string }) {
         type="submit"
         disabled={isPending || !assessment.ok}
         data-testid="signup-submit"
-        className="w-full rounded-lg bg-[var(--color-brand-600)] px-4 py-2.5 text-sm font-medium text-white disabled:opacity-60"
+        className="w-full rounded-lg bg-[var(--color-brand-600)] px-4 py-3 text-sm font-medium text-white disabled:opacity-60"
       >
         {isPending ? t('working') : t('submit')}
       </button>

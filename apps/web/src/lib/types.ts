@@ -125,13 +125,29 @@ export interface Profile {
 }
 
 /** Return value of api.whoami(): identity, tenant and role in one round trip. */
+/** What a person wants to be told about. Three booleans, and nothing else. */
+export interface NotificationPreferences {
+  expiry: boolean;
+  deliveries: boolean;
+  requisitions: boolean;
+}
+
 export interface SessionInfo {
   userId: string;
   tenantId: string;
   role: AppRole;
   fullName: string;
   fullNameAr: string | null;
+  /** The account's phone number, which the settings page edits. */
+  phone: string | null;
   locale: 'en' | 'ar';
+  /**
+   * The notification preferences, which are per person and not per tenant.
+   *
+   * Two people on the same shift want different things told to them, so this
+   * cannot be a tenant setting.
+   */
+  notifications: NotificationPreferences;
   tenantSlug: string;
   currencyCode: CurrencyCode;
   vatRate: number;

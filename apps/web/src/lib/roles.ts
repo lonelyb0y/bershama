@@ -45,3 +45,21 @@ export const ROLES_BY_SURFACE: Record<Surface, AppRole[]> = {
   // not this one: what the driver surface can sign for is the whole point of it.
   driver: ['DRIVER'],
 };
+
+/**
+ * The surface a role belongs on.
+ *
+ * Used by screens that every role can reach -- the account settings, for one --
+ * where the shell has to be chosen from the session rather than declared by the
+ * route. TENANT_ADMIN appears on three surfaces; the first one wins, which is
+ * the admin console, and that is the right answer for an administrator.
+ */
+export function surfaceForRole(role: AppRole): Surface | null {
+  for (const [surface, roles] of Object.entries(ROLES_BY_SURFACE) as [
+    Surface,
+    AppRole[],
+  ][]) {
+    if (roles.includes(role)) return surface;
+  }
+  return null;
+}

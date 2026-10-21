@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Account Settings — BERSHAMA // برشامة</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Nunito+Sans:wght@400;600;700&amp;family=Outfit:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-primary-fixed-variant": "#00513a",
+            "on-tertiary-container": "#4b3000",
+            "surface": "#121411",
+            "secondary-fixed-dim": "#77d9b3",
+            "tertiary-fixed-dim": "#fcbb51",
+            "outline": "#87948c",
+            "on-error": "#690005",
+            "outline-variant": "#3e4943",
+            "surface-container-low": "#1a1c19",
+            "on-tertiary": "#442c00",
+            "on-secondary": "#003828",
+            "inverse-surface": "#e3e3dd",
+            "surface-tint": "#6fdaaf",
+            "inverse-primary": "#006c4e",
+            "on-primary-fixed": "#002115",
+            "on-tertiary-fixed-variant": "#614000",
+            "surface-container": "#1e201d",
+            "on-tertiary-fixed": "#281800",
+            "on-primary-container": "#003e2c",
+            "surface-variant": "#333532",
+            "on-background": "#e3e3dd",
+            "surface-dim": "#121411",
+            "on-secondary-fixed": "#002116",
+            "on-error-container": "#ffdad6",
+            "secondary": "#77d9b3",
+            "primary-container": "#43b189",
+            "surface-bright": "#383a36",
+            "tertiary": "#fcbb51",
+            "inverse-on-surface": "#2f312d",
+            "on-primary": "#003827",
+            "secondary-fixed": "#93f6cf",
+            "tertiary-fixed": "#ffddb0",
+            "on-surface": "#e3e3dd",
+            "primary-fixed": "#8cf7ca",
+            "primary": "#6fdaaf",
+            "on-secondary-container": "#cfffe8",
+            "on-surface-variant": "#bdcac1",
+            "secondary-container": "#037f5f",
+            "tertiary-container": "#cf932c",
+            "on-secondary-fixed-variant": "#00513c",
+            "error-container": "#93000a",
+            "surface-container-high": "#292b27",
+            "background": "#121411",
+            "primary-fixed-dim": "#6fdaaf",
+            "error": "#ffb4ab",
+            "surface-container-highest": "#333532",
+            "surface-container-lowest": "#0d0f0c"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "2xl": "1rem",
+            "3xl": "1.5rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-4xl": "4rem",
+            "space-sm": "0.5rem",
+            "margin-desktop": "2rem",
+            "gutter-mobile": "0.75rem",
+            "space-2xl": "2rem",
+            "space-5xl": "6rem",
+            "space-md": "0.75rem",
+            "margin-mobile": "0.75rem",
+            "space-lg": "1rem",
+            "space-xs": "0.25rem",
+            "space-3xl": "3rem",
+            "gutter": "1rem",
+            "space-xl": "1.5rem",
+            "gutter-desktop": "1.5rem",
+            "margin": "1rem"
+          },
+          "fontFamily": {
+            "body-sm": ["Nunito Sans"],
+            "headline-lg": ["Outfit"],
+            "headline-lg-mobile": ["Outfit"],
+            "body-lg": ["Nunito Sans"],
+            "body-md": ["Nunito Sans"],
+            "headline-xl": ["Outfit"],
+            "headline-xl-mobile": ["Outfit"],
+            "label-lg": ["JetBrains Mono"],
+            "headline-md": ["Outfit"],
+            "label-md": ["JetBrains Mono"],
+            "label-sm": ["JetBrains Mono"],
+            "cairo": ["Cairo", "sans-serif"]
+          },
+          "fontSize": {
+            "body-sm": ["0.75rem", { "lineHeight": "1rem", "fontWeight": "400" }],
+            "headline-lg": ["2rem", { "lineHeight": "2.5rem", "letterSpacing": "-0.015em", "fontWeight": "600" }],
+            "headline-lg-mobile": ["1.5rem", { "lineHeight": "2rem", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "body-lg": ["1rem", { "lineHeight": "1.5rem", "fontWeight": "400" }],
+            "body-md": ["0.875rem", { "lineHeight": "1.25rem", "fontWeight": "400" }],
+            "headline-xl": ["3rem", { "lineHeight": "3.5rem", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "label-lg": ["0.875rem", { "lineHeight": "1.25rem", "letterSpacing": "0.02em", "fontWeight": "500" }],
+            "headline-md": ["1.25rem", { "lineHeight": "1.75rem", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "label-md": ["0.75rem", { "lineHeight": "1rem", "letterSpacing": "0.04em", "fontWeight": "500" }],
+            "label-sm": ["0.6875rem", { "lineHeight": "0.875rem", "letterSpacing": "0.05em", "fontWeight": "500" }]
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-[#141613] text-[#F1EFE8] font-body-md text-body-md min-h-screen flex flex-col antialiased selection:bg-[#43B189] selection:text-[#141613]">
+<!-- TopNavBar (Shared Component Execution) -->
+<header class="bg-surface-container dark:bg-surface-container border-b border-outline-variant dark:border-outline-variant docked full-width top sticky top-0 z-50">
+<div class="flex justify-between items-center w-full px-space-xl py-space-sm h-[52px]">
+<!-- Brand & Facility Anchor -->
+<div class="flex items-center gap-space-lg">
+<span class="text-headline-md font-headline-md font-semibold tracking-tight text-primary dark:text-primary">
+          BERSHAMA // برسامة
+        </span>
+<div class="hidden lg:flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#232924] border border-[#666660]/40 text-label-sm font-label-sm text-[#A6A499]">
+<span class="w-1.5 h-1.5 rounded-full bg-[#43B189] animate-pulse"></span>
+<span>Node 04: Cairo Central [EDA Active]</span>
+</div>
+</div>
+<!-- Center Navigation Links -->
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-on-surface-variant hover:text-on-surface font-label-md text-label-md pb-1 transition-colors" href="#">Inventory</a>
+<a class="text-on-surface-variant hover:text-on-surface font-label-md text-label-md pb-1 transition-colors" href="#">Deliveries</a>
+<a class="text-on-surface-variant hover:text-on-surface font-label-md text-label-md pb-1 transition-colors" href="#">Requisitions</a>
+<a class="text-on-surface-variant hover:text-on-surface font-label-md text-label-md pb-1 transition-colors" href="#">Compliance</a>
+</nav>
+<!-- Trailing Profile & Actions -->
+<div class="flex items-center gap-space-md">
+<!-- Icons Cluster -->
+<button aria-label="Notifications" class="p-1.5 rounded-lg text-on-surface-variant hover:bg-surface-variant hover:text-on-surface transition-colors flex items-center justify-center" type="button">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</button>
+<button aria-label="Thermostat" class="p-1.5 rounded-lg text-on-surface-variant hover:bg-surface-variant hover:text-on-surface transition-colors flex items-center justify-center" type="button">
+<span class="material-symbols-outlined text-[20px]">thermostat</span>
+</button>
+<div class="h-4 w-px bg-outline-variant mx-1"></div>
+<!-- Supervisor Identity -->
+<div class="flex items-center gap-2 pl-1">
+<div class="text-right hidden sm:block">
+<div class="text-label-md font-label-md text-[#F1EFE8] leading-tight">Dr. Tarek Mansour</div>
+<div class="text-label-sm font-label-sm text-[#8C958A] leading-tight">Cold Chain Supervisor</div>
+</div>
+<button aria-label="Account Settings" class="text-primary hover:text-[#6FD1AC] transition-colors border border-[#43B189]/40 rounded-full p-0.5" type="button">
+<span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">account_circle</span>
+</button>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="flex-1 w-full">
+<div class="max-w-[840px] mx-auto py-12 px-6">
+<!-- Headline & Subheading -->
+<div class="mb-8">
+<h1 class="font-headline-lg text-headline-lg font-semibold tracking-tight text-[#F1EFE8]">
+          Account settings
+        </h1>
+<p class="font-body-lg text-body-lg text-[#A6A499] mt-2">
+          Your name, your language, and what this account is told about.
+        </p>
+</div>
+<!-- Stacked Panels (24px gap) -->
+<div class="flex flex-col gap-6">
+<!-- 1. LANGUAGE -->
+<section class="bg-[#1C1F1B] border border-[#666660]/30 rounded-3xl p-6">
+<h2 class="font-headline-md text-headline-md font-medium text-[#F1EFE8] mb-1">
+            LANGUAGE
+          </h2>
+<p class="font-body-md text-body-md text-[#A6A499] mb-5">
+            Choose the display language for operational ledgers, manifest records, and alerts.
+          </p>
+<div class="flex items-center gap-3">
+<button class="bg-[#43B189] text-[#141613] font-headline-md text-sm font-semibold rounded-xl px-6 py-2.5 transition active:scale-[0.98]" type="button">
+              English
+            </button>
+<button class="bg-[#232924] text-[#F1EFE8] border border-[#666660]/40 hover:border-[#43B189]/50 font-cairo text-base font-semibold rounded-xl px-6 py-2 transition active:scale-[0.98]" type="button">
+              العربية
+            </button>
+</div>
+</section>
+<!-- 2. APPEARANCE -->
+<section class="bg-[#1C1F1B] border border-[#666660]/30 rounded-3xl p-6">
+<h2 class="font-headline-md text-headline-md font-medium text-[#F1EFE8] mb-1">
+            APPEARANCE
+          </h2>
+<p class="font-body-md text-body-md text-[#A6A499] mb-5">
+            Shift-optimized illumination mode. Dark mode minimizes glare during nocturnal cold-chain monitoring.
+          </p>
+<div class="bg-[#232924] border border-[#666660]/40 rounded-2xl p-4 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#6FD1AC] text-[20px]">dark_mode</span>
+<div>
+<div class="font-headline-md text-sm font-medium text-[#F1EFE8]">Dark console (Shift active)</div>
+<div class="font-label-sm text-label-sm text-[#A6A499]">Nocturnal low-fatigue profile active across all warehouse monitors</div>
+</div>
+</div>
+<!-- Controlled toggle switch -->
+<button aria-checked="true" class="w-12 h-6 bg-[#43B189] rounded-full p-0.5 flex items-center justify-end transition cursor-default" role="switch" type="button">
+<span class="w-5 h-5 bg-[#141613] rounded-full block"></span>
+</button>
+</div>
+</section>
+<!-- 3. PROFILE -->
+<section class="bg-[#1C1F1B] border border-[#666660]/30 rounded-3xl p-6">
+<h2 class="font-headline-md text-headline-md font-medium text-[#F1EFE8] mb-1">
+            PROFILE
+          </h2>
+<p class="font-body-md text-body-md text-[#A6A499] mb-6">
+            Operator credentials recorded on electronic signatures and dispatch manifests under EDA decree.
+          </p>
+<form class="space-y-4" onsubmit="event.preventDefault();">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Full name -->
+<div class="bg-[#232924] border border-[#666660]/40 rounded-2xl px-4 py-2 min-h-[56px] focus-within:border-[#43B189] transition">
+<label class="text-[11px] font-label-sm font-mono uppercase tracking-wider text-[#A6A499] block mb-0.5" for="fullName">
+                  Full name
+                </label>
+<input class="w-full bg-transparent p-0 text-[#F1EFE8] font-headline-md text-sm font-medium border-0 focus:ring-0 focus:outline-none" id="fullName" type="text" value="Dr. Tarek Mansour"/>
+</div>
+<!-- Arabic Name -->
+<div class="bg-[#232924] border border-[#666660]/40 rounded-2xl px-4 py-2 min-h-[56px] focus-within:border-[#43B189] transition" dir="rtl">
+<label class="text-[11px] font-cairo uppercase tracking-wider text-[#A6A499] block mb-0.5 text-right" for="arabicName">
+                  الاسم بالعربية
+                </label>
+<input class="w-full bg-transparent p-0 text-[#F1EFE8] font-cairo text-sm font-semibold border-0 focus:ring-0 focus:outline-none text-right" id="arabicName" type="text" value="د. طارق منصور"/>
+</div>
+</div>
+<!-- Phone number -->
+<div class="bg-[#232924] border border-[#666660]/40 rounded-2xl px-4 py-2 min-h-[56px] focus-within:border-[#43B189] transition">
+<label class="text-[11px] font-label-sm font-mono uppercase tracking-wider text-[#A6A499] block mb-0.5" for="phoneNumber">
+                Phone number
+              </label>
+<input class="w-full bg-transparent p-0 text-[#F1EFE8] font-label-md text-sm font-medium border-0 focus:ring-0 focus:outline-none" id="phoneNumber" type="text" value="+20 10 9411 0292"/>
+</div>
+<!-- Actions and Saved State -->
+<div class="pt-2 flex items-center gap-4">
+<button class="bg-[#43B189] hover:bg-[#6FD1AC] text-[#141613] font-headline-md text-sm font-semibold rounded-[10px] px-5 py-2.5 transition active:scale-[0.98]" type="submit">
+                Save changes
+              </button>
+<div class="flex items-center gap-1.5 text-label-sm font-label-sm text-[#8C958A]">
+<span class="material-symbols-outlined text-[16px] text-[#43B189]">check</span>
+<span>Saved</span>
+</div>
+</div>
+</form>
+</section>
+<!-- 4. NOTIFICATIONS -->
+<section class="bg-[#1C1F1B] border border-[#666660]/30 rounded-3xl p-6">
+<h2 class="font-headline-md text-headline-md font-medium text-[#F1EFE8] mb-4">
+            NOTIFICATIONS
+          </h2>
+<div class="divide-y divide-[#666660]/20">
+<!-- Row 1 -->
+<div class="py-4 first:pt-0 last:pb-0 flex items-center justify-between gap-4">
+<div>
+<div class="font-headline-md text-sm font-medium text-[#F1EFE8]">Expiry warnings</div>
+<div class="font-body-md text-body-md text-[#A6A499]">When a batch enters its expiry window.</div>
+</div>
+<button aria-checked="true" class="w-11 h-6 bg-[#43B189] rounded-full p-0.5 flex items-center justify-end transition cursor-pointer shrink-0" role="switch" type="button">
+<span class="w-5 h-5 bg-[#141613] rounded-full block"></span>
+</button>
+</div>
+<!-- Row 2 -->
+<div class="py-4 first:pt-0 last:pb-0 flex items-center justify-between gap-4">
+<div>
+<div class="font-headline-md text-sm font-medium text-[#F1EFE8]">Delivery updates</div>
+<div class="font-body-md text-body-md text-[#A6A499]">When a run is dispatched, arrives, or is signed for.</div>
+</div>
+<button aria-checked="true" class="w-11 h-6 bg-[#43B189] rounded-full p-0.5 flex items-center justify-end transition cursor-pointer shrink-0" role="switch" type="button">
+<span class="w-5 h-5 bg-[#141613] rounded-full block"></span>
+</button>
+</div>
+<!-- Row 3 -->
+<div class="py-4 first:pt-0 last:pb-0 flex items-center justify-between gap-4">
+<div>
+<div class="font-headline-md text-sm font-medium text-[#F1EFE8]">Requisition decisions</div>
+<div class="font-body-md text-body-md text-[#A6A499]">When an order is allocated, filled, or refused.</div>
+</div>
+<button aria-checked="true" class="w-11 h-6 bg-[#43B189] rounded-full p-0.5 flex items-center justify-end transition cursor-pointer shrink-0" role="switch" type="button">
+<span class="w-5 h-5 bg-[#141613] rounded-full block"></span>
+</button>
+</div>
+</div>
+</section>
+<!-- 5. SECURITY -->
+<section class="bg-[#1C1F1B] border border-[#666660]/30 rounded-3xl p-6">
+<h2 class="font-headline-md text-headline-md font-medium text-[#F1EFE8] mb-1">
+            SECURITY
+          </h2>
+<p class="font-body-md text-body-md text-[#A6A499] mb-5">
+            Active session on Cairo Central Node 04 (Telemetry ID <span class="font-label-sm text-[#F1EFE8]">#EDA-9941-K</span>). Terminate remote sessions across secondary depot handhelds.
+          </p>
+<div>
+<button class="border border-[#666660] text-[#F1EFE8] hover:bg-[#232924] hover:border-[#A6A499] rounded-[10px] px-4 py-2 text-sm font-headline-md font-medium transition active:scale-[0.98]" type="button">
+              Sign out other devices
+            </button>
+</div>
+</section>
+</div>
+</div>
+</main>
+<!-- Footer (Shared Component Execution) -->
+<footer class="bg-surface-container-lowest dark:bg-surface-container-lowest border-t border-outline-variant dark:border-outline-variant docked full-width bottom mt-auto">
+<div class="w-full px-space-xl py-space-md flex flex-col md:flex-row justify-between items-center gap-space-sm text-body-sm font-body-sm text-[#A6A499]">
+<!-- Regulatory Text -->
+<div class="text-center md:text-left text-xs max-w-2xl leading-relaxed">
+        © 2024 Bershama Pharma Distribution Hubs. Compliant with Egyptian Drug Authority (EDA) Decree 499 &amp; WHO Good Distribution Practices (GDP) Annex 5. Node 04 Cairo Central Facility.
+      </div>
+<!-- Compliance Links -->
+<nav class="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-label-sm font-label-sm">
+<a class="text-on-surface-variant hover:text-on-surface transition-colors" href="#">WHO GDP Annex 5 Protocol</a>
+<span class="text-outline-variant">•</span>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors" href="#">EDA Compliance Ledger</a>
+<span class="text-outline-variant">•</span>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors" href="#">Cold-Chain Audit Logs</a>
+<span class="text-outline-variant">•</span>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors" href="#">System Telemetry</a>
+</nav>
+</div>
+</footer>
+</body></html>

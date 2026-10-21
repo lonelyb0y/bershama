@@ -89,14 +89,14 @@ export function NewVehicleForm({
       <summary className="cursor-pointer px-4 py-3 text-sm font-medium select-none">{labels.title}</summary>
       <form action={formAction} className="space-y-3 border-t p-4">
         <Feedback state={state} messages={messages} summaryRef={summaryRef} success={labels.added} />
-        <label className="block text-sm font-medium">
-          {labels.code}
+        <label className="pf-field block">
+          <span className="pf-field__label">{labels.code}</span>
           <input
             name="code"
             required
             list="vehicle-codes"
             placeholder="VAN-1"
-            className="mt-1 w-full rounded-lg border bg-transparent px-3 py-2"
+            className="w-full rounded-2xl border bg-transparent px-3"
           />
           <datalist id="vehicle-codes">
             {already.map((c) => (
@@ -104,13 +104,13 @@ export function NewVehicleForm({
             ))}
           </datalist>
         </label>
-        <label className="block text-sm font-medium">
-          {labels.description}
-          <input name="description" className="mt-1 w-full rounded-lg border bg-transparent px-3 py-2" />
+        <label className="pf-field block">
+          <span className="pf-field__label">{labels.description}</span>
+          <input placeholder=" " name="description" className="w-full rounded-2xl border bg-transparent px-3" />
         </label>
-        <label className="block text-sm font-medium">
-          {labels.plate}
-          <input name="plate_number" className="mt-1 w-full rounded-lg border bg-transparent px-3 py-2" />
+        <label className="pf-field block">
+          <span className="pf-field__label">{labels.plate}</span>
+          <input placeholder=" " name="plate_number" className="w-full rounded-2xl border bg-transparent px-3" />
         </label>
         <button
           type="submit"
@@ -141,21 +141,21 @@ export function NewRunForm({
       <summary className="cursor-pointer px-4 py-3 text-sm font-medium select-none">{labels.title}</summary>
       <form action={formAction} className="space-y-3 border-t p-4">
         <Feedback state={state} messages={messages} summaryRef={summaryRef} success={labels.created} />
-        <label className="block text-sm font-medium">
-          {labels.date}
-          <input
+        <label className="pf-field block">
+          <span className="pf-field__label">{labels.date}</span>
+          <input placeholder=" "
             type="date"
             name="run_date"
             required
             // Defaulted to today because planning is usually for today, and a date
             // field with an empty value is a date nobody planned.
             defaultValue={new Date().toISOString().slice(0, 10)}
-            className="mt-1 w-full rounded-lg border bg-transparent px-3 py-2"
+            className="w-full rounded-2xl border bg-transparent px-3"
           />
         </label>
         <label className="block text-sm font-medium">
           {labels.vehicle}
-          <select name="vehicle_id" defaultValue="" className="mt-1 w-full rounded-lg border bg-transparent px-3 py-2">
+          <select name="vehicle_id" defaultValue="" className="w-full rounded-2xl border bg-transparent px-3">
             {/* No vehicle is allowed: the van is not always known on the night before.
                 Dispatch is where it becomes required, which is the point at which the
                 answer matters. */}
@@ -167,9 +167,9 @@ export function NewRunForm({
             ))}
           </select>
         </label>
-        <label className="block text-sm font-medium">
-          {labels.notes}
-          <input name="notes" className="mt-1 w-full rounded-lg border bg-transparent px-3 py-2" />
+        <label className="pf-field block">
+          <span className="pf-field__label">{labels.notes}</span>
+          <input placeholder=" " name="notes" className="w-full rounded-2xl border bg-transparent px-3" />
         </label>
         <button
           type="submit"
@@ -214,7 +214,7 @@ export function AddStopForm({
 
   return (
     <form action={formAction} className="space-y-3">
-      <input type="hidden" name="trip_id" value={tripId} />
+      <input placeholder=" " type="hidden" name="trip_id" value={tripId} />
       <Feedback state={state} messages={messages} summaryRef={summaryRef} success={labels.added} />
 
       {!canPlan && <p className="text-xs text-current/60">{labels.notPlanned}</p>}
@@ -225,7 +225,7 @@ export function AddStopForm({
           name="facility_id"
           required
           defaultValue=""
-          className="mt-1 w-full rounded-lg border bg-transparent px-3 py-2"
+          className="w-full rounded-2xl border bg-transparent px-3"
         >
           <option value="" disabled>
             —
@@ -240,7 +240,7 @@ export function AddStopForm({
 
       <label className="block text-sm font-medium">
         {labels.requisition}
-        <select name="requisition_id" defaultValue="" className="mt-1 w-full rounded-lg border bg-transparent px-3 py-2">
+        <select name="requisition_id" defaultValue="" className="w-full rounded-2xl border bg-transparent px-3">
           {/* A stop with no requisition is a real thing -- a scheduled call, or a
               run planned before stock is approved -- so this is optional on purpose. */}
           <option value="">{labels.noRequisition}</option>
@@ -283,12 +283,12 @@ export function DispatchForm({
 
   return (
     <form action={formAction} className="space-y-3">
-      <input type="hidden" name="trip_id" value={tripId} />
+      <input placeholder=" " type="hidden" name="trip_id" value={tripId} />
       <Feedback state={state} messages={messages} summaryRef={summaryRef} success={labels.dispatched} />
 
       <label className="block text-sm font-medium">
         {labels.driver}
-        <select name="driver_id" required defaultValue="" className="mt-1 w-full rounded-lg border bg-transparent px-3 py-2">
+        <select name="driver_id" required defaultValue="" className="w-full rounded-2xl border bg-transparent px-3">
           <option value="" disabled>
             —
           </option>

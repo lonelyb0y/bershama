@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Bershama — Create an Organisation</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&amp;family=Nunito+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&amp;family=Outfit:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS with Forms and Container Queries -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-error": "#690005",
+            "outline": "#87948c",
+            "tertiary-fixed-dim": "#ffb3ae",
+            "surface-container": "#202018",
+            "tertiary-fixed": "#ffdad7",
+            "secondary-fixed": "#93f6cf",
+            "outline-variant": "#3e4943",
+            "on-primary-fixed": "#002115",
+            "on-secondary": "#003828",
+            "primary": "#6fdaaf",
+            "primary-fixed": "#8cf7ca",
+            "on-primary-container": "#003e2c",
+            "surface-dim": "#14140d",
+            "background": "#14140d",
+            "on-primary": "#003827",
+            "inverse-surface": "#e5e3d6",
+            "on-tertiary-container": "#661a1b",
+            "tertiary": "#ffb3ae",
+            "primary-fixed-dim": "#6fdaaf",
+            "error-container": "#93000a",
+            "secondary-fixed-dim": "#77d9b3",
+            "on-secondary-container": "#cfffe8",
+            "on-primary-fixed-variant": "#00513a",
+            "surface-bright": "#3a3a31",
+            "on-secondary-fixed-variant": "#00513c",
+            "surface-container-high": "#2b2a22",
+            "on-secondary-fixed": "#002116",
+            "on-tertiary-fixed-variant": "#7c2b2a",
+            "surface-container-lowest": "#0e0f08",
+            "inverse-on-surface": "#313129",
+            "surface": "#14140d",
+            "surface-tint": "#6fdaaf",
+            "secondary": "#77d9b3",
+            "on-tertiary-fixed": "#410005",
+            "on-surface": "#e5e3d6",
+            "surface-container-highest": "#36352d",
+            "on-tertiary": "#5e1516",
+            "primary-container": "#43b189",
+            "surface-variant": "#36352d",
+            "on-surface-variant": "#bdcac1",
+            "on-background": "#e5e3d6",
+            "surface-container-low": "#1c1c15",
+            "tertiary-container": "#ea807b",
+            "secondary-container": "#037f5f",
+            "error": "#ffb4ab",
+            "inverse-primary": "#006c4e",
+            "on-error-container": "#ffdad6"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "2xl": "1rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-lg": "1rem",
+            "gutter": "1rem",
+            "space-xl": "1.5rem",
+            "margin-mobile": "1rem",
+            "space-sm": "0.5rem",
+            "space-md": "0.75rem",
+            "space-2xl": "2rem",
+            "gutter-compact": "0.5rem",
+            "margin": "1.5rem",
+            "space-xs": "0.25rem"
+          },
+          "fontFamily": {
+            "display": ["Outfit", "sans-serif"],
+            "data-mono-md": ["JetBrains Mono", "monospace"],
+            "headline-lg": ["Outfit", "sans-serif"],
+            "body-sm": ["Nunito Sans", "sans-serif"],
+            "data-mono-sm": ["JetBrains Mono", "monospace"],
+            "body-md": ["Nunito Sans", "sans-serif"],
+            "body-lg": ["Nunito Sans", "sans-serif"],
+            "data-mono-lg": ["JetBrains Mono", "monospace"],
+            "label-float": ["Nunito Sans", "sans-serif"],
+            "headline-md": ["Outfit", "sans-serif"]
+          },
+          "fontSize": {
+            "display": [
+              "2.25rem",
+              {
+                "lineHeight": "2.75rem",
+                "letterSpacing": "-0.02em",
+                "fontWeight": "600"
+              }
+            ],
+            "data-mono-md": [
+              "0.75rem",
+              {
+                "lineHeight": "1rem",
+                "letterSpacing": "-0.01em",
+                "fontWeight": "500"
+              }
+            ],
+            "headline-lg": [
+              "1.75rem",
+              {
+                "lineHeight": "2.25rem",
+                "letterSpacing": "-0.02em",
+                "fontWeight": "600"
+              }
+            ],
+            "body-sm": [
+              "0.75rem",
+              {
+                "lineHeight": "1.125rem",
+                "fontWeight": "400"
+              }
+            ],
+            "data-mono-sm": [
+              "0.6875rem",
+              {
+                "lineHeight": "0.875rem",
+                "letterSpacing": "0em",
+                "fontWeight": "400"
+              }
+            ],
+            "body-md": [
+              "0.875rem",
+              {
+                "lineHeight": "1.375rem",
+                "fontWeight": "400"
+              }
+            ],
+            "body-lg": [
+              "1rem",
+              {
+                "lineHeight": "1.5rem",
+                "fontWeight": "400"
+              }
+            ],
+            "data-mono-lg": [
+              "0.875rem",
+              {
+                "lineHeight": "1.25rem",
+                "letterSpacing": "-0.01em",
+                "fontWeight": "500"
+              }
+            ],
+            "label-float": [
+              "0.6875rem",
+              {
+                "lineHeight": "0.875rem",
+                "letterSpacing": "0.02em",
+                "fontWeight": "600"
+              }
+            ],
+            "headline-md": [
+              "1.25rem",
+              {
+                "lineHeight": "1.75rem",
+                "letterSpacing": "-0.015em",
+                "fontWeight": "600"
+              }
+            ]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    /* Technical baseline overrides */
+    body {
+      background-color: #141613;
+      color: #e5e3d6;
+      font-family: 'Nunito Sans', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+      font-size: 16px;
+      line-height: 1;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover, 
+    input:-webkit-autofill:focus {
+      -webkit-text-fill-color: #F1EFE8;
+      -webkit-box-shadow: 0 0 0px 1000px #232924 inset;
+      transition: background-color 5000s ease-in-out 0s;
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface flex flex-col min-h-[1024px] antialiased selection:bg-primary-container selection:text-on-primary">
+<!-- TopNavBar (Shared Component JSON anchor) -->
+<header class="flex justify-between items-center w-full px-space-xl py-space-sm bg-surface-container-low dark:bg-surface-container-low border-b border-outline-variant/40 shrink-0">
+<div class="flex items-center gap-space-xl">
+<div class="flex items-center gap-space-sm">
+<span class="inline-block w-2.5 h-2.5 rounded-full bg-primary-container"></span>
+<span class="text-headline-md font-headline-md font-bold text-on-surface dark:text-on-surface tracking-tight">Bershama</span>
+</div>
+<div class="hidden lg:flex items-center gap-space-lg text-data-mono-sm font-data-mono-sm">
+<span class="text-on-surface-variant dark:text-on-surface-variant flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+          EDA Licensure: Verified #48201
+        </span>
+<span class="text-outline-variant">/</span>
+<span class="text-on-surface-variant dark:text-on-surface-variant">Hub: Cairo Central</span>
+<span class="text-outline-variant">/</span>
+<span class="text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary cursor-pointer transition-colors duration-150">EN / العربية</span>
+</div>
+</div>
+<div class="flex items-center gap-space-md">
+<button class="text-body-sm font-body-sm px-space-md py-1.5 rounded-xl border border-outline-variant/50 text-on-surface hover:text-primary dark:hover:text-primary hover:border-primary/40 transition-colors duration-150 flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[15px]">terminal</span>
+        Support Terminal
+      </button>
+<a class="text-body-sm font-body-sm font-semibold px-space-md py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-primary border border-primary/30 transition-all duration-150" href="#signin">
+        Operator Sign In
+      </a>
+</div>
+</header>
+<!-- Main Canvas: Split Layout (Max 1400px) -->
+<main class="flex-1 w-full max-w-[1400px] mx-auto px-space-xl py-space-xl flex items-center justify-center">
+<div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-start">
+<!-- LEFT SIDE: Registration Form Panel (7 Columns) -->
+<section class="lg:col-span-7 flex flex-col justify-center max-w-xl">
+<!-- Overline / Context Indicator -->
+<div class="flex items-center gap-2 mb-2.5">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container shrink-0"></span>
+<span class="text-data-mono-sm font-data-mono-sm text-on-surface-variant uppercase tracking-wider">
+            PHARMACEUTICAL DISTRIBUTION · EGYPT
+          </span>
+</div>
+<!-- Headline & Subhead -->
+<h1 class="text-display font-display text-on-surface font-semibold tracking-tight mb-2">
+          Create an organisation
+        </h1>
+<p class="text-body-md font-body-md text-on-surface-variant mb-6 leading-relaxed">
+          Distributors and licensed pharmacies, one ledger, and a batch you can trace.
+        </p>
+<!-- Form Card Container -->
+<div class="bg-surface-container-low rounded-2xl border border-outline-variant/40 p-6">
+<form class="space-y-3.5" onsubmit="event.preventDefault();">
+<!-- Field 1: Organisation name (In-Field Floating Label) -->
+<div class="relative bg-surface-container rounded-2xl border border-outline-variant/50 focus-within:border-primary-container transition-colors duration-150 min-h-[52px] px-3.5 pt-1.5 pb-1">
+<label class="block text-label-float font-label-float text-on-surface-variant uppercase tracking-wider select-none" for="org_name">
+                Organisation name
+              </label>
+<input class="w-full bg-transparent border-0 p-0 text-body-md font-body-md text-on-surface placeholder:text-outline/60 focus:ring-0 focus:outline-none leading-tight" id="org_name" name="org_name" placeholder="e.g. Nile Pharma Wholesale S.A.E." required="" type="text"/>
+</div>
+<!-- Field 2: Full name -->
+<div class="relative bg-surface-container rounded-2xl border border-outline-variant/50 focus-within:border-primary-container transition-colors duration-150 min-h-[52px] px-3.5 pt-1.5 pb-1">
+<label class="block text-label-float font-label-float text-on-surface-variant uppercase tracking-wider select-none" for="full_name">
+                Full name
+              </label>
+<input class="w-full bg-transparent border-0 p-0 text-body-md font-body-md text-on-surface placeholder:text-outline/60 focus:ring-0 focus:outline-none leading-tight" id="full_name" name="full_name" placeholder="Dr. Tarek Mansour" required="" type="text"/>
+</div>
+<!-- Field 3: Email address -->
+<div class="relative bg-surface-container rounded-2xl border border-outline-variant/50 focus-within:border-primary-container transition-colors duration-150 min-h-[52px] px-3.5 pt-1.5 pb-1">
+<label class="block text-label-float font-label-float text-on-surface-variant uppercase tracking-wider select-none" for="work_email">
+                Email address
+              </label>
+<input class="w-full bg-transparent border-0 p-0 text-body-md font-body-md text-on-surface placeholder:text-outline/60 focus:ring-0 focus:outline-none leading-tight" id="work_email" name="work_email" placeholder="t.mansour@nilepharma.eg" required="" type="email"/>
+</div>
+<!-- Field 4: Password with Show/Hide toggle -->
+<div class="relative bg-surface-container rounded-2xl border border-outline-variant/50 focus-within:border-primary-container transition-colors duration-150 min-h-[52px] px-3.5 pt-1.5 pb-1 flex items-center justify-between">
+<div class="w-full">
+<label class="block text-label-float font-label-float text-on-surface-variant uppercase tracking-wider select-none" for="account_pass">
+                  Password
+                </label>
+<input class="w-full bg-transparent border-0 p-0 text-body-md font-body-md text-on-surface placeholder:text-outline/60 focus:ring-0 focus:outline-none leading-tight" id="account_pass" name="account_pass" placeholder="••••••••••••" required="" type="password"/>
+</div>
+<button aria-label="Toggle password visibility" class="text-data-mono-sm font-data-mono-sm text-on-surface-variant hover:text-primary transition-colors duration-150 px-2 py-1 select-none shrink-0" id="togglePassBtn" type="button">
+                Show
+              </button>
+</div>
+<!-- Primary Action Button -->
+<button class="w-full h-[44px] mt-2 bg-primary-container hover:bg-primary text-on-primary-fixed font-headline-md font-bold rounded-xl transition-all duration-150 active:translate-y-px flex items-center justify-center gap-2 cursor-pointer shadow-none" type="submit">
+<span>Create organisation</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</form>
+<!-- Hairline Divider -->
+<div class="border-t border-outline-variant/30 my-4"></div>
+<!-- Existing user link -->
+<div class="flex items-center justify-between text-body-sm font-body-sm">
+<span class="text-on-surface-variant">
+              Already registered? 
+              <a class="text-primary font-medium hover:underline cursor-pointer ml-1" href="#signin">
+                Sign in instead
+              </a>
+</span>
+<span class="text-data-mono-sm font-data-mono-sm text-outline">SEC-4 GDP</span>
+</div>
+<!-- Regulatory notice -->
+<p class="mt-4 text-data-mono-sm font-data-mono-sm text-on-surface-variant/80 leading-relaxed border-l-2 border-outline-variant/60 pl-2.5">
+            Accounts are provisioned for licensed pharmaceutical distributors, hospital networks, and community pharmacies under EDA oversight, rather than individual consumers.
+          </p>
+</div>
+</section>
+<!-- RIGHT SIDE: Live Telemetry Instrument Workspace (5 Columns) -->
+<section class="lg:col-span-5 flex flex-col justify-center w-full">
+<div class="bg-surface-container-low rounded-2xl border border-outline-variant/40 p-6 flex flex-col justify-between">
+<!-- Workspace Header -->
+<div class="flex items-center justify-between pb-3 border-b border-outline-variant/30">
+<div class="flex items-center gap-2">
+<span class="inline-block w-2 h-2 rounded-full bg-primary-container"></span>
+<span class="text-data-mono-sm font-data-mono-sm text-on-surface-variant tracking-wider uppercase">
+                LIVE INVENTORY TELEMETRY
+              </span>
+</div>
+<span class="text-data-mono-sm font-data-mono-sm text-on-surface-variant font-medium">
+              HUB: CAI-01
+            </span>
+</div>
+<!-- Live Cold-Chain Environmental Metric Bar -->
+<div class="grid grid-cols-3 gap-2 my-4 py-2 px-3 bg-surface-container rounded-xl border border-outline-variant/30">
+<div>
+<span class="block text-data-mono-sm font-data-mono-sm text-outline">TEMP ZONE</span>
+<span class="text-data-mono-md font-data-mono-md text-on-surface font-semibold">2.4°C / 4.1°C</span>
+</div>
+<div>
+<span class="block text-data-mono-sm font-data-mono-sm text-outline">HUMIDITY</span>
+<span class="text-data-mono-md font-data-mono-md text-on-surface font-semibold">41.8% RH</span>
+</div>
+<div class="text-right">
+<span class="block text-data-mono-sm font-data-mono-sm text-outline">EDA SYNC</span>
+<span class="text-data-mono-md font-data-mono-md text-primary font-semibold">12ms ACK</span>
+</div>
+</div>
+<!-- Dense Monospace Operational Telemetry Table (Fixed 36px optical height rows) -->
+<div class="overflow-x-auto w-full">
+<table class="w-full border-collapse text-left">
+<thead>
+<tr class="h-[28px] border-b border-outline-variant/30 text-data-mono-sm font-data-mono-sm text-outline">
+<th class="font-normal py-0 pl-1 pr-2">LOT REF</th>
+<th class="font-normal py-0 px-2">PRODUCT SPEC</th>
+<th class="font-normal py-0 px-2 text-right">UNITS</th>
+<th class="font-normal py-0 pl-2 pr-1 text-right">STATUS</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/20 text-data-mono-md font-data-mono-md">
+<!-- Row 1: Expired/Critical -->
+<tr class="h-[36px] bg-surface-container-low hover:bg-surface-container transition-colors duration-100">
+<td class="pl-1 pr-2 text-on-surface font-medium whitespace-nowrap">LOT-EG-8821</td>
+<td class="px-2 text-on-surface-variant truncate max-w-[150px]">Insulin Glargine 100 U/mL</td>
+<td class="px-2 text-right text-on-surface font-medium">140 pk</td>
+<td class="pl-2 pr-1 text-right whitespace-nowrap">
+<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] font-data-mono-sm uppercase bg-[#e86a55]/15 text-[#e86a55] border border-[#e86a55]/35">
+<span>▲</span> Expired
+                    </span>
+</td>
+</tr>
+<!-- Row 2: Expiring soon warning -->
+<tr class="h-[36px] bg-surface-container-lowest/60 hover:bg-surface-container transition-colors duration-100">
+<td class="pl-1 pr-2 text-on-surface font-medium whitespace-nowrap">LOT-EG-9042</td>
+<td class="px-2 text-on-surface-variant truncate max-w-[150px]">Ceftriaxone 1g Vial</td>
+<td class="px-2 text-right text-on-surface font-medium">650 pk</td>
+<td class="pl-2 pr-1 text-right whitespace-nowrap">
+<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] font-data-mono-sm uppercase bg-[#e2a43c]/15 text-[#e2a43c] border border-[#e2a43c]/35">
+<span>●</span> 8 days
+                    </span>
+</td>
+</tr>
+<!-- Row 3: In-date strictly neutral badge -->
+<tr class="h-[36px] bg-surface-container-low hover:bg-surface-container transition-colors duration-100">
+<td class="pl-1 pr-2 text-on-surface font-medium whitespace-nowrap">LOT-EG-9118</td>
+<td class="px-2 text-on-surface-variant truncate max-w-[150px]">Atorvastatin 20mg</td>
+<td class="px-2 text-right text-on-surface font-medium">1,200 pk</td>
+<td class="pl-2 pr-1 text-right whitespace-nowrap">
+<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] font-data-mono-sm uppercase bg-[#8c958a]/15 text-[#8c958a] border border-[#8c958a]/30">
+<span>◆</span> In Date
+                    </span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Active Lot Scan Stream Bar -->
+<div class="mt-4 pt-3 border-t border-outline-variant/30 flex items-center justify-between text-data-mono-sm font-data-mono-sm">
+<div class="text-on-surface font-medium tracking-tight">
+              LOT-2026-A0412 · 100 IU/mL · 240 units
+            </div>
+<div class="flex items-center gap-1 text-primary">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+<span class="font-semibold tracking-wider text-[10px]">LIVE LOG</span>
+</div>
+</div>
+<!-- Bottom Telemetry Metadata Strip -->
+<div class="mt-4 pt-2 flex items-center justify-between text-[11px] font-data-mono-sm text-outline border-t border-outline-variant/20">
+<span>GATEWAY: CAI-CENTRAL-04</span>
+<span>PROTOCOL: WHO-GDP-SEC-4</span>
+</div>
+</div>
+<!-- Rugged Node Telemetry Card -->
+<div class="mt-3 px-4 py-2.5 bg-surface-container-lowest/80 rounded-xl border border-outline-variant/30 flex items-center justify-between text-data-mono-sm font-data-mono-sm">
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[15px] text-primary">verified_user</span>
+<span>Cairo Central Cold Vault #3</span>
+</div>
+<span class="text-outline">LATENCY: 18ms</span>
+</div>
+</section>
+</div>
+</main>
+<!-- Footer (Shared Component JSON anchor) -->
+<footer class="w-full px-space-xl py-space-md flex flex-col md:flex-row justify-between items-center border-t border-outline-variant/40 bg-surface-container-lowest text-on-surface-variant shrink-0 text-data-mono-sm font-data-mono-sm gap-2">
+<div>
+      © 2025 Bershama Pharmaceutical Logistics Hub Egypt. Regulated under EDA License 48201/2023. Compliant with WHO Good Distribution Practices (GDP) TRS 957.
+    </div>
+<div class="flex flex-wrap items-center gap-space-lg text-body-sm font-body-sm">
+<a class="hover:text-primary-fixed-dim dark:hover:text-primary-fixed-dim hover:underline transition-all duration-150" href="#registry">
+        EDA Verification Registry
+      </a>
+<a class="hover:text-primary-fixed-dim dark:hover:text-primary-fixed-dim hover:underline transition-all duration-150" href="#audit">
+        WHO-GDP Protocol Audit
+      </a>
+<span class="text-primary dark:text-primary font-medium flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+        Cairo Hub Live Telemetry: Online (30.0444° N, 31.2357° E)
+      </span>
+<a class="hover:text-primary-fixed-dim dark:hover:text-primary-fixed-dim hover:underline transition-all duration-150" href="#sla">
+        Cold Chain SLA
+      </a>
+<span class="text-on-surface-variant font-medium">
+        System Status: Optimal
+      </span>
+</div>
+</footer>
+<!-- Vanilla Interaction Logic -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Toggle password mask
+      const passInput = document.getElementById('account_pass');
+      const toggleBtn = document.getElementById('togglePassBtn');
+
+      if (toggleBtn && passInput) {
+        toggleBtn.addEventListener('click', () => {
+          const isPassword = passInput.getAttribute('type') === 'password';
+          passInput.setAttribute('type', isPassword ? 'text' : 'password');
+          toggleBtn.textContent = isPassword ? 'Hide' : 'Show';
+        });
+      }
+    });
+  </script>
+</body></html>

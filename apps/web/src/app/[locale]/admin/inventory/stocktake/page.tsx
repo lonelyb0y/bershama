@@ -114,7 +114,7 @@ export default async function StocktakePage({
               key={l.id}
               href={`/${locale}/admin/inventory/stocktake?location=${l.id}`}
               aria-current={active ? 'page' : undefined}
-              className={`rounded-lg border px-3 py-1.5 text-sm ${
+              className={`rounded-lg border px-3 py-2 text-sm ${
                 active
                   ? 'border-[var(--color-brand-600)] bg-[var(--color-brand-600)]/10 font-medium'
                   : 'hover:bg-[color:var(--surface-raised)]'

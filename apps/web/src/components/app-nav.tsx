@@ -215,7 +215,7 @@ export function AppNav({
               key={item}
               aria-disabled="true"
               title="Planned for a later milestone"
-              className="cursor-not-allowed rounded-md px-2.5 py-1.5 text-sm whitespace-nowrap text-[color:var(--text-muted)] opacity-50"
+              className="cursor-not-allowed rounded-md px-3 py-2 text-sm whitespace-nowrap text-[color:var(--text-muted)] opacity-50"
             >
               {t(item)}
             </span>
@@ -240,7 +240,7 @@ export function AppNav({
             // is worth prefetching; a warehouse supervisor's is not.
             prefetch={false}
             aria-current={isActive ? 'page' : undefined}
-            className={`whitespace-nowrap rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors ${
+            className={`whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium transition-colors ${
               isActive
                 ? 'bg-[var(--color-brand-600)] text-white'
                 : 'hover:bg-[color:var(--text-muted)]/10'

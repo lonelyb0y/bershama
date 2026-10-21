@@ -543,7 +543,12 @@ export default async function AdminDashboard({
                      padding above and below it, so the screen's largest element was
                      a sentence in the middle of nothing. It now sits directly under
                      the figure, where the eye is already looking. */
-                  <p className="mt-3 max-w-sm text-sm opacity-80">{t('nothingDeliveredYet')}</p>
+                  <p
+                    data-testid="margin-chart-empty"
+                    className="mt-3 max-w-sm text-sm opacity-80"
+                  >
+                    {t('nothingDeliveredYet')}
+                  </p>
                 ) : (
                   <BarTrendChart points={marginSeries} ariaLabel={t('deliveredMargin')} />
                 )}
@@ -593,7 +598,12 @@ export default async function AdminDashboard({
               <GlassPanel className="p-5" as="section">
                 <h2 className="pf-section-title">{t('rankedByRealised')}</h2>
                 {rankedByRealised.length === 0 ? (
-                  <p className="mt-3 text-sm text-[color:var(--text-muted)]">{t('nothingDeliveredYet')}</p>
+                  <p
+                  data-testid="ranking-empty"
+                  className="mt-3 text-sm text-[color:var(--text-muted)]"
+                >
+                  {t('nothingDeliveredYet')}
+                </p>
                 ) : (
                   <div className="mt-3">
                     <RankedBars

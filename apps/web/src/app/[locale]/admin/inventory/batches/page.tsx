@@ -63,7 +63,7 @@ export default async function BatchesPage({
               key={f.value || 'all'}
               href={f.value === '' ? `/admin/inventory/batches` : `/admin/inventory/batches?status=${f.value}`}
               aria-current={active ? 'page' : undefined}
-              className={`rounded-lg border px-3 py-1.5 text-sm ${
+              className={`rounded-lg border px-3 py-2 text-sm ${
                 active
                   ? 'border-[var(--color-brand-600)] bg-[var(--color-brand-600)]/10 font-medium'
                   : 'hover:bg-[color:var(--surface-raised)]'

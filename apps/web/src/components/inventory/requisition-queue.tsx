@@ -202,7 +202,7 @@ export function RequisitionQueue({
           onChange={(e) => setQuery(e.target.value)}
           placeholder={l.searchPlaceholder}
           aria-label={l.searchPlaceholder}
-          className="w-full max-w-xs rounded-lg border bg-transparent px-3 py-1.5 text-sm"
+          className="w-full max-w-xs rounded-lg border bg-transparent px-3 py-2 text-sm"
         />
       </Toolbar>
 
@@ -224,7 +224,7 @@ export function RequisitionQueue({
             // Prefetching off: one RSC request per row, each re-running the
             // requisitions query to prove a panel exists.
             prefetch={false}
-            className="rounded-md border px-2.5 py-1.5 text-xs font-medium hover:bg-[color:var(--text-muted)]/10"
+            className="rounded-md border px-3 py-2 text-xs font-medium hover:bg-[color:var(--text-muted)]/10"
           >
             {locale === 'ar' ? 'فتح' : 'Open'}
           </Link>

@@ -31,7 +31,8 @@
     "primary": "Primary",
     "capabilities": "Capabilities",
     "compliance": "Compliance",
-    "network": "Network"
+    "network": "Network",
+    "settings": "Settings"
   },
   "auth": {
     "signIn": "Sign in",
@@ -740,6 +741,51 @@
       "ALLOCATED": "Allocated",
       "REJECTED": "Refused",
       "DISCARDED": "Discarded"
+    }
+  },
+  "settings": {
+    "title": "Account settings",
+    "description": "Your name, your language, and what this account is told about.",
+    "language": {
+      "title": "Language",
+      "body": "The language of the interface. Your browser decides for a first visit; this decides for good.",
+      "label": "Language"
+    },
+    "appearance": {
+      "title": "Appearance",
+      "body": "Bershama is dark by default. The light palette is the same product in a different light.",
+      "hint": "Switch the theme"
+    },
+    "profile": {
+      "title": "Profile",
+      "body": "How your name appears in the header, and how a delivery is told to reach you.",
+      "fullName": "Full name",
+      "fullNameAr": "الاسم بالعربية",
+      "phone": "Phone number",
+      "save": "Save changes",
+      "saving": "Saving",
+      "saved": "Saved"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "body": "What this account is told about. These are yours, not your organisation's.",
+      "expiry": "Expiry warnings",
+      "expiryBody": "When a batch enters its expiry window.",
+      "deliveries": "Delivery updates",
+      "deliveriesBody": "When a run is dispatched, arrives, or is signed for.",
+      "requisitions": "Requisition decisions",
+      "requisitionsBody": "When an order is allocated, filled, or refused.",
+      "saved": "Saved"
+    },
+    "security": {
+      "title": "Security",
+      "body": "Who else is signed in to this account.",
+      "signOutEverywhere": "Sign out other devices",
+      "signOutEverywhereBody": "Every other session ends immediately. This one stays.",
+      "confirmLabel": "Type SIGN OUT to confirm",
+      "confirmWord": "SIGN OUT",
+      "signingOut": "Signing out",
+      "cancel": "Cancel"
     }
   }
 }

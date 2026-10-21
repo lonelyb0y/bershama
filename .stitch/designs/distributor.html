@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Bershama Operations — Overview Console</title>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: Outfit (Headline), Nunito Sans (Body), JetBrains Mono (Labels/Numbers) -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;family=Nunito+Sans:wght@300;400;500;600;700&amp;family=Outfit:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS with Forms and Container Queries -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "primary": "#6fdaaf",
+            "on-primary": "#003827",
+            "error-container": "#93000a",
+            "on-surface": "#e3e3dd",
+            "on-background": "#e3e3dd",
+            "on-secondary-fixed": "#281800",
+            "on-error-container": "#ffdad6",
+            "surface-container-high": "#292b27",
+            "primary-container": "#43b189",
+            "on-tertiary": "#650902",
+            "secondary-fixed-dim": "#fcbb51",
+            "tertiary-fixed-dim": "#ffb4a7",
+            "on-secondary-container": "#3b2500",
+            "primary-fixed-dim": "#6fdaaf",
+            "on-primary-fixed": "#002115",
+            "surface-bright": "#383a36",
+            "on-tertiary-fixed-variant": "#862214",
+            "background": "#121411",
+            "secondary-fixed": "#ffddb0",
+            "on-primary-fixed-variant": "#00513a",
+            "surface-dim": "#121411",
+            "on-error": "#690005",
+            "tertiary-fixed": "#ffdad4",
+            "surface-container-lowest": "#0d0f0c",
+            "outline": "#87948c",
+            "inverse-primary": "#006c4e",
+            "tertiary-container": "#fa7761",
+            "on-primary-container": "#003e2c",
+            "inverse-surface": "#e3e3dd",
+            "surface-tint": "#6fdaaf",
+            "secondary-container": "#bf861e",
+            "secondary": "#fcbb51",
+            "surface-variant": "#333532",
+            "on-secondary-fixed-variant": "#614000",
+            "surface": "#121411",
+            "surface-container-highest": "#333532",
+            "inverse-on-surface": "#2f312d",
+            "on-tertiary-container": "#6d1005",
+            "tertiary": "#ffb4a7",
+            "on-tertiary-fixed": "#400200",
+            "primary-fixed": "#8cf7ca",
+            "on-surface-variant": "#bdcac1",
+            "surface-container-low": "#1a1c19",
+            "error": "#ffb4ab",
+            "on-secondary": "#442c00",
+            "surface-container": "#1e201d",
+            "outline-variant": "#3e4943"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "gutter": "1rem",
+            "gutter-lg": "1.5rem",
+            "space-sm": "0.5rem",
+            "space-md": "0.75rem",
+            "gutter-sm": "0.5rem",
+            "margin-lg": "2rem",
+            "space-lg": "1rem",
+            "margin-sm": "0.75rem",
+            "space-xl": "1.5rem",
+            "margin": "1rem",
+            "space-xs": "0.25rem"
+          },
+          "fontFamily": {
+            "body-lg": ["Nunito Sans"],
+            "body-sm": ["Nunito Sans"],
+            "headline-md": ["Outfit"],
+            "label-sm": ["JetBrains Mono"],
+            "label-md": ["JetBrains Mono"],
+            "body-md": ["Nunito Sans"],
+            "headline-sm": ["Outfit"],
+            "headline-xl-mobile": ["Outfit"],
+            "headline-lg": ["Outfit"],
+            "label-lg": ["JetBrains Mono"],
+            "headline-xl": ["Outfit"]
+          },
+          "fontSize": {
+            "body-lg": ["15px", { "lineHeight": "22px", "fontWeight": "400" }],
+            "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+            "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "500" }],
+            "label-sm": ["10px", { "lineHeight": "14px", "letterSpacing": "0.06em", "fontWeight": "500" }],
+            "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "500" }],
+            "body-md": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "headline-sm": ["16px", { "lineHeight": "24px", "fontWeight": "500" }],
+            "headline-xl-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+            "headline-lg": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+            "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+            "headline-xl": ["36px", { "lineHeight": "44px", "fontWeight": "600" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    /* Strict Tier System per Brand Tokens */
+    body {
+      background-color: #141613;
+      color: #F1EFE8;
+      font-family: 'Nunito Sans', sans-serif;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+    .custom-border {
+      border: 1px solid rgba(102, 102, 96, 0.25);
+    }
+    .custom-border-interactive {
+      border: 1px solid rgba(102, 102, 96, 0.40);
+    }
+    .hairline-b {
+      border-bottom: 1px solid rgba(102, 102, 96, 0.20);
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface flex flex-col min-h-screen antialiased selection:bg-primary selection:text-on-primary">
+<!-- TOP APP BAR (from Shared Components JSON: TopNavBar) -->
+<header class="flex justify-between items-center w-full px-gutter-lg h-14 bg-surface dark:bg-surface border-b border-outline-variant/25 dark:border-outline-variant/25 sticky top-0 z-50">
+<!-- Brand Anchor & Location Telemetry -->
+<div class="flex items-center space-x-space-lg">
+<div class="flex items-center space-x-space-sm">
+<span class="text-headline-md font-headline-md font-extrabold text-primary dark:text-primary tracking-tight">Bershama Operations</span>
+<span class="text-label-sm font-label-sm text-outline px-space-xs py-0.5 rounded bg-surface-container-low border border-outline-variant/30">DISPATCHER v2.4</span>
+</div>
+<!-- Persistent Depot Tag & Active Cold-Chain Telemetry -->
+<div class="hidden lg:flex items-center space-x-space-md pl-space-md border-l border-outline-variant/25">
+<div class="flex items-center space-x-space-xs">
+<span class="material-symbols-outlined text-[16px] text-outline" data-icon="hub">hub</span>
+<span class="text-label-md font-label-md text-on-surface">Node 04 Cairo Central</span>
+</div>
+<div class="flex items-center space-x-space-xs px-2 py-0.5 rounded bg-[#43B189]/10 border border-[#43B189]/30">
+<span class="inline-block w-1.5 h-1.5 rounded-full bg-[#43B189]"></span>
+<span class="text-label-sm font-label-sm text-primary font-bold tracking-wider">+2.4°C NOMINAL</span>
+</div>
+</div>
+</div>
+<!-- Center Navigation Links (Autonomous active state: "Overview") -->
+<nav class="hidden xl:flex items-center space-x-space-lg">
+<a class="text-primary dark:text-primary border-b-2 border-primary dark:border-primary font-medium py-1 text-label-md font-label-md transition-colors duration-150" href="#">Overview</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant font-medium py-1 hover:text-on-surface transition-colors duration-150 text-label-md font-label-md" href="#">Batches &amp; Inventory</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant font-medium py-1 hover:text-on-surface transition-colors duration-150 text-label-md font-label-md" href="#">Deliveries &amp; Runs</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant font-medium py-1 hover:text-on-surface transition-colors duration-150 text-label-md font-label-md" href="#">Requisitions</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant font-medium py-1 hover:text-on-surface transition-colors duration-150 text-label-md font-label-md" href="#">Compliance</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant font-medium py-1 hover:text-on-surface transition-colors duration-150 text-label-md font-label-md" href="#">Audit Log</a>
+</nav>
+<!-- Trailing Actions & User Context -->
+<div class="flex items-center space-x-space-md">
+<button class="hidden md:inline-flex items-center space-x-space-xs px-space-md h-8 bg-surface-container-high hover:bg-surface-bright text-primary border border-outline-variant/40 rounded-lg text-label-md font-label-md transition-colors duration-150">
+<span class="material-symbols-outlined text-[16px]" data-icon="sync">sync</span>
+<span>EDA Portal Sync</span>
+</button>
+<!-- Secondary Language Selector -->
+<button class="px-space-sm h-8 bg-surface-container-low hover:bg-surface-container-high text-on-surface border border-outline-variant/25 rounded text-label-sm font-label-sm font-medium transition-colors duration-150">
+        العربية
+      </button>
+<!-- Icon Actions with exact names from JSON -->
+<div class="flex items-center space-x-space-xs border-l border-outline-variant/25 pl-space-md">
+<button class="w-8 h-8 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded transition-colors duration-150 relative">
+<span class="material-symbols-outlined text-[18px]" data-icon="notifications">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-[#E86A55] rounded-full"></span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded transition-colors duration-150">
+<span class="material-symbols-outlined text-[18px]" data-icon="thermostat">thermostat</span>
+</button>
+<div class="flex items-center space-x-space-xs pl-space-xs">
+<span class="material-symbols-outlined text-[20px] text-primary" data-icon="account_circle">account_circle</span>
+<div class="hidden 2xl:flex flex-col text-left">
+<span class="text-label-sm font-label-sm text-on-surface font-semibold leading-tight">Ahmed Hassan</span>
+<span class="text-label-sm font-label-sm text-outline text-[9px] leading-tight">Duty Dispatcher</span>
+</div>
+</div>
+</div>
+</div>
+</header>
+<!-- MAIN OPERATIONAL CANVAS (Dense Layout, Tier 0 Base #141613) -->
+<main class="flex-1 w-full max-w-[1720px] mx-auto px-gutter-lg py-space-xl flex flex-col space-y-space-xl">
+<!-- PAGE HEADER: Organisation Identity & Real-time Ledger Info -->
+<section class="flex flex-col space-y-space-xs pb-space-sm">
+<div class="flex flex-col md:flex-row md:items-baseline justify-between gap-space-sm">
+<div>
+<h1 class="text-headline-lg font-headline-lg text-[#F1EFE8] font-semibold tracking-tight">
+            Misr Delta Pharmaceutical Distribution S.A.E.
+          </h1>
+<p class="text-body-md font-body-md text-[#A6A499] mt-0.5">
+            Cairo Central Hub · Night Shift · GS1-128 EDA Real-time Ledger
+          </p>
+</div>
+<div class="flex items-center space-x-space-sm text-label-sm font-label-sm text-[#A6A499]">
+<span class="inline-flex items-center space-x-1.5 px-2 py-1 rounded bg-[#1C1F1B] custom-border">
+<span class="w-2 h-2 rounded-full bg-[#43B189] animate-pulse"></span>
+<span class="text-[#F1EFE8]">BROKER SOCKET: ACTIVE</span>
+</span>
+<span class="px-2 py-1 rounded bg-[#1C1F1B] custom-border text-[#A6A499]">SYS SYNC: 02:41:09 CLT</span>
+</div>
+</div>
+<!-- Hairline rule separator -->
+<div class="w-full h-px bg-outline-variant/30 mt-space-md"></div>
+</section>
+<!-- FOUR FIGURE PANELS: Dense Metric Strip -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
+<!-- 1. CAPITAL IN STOCK -->
+<div class="bg-[#1C1F1B] custom-border rounded-xl p-space-md flex flex-col justify-between hover:bg-[#232924] transition-colors duration-150">
+<div class="flex items-center justify-between">
+<span class="text-label-sm font-label-sm text-[#A6A499] font-medium tracking-wider">CAPITAL IN STOCK</span>
+<span class="material-symbols-outlined text-[18px] text-[#87948c]" data-icon="account_balance_wallet">account_balance_wallet</span>
+</div>
+<div class="my-space-sm">
+<div class="text-headline-xl font-headline-xl text-[#F1EFE8] font-bold font-label-lg tracking-tight">
+            EGP 62,400
+          </div>
+</div>
+<div class="text-body-sm font-body-sm text-[#A6A499]">
+          Ledger valuation at acquisition cost
+        </div>
+</div>
+<!-- 2. LOTS IN STOCK -->
+<div class="bg-[#1C1F1B] custom-border rounded-xl p-space-md flex flex-col justify-between hover:bg-[#232924] transition-colors duration-150">
+<div class="flex items-center justify-between">
+<span class="text-label-sm font-label-sm text-[#A6A499] font-medium tracking-wider">LOTS IN STOCK</span>
+<span class="material-symbols-outlined text-[18px] text-[#87948c]" data-icon="inventory_2">inventory_2</span>
+</div>
+<div class="my-space-sm">
+<div class="text-headline-xl font-headline-xl text-[#F1EFE8] font-bold font-label-lg tracking-tight">
+            3,910
+          </div>
+</div>
+<div class="text-body-sm font-body-sm text-[#A6A499]">
+          Across 14 ambient &amp; chilled bays
+        </div>
+</div>
+<!-- 3. EXPIRING IN 90 DAYS (Priority Action in Amber) -->
+<div class="bg-[#1C1F1B] custom-border rounded-xl p-space-md flex flex-col justify-between hover:bg-[#232924] transition-colors duration-150 relative overflow-hidden">
+<div class="flex items-center justify-between">
+<span class="text-label-sm font-label-sm text-[#E2A43C] font-semibold tracking-wider">EXPIRING IN 90 DAYS</span>
+<span class="inline-flex items-center space-x-1 px-1.5 py-0.5 rounded text-[10px] font-label-sm font-bold bg-[#E2A43C]/15 border border-[#E2A43C]/40 text-[#E2A43C]">
+            PRIORITY ACTION
+          </span>
+</div>
+<div class="my-space-sm flex items-baseline space-x-2">
+<div class="text-headline-xl font-headline-xl text-[#E2A43C] font-bold font-label-lg tracking-tight">
+            1
+          </div>
+<span class="text-label-sm font-label-sm text-[#E2A43C]/80">lot flagged &lt;10d threshold</span>
+</div>
+<div class="text-body-sm font-body-sm text-[#A6A499]">
+          EDA notification triggered
+        </div>
+</div>
+<!-- 4. DELIVERIES TODAY -->
+<div class="bg-[#1C1F1B] custom-border rounded-xl p-space-md flex flex-col justify-between hover:bg-[#232924] transition-colors duration-150">
+<div class="flex items-center justify-between">
+<span class="text-label-sm font-label-sm text-[#A6A499] font-medium tracking-wider">DELIVERIES TODAY</span>
+<span class="material-symbols-outlined text-[18px] text-[#87948c]" data-icon="local_shipping">local_shipping</span>
+</div>
+<div class="my-space-sm">
+<div class="text-headline-xl font-headline-xl text-[#F1EFE8] font-bold font-label-lg tracking-tight">
+            6
+          </div>
+</div>
+<div class="text-body-sm font-body-sm text-[#A6A499]">
+          2 active in flight · 4 scheduled
+        </div>
+</div>
+</section>
+<!-- WIDE PANEL: TODAY RUN BOARD -->
+<section class="bg-[#1C1F1B] custom-border rounded-xl p-space-md flex flex-col space-y-space-md">
+<div class="flex items-center justify-between hairline-b pb-space-sm">
+<div class="flex items-center space-x-space-md">
+<h2 class="text-headline-sm font-headline-sm text-[#F1EFE8] font-bold tracking-tight">
+            TODAY
+          </h2>
+<span class="text-label-sm font-label-sm px-2 py-0.5 rounded bg-surface-container-high text-[#bdcac1] border border-outline-variant/30">
+            3 Dispatched / 2 Active
+          </span>
+</div>
+<div class="flex items-center space-x-space-xs text-label-sm font-label-sm text-[#A6A499]">
+<span class="material-symbols-outlined text-[16px] text-[#43B189]" data-icon="check_circle">check_circle</span>
+<span>Depot Schedule Alignment: 100%</span>
+</div>
+</div>
+<!-- Raised Run Cards Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<!-- Run 1: Cairo North (In Transit) -->
+<div class="bg-[#232924] border border-[#666660]/40 rounded-lg p-space-md flex flex-col justify-between space-y-space-md hover:border-[#43B189]/50 transition-colors duration-150">
+<div class="flex items-start justify-between">
+<div class="flex flex-col">
+<span class="text-label-md font-label-md text-[#F1EFE8] font-bold">Cairo North</span>
+<div class="flex items-center space-x-space-xs mt-0.5 text-label-sm font-label-sm text-[#A6A499]">
+<span class="font-bold text-primary">VAN-1</span>
+<span>·</span>
+<span class="text-[#F1EFE8]">Karim Nabil</span>
+</div>
+</div>
+<!-- In-Transit Badge (Accent #43B189) -->
+<span class="inline-flex items-center space-x-1 px-2 py-0.5 rounded text-[11px] font-label-sm font-bold bg-[#43B189]/20 text-[#6FD1AC] border border-[#43B189]/40">
+<span class="w-1.5 h-1.5 rounded-full bg-[#43B189] animate-pulse"></span>
+<span>IN TRANSIT</span>
+</span>
+</div>
+<div class="flex items-center justify-between text-body-sm font-body-sm pt-space-xs border-t border-[#666660]/20">
+<span class="text-[#A6A499]">6 stops total</span>
+<div class="flex items-center space-x-1 font-label-md text-label-md font-bold text-[#F1EFE8]">
+<span class="text-primary">2 of 6</span>
+<span class="text-[#87948c] text-[11px] font-normal">(33%)</span>
+</div>
+</div>
+</div>
+<!-- Run 2: Giza West (Planned) -->
+<div class="bg-[#232924] border border-[#666660]/40 rounded-lg p-space-md flex flex-col justify-between space-y-space-md hover:border-[#666660] transition-colors duration-150">
+<div class="flex items-start justify-between">
+<div class="flex flex-col">
+<span class="text-label-md font-label-md text-[#F1EFE8] font-bold">Giza West</span>
+<div class="flex items-center space-x-space-xs mt-0.5 text-label-sm font-label-sm text-[#A6A499]">
+<span class="font-bold text-[#bdcac1]">VAN-2</span>
+<span>·</span>
+<span class="text-[#F1EFE8]">Hoda Saleh</span>
+</div>
+</div>
+<!-- Planned Badge (Neutral #8C958A) -->
+<span class="inline-flex items-center space-x-1 px-2 py-0.5 rounded text-[11px] font-label-sm font-medium bg-[#8C958A]/15 text-[#8C958A] border border-[#8C958A]/30">
+<span>PLANNED</span>
+</span>
+</div>
+<div class="flex items-center justify-between text-body-sm font-body-sm pt-space-xs border-t border-[#666660]/20">
+<span class="text-[#A6A499]">4 stops total</span>
+<div class="flex items-center space-x-1 font-label-md text-label-md font-bold text-[#A6A499]">
+<span>0 of 4</span>
+<span class="text-[#87948c] text-[11px] font-normal">(Staging)</span>
+</div>
+</div>
+</div>
+<!-- Run 3: Delta South (Planned) -->
+<div class="bg-[#232924] border border-[#666660]/40 rounded-lg p-space-md flex flex-col justify-between space-y-space-md hover:border-[#666660] transition-colors duration-150">
+<div class="flex items-start justify-between">
+<div class="flex flex-col">
+<span class="text-label-md font-label-md text-[#F1EFE8] font-bold">Delta South</span>
+<div class="flex items-center space-x-space-xs mt-0.5 text-label-sm font-label-sm text-[#A6A499]">
+<span class="font-bold text-[#bdcac1]">VAN-3</span>
+<span>·</span>
+<span class="text-[#F1EFE8]">Maged Fahmy</span>
+</div>
+</div>
+<!-- Planned Badge (Neutral #8C958A) -->
+<span class="inline-flex items-center space-x-1 px-2 py-0.5 rounded text-[11px] font-label-sm font-medium bg-[#8C958A]/15 text-[#8C958A] border border-[#8C958A]/30">
+<span>PLANNED</span>
+</span>
+</div>
+<div class="flex items-center justify-between text-body-sm font-body-sm pt-space-xs border-t border-[#666660]/20">
+<span class="text-[#A6A499]">8 stops total</span>
+<div class="flex items-center space-x-1 font-label-md text-label-md font-bold text-[#A6A499]">
+<span>0 of 8</span>
+<span class="text-[#87948c] text-[11px] font-normal">(Manifest Ready)</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 2-COLUMN OPERATIONAL SPLIT (65% / 35%) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+<!-- COLUMN 1: EXPIRING SOON DENSE TABLE (approx 65% = 8 cols) -->
+<section class="lg:col-span-8 bg-[#1C1F1B] custom-border rounded-xl p-space-md flex flex-col space-y-space-md overflow-hidden">
+<div class="flex items-center justify-between">
+<div class="flex items-center space-x-space-sm">
+<h3 class="text-headline-sm font-headline-sm text-[#F1EFE8] font-bold tracking-tight">
+              EXPIRING SOON
+            </h3>
+<span class="text-label-sm font-label-sm text-outline">Real-time Batch Ledger</span>
+</div>
+<div class="flex items-center space-x-space-xs">
+<button class="px-2 py-1 bg-surface-container-high hover:bg-surface-bright text-[#F1EFE8] border border-outline-variant/30 rounded text-label-sm font-label-sm transition-colors duration-150">
+              Export Audit CSV
+            </button>
+</div>
+</div>
+<!-- Table Container with strict row geometry & single-line truncation -->
+<div class="w-full overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="h-9 hairline-b text-label-sm font-label-sm text-[#A6A499] uppercase tracking-wider bg-[#141613]/50">
+<th class="px-space-sm font-medium">BATCH</th>
+<th class="px-space-sm font-medium">PRODUCT &amp; FORMULATION</th>
+<th class="px-space-sm font-medium">LOCATION</th>
+<th class="px-space-sm font-medium text-right">ON HAND</th>
+<th class="px-space-sm font-medium text-right">EXPIRY</th>
+<th class="px-space-sm font-medium text-right">EXPOSURE</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-[#666660]/15">
+<!-- ROW 1: Panadol Critical Expired -->
+<tr class="h-[36px] hover:bg-[#232924] transition-colors duration-150 group">
+<td class="px-space-sm whitespace-nowrap font-label-md text-label-md font-bold text-[#F1EFE8]">
+                  LOT-2025-C0442
+                </td>
+<td class="px-space-sm whitespace-nowrap text-body-md font-body-md text-[#F1EFE8]">
+                  Panadol Extra 500mg Tablets <span class="text-label-sm font-label-sm text-[#A6A499]">(GlaxoSmithKline)</span>
+</td>
+<td class="px-space-sm whitespace-nowrap text-body-sm font-body-sm text-[#A6A499]">
+                  Ambient Aisle 2, Bin 14-D
+                </td>
+<td class="px-space-sm whitespace-nowrap text-right font-label-md text-label-md text-[#A6A499]">
+                  60 pk
+                </td>
+<td class="px-space-sm whitespace-nowrap text-right font-label-md text-label-md text-[#A6A499]">
+                  2026-10-11
+                </td>
+<td class="px-space-sm whitespace-nowrap text-right">
+<!-- Critical / Expired #E86A55 -->
+<span class="inline-flex items-center space-x-1 px-1.5 py-0.5 rounded text-[10px] font-label-sm font-bold bg-[#E86A55]/15 text-[#E86A55] border border-[#E86A55]/40">
+<span class="w-1 h-1 rounded-full bg-[#E86A55] animate-ping"></span>
+<span>▲ Expired (-2d)</span>
+</span>
+</td>
+</tr>
+<!-- ROW 2: Panadol Expiring Soon (8 days) -->
+<tr class="h-[36px] hover:bg-[#232924] transition-colors duration-150 group">
+<td class="px-space-sm whitespace-nowrap font-label-md text-label-md font-bold text-[#F1EFE8]">
+                  LOT-2026-A0412
+                </td>
+<td class="px-space-sm whitespace-nowrap text-body-md font-body-md text-[#F1EFE8]">
+                  Panadol Extra 500mg Tablets <span class="text-label-sm font-label-sm text-[#A6A499]">(GlaxoSmithKline)</span>
+</td>
+<td class="px-space-sm whitespace-nowrap text-body-sm font-body-sm text-[#A6A499]">
+                  Ambient Aisle 1, Bin 04-A
+                </td>
+<td class="px-space-sm whitespace-nowrap text-right font-label-md text-label-md text-[#A6A499]">
+                  240 pk
+                </td>
+<td class="px-space-sm whitespace-nowrap text-right font-label-md text-label-md text-[#A6A499]">
+                  2026-11-09
+                </td>
+<td class="px-space-sm whitespace-nowrap text-right">
+<!-- Expiring soon amber #E2A43C -->
+<span class="inline-flex items-center space-x-1 px-1.5 py-0.5 rounded text-[10px] font-label-sm font-semibold bg-[#E2A43C]/12 text-[#E2A43C] border border-[#E2A43C]/40">
+<span>● 8 days</span>
+</span>
+</td>
+</tr>
+<!-- ROW 3: Augmentin Neutral In-Date -->
+<tr class="h-[36px] hover:bg-[#232924] transition-colors duration-150 group">
+<td class="px-space-sm whitespace-nowrap font-label-md text-label-md font-bold text-[#F1EFE8]">
+                  LOT-2026-B1180
+                </td>
+<td class="px-space-sm whitespace-nowrap text-body-md font-body-md text-[#F1EFE8]">
+                  Augmentin 875/125mg Film-Coated Tablets
+                </td>
+<td class="px-space-sm whitespace-nowrap text-body-sm font-body-sm text-[#A6A499]">
+                  Ambient Aisle 1, Bin 12-B
+                </td>
+<td class="px-space-sm whitespace-nowrap text-right font-label-md text-label-md text-[#A6A499]">
+                  80 pk
+                </td>
+<td class="px-space-sm whitespace-nowrap text-right font-label-md text-label-md text-[#A6A499]">
+                  2028-04-12
+                </td>
+<td class="px-space-sm whitespace-nowrap text-right">
+<!-- Neutral In-Date #8C958A (Never green per system) -->
+<span class="inline-flex items-center space-x-1 px-1.5 py-0.5 rounded text-[10px] font-label-sm font-medium bg-[#8C958A]/12 text-[#8C958A] border border-[#8C958A]/30">
+<span>◆ 240 days</span>
+</span>
+</td>
+</tr>
+<!-- ROW 4: Insulin Glargine Expiring soon (19 days) -->
+<tr class="h-[36px] hover:bg-[#232924] transition-colors duration-150 group">
+<td class="px-space-sm whitespace-nowrap font-label-md text-label-md font-bold text-primary">
+                  LOT-EG-8821
+                </td>
+<td class="px-space-sm whitespace-nowrap text-body-md font-body-md text-[#F1EFE8]">
+                  Insulin Glargine (Lantus) 100 IU/mL
+                </td>
+<td class="px-space-sm whitespace-nowrap text-body-sm font-body-sm text-primary flex items-center space-x-1 mt-1">
+<span class="material-symbols-outlined text-[13px] text-primary" data-icon="ac_unit">ac_unit</span>
+<span>Cold Store Vault B (+3.2°C)</span>
+</td>
+<td class="px-space-sm whitespace-nowrap text-right font-label-md text-label-md text-[#A6A499]">
+                  140 pk
+                </td>
+<td class="px-space-sm whitespace-nowrap text-right font-label-md text-label-md text-[#A6A499]">
+                  2026-11-20
+                </td>
+<td class="px-space-sm whitespace-nowrap text-right">
+<!-- Expiring soon amber #E2A43C -->
+<span class="inline-flex items-center space-x-1 px-1.5 py-0.5 rounded text-[10px] font-label-sm font-semibold bg-[#E2A43C]/12 text-[#E2A43C] border border-[#E2A43C]/40">
+<span>● 19 days</span>
+</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="flex items-center justify-between text-body-sm font-body-sm text-[#A6A499] pt-space-xs">
+<span>Showing 4 tracked pharmaceutical lots</span>
+<a class="text-primary hover:underline font-label-sm text-label-sm" href="#">View Complete GS1 Ledger →</a>
+</div>
+</section>
+<!-- COLUMN 2: RECENT ACTIVITY AUDIT LIST (approx 35% = 4 cols) -->
+<section class="lg:col-span-4 bg-[#1C1F1B] custom-border rounded-xl p-space-md flex flex-col space-y-space-md">
+<div class="flex items-center justify-between hairline-b pb-space-sm">
+<div class="flex items-center space-x-space-xs">
+<span class="material-symbols-outlined text-[18px] text-primary" data-icon="history_toggle_off">history_toggle_off</span>
+<h3 class="text-headline-sm font-headline-sm text-[#F1EFE8] font-bold tracking-tight">
+              RECENT ACTIVITY
+            </h3>
+</div>
+<span class="text-label-sm font-label-sm text-primary">LIVE STREAM</span>
+</div>
+<!-- 4 Audit Entries -->
+<div class="flex flex-col space-y-space-sm">
+<!-- Entry 1 -->
+<div class="p-space-sm rounded-lg bg-[#232924]/60 border border-[#666660]/20 flex flex-col space-y-1 hover:border-[#666660]/50 transition-colors duration-150">
+<div class="flex items-start justify-between gap-space-xs">
+<p class="text-body-sm font-body-sm text-[#F1EFE8] leading-tight">
+                Manifest <span class="font-label-sm text-primary font-bold">REQ-0001</span> dispatched to Fleet Van-1
+              </p>
+<span class="font-label-sm text-[11px] text-[#A6A499] whitespace-nowrap shrink-0">
+                02:39:14 CLT
+              </span>
+</div>
+<span class="text-label-sm font-label-sm text-[#87948c]">Driver: K. Nabil · Custody Accepted</span>
+</div>
+<!-- Entry 2 (Breach Alert) -->
+<div class="p-space-sm rounded-lg bg-[#232924]/60 border border-[#E86A55]/30 flex flex-col space-y-1 hover:border-[#E86A55]/60 transition-colors duration-150">
+<div class="flex items-start justify-between gap-space-xs">
+<p class="text-body-sm font-body-sm text-[#F1EFE8] leading-tight">
+                Cold-chain telemetry breach alert acknowledged on Van-1 (<span class="text-[#E86A55] font-label-sm font-bold">+9.4°C excursion logged</span>)
+              </p>
+<span class="font-label-sm text-[11px] text-[#A6A499] whitespace-nowrap shrink-0">
+                02:37:02 CLT
+              </span>
+</div>
+<span class="text-label-sm font-label-sm text-[#E86A55]">Sensor S-VAN1-REAR · Auto-Report Filed to EDA</span>
+</div>
+<!-- Entry 3 -->
+<div class="p-space-sm rounded-lg bg-[#232924]/60 border border-[#666660]/20 flex flex-col space-y-1 hover:border-[#666660]/50 transition-colors duration-150">
+<div class="flex items-start justify-between gap-space-xs">
+<p class="text-body-sm font-body-sm text-[#F1EFE8] leading-tight">
+                Batch <span class="font-label-sm text-primary font-bold">LOT-2026-B1180</span> released from quarantine by Dr. Tarek Mansour
+              </p>
+<span class="font-label-sm text-[11px] text-[#A6A499] whitespace-nowrap shrink-0">
+                02:11:45 CLT
+              </span>
+</div>
+<span class="text-label-sm font-label-sm text-[#87948c]">QC Certificate #EDA-QA-44910</span>
+</div>
+<!-- Entry 4 -->
+<div class="p-space-sm rounded-lg bg-[#232924]/60 border border-[#666660]/20 flex flex-col space-y-1 hover:border-[#666660]/50 transition-colors duration-150">
+<div class="flex items-start justify-between gap-space-xs">
+<p class="text-body-sm font-body-sm text-[#F1EFE8] leading-tight">
+                Inbound consignment received: <span class="text-[#F1EFE8] font-bold">320 vials Lantus</span> (GS1 verified)
+              </p>
+<span class="font-label-sm text-[11px] text-[#A6A499] whitespace-nowrap shrink-0">
+                01:48:20 CLT
+              </span>
+</div>
+<span class="text-label-sm font-label-sm text-[#87948c]">Dock 03 · Cold-chain transfer nominal (+3.0°C)</span>
+</div>
+</div>
+<div class="pt-space-xs text-right">
+<a class="text-label-sm font-label-sm text-outline hover:text-primary transition-colors duration-150" href="#">
+            Export Cryptographic Log →
+          </a>
+</div>
+</section>
+</div>
+</main>
+<!-- FOOTER (from Shared Components JSON: Footer) -->
+<footer class="flex flex-col md:flex-row justify-between items-center w-full px-gutter-lg py-space-md bg-surface-container-lowest dark:bg-surface-container-lowest border-t border-outline-variant/25 dark:border-outline-variant/25 mt-auto">
+<div class="flex flex-col md:flex-row items-center md:items-baseline space-y-1 md:space-y-0 md:space-x-space-md text-center md:text-left">
+<span class="text-headline-sm font-headline-sm font-bold text-on-surface dark:text-on-surface">Bershama</span>
+<p class="text-body-sm font-body-sm text-on-surface-variant dark:text-on-surface-variant">
+        Bershama Pharmaceutical Logistics © 2025. EDA Licensed Distributor #EG-77402-C. WHO GDP Annex 5 Compliant. Cold-Chain Monitoring Active (+2.4°C Nominal).
+      </p>
+</div>
+<!-- Navigation links from JSON -->
+<div class="flex items-center space-x-space-md mt-space-sm md:mt-0 text-label-sm font-label-sm text-on-surface-variant dark:text-on-surface-variant">
+<a class="hover:text-primary dark:hover:text-primary transition-colors duration-150" href="#">GDP Protocol Manual</a>
+<span class="text-outline-variant">·</span>
+<a class="hover:text-primary dark:hover:text-primary transition-colors duration-150" href="#">EDA Serial Registry</a>
+<span class="text-outline-variant">·</span>
+<a class="hover:text-primary dark:hover:text-primary transition-colors duration-150" href="#">Chain of Custody SLA</a>
+<span class="text-outline-variant">·</span>
+<span class="text-primary font-medium">System Status (99.98%)</span>
+</div>
+</footer>
+</body></html>
