@@ -88,6 +88,10 @@ apps/web/src/
       all of it stands down under `prefers-reduced-motion`.
 - [x] **The type** — Inter is gone. Space Grotesk, Plus Jakarta Sans, JetBrains Mono,
       and IBM Plex Sans Arabic for the RTL surface.
+- [x] **Every string goes through the message files** — the landing page's status
+      labels and nav were string literals and English defaults written into
+      `ar.json`. No key was missing, so no checker could see it. The days are an ICU
+      plural now, because Arabic has six of them.
 - [ ] **The sign-in screen** — the design exists (`.stitch/designs/auth.*`); the page is
       still the old one. Split layout, fields with labels above them, the operations
       panel on the right.
@@ -100,6 +104,11 @@ apps/web/src/
 - [x] **Staggered dashboard reveal** — `.pf-stagger`, 60ms per step, capped at eight.
 - [x] **Chart palette re-derivation** — the series ramp leads with the accent and ends
       on a neutral, so a five-series chart never invents a hue.
+- [x] **Arabic resolves to the specified face** — IBM Plex Sans Arabic now sits in every
+      font stack, not only the Arabic one. Font fallback is per character, so a
+      display heading was resolving its Latin glyphs from Space Grotesk and its
+      Arabic glyphs from the operating system. Measured: 220.1px under the old
+      stack against 181.8px under IBM Plex Sans Arabic.
 - [ ] **Arabic optical sizing** — Arabic at the same pixel size reads smaller than Latin
       beside it; the Arabic ramp gets a small bump.
 - [ ] **The splash** — the slogan is in the footer; it also belongs on the boot screen.
