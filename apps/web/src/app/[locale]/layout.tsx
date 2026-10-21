@@ -1,4 +1,9 @@
-import { IBM_Plex_Sans_Arabic, Inter } from 'next/font/google';
+import {
+  IBM_Plex_Sans_Arabic,
+  JetBrains_Mono,
+  Plus_Jakarta_Sans,
+  Space_Grotesk,
+} from 'next/font/google';
 import { type Metadata, type Viewport } from 'next';
 import { notFound } from 'next/navigation';
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
@@ -25,11 +30,24 @@ import '../globals.css';
 //
 // IBM Plex Sans Arabic carries proper Arabic letterforms; the system fallback
 // renders Arabic with incorrect joining in several browsers.
-const inter = Inter({
+const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-inter',
+  variable: '--font-space-grotesk',
 });
+
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-plus-jakarta',
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-jetbrains-mono',
+});
+
 
 const plexArabic = IBM_Plex_Sans_Arabic({
   subsets: ['arabic'],
@@ -115,7 +133,7 @@ export default async function LocaleLayout({
       // next/font injects its @font-face rules with this class, which exposes the
       // family as a CSS variable. suppressHydrationWarning is required because
       // next/font injects the rules during streaming, after the initial HTML.
-      className={`${inter.variable} ${plexArabic.variable}`}
+      className={`${spaceGrotesk.variable} ${plusJakarta.variable} ${jetbrainsMono.variable} ${plexArabic.variable}`}
       suppressHydrationWarning
     >
       <body

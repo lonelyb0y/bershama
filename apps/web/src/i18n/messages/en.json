@@ -27,7 +27,11 @@
     "catalogue": "Catalogue",
     "audit": "Audit log",
     "stocktake": "Stocktake",
-    "sections": "Sections"
+    "sections": "Sections",
+    "primary": "Primary",
+    "capabilities": "Capabilities",
+    "compliance": "Compliance",
+    "network": "Network"
   },
   "auth": {
     "signIn": "Sign in",
@@ -658,7 +662,52 @@
     "securityMfa": "Multi-factor authentication required for administrators",
     "securityArabic": "English and Arabic, with full right-to-left support throughout",
     "footerLicence": "AGPL-3.0 · Egypt",
-    "footerTraceability": "WHO GDP-aligned batch traceability"
+    "footerTraceability": "WHO GDP-aligned batch traceability",
+    "eyebrow": "Pharmaceutical distribution · Egypt",
+    "talkToSales": "Talk to sales",
+    "liveTelemetry": "Live inventory telemetry",
+    "hubLabel": "Hub: CAI-01",
+    "colLot": "Lot ref",
+    "colProduct": "Product spec",
+    "colUnits": "Units",
+    "colStatus": "Status",
+    "telemetryFoot": "LOT-2026-A0412 · 100 IU/mL · 240 units",
+    "seeExpiry": "See how expiry works",
+    "seeOrdering": "See how ordering works",
+    "capabilitiesLede": "Operational tooling designed around pharmacy cash-flow and warehouse physical shelf life.",
+    "railHeading": "Active lot repository · Cairo / Giza hub",
+    "railHint": "Horizontal drag",
+    "railFoot": "LOT: 24G09 · Available",
+    "slogan": "لو شغل متتزاكاش",
+    "footerLede": "High-integrity pharmaceutical logistics operating across Cairo, Giza and regional delta supply routes.",
+    "footerDistribution": "Distribution",
+    "footerRegulatory": "Regulatory",
+    "footerInfrastructure": "Infrastructure",
+    "capability": {
+      "traceability": {
+        "eyebrow": "Lot verification"
+      },
+      "coldChain": {
+        "eyebrow": "Telemetry logs"
+      },
+      "fefo": {
+        "eyebrow": "Inventory dispatch"
+      },
+      "delivery": {
+        "eyebrow": "Chain of custody"
+      }
+    },
+    "footer": {
+      "distribution": {
+        "items": "Batch API | Cold-chain protocol | FEFO automation"
+      },
+      "regulatory": {
+        "items": "WHO GDP guidelines | EDA licence #8491/2023 | Security & traceability"
+      },
+      "infrastructure": {
+        "items": "System status | Cairo gateway | Telemetry nodes"
+      }
+    }
   },
   "pharmacy": {
     "subtitle": "{name} · {count, plural, one {# requisition raised} other {# requisitions raised}}",

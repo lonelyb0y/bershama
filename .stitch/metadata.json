@@ -1,0 +1,56 @@
+{
+  "name": "projects/3401416261192633237",
+  "projectId": "3401416261192633237",
+  "title": "Bershama \u2014 Pharma Distribution Platform",
+  "visibility": "PRIVATE",
+  "createTime": "2026-09-21T09:03:12.829635Z",
+  "updateTime": "2026-09-21T09:03:12.829635Z",
+  "projectType": "PROJECT_DESIGN",
+  "origin": "STITCH",
+  "deviceType": "DESKTOP",
+  "designTheme": {
+    "colorMode": "DARK",
+    "font": "SPACE_GROTESK",
+    "roundness": "ROUND_EIGHT",
+    "customColor": "#22D3EE",
+    "saturation": 3
+  },
+  "designSystemId": "3577555023851382865",
+  "screens": {
+    "landing": {
+      "id": "28bf16eb13ae4b7ca69d7386afbef632",
+      "sourceScreen": "projects/3401416261192633237/screens/28bf16eb13ae4b7ca69d7386afbef632",
+      "x": 0,
+      "y": 0,
+      "width": "2560",
+      "height": "4350"
+    },
+    "inventory": {
+      "id": "ec25d3ac8e184aaa95399f670e4c17ba",
+      "sourceScreen": "projects/3401416261192633237/screens/ec25d3ac8e184aaa95399f670e4c17ba",
+      "x": 0,
+      "y": 0,
+      "width": "2560",
+      "height": "2542"
+    },
+    "deliveries": {
+      "id": "a83d3f2bf20c4e4499d4028ec2e30973",
+      "sourceScreen": "projects/3401416261192633237/screens/a83d3f2bf20c4e4499d4028ec2e30973",
+      "x": 0,
+      "y": 0,
+      "width": "2560",
+      "height": "2498"
+    },
+    "auth": {
+      "id": "24d6d36170c44425bf39eb8b81f51f50",
+      "sourceScreen": "projects/3401416261192633237/screens/24d6d36170c44425bf39eb8b81f51f50",
+      "x": 0,
+      "y": 0,
+      "width": "2560",
+      "height": "2048"
+    }
+  },
+  "metadata": {
+    "userRole": "OWNER"
+  }
+}

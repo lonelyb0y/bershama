@@ -31,8 +31,16 @@ import { useTranslations } from 'next-intl';
  */
 const KEY = 'bershama:theme';
 
+/**
+ * Dark is the base, so the absence of a class means dark, not light.
+ *
+ * Reading it the other way round -- "is the root marked dark?" -- returned "light"
+ * for a page with no class at all, which is the state a page is in before its
+ * script runs. The button would have rendered as a light-theme control on a dark
+ * page for the first frame.
+ */
 function readDomTheme(): 'light' | 'dark' {
-  return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+  return document.documentElement.classList.contains('light') ? 'light' : 'dark';
 }
 
 function subscribe(onChange: () => void) {
@@ -55,7 +63,7 @@ function subscribe(onChange: () => void) {
 
 export function ThemeToggle() {
   const t = useTranslations('theme');
-  const theme = useSyncExternalStore(subscribe, readDomTheme, () => 'light' as const);
+  const theme = useSyncExternalStore(subscribe, readDomTheme, () => 'dark' as const);
   const isDark = theme === 'dark';
 
   const toggle = useCallback(() => {

@@ -5,15 +5,14 @@ import { ADMIN_EMAIL, E2E_PASSWORD } from './helpers/accounts';
 /**
  * Dark mode.
  *
- * The interesting failure here is not "does the toggle work". It is the ordering
- * bug this suite was written after: the `@media (prefers-color-scheme: dark)`
- * block sat ABOVE the light `:root` block, and two equal-specificity rules mean
- * the last one wins. The stylesheet shipped a complete dark theme that could not
- * possibly apply, and nothing reported an error, because invalid-looking CSS that
- * parses fine is exactly what a stylesheet full of it looks like.
+ * Bershama is dark-first: the palette in globals.css has dark in `:root` and
+ * light in `:root.light`, so the product's own theme is what a stylesheet alone
+ * delivers -- no script, no stored preference, no flash, and no dependence on the
+ * operating system's colour scheme.
  *
- * So these tests assert the computed value, not the presence of a class. A test
- * that only checked for `.dark` on <html> would have passed against that build.
+ * These tests assert the computed value, not the presence of a class. A test that
+ * only checked for `.dark` on <html> would have passed against an earlier build
+ * that shipped a complete dark theme which could not possibly apply.
  */
 async function signIn(page: Page) {
   await page.goto('/en/login');
@@ -76,21 +75,37 @@ async function pollBackground(page: Page): Promise<string> {
 }
 
 test.describe('dark mode', () => {
-  test('defaults to the light palette in a light-colour-scheme browser', async ({
-    page,
-  }) => {
+  test('defaults to the dark palette, whatever the system says', async ({ page }) => {
+    /*
+     * The reversal, and the whole point of it.
+     *
+     * Dark is the BASE in globals.css, not a variant of it. So with no stored
+     * preference the page is the product's own theme, and the operating system's
+     * colour scheme has no say in the matter -- a visitor whose laptop is set to
+     * light sees the dark console, because that is what Bershama is.
+     *
+     * This test used to assert the opposite, and it was the right assertion for
+     * the product as it was. It changed because the product changed, not because
+     * the test was wrong.
+     */
     await page.emulateMedia({ colorScheme: 'light' });
     await surface(page);
 
     // Not a class check. The actual painted value, which is the thing a person
     // would notice if it were wrong.
     const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-    expect(isDark(bg), `body background ${bg} should be light`).toBe(false);
+    expect(isDark(bg), `body background ${bg} should be dark`).toBe(true);
   });
 
-  test('follows the OS to dark when the user has expressed no preference', async ({
+  test('the operating system preference does not change the default', async ({
     page,
   }) => {
+    /*
+     * The other half of the same reversal: a dark-scheme browser gets the same
+     * answer, and so does a light-scheme one. There is no "follow the OS" state
+     * any more, because the system preference is not a preference this product
+     * has an opinion about.
+     */
     await page.emulateMedia({ colorScheme: 'dark' });
     await surface(page);
 
@@ -131,13 +146,15 @@ test.describe('dark mode', () => {
      * The real anti-flash guarantee, and the reason the theme works with a
      * stylesheet alone.
      *
-     * globals.css honours prefers-color-scheme through a media query scoped to
-     * :root:not(.light):not(.dark). So the common case -- someone who has not
-     * chosen, following their OS -- is served by CSS, in the initial HTML, with
-     * no script and therefore no possible flash.
+     * Dark is the base in globals.css, so the common case -- someone who has not
+     * chosen -- is served by CSS, in the initial HTML, with no script and
+     * therefore no possible flash.
      *
-     * The class is asserted to be ABSENT here. If JavaScript is what is
-     * painting the dark theme, the class would be present and this would fail.
+     * The class is asserted to be ABSENT here. If JavaScript were what is painting
+     * the dark theme, a class would have to be present, and this would fail. It
+     * would also fail if the class were `light`, because that is the other way to
+     * be wrong: pinning light from a script is exactly the flash this design
+     * refuses to have.
      */
     await page.emulateMedia({ colorScheme: 'dark' });
     await page.evaluate(() => localStorage.removeItem('bershama:theme')).catch(() => {});
