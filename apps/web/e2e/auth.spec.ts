@@ -44,7 +44,23 @@ test.describe('the app is reachable', () => {
     // A 500 here is what the deployed project returned with no environment
     // variables configured: requireEnv() threw on the first request.
     expect(response?.status(), 'the login page should render, not 500').toBe(200);
-    await expect(page.getByRole('heading', { name: /bershama/i })).toBeVisible();
+
+    // The heading is the action, not the brand.
+    //
+    // It used to be the other way round: the app name as the h1 and "Sign in" as a
+    // subtitle, with the sentence explaining the product underneath both. A person who
+    // followed a link from a catalogue or a requisition email did not come here to
+    // read a brand name, and the brand was the loudest thing on the screen.
+    await expect(page.getByRole('heading', { name: /sign in/i })).toBeVisible();
+
+    // The brand is still there, as a wordmark beside the action. It is text, so it
+    // is announced; the glyph next to it is decorative and says nothing.
+    //
+    // Asserted on the wordmark rather than on the text alone, because "Bershama" also
+    // appears in the document title, and a text matcher finds whichever it reaches
+    // first -- which is how this ended up asserting that a <title> element was visible.
+    await expect(page.getByTestId('wordmark')).toBeVisible();
+    await expect(page.getByTestId('wordmark')).toHaveText(/bershama/i);
   });
 
   test('serves the Arabic sign-in page right to left', async ({ page }) => {
@@ -94,6 +110,22 @@ test.describe('signing in', () => {
   }) => {
     await signIn(page, ADMIN_EMAIL);
     await page.waitForURL('**/admin', { timeout: 20_000 });
+
+    // Wait for the cookie before reloading.
+    //
+    // The sign-in navigates on the client, and the browser client writes the session
+    // cookie separately. A reload issued the instant the URL changes can beat the
+    // write -- so the test was racing the thing it is measuring, and failing
+    // intermittently for a reason that had nothing to do with the session.
+    //
+    // Waiting for the cookie is also the more honest version of the test: it asserts
+    // that a cookie exists, which is the premise of "it is a cookie and not memory",
+    // and then asserts that the server reads it.
+    await page.waitForFunction(
+      () => document.cookie.includes('auth-token'),
+      undefined,
+      { timeout: 10_000 },
+    );
 
     await page.reload();
 

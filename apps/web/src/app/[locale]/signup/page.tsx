@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 
 import { SignupForm } from '@/components/signup-form';
 import { getSession } from '@/lib/session';
+import { Logo } from '@/components/logo';
 import type { Locale } from '@/i18n/routing';
 
 /**
@@ -27,6 +28,12 @@ export default async function SignupPage({
   return (
     <main className="flex min-h-dvh items-center justify-center px-4 py-12">
       <div className="w-full max-w-sm">
+        {/* The mark, so the two public entry screens look like the same product as
+            the one they lead into. A person who came from a link should not have
+            to guess whether they are somewhere else. */}
+        <div className="mb-6 flex justify-center">
+          <Logo />
+        </div>
         <SignupForm locale={locale} />
       </div>
     </main>

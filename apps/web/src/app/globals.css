@@ -898,6 +898,12 @@
   display: grid;
   gap: 1rem;
   grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  /* Each column is the height of its own content.
+     A grid stretches its items by default, so the shorter panel was padded out to
+     match the taller one -- and the shorter one was mostly empty. On the dashboard
+     that put a 300px teal panel around a sentence and half a screen of nothing
+     beside the queue. */
+  align-items: start;
 }
 
 @media (max-width: 60rem) {

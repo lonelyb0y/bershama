@@ -3,7 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { asRows } from '@/lib/mappers';
 import { getSupabase } from '@/lib/supabase/server';
 import { MetricTile } from '@/components/dashboard/glass';
-import { RankedBars } from '@/components/dashboard/charts';
+import { RankedBars, RankedBarsWithTable } from '@/components/dashboard/charts';
 import { daysToExpiry, formatMoney, formatQuantity } from '@/lib/format';
 import type { Locale } from '@/i18n/routing';
 
@@ -361,7 +361,12 @@ export default async function AnalyticsPage({
             <p className="mt-1 mb-3 text-xs text-[color:var(--text-muted)]">
               {t('expirySubtitle')}
             </p>
-            <RankedBars rows={expiryRanked} ariaLabel={t('expiryTitle')} />
+            <RankedBarsWithTable
+              rows={expiryRanked}
+              ariaLabel={t('expiryTitle')}
+              tableLabel={t('value')}
+              showLabel={t('showNumbers')}
+            />
           </section>
 
           <section className="pf-glass rounded-2xl p-4">
@@ -372,8 +377,10 @@ export default async function AnalyticsPage({
             {dead.length === 0 ? (
               <p className="text-sm text-[color:var(--text-muted)]">{t('deadNone')}</p>
             ) : (
-              <RankedBars
+              <RankedBarsWithTable
                 ariaLabel={t('deadTitle')}
+                tableLabel={t('value')}
+                showLabel={t('showNumbers')}
                 rows={[...dead]
                   .sort((a, b) => b.valueMinor - a.valueMinor)
                   .slice(0, 6)

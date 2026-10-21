@@ -39,7 +39,6 @@ export function LogoMark(props: SVGProps<SVGSVGElement>) {
       aria-hidden="true"
       {...props}
     >
-      <title>Bershama</title>
       <defs>
         <linearGradient id="bsh-capsule" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stopColor="var(--color-brand-500)" />
@@ -75,7 +74,9 @@ export function Logo({ className }: { className?: string }) {
   return (
     <span className={`inline-flex items-center gap-2 ${className ?? ''}`}>
       <LogoMark className="size-6 shrink-0" />
-      <span className="text-base font-semibold tracking-tight">
+      {/* The name is text, not an outline, and it is the accessible name of the
+          mark. The glyph beside it is decorative and says nothing. */}
+      <span data-testid="wordmark" className="text-base font-semibold tracking-tight">
         Bers<span className="text-[color:var(--color-brand-600)]">hama</span>
       </span>
     </span>

@@ -10,6 +10,7 @@ import { ArriveButton, FailStopForm, SignSheet } from '@/components/delivery/sto
 import { RunControls } from '@/components/delivery/run-controls';
 import { LivePositionReporter } from '@/components/delivery/live-position-reporter';
 import { ServiceWorkerRegistration } from '@/components/delivery/service-worker-registration';
+import { Badge } from '@/components/ui/badge';
 import type { Locale } from '@/i18n/routing';
 
 /**
@@ -200,13 +201,47 @@ export default async function DriverPage({ params }: { params: Promise<{ locale:
                 <li
                   key={stop.id}
                   data-testid={`stop-${stop.sequence}`}
-                  className={`space-y-3 rounded-xl border p-4 ${isNext ? 'border-sky-500/60' : ''}`}
+                  // The stop in front of you is a card, because it has the controls.
+                  // The other eight are a list, because they are information: a driver
+                  // reads down them to see what is coming, and a card per stop makes
+                  // that a scrolling exercise through eight near-identical boxes.
+                  className={`rounded-xl border ${
+                    isNext ? 'space-y-3 border-sky-500/60 p-4' : 'p-2.5'
+                  }`}
                 >
-                  <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <h2 className="font-medium">
-                      {stop.sequence}. {name}
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <h2 className="min-w-0 text-sm font-medium">
+                      <span className="text-[color:var(--text-muted)] tabular-nums">
+                        {stop.sequence}.
+                      </span>{' '}
+                      <span className="truncate">{name}</span>
                     </h2>
-                    <span className="text-xs text-current/60">{t(`status.stop.${stop.status}`)}</span>
+                    {/* A badge, not a grey sentence. The driver needs to know at a
+                        glance which stop is next and which was refused, and a status
+                        that is only a word in grey is neither quick nor loud. The
+                        shape survives a sunlit phone screen and a greyscale printout. */}
+                    <Badge
+                      tone={
+                        stop.status === 'DELIVERED'
+                          ? 'good'
+                          : stop.status === 'FAILED'
+                            ? 'bad'
+                            : stop.status === 'ARRIVED'
+                              ? 'warn'
+                              : 'neutral'
+                      }
+                      shape={
+                        stop.status === 'DELIVERED'
+                          ? 'diamond'
+                          : stop.status === 'FAILED'
+                            ? 'triangle'
+                            : stop.status === 'ARRIVED'
+                              ? 'circle'
+                              : 'square'
+                      }
+                    >
+                      {t(`status.stop.${stop.status}`)}
+                    </Badge>
                   </div>
 
                   {stop.failure_reason && (
@@ -251,7 +286,9 @@ export default async function DriverPage({ params }: { params: Promise<{ locale:
 
                   {isNext && (
                     <details className="text-sm">
-                      <summary className="cursor-pointer text-red-600">{t('driver.cannotDeliver')}</summary>
+                      <summary className="cursor-pointer text-sm font-medium text-[var(--color-stock-critical)]">
+                        {t('driver.cannotDeliver')}
+                      </summary>
                       <div className="mt-2">
                         <FailStopForm
                           stopId={stop.id}

@@ -2,6 +2,8 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 
 import { getSupabase } from '@/lib/supabase/server';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatTile } from '@/components/ui/stat-tile';
 import { getSession } from '@/lib/session';
 import { Link } from '@/i18n/routing';
 import type { Locale } from '@/i18n/routing';
@@ -23,6 +25,7 @@ export default async function InventoryIndex({
   setRequestLocale(locale);
 
   const t = await getTranslations('inventory');
+  const numberFormat = new Intl.NumberFormat(locale);
   const session = await getSession();
   if (!session) notFound();
 
@@ -69,29 +72,70 @@ export default async function InventoryIndex({
   ];
 
   return (
+    /*
+     * A hub is a map, not a wall.
+     *
+     * This was three cards and then about ninety per cent of the screen. A person
+     * arriving here had three doors to choose between and no idea which one held
+     * what, and no way to tell whether there was anything waiting.
+     *
+     * So: the figures first, because they are the reason to be on this page at all;
+     * then the doors, as a list rather than three wide boxes, because a list of
+     * three lines with a number each is denser and easier to scan than three
+     * rectangles.
+     */
     <div className="space-y-6">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight">{t('title')}</h1>
-        <p className="text-[color:var(--text-muted)] mt-1 text-sm">
-          {t('subtitle', { count: lowStock.count ?? 0 })}
-        </p>
-      </header>
+      <PageHeader
+        title={t('title')}
+        description={t('subtitle', { count: lowStock.count ?? 0 })}
+      />
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        {doors.map((d) => (
+      <section
+        aria-label={t('figures')}
+        className="grid gap-3 sm:grid-cols-3"
+      >
+        <StatTile
+          label={t('catalogue.title')}
+          value={numberFormat.format(products.count ?? 0)}
+          hint={t('catalogue.body', { count: products.count ?? 0 })}
+        />
+        <StatTile
+          label={t('batches.title')}
+          value={numberFormat.format(batches.count ?? 0)}
+          hint={t('batches.body', { count: batches.count ?? 0 })}
+        />
+        <StatTile
+          label={t('lowStockLabel')}
+          value={numberFormat.format(lowStock.count ?? 0)}
+          hint={t('lowStockHint')}
+          tone={lowStock.count && lowStock.count > 0 ? 'warn' : 'good'}
+        />
+      </section>
+
+      <nav aria-label={t('doors')} className="overflow-hidden rounded-xl border">
+        {doors.map((d, i) => (
           <Link
             key={d.href}
             href={d.href}
-          // This route is already the parent of where this link goes, so prefetching
-          // it round-trips a page you are standing on.
-          prefetch={false}
-            className="rounded-xl border p-5 transition-colors hover:bg-[color:var(--surface-raised)]"
+            // This route is already the parent of where this link goes, so prefetching
+            // it round-trips a page you are standing on.
+            prefetch={false}
+            className={`flex items-center justify-between gap-4 px-4 py-3 transition-colors hover:bg-[color:var(--surface-2)]/60 ${
+              i > 0 ? 'border-t' : ''
+            }`}
           >
-            <h2 className="font-semibold">{d.title}</h2>
-            <p className="text-[color:var(--text-muted)] mt-1 text-sm">{d.body}</p>
+            <div className="min-w-0">
+              <span className="block text-sm font-medium">{d.title}</span>
+              <span className="block text-xs text-[color:var(--text-muted)]">
+                {d.body}
+              </span>
+            </div>
+            <span aria-hidden="true" className="text-[color:var(--text-muted)]">
+              &#8250;
+            </span>
           </Link>
         ))}
-      </div>
+      </nav>
     </div>
   );
 }
