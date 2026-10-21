@@ -1309,34 +1309,72 @@
 }
 
 /*
- * The clearance. 24px at the top, so a floated 11px label has room to sit.
+ * The floating label, and the geometry that makes it work.
+ *
+ * ── the rule ──────────────────────────────────────────────────────────────────
+ *
+ * **The label occupies the value's position until it has to move.**
+ *
+ * That is the whole trick, and it is why an unfilled field reads as a field
+ * with something in it rather than as a box with a caption stuck on top. The
+ * label is not "moved down to be a placeholder" -- it IS the placeholder,
+ * in the same place, at the same size, on the same line.
+ *
+ * ── the two states, and the numbers ──────────────────────────────────────────
+ *
+ * A 56px control, in two states.
+ *
+ *   EMPTY AND UNFOCUSED -- the label is where the text will be, which is the
+ *   centre of the control. The control's own padding is 8px, so its content
+ *   box is 8..48 and the 20px line of `text-sm` sits at 18..38, centred. The
+ *   label is placed at exactly 18px with a 20px line-height, so the two
+ *   baselines are the same line and the difference is invisible.
+ *
+ *   FOCUSED OR FILLED -- the label rises into the top band: 6px, at 12px in a
+ *   14px line, so it ends at 20px. The control's padding grows to 26px, which
+ *   puts the value at 26..46 -- six pixels of air below the label. The
+ *   control's HEIGHT does not change, so nothing outside it moves and the
+ *   layout shift stays at zero.
+ *
+ * The padding grows because a label and a value cannot share a line, and the
+ * alternative -- a label jammed against the value -- is what looked cramped.
+ *
+ * ── what was wrong before ────────────────────────────────────────────────────
+ *
+ * The line-height was 21px against the input's 20px: one pixel of visible
+ * misalignment on every unfilled field in the product. And the risen label
+ * ended ZERO pixels above the value, with no air at all.
  *
  * `:not([type='checkbox'])` and `:not([type='radio'])` because a check inside
- * a Field is a different control entirely and a 24px top padding on a 16px box
- * is a broken box.
+ * a Field is a different control entirely, and a 26px top padding on a 16px
+ * box is a broken box.
  */
 .pf-field :is(
     input:not([type='checkbox']):not([type='radio']),
     textarea,
     select
   ) {
-  padding-top: var(--space-6);
-  padding-bottom: var(--space-2);
-  min-height: 3rem;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  min-height: 56px;
+  transition: padding-top 160ms var(--pf-spring);
 }
 
 .pf-field__label {
   position: absolute;
   inset-inline-start: var(--space-3);
-  top: var(--space-6);
+  /* The text's line box: 18px, with `text-sm`'s 20px line-height. */
+  top: 18px;
   font-size: 0.875rem;
-  line-height: 1.5;
+  line-height: 1.25rem;
+  font-weight: 500;
   color: var(--text-muted);
   /* The click belongs to the control underneath. */
   pointer-events: none;
   transition:
-    top 140ms var(--pf-spring),
-    font-size 140ms var(--pf-spring),
+    top 160ms var(--pf-spring),
+    font-size 160ms var(--pf-spring),
+    line-height 160ms var(--pf-spring),
     color 140ms var(--pf-ease);
 }
 
@@ -1350,9 +1388,30 @@
  */
 .pf-field:has(:is(input, textarea):focus) .pf-field__label,
 .pf-field:has(:is(input, textarea):not(:placeholder-shown)) .pf-field__label {
-  top: var(--space-2);
-  font-size: 0.6875rem;
+  /* The top band. It ends at 20px, and the value starts at 26px. */
+  top: 6px;
+  font-size: 0.75rem;
+  line-height: 0.875rem;
   color: var(--accent-ink);
+}
+
+/*
+ * And the value moves down to make room for the risen label.
+ *
+ * The control's height is fixed, so this is a movement INSIDE the control and
+ * not a layout shift: nothing outside it changes, and the page's CLS stays at
+ * zero. It is the one thing a floating label has to move, because a label and
+ * a value cannot share a line.
+ */
+.pf-field:has(:is(input, textarea):focus) :is(
+    input:not([type='checkbox']):not([type='radio']),
+    textarea
+  ),
+.pf-field:has(:is(input, textarea):not(:placeholder-shown)) :is(
+    input:not([type='checkbox']):not([type='radio']),
+    textarea
+  ) {
+  padding-top: 26px;
 }
 
 /*
@@ -1362,9 +1421,25 @@
  */
 .pf-field:has(select) .pf-field__label,
 .pf-field:has(input[type='date']) .pf-field__label {
-  top: var(--space-2);
-  font-size: 0.6875rem;
+  top: 6px;
+  font-size: 0.75rem;
+  line-height: 0.875rem;
   color: var(--accent-ink);
+}
+
+/* A select and a date field always display something, so their value is
+   always in the lower band. */
+.pf-field:has(select) :is(
+    input:not([type='checkbox']):not([type='radio']),
+    textarea,
+    select
+  ),
+.pf-field:has(input[type='date']) :is(
+    input:not([type='checkbox']):not([type='radio']),
+    textarea,
+    select
+  ) {
+  padding-top: 26px;
 }
 
 /*
