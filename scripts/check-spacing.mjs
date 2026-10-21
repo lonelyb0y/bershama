@@ -103,6 +103,17 @@ const ALLOWED_FRACTIONAL = new Set(['0.5']);
 const EXEMPT = new Map([
   // The 44px tap target. It is a deliberate exception to the scale, not a
   // drift from it, and it is written as min-h-11 so it is visible as one.
+
+  // The vendored chart components.
+  //
+  // `apps/web/src/components/charts/**` is Bklit's, installed with the shadcn
+  // CLI and regenerated whenever the registry item is updated. The half-steps in
+  // it are not drift -- they are how the library was written -- and they come
+  // back with every install, so a rule that is permanently red on files nobody
+  // edits stops being a signal and becomes noise.
+  //
+  // The components are covered by something better instead: the browser suite
+  // visits the dashboard and asserts the charts mounted.
 ]);
 
 function walk(dir) {
@@ -125,6 +136,9 @@ const offenders = [];
 for (const file of walk(ROOT)) {
   const rel = relative(process.cwd(), file);
   if (EXEMPT.has(rel)) continue;
+
+  // The vendored chart components, wholesale.
+  if (rel.includes('components/charts/')) continue;
 
   const source = readFileSync(file, 'utf8');
   const lines = source.split('\n');

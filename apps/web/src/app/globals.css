@@ -52,7 +52,6 @@
   --font-mono: var(--font-jetbrains-mono), var(--font-cairo), ui-monospace, SFMono-Regular, Menlo, monospace;
   --font-arabic: var(--font-cairo), var(--font-plex-arabic), var(--font-nunito), ui-sans-serif, sans-serif;
 
-
   /* Expiry severity. These four states are the visual language of the whole
      product: a warehouse operator should recognise an at-risk batch from colour
      alone, before reading a single number. */
@@ -179,6 +178,45 @@
   --chart-4: #e86a55;
   --chart-5: #a6a499;
 
+  /*
+   * The chart tokens, for the dark theme.
+   *
+   * The bklit components read a family of names, and the CLI that installed them
+   * put LIGHT values into the dark base block -- so the first thing that happened
+   * was a chart with a white plot area on a charcoal page.
+   *
+   * These are the apothecary palette, read as data: the accent leads, the two
+   * warm status colours follow, and the scale is a warm neutral ramp so a
+   * five-series chart never has to invent a hue.
+   */
+  --chart-background: transparent;
+  --chart-foreground: #f1efe8;
+  --chart-foreground-muted: #a6a499;
+  --chart-line-primary: var(--chart-1);
+  --chart-line-secondary: var(--chart-2);
+  --chart-crosshair: #666660;
+  --chart-grid: rgba(255, 255, 255, 0.07);
+  --chart-brush-border: var(--chart-grid);
+  --chart-tooltip-background: #1c1f1b;
+  --chart-tooltip-foreground: #f1efe8;
+  --chart-tooltip-muted: #a6a499;
+  --chart-marker-background: #232924;
+  --chart-marker-border: #333a33;
+  --chart-marker-foreground: #f1efe8;
+  --chart-marker-badge-background: #232924;
+  --chart-marker-badge-foreground: #f1efe8;
+  --chart-label: #a6a499;
+  --chart-indicator-color: var(--chart-1);
+  --chart-indicator-secondary-color: var(--chart-2);
+  --chart-segment-background: rgba(67, 177, 137, 0.16);
+  --chart-segment-line: #43b189;
+  --chart-scale-01: #18241e;
+  --chart-scale-02: #1c2a24;
+  --chart-scale-03: #22332b;
+  --chart-scale-04: #2a3f35;
+  --chart-scale-05: #334c40;
+  --chart-scale-pattern-color: #1c2a24;
+
   --sidebar: #1c1f1b;
   --sidebar-foreground: #f1efe8;
   --sidebar-primary: #43b189;
@@ -188,7 +226,6 @@
   --sidebar-border: rgba(255, 255, 255, 0.09);
   --sidebar-ring: #43b189;
 }
-
 
 :root.light {
   color-scheme: light;
@@ -261,6 +298,38 @@
   --chart-3: #8a5206;
   --chart-4: #a82a16;
   --chart-5: #6b6557;
+
+  /*
+   * The chart tokens, for the light theme. The same structure, the paper
+   * version of it.
+   */
+  --chart-background: transparent;
+  --chart-foreground: #1b1915;
+  --chart-foreground-muted: #6b6557;
+  --chart-line-primary: var(--chart-1);
+  --chart-line-secondary: var(--chart-2);
+  --chart-crosshair: #8c8a80;
+  --chart-grid: rgba(27, 25, 21, 0.08);
+  --chart-brush-border: var(--chart-grid);
+  --chart-tooltip-background: #ffffff;
+  --chart-tooltip-foreground: #1b1915;
+  --chart-tooltip-muted: #6b6557;
+  --chart-marker-background: #f6f3ec;
+  --chart-marker-border: #e2dccb;
+  --chart-marker-foreground: #1b1915;
+  --chart-marker-badge-background: #f6f3ec;
+  --chart-marker-badge-foreground: #1b1915;
+  --chart-label: #6b6557;
+  --chart-indicator-color: var(--chart-1);
+  --chart-indicator-secondary-color: var(--chart-2);
+  --chart-segment-background: rgba(15, 107, 79, 0.12);
+  --chart-segment-line: #0f6b4f;
+  --chart-scale-01: #eef4f1;
+  --chart-scale-02: #e2ede8;
+  --chart-scale-03: #d5e5de;
+  --chart-scale-04: #c5dcd3;
+  --chart-scale-05: #b2d0c4;
+  --chart-scale-pattern-color: #e2ede8;
 
   --sidebar: #ffffff;
   --sidebar-foreground: #1b1915;
@@ -708,6 +777,27 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+  --color-chart-scale-pattern-color: var(----chart-scale-pattern-color);
+  --color-chart-scale-05: var(----chart-scale-05);
+  --color-chart-scale-04: var(----chart-scale-04);
+  --color-chart-scale-03: var(----chart-scale-03);
+  --color-chart-scale-02: var(----chart-scale-02);
+  --color-chart-scale-01: var(----chart-scale-01);
+  --color-chart-label: var(----chart-label);
+  --color-chart-marker-foreground: var(----chart-marker-foreground);
+  --color-chart-marker-border: var(----chart-marker-border);
+  --color-chart-marker-background: var(----chart-marker-background);
+  --chart-tooltip-muted: var(----chart-tooltip-muted);
+  --chart-tooltip-foreground: var(----chart-tooltip-foreground);
+  --chart-tooltip-background: var(----chart-tooltip-background);
+  --chart-brush-border: var(----chart-brush-border);
+  --color-chart-grid: var(----chart-grid);
+  --color-chart-crosshair: var(----chart-crosshair);
+  --chart-line-secondary: var(----chart-line-secondary);
+  --chart-line-primary: var(----chart-line-primary);
+  --color-chart-foreground-muted: var(----chart-foreground-muted);
+  --color-chart-foreground: var(----chart-foreground);
+  --color-chart-background: var(----chart-background);
 }
 /*
  ---break---
@@ -1401,4 +1491,30 @@
   ::view-transition-new(root) {
     animation: none;
   }
+}
+/*
+ ---break---
+ */
+.dark {
+  --chart-1: oklch(1 0 none);
+  --chart-2: oklch(0.73 0 none);
+  --chart-3: oklch(0.51 0 none);
+  --chart-4: oklch(0.39 0 none);
+  --chart-5: oklch(0.32 0 none);
+  --chart-background: oklch(0.145 0 0);
+  --chart-foreground: oklch(0.45 0 0);
+  --chart-foreground-muted: oklch(0.65 0.01 260);
+  --chart-crosshair: oklch(0.45 0 0);
+  --chart-grid: oklch(0.25 0 0);
+  --chart-brush-border: var(--chart-grid);
+  --chart-marker-background: oklch(0.25 0.01 260);
+  --chart-marker-border: oklch(0.4 0.01 260);
+  --chart-marker-foreground: oklch(0.9 0 0);
+  --chart-label: oklch(0.75 0.01 260);
+  --chart-scale-01: oklch(0.28 0.03 270);
+  --chart-scale-02: oklch(0.38 0.04 270);
+  --chart-scale-03: oklch(0.48 0.05 270);
+  --chart-scale-04: oklch(0.58 0.06 270);
+  --chart-scale-05: oklch(0.68 0.07 270);
+  --chart-scale-pattern-color: oklch(0.145 0 0);
 }

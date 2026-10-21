@@ -22,6 +22,10 @@ const SURFACES = [
   { path: '/en/admin/inventory/products', expect: 'table' },
   { path: '/en/admin/inventory/batches', expect: 'table' },
   { path: '/en/admin/alerts', expect: 'alert-list' },
+  // The dashboard. Its charts are Bklit's now, which means they are client
+  // components with a data boundary -- and a data boundary is exactly where a
+  // chart breaks at runtime while every type check passes.
+  { path: '/en/admin', expect: 'dashboard' },
   // The account settings. It is new, it is the only page a driver can reach
   // that an administrator cannot, and it carries a form, a database column and
   // a session scope -- all three of which are exactly the things that fail at
@@ -41,6 +45,14 @@ test.describe('the list surfaces render', () => {
       // is the assertion, and the presence of the thing we wanted is the proof.
       await expect(page.getByText(/couldn.t load/i)).toHaveCount(0);
       await expect(page.getByText(/server error occurred/i)).toHaveCount(0);
+
+      if (surface.expect === 'dashboard') {
+        // The charts, not just the page. A dashboard whose charts failed to
+        // mount renders its panels and loses its data, which looks like an
+        // empty dashboard rather than like a broken one.
+        await expect(page.getByTestId('bar-trend-chart')).toBeVisible();
+        await expect(page.getByTestId('ranked-bars')).toBeVisible();
+      }
 
       if (surface.expect === 'settings') {
         // The sections, not just the page. A settings page that renders but is

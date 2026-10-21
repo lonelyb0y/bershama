@@ -1,18 +1,31 @@
+'use client';
+
+import { Bar } from '@/components/charts/bar';
+import { BarChart } from '@/components/charts/bar-chart';
+import { Ring } from '@/components/charts/ring';
+import { RingChart } from '@/components/charts/ring-chart';
+import { ChartTooltip } from '@/components/charts/tooltip/chart-tooltip';
+
 /**
- * The chart primitives, hand-drawn in SVG.
+ * The dashboard's charts.
  *
- * ── why not a charting library ───────────────────────────────────────────────
- * Every chart on this dashboard is bars, a line, and a number. That is roughly two
- * hundred lines of SVG, and a library would add a few hundred kilobytes to a page
- * that is already the second-slowest in the application for a grid of bars. It would
- * also own the design: the reference this is built to has a specific look — value
- * labels above points, a dotted trend line over solid bars — and a library would be
- * fought to produce it.
+ * ── why these are client components now ──────────────────────────────────────
  *
- * ── the one rule that matters for correctness ────────────────────────────────
- * Bars are scaled from zero, always. A chart that scales from its minimum flattens a
- * fall into nothing, which is the one thing a stock chart must never do: the reader
- * is looking at it to see the drop.
+ * They used to be server components drawing SVG by hand. They are not any more,
+ * because the charts are Bklit's now, and Bklit's charts animate -- they grow
+ * their bars, they settle their axes, they follow the pointer.
+ *
+ * That means JavaScript, and it means these are client components. Which is
+ * also why every point still carries a PRE-PRINTED `display` string: a
+ * formatter function cannot cross the server/client boundary, so the value is
+ * formatted on the server, where the locale and the currency are actually
+ * known.
+ *
+ * ── what did not change ──────────────────────────────────────────────────────
+ *
+ * The exported names, the props, and the table twins. Every page that draws a
+ * chart draws the same one, and the rule that a chart is never the only copy of
+ * the data has not moved.
  */
 
 export interface BarPoint {
@@ -24,11 +37,7 @@ export interface BarPoint {
 }
 
 /**
- * A bar series with an overlaid trend line and a highlighted value.
- *
- * The line is the trend; the bars are the detail. In the reference the line is
- * dotted and the bars solid, which is worth keeping: two encodings, two weights, and
- * the eye can follow either without them fighting.
+ * A bar chart of one quantity over time.
  *
  * ### One quantity per axis
  *
@@ -38,12 +47,6 @@ export interface BarPoint {
  * carry a second quantity on a scale it does not share, so it carries one. Cost and
  * margin are told by the two headline figures and the ranking beside this, both of
  * which are in the same unit.
- *
- * A **server** component, deliberately. It draws SVG and holds no state, so it has
- * no business being a client component -- and as a client component it could not
- * accept a formatter function, because functions do not cross the server/client
- * boundary. Every point therefore carries a pre-printed `display` string, formatted
- * on the server where the locale and currency are actually known.
  */
 export function BarTrendChart({
   points,
@@ -54,80 +57,68 @@ export function BarTrendChart({
 }) {
   if (points.length === 0) return null;
 
-  const W = 560;
-  const H = 240;
-  const PAD_BOTTOM = 26;
-  const PAD_TOP = 34;
-  const plotH = H - PAD_BOTTOM - PAD_TOP;
-  const slot = W / points.length;
-  const barW = Math.max(6, Math.min(28, slot * 0.42));
-
-  // From zero, never from the minimum -- see the note above.
-  const max = Math.max(...points.map((p) => p.value), 1);
-
-  const x = (i: number) => slot * i + slot / 2;
-  const y = (v: number) => PAD_TOP + plotH - (v / max) * plotH;
-
-
   return (
-    <svg
-      viewBox={`0 0 ${W} ${H}`}
-      role="img"
-      aria-label={ariaLabel}
-      data-testid="bar-trend-chart"
-      className="w-full"
-      preserveAspectRatio="none"
-    >
-      {/* Baseline only. Gridlines behind dense bars are noise -- the eye reads the
-          bars against the axis, not against a lattice. */}
-      <line
-        x1={0}
-        y1={PAD_TOP + plotH}
-        x2={W}
-        y2={PAD_TOP + plotH}
-        stroke="currentColor"
-        strokeOpacity="0.25"
-        strokeWidth={1}
-      />
+    <figure aria-label={ariaLabel} data-testid="bar-trend-chart" className="m-0">
+      <BarChart
+        data={points as unknown as Record<string, unknown>[]}
+        xDataKey="label"
+        margin={{ top: 12, right: 8, bottom: 8, left: 8 }}
+        aspectRatio="2 / 1"
+      >
+        <Bar
+          dataKey="value"
+          animationType="grow"
+          fill="var(--chart-line-primary)"
+        />
+        <ChartTooltip
+          showCrosshair={false}
+          content={({ point }) => (
+            <div className="text-xs">
+              <span className="block font-medium">{String(point.label ?? '')}</span>
+              <span className="block tabular-nums text-[var(--chart-foreground-muted)]">
+                {String(point.display ?? point.value ?? '')}
+              </span>
+            </div>
+          )}
+        />
+      </BarChart>
 
-      {points.map((point, i) => {
-        const barX = x(i) - barW / 2;
-        const barY = y(point.value);
-        const h = PAD_TOP + plotH - barY;
-        return (
-          <g key={point.label}>
-            <rect
-              x={barX}
-              y={barY}
-              width={barW}
-              height={Math.max(1, h)}
-              rx={3}
-              fill="currentColor"
-              fillOpacity={0.9}
-            />
-            <text
-              x={x(i)}
-              y={H - 8}
-              textAnchor="middle"
-              fontSize="10"
-              fill="currentColor"
-              fillOpacity="0.6"
-            >
-              {point.label}
-            </text>
-          </g>
-        );
-      })}
+      {/*
+        The category labels, in a grid with one cell per point.
 
-    </svg>
+        A grid rather than a flex row with `justify-between`, because the bars sit
+        in an equal-width band and a label centred in the same band lines up with
+        its bar. `justify-between` puts the first label on the left edge and the
+        last on the right, which is half a band out on both sides.
+      */}
+      <div
+        className="mt-2 grid gap-1 text-center text-[11px] text-[var(--text-muted)]"
+        style={{ gridTemplateColumns: `repeat(${points.length}, minmax(0, 1fr))` }}
+      >
+        {points.map((point) => (
+          <span key={point.label} className="truncate">
+            {point.label}
+          </span>
+        ))}
+      </div>
+    </figure>
   );
 }
 
 /**
- * A compact horizontal bar, for a ranked list.
+ * Ranked bars.
  *
- * Ranked lists are easier to scan than a pie or a stacked bar for four-to-eight
- * items, and they cost nothing to draw.
+ * ── why this one is still a list and not a chart ──────────────────────────────
+ *
+ * A chart puts the number on the pointer. A list puts the number on the row,
+ * always, without a hover and without JavaScript.
+ *
+ * For a person comparing four to eight batches -- which is the whole question
+ * this list answers -- the number being permanently visible is the feature. A
+ * chart here would be prettier and less usable, and the table twin underneath it
+ * would be the thing anybody actually reads.
+ *
+ * So the bars are still bars, in still CSS, and the list is still a list.
  */
 export function RankedBars({
   rows,
@@ -162,9 +153,8 @@ export function RankedBars({
 /**
  * A proportional ring, for the handful of "share of X" figures.
  *
- * Drawn with stroke-dasharray on a circle rather than with a conic-gradient: it
- * animates with a CSS transition on stroke-dashoffset, and it inherits currentColor
- * so it follows the theme without a second set of tokens.
+ * Bklit's ring, animated: the arc sweeps to its value on the first paint, which
+ * is the one animation on this page that says something rather than decorating.
  */
 export function ProportionRing({
   value,
@@ -177,27 +167,21 @@ export function ProportionRing({
   label: string;
   display: string;
 }) {
-  const R = 26;
-  const C = 2 * Math.PI * R;
   const fraction = total > 0 ? Math.min(1, value / total) : 0;
 
   return (
     <div className="flex flex-col items-center gap-2 text-center">
-      <svg viewBox="0 0 64 64" className="size-16 -rotate-90" role="img" aria-label={`${label}: ${display}`}>
-        <circle cx="32" cy="32" r={R} fill="none" stroke="currentColor" strokeOpacity="0.14" strokeWidth="6" />
-        <circle
-          cx="32"
-          cy="32"
-          r={R}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="6"
-          strokeLinecap="round"
-          strokeDasharray={C}
-          strokeDashoffset={C * (1 - fraction)}
-          className="text-[color:var(--color-brand-600)] transition-[stroke-dashoffset] duration-700"
-        />
-      </svg>
+      <div role="img" aria-label={`${label}: ${display}`} className="size-16">
+        <RingChart
+          data={[{ label, value: fraction * 100, maxValue: 100 }]}
+          size={64}
+          strokeWidth={6}
+          baseInnerRadius={0}
+          animationDuration={900}
+        >
+          <Ring index={0} color="var(--chart-line-primary)" />
+        </RingChart>
+      </div>
       <span className="text-sm font-semibold tabular">{display}</span>
       <span className="text-xs text-[color:var(--text-muted)]">{label}</span>
     </div>
