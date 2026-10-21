@@ -15,6 +15,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { AppNav } from '@/components/app-nav';
 import { HeaderCluster } from '@/components/header-cluster';
 import { Logo } from '@/components/logo';
+import { ConsoleDockNav } from '@/components/console-dock-nav';
 import { ROLES_BY_SURFACE, getSession, homeRouteForRole } from '@/lib/session';
 import { isLocale, Link, type Locale } from '@/i18n/routing';
 
@@ -141,6 +142,16 @@ export async function AuthenticatedShell({
       >
         {children}
       </main>
+
+      {/*
+        The console dock, on the admin surface only.
+
+        A magnification dock is a mouse affordance, and it is a quick-jump rail for
+        a person at a desk with six destinations in their head. The driver, the
+        pharmacy and the distributor surfaces are phone surfaces, where the
+        magnification does nothing, so the dock is not rendered there at all.
+      */}
+      {surface === 'admin' ? <ConsoleDockNav locale={locale} /> : null}
       </div>
   );
 }

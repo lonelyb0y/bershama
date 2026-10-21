@@ -436,7 +436,14 @@ export function SelectField<T extends string = string>({
 }) {
   return (
     <Field id={id} label={label} hint={hint} error={error} required={required}>
-      {({ id: fieldId, describedBy, invalid, placeholder: _ph, ...rest }) => (
+      {({ id: fieldId, describedBy, invalid, ...rest }) => {
+        // A select has no inside text -- it always shows a chosen option -- and
+        // `placeholder` is not a meaningful attribute on one, so it is removed
+        // rather than spread onto the element.
+        const selectProps = { ...rest } as { placeholder?: string };
+        delete selectProps.placeholder;
+
+        return (
         <select
           id={fieldId}
           required={required}
@@ -456,7 +463,8 @@ export function SelectField<T extends string = string>({
             </option>
           ))}
         </select>
-      )}
+        );
+      }}
     </Field>
   );
 }

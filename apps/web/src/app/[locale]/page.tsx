@@ -2,6 +2,8 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 
 import { Logo } from '@/components/logo';
+import { MarketingHeader } from '@/components/marketing-header';
+import { HomeBackground } from '@/components/home-background';
 import type { Locale } from '@/i18n/routing';
 
 /**
@@ -35,8 +37,6 @@ export default async function LandingPage({
   setRequestLocale(locale);
 
   const t = await getTranslations('landing');
-  const tNav = await getTranslations('nav');
-  const tCommon = await getTranslations('common');
 
   // The three rows in the operations panel, and the rail beneath the hero. The same
   // three that the inventory console shows, so the landing page and the product
@@ -73,48 +73,15 @@ export default async function LandingPage({
 
   return (
     <main className="min-h-[100dvh] bg-[var(--surface)] text-[var(--text)]">
-      {/* ── the top bar ─────────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-30 border-b border-[var(--border)] bg-[var(--surface)]/92 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-[1400px] items-center gap-6 px-4 sm:px-6">
-          <Link
-            href={`/${locale}`}
-            className="shrink-0 rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]"
-            aria-label={tCommon('appName')}
-          >
-            <Logo />
-          </Link>
+      {/* The animated background. It is decoration, it is deferred past the LCP
+          paint, and it never loads at all for a reader who has asked for
+          reduced motion or whose device has no WebGL. */}
+      <HomeBackground />
 
-          <nav aria-label={tNav('primary')} className="hidden items-center gap-1 lg:flex">
-            {['capabilities', 'compliance', 'network'].map((item) => (
-              <a
-                key={item}
-                href={`#${item}`}
-                className="rounded-md px-3 py-2 font-mono text-xs text-[var(--text-muted)] transition-colors hover:text-[var(--text)]"
-              >
-                {tNav(item)}
-              </a>
-            ))}
-          </nav>
-
-          <div className="ms-auto flex shrink-0 items-center gap-2">
-            <Link
-              href={`/${locale}/login`}
-              className="rounded-md px-3 py-2 text-sm font-medium text-[var(--text-muted)] transition-colors hover:text-[var(--text)]"
-            >
-              {t('signIn')}
-            </Link>
-            <Link
-              href={`/${locale}/signup`}
-              className="rounded-[10px] bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-[var(--primary-foreground)] transition-[filter,transform] active:translate-y-px"
-            >
-              {t('createOrg')}
-            </Link>
-          </div>
-        </div>
-      </header>
+      <MarketingHeader />
 
       {/* ── the hero ───────────────────────────────────────────────────────── */}
-      <section className="mx-auto max-w-[1400px] px-4 pt-14 pb-16 sm:px-6 sm:pt-20">
+      <section className="mx-auto max-w-[1400px] px-4 pt-10 pb-16 sm:px-6 sm:pt-14">
         <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
           <div className="pf-stagger">
             <p

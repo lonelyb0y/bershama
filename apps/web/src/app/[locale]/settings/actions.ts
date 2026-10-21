@@ -30,7 +30,7 @@ import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 
 import { getSupabase, getSupabaseApi } from '@/lib/supabase/server';
-import { isLocale, type Locale } from '@/i18n/routing';
+import { isLocale } from '@/i18n/routing';
 
 const COOKIE = 'NEXT_LOCALE';
 const YEAR = 60 * 60 * 24 * 365;

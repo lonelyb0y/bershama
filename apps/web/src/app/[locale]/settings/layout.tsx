@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { setRequestLocale } from 'next-intl/server';
 
 import { AuthenticatedShell } from '@/components/authenticated-shell';
 import { getSession } from '@/lib/session';
