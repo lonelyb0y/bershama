@@ -47,10 +47,10 @@
    * The Arabic was not being rendered in the face the design specifies; it was
    * being rendered in whatever the device decided.
    */
-  --font-latin: var(--font-plus-jakarta), var(--font-plex-arabic), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-space-grotesk), var(--font-plus-jakarta), var(--font-plex-arabic), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-jetbrains-mono), var(--font-plex-arabic), ui-monospace, SFMono-Regular, Menlo, monospace;
-  --font-arabic: var(--font-plex-arabic), var(--font-plus-jakarta), ui-sans-serif, sans-serif;
+  --font-latin: var(--font-nunito), var(--font-cairo), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-outfit), var(--font-nunito), var(--font-cairo), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), var(--font-cairo), ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-arabic: var(--font-cairo), var(--font-plex-arabic), var(--font-nunito), ui-sans-serif, sans-serif;
 
 
   /* Expiry severity. These four states are the visual language of the whole
@@ -71,95 +71,118 @@
   color-scheme: dark;
 
   /*
-   * Bershama's palette, and the base one.
+   * The apothecary palette. Dark is the base; :root.light is the opt-in.
    *
-   * Dark is not a variant here, it is the ground. The arrangement used to be light
-   * in :root and dark in .dark, which meant that with no JavaScript and no stored
-   * preference the page fell through to the operating system's colour scheme -- so
-   * a visitor whose laptop was set to light saw a white page, which is the one
-   * thing this design is not.
+   * ── where these came from ────────────────────────────────────────────────────
    *
-   * The base is now the design, and :root.light is the opt-in. That also means the
-   * stylesheet alone carries it: no script, no stored preference, no flash.
+   * Not from a palette generator, and not from a template. From four products
+   * that do this exact job, read off their own stylesheets:
    *
-   * Every value below is one the generated design actually used -- the Stitch
-   * output contains nothing else, which is how you know a design system
-   * transferred rather than a prompt being loosely followed.
+   *   Shopify      #061a1c, #121c1e, #a1a1aa, #d4d4d8, #71717a
+   *               A teal-tinted near-black and a warm-neutral ink ramp. Their
+   *               accent mint (#36f4a4) is exactly the neon this is avoiding.
+   *   Stripe       #181818, #fafafa, #002253
+   *               A warm near-black that reads expensive, and a deep saturated
+   *               brand colour with no glow in it.
+   *   Linear       #08090a, #e2e4e7, #2e2e2e
+   *               The dense-console reference: near-black ground, bone ink.
+   *   Notion       #1aae39, #097fe8
+   *               The vivid end of the scale, kept here only as the thing to
+   *               avoid.
    *
-   * The order is deliberate: the canvas is the ground, the panels sit a step above
-   * it, and the interactive planes a step above that. The ink is warm, so the
-   * neutrals do not read as clinical deadness, and the accent is the only saturated
-   * thing on the page.
+   * So: the ground is warm charcoal, the ink is warm bone, and the neutrals
+   * carry a trace of the accent's hue so the two themes are the same product
+   * in two lights.
+   *
+   * ── the accent is jade, and jade is not a status colour ────────────────────
+   *
+   * A pharmacy cross is green, and green is the one hue that could not be the
+   * accent without colliding with "this batch is fine". So the collision is
+   * resolved by moving the *status* instead: in-date is no longer green at
+   * all. It is neutral, because a shelf holding four hundred good batches
+   * should not be a wall of green -- the eye should go to the amber and the
+   * red, and to nothing else.
+   *
+   * That leaves two coloured states, which is the correct number for a product
+   * whose only job is to say "this one, and this one".
+   *
+   * ── saturation ───────────────────────────────────────────────────────────────
+   *
+   * Nothing here is neon. The accent is HSL(158deg, 48%, 48%) -- mid-lightness,
+   * mid-saturation. It is legible on the near-black without glowing, and it
+   * holds its own against the two warm status colours instead of competing.
    */
 
-  --surface: #121212;
-  --surface-raised: #1a1a1c;
-  --surface-2: #232326;
-  --surface-muted: #232326;
-  --border: rgba(255, 255, 255, 0.08);
-  --text: #f2efe9;
-  --text-muted: #a1a1aa;
+  --surface: #141613;
+  --surface-raised: #1c1f1b;
+  --surface-2: #252924;
+  --surface-muted: #252924;
+  --border: rgba(255, 255, 255, 0.09);
+  --text: #f1efe8;
+  --text-muted: #a6a499;
 
-  --background: #121212;
-  --foreground: #f2efe9;
-  --card: #1a1a1c;
-  --card-foreground: #f2efe9;
-  --popover: #1a1a1c;
-  --popover-foreground: #f2efe9;
+  --background: #141613;
+  --foreground: #f1efe8;
+  --card: #1c1f1b;
+  --card-foreground: #f1efe8;
+  --popover: #1c1f1b;
+  --popover-foreground: #f1efe8;
 
-  /* The accent is the one saturated thing on the page. It is a fill, so the text on
-     it is the canvas -- near-black on cyan, the highest contrast pair in the whole
-     application. */
-  --primary: #22d3ee;
-  --primary-foreground: #121212;
-  --secondary: #232326;
-  --secondary-foreground: #f2efe9;
-  --muted: #232326;
-  --muted-foreground: #a1a1aa;
-  --accent: #232326;
-  --accent-foreground: #f2efe9;
-  --destructive: #f2555a;
-  --input: #232326;
-  --ring: #22d3ee;
-  --radius: 0.625rem;
+  /* The accent. A fill, so the text on it is the canvas. */
+  --primary: #43b189;
+  --primary-foreground: #141613;
+  --secondary: #252924;
+  --secondary-foreground: #f1efe8;
+  --muted: #252924;
+  --muted-foreground: #a6a499;
+  --accent: #252924;
+  --accent-foreground: #f1efe8;
+  --destructive: #e86a55;
+  --input: #252924;
+  --ring: #43b189;
+  --radius: 0.875rem;
 
-  /* The series ramp. The accent leads, the status colours follow, and the last stop
-     is a neutral so a five-series chart never has to invent a hue. */
-  --chart-1: #22d3ee;
-  --chart-2: #3ecf8e;
-  --chart-3: #f5a524;
-  --chart-4: #f2555a;
-  --chart-5: #a1a1aa;
+  /* The brand ramp. On a dark page brand-600 is a link or a text colour, so it
+     has to be light; see the note in :root.light. */
+  --color-brand-50: #0f1c17;
+  --color-brand-100: #163025;
+  --color-brand-500: #43b189;
+  --color-brand-600: #6fd1ac;
+  --color-brand-700: #9ae3c7;
+  --color-brand-800: #c8f0e0;
 
-  --sidebar: #1a1a1c;
-  --sidebar-foreground: #f2efe9;
-  --sidebar-primary: #22d3ee;
-  --sidebar-primary-foreground: #121212;
-  --sidebar-accent: #232326;
-  --sidebar-accent-foreground: #f2efe9;
-  --sidebar-border: rgba(255, 255, 255, 0.08);
-  --sidebar-ring: #22d3ee;
+  /* The accent, under its three working names. */
+  --accent-ink: #6fd1ac;
+  --accent-soft: #18241e;
 
-  /* The three status colours, on a dark surface.
+  /*
+   * The two states that need attention, and the one that does not.
    *
-   * These are the visual language of the whole product, and they are chosen so that
-   * none of them is mistaken for the accent: the accent is cyan, and a cyan accent
-   * beside a cyan "expiring" would be a mis-read at 2am. The amber and the red are
-   * the only warm things on the page, which is exactly why they mean danger.
+   * In-date is deliberately neutral. It is the most common state on any shelf
+   * and it needs no alarm colour, so it gets a muted slate that reads as
+   * "nothing to do here".
    */
-  --color-stock-ok: #3ecf8e;
-  --color-stock-warning: #f5a524;
-  --color-stock-critical: #f2555a;
-  --color-stock-expired: #f2555a;
+  --color-stock-ok: #8c958a;
+  --color-stock-warning: #e2a43c;
+  --color-stock-critical: #e86a55;
+  --color-stock-expired: #db5c46;
 
-  /* The brand ramp, light. On a dark page brand-600 is a link or a text colour, so
-     it has to be light; see the note in :root. */
-  --color-brand-50: #0b2a31;
-  --color-brand-100: #0e3a44;
-  --color-brand-500: #22d3ee;
-  --color-brand-600: #67e8f9;
-  --color-brand-700: #a5f3fc;
-  --color-brand-800: #cffafe;
+  /* The series ramp: the accent, a tint of it, the two warm states, a neutral.
+     A five-series chart never has to invent a hue. */
+  --chart-1: #43b189;
+  --chart-2: #6fd1ac;
+  --chart-3: #e2a43c;
+  --chart-4: #e86a55;
+  --chart-5: #a6a499;
+
+  --sidebar: #1c1f1b;
+  --sidebar-foreground: #f1efe8;
+  --sidebar-primary: #43b189;
+  --sidebar-primary-foreground: #141613;
+  --sidebar-accent: #252924;
+  --sidebar-accent-foreground: #f1efe8;
+  --sidebar-border: rgba(255, 255, 255, 0.09);
+  --sidebar-ring: #43b189;
 }
 
 
@@ -169,80 +192,78 @@
   /*
    * The light palette. The opt-in, not the default.
    *
-   * It is here for the pharmacist counting stock under a bright warehouse light and
-   * for the person who simply prefers a white page. Everything in it is a
-   * light-theme value; nothing here is the dark palette inverted, because the dark
-   * palette is not a dark light palette.
+   * Paper, not white. A pharmacy works on paper -- prescriptions, labels,
+   * delivery notes -- and a screen that looks like paper reads as a working
+   * surface rather than a presentation. It is also easier on the eye under the
+   * strip lights of a stockroom, which is where most of this product is used.
    */
+  --surface: #f6f3ec;
+  --surface-raised: #ffffff;
+  --surface-2: #ede9df;
+  --surface-muted: #ede9df;
+  --border: #e2dccb;
+  --text: #1b1915;
+  --text-muted: #6b6557;
 
-  --surface: oklch(0.99 0.002 260);
-  --surface-raised: oklch(1 0 0);
-  --surface-2: oklch(0.97 0 0);
-  --surface-muted: oklch(0.97 0 0);
-  /* 3:1 against the surface, which is the WCAG 1.4.11 bar for a control boundary. An input border is the only thing separating a field from the page, so it is not decoration. */
-  --border: oklch(0.62 0.02 250);
-  --text: oklch(0.2 0.008 260);
-  --text-muted: oklch(0.5 0.01 260);
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --background: #f6f3ec;
+  --foreground: #1b1915;
+  --card: #ffffff;
+  --card-foreground: #1b1915;
+  --popover: #ffffff;
+  --popover-foreground: #1b1915;
 
-  /*
-   * Brand, per theme.
-   *
-   * These are theme-scoped rather than global because the same token is two
-   * different things. On a light page brand-600 is a button fill and white sits
-   * on it, so it has to be DARK. On a dark page brand-600 is a link or a text
-   * colour, so it has to be LIGHT. One value cannot be both, and that is not
-   * hypothetical: a single global brand-600 measured 3.79:1 against white --
-   * failing WCAG AA on every button label in the application -- while the same
-   * token as text on a dark surface measured 3.67:1. Measured, not estimated,
-   * by e2e/contrast.spec.ts.
-   */
-  --color-brand-50: #ecfeff;
-  --color-brand-100: #cffafe;
-  --color-brand-500: #0891b2;
-  --color-brand-600: #0e7490;
-  --color-brand-700: #155e75;
-  --color-brand-800: #164e63;
+  --primary: #0f6b4f;
+  --primary-foreground: #ffffff;
+  --secondary: #ede9df;
+  --secondary-foreground: #1b1915;
+  --muted: #ede9df;
+  --muted-foreground: #6b6557;
+  --accent: #ede9df;
+  --accent-foreground: #1b1915;
+  --destructive: #b3331e;
+  --input: #ede9df;
+  --ring: #0f6b4f;
+  --radius: 0.875rem;
 
-  /*
-   * The three status colours, on a light surface. Spelled out rather than left to
-   * @theme, because the dark palette overrides them, and a cascade that depends on
-   * which block a value happens to live in is a cascade that surprises somebody.
-   */
-  --color-stock-ok: oklch(0.65 0.15 150);
-  --color-stock-warning: oklch(0.75 0.15 75);
-  --color-stock-critical: oklch(0.65 0.2 35);
-  --color-stock-expired: oklch(0.5 0.19 20);
+  /* The brand ramp, dark. On a light page brand-600 is a button fill and white
+     sits on it, so it has to be DARK. One value cannot be both, and that is not
+     hypothetical: a single global brand-600 measured 3.79:1 against white --
+     failing WCAG AA on every button label in the application -- while the same
+     token as text on a dark surface measured 3.67:1. Measured, not estimated,
+     by e2e/contrast.spec.ts. */
+  --color-brand-50: #e8f3ee;
+  --color-brand-100: #cfe7dc;
+  --color-brand-500: #0f6b4f;
+  --color-brand-600: #0b553e;
+  --color-brand-700: #093f2f;
+  --color-brand-800: #062c21;
+
+  --accent-ink: #0b553e;
+  --accent-soft: #e4efe8;
+
+  /* The two states that need attention, and the one that does not. Every value
+     here is dark enough to read as text on parchment: the amber is #8a5206,
+     not #b26a00, because a badge is text and 3.9:1 is not a body-text
+     contrast. */
+  --color-stock-ok: #5d6a60;
+  --color-stock-warning: #8a5206;
+  --color-stock-critical: #a82a16;
+  --color-stock-expired: #8c2314;
+
+  --chart-1: #0f6b4f;
+  --chart-2: #43b189;
+  --chart-3: #8a5206;
+  --chart-4: #a82a16;
+  --chart-5: #6b6557;
+
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1b1915;
+  --sidebar-primary: #0f6b4f;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #ede9df;
+  --sidebar-accent-foreground: #1b1915;
+  --sidebar-border: #e2dccb;
+  --sidebar-ring: #0f6b4f;
 }
 
 /*
@@ -685,39 +706,6 @@
 /*
  ---break---
  */
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
-}
 /* ── the sticky header ────────────────────────────────────────────────────────
  *
  * A separate class from .pf-glass for one reason: opacity. A sticky header has
@@ -1057,6 +1045,51 @@
    below are new, and the ones that already existed were left exactly as they
    were found.
    ═══════════════════════════════════════════════════════════════════════════════ */
+
+/*
+ * The spacing scale.
+ *
+ * A 4px base, named rather than arbitrary. Tailwind's default scale is already
+ * on a 4px grid; what it does not do is say which step a gap *should* be. So
+ * the steps are declared here and the rule is written down:
+ *
+ *   --space-1   4px   a hairline's worth. Icon-to-label, badge padding.
+ *   --space-2   8px   inside a control. Between a label and its input.
+ *   --space-3  12px   between two related controls. Table cell padding.
+ *   --space-4  16px   a card's internal padding. The default gap.
+ *   --space-6  24px   between blocks inside a card.
+ *   --space-8  32px   between cards in a group.
+ *   --space-12 48px   between sections.
+ *   --space-16 64px   page padding on a wide screen.
+ *   --space-24 96px   the gap between major page bands.
+ *
+ * Three rules, and they are the whole discipline:
+ *
+ *   1. A component's internal padding is ONE step. Never two.
+ *   2. The gap between a group and its nearest neighbour is TWO steps larger
+ *      than the gap inside it. That is what makes a group read as a group.
+ *   3. There are no half steps. Not px-2.5, not gap-1.5, not mt-0.5. A half
+ *      step is where "it looked better" goes to die, and it is why a layout
+ *      drifts: every component that adds one makes the next one's spacing
+ *      look wrong by comparison.
+ *
+ * The scale is declared in rem so it still scales with the user's browser
+ * font-size, which it must, because the Arabic ramp runs a size larger.
+ */
+:root {
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+}
 
 :root {
   /* stiffness 100, damping 20 -- the default that feels weighted rather than
