@@ -1295,6 +1295,40 @@
 }
 
 /*
+ * The dashboard reveal.
+ *
+ * Four elements, staggered by thirty-five milliseconds each, arriving in the
+ * order they appear. It was GSAP, and it is now this.
+ *
+ * The stagger is capped at four steps, which is how many elements there are --
+ * and that cap is the point. A grid of nine tiles staggered over two seconds
+ * makes the last one arrive after the reader has given up waiting, which is the
+ * failure the original thirty-five millisecond step was chosen to avoid.
+ *
+ * `both` on the animation means the element is at its start state before the
+ * delay elapses, so nothing flashes at full opacity first and then jumps.
+ */
+.pf-reveal-scope > [data-reveal] {
+  animation: pf-fade-up 420ms var(--pf-spring) both;
+}
+
+.pf-reveal-scope > [data-reveal]:nth-child(1) {
+  animation-delay: 0ms;
+}
+
+.pf-reveal-scope > [data-reveal]:nth-child(2) {
+  animation-delay: 35ms;
+}
+
+.pf-reveal-scope > [data-reveal]:nth-child(3) {
+  animation-delay: 70ms;
+}
+
+.pf-reveal-scope > [data-reveal]:nth-child(n + 4) {
+  animation-delay: 105ms;
+}
+
+/*
  * The theme cross-fade.
  *
  * The browser's default root transition is a 250ms linear-ish fade. This one is
@@ -1345,6 +1379,7 @@
 @media (prefers-reduced-motion: reduce) {
   .pf-reveal,
   .pf-stagger > *,
+  .pf-reveal-scope > [data-reveal],
   .pf-live-dot {
     animation: none;
   }
