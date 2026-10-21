@@ -80,7 +80,7 @@
     "subtitle": "{count, plural, one {# request} other {# requests}}, newest first",
     "listLabel": "Requisitions",
     "empty": "No requests yet. Raise one to get started.",
-    "selectHint": "Choose a request on the left to see its lines, or raise a new one.",
+    "selectHint": "Choose a request to see its lines, or raise a new one.",
     "status": {
       "DRAFT": "Draft",
       "SUBMITTED": "Submitted",

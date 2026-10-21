@@ -216,10 +216,11 @@ export default async function RequisitionsPage({
       {/* ── the open request ─────────────────────────────────────────────── */}
       <div>
         {!openRow ? (
-          <div className="flex min-h-64 items-center justify-center rounded-xl border border-dashed p-8">
-            <p className="max-w-sm text-center text-sm text-[color:var(--text-muted)]">
-              {t('selectHint')}
-            </p>
+          /* A 256px dashed box with a sentence in the middle of it. The list is
+             directly above, so the height was not creating space for anything --
+             it was just a void with a line of text in it. */
+          <div className="rounded-xl border border-dashed p-4">
+            <p className="text-sm text-[color:var(--text-muted)]">{t('selectHint')}</p>
           </div>
         ) : (
           <RequestDetail
