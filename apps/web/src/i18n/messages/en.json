@@ -429,7 +429,18 @@
     },
     "daysColumn": "Days to expiry",
     "over": "over",
-    "emptyBody": "A batch is a specific lot of a product with its own expiry date. Receive stock against a product and its batches appear here, expiring soonest first."
+    "emptyBody": "A batch is a specific lot of a product with its own expiry date. Receive stock against a product and its batches appear here, expiring soonest first.",
+    "live": "Live",
+    "windowLabel": "Expiry window",
+    "figures": "Key figures",
+    "figureTotal": "Total batches",
+    "figureTotalHint": "Every lot on the shelf",
+    "figureExpiring": "Expiring in the window",
+    "figureExpiringHint": "Needs a decision",
+    "figureExpired": "Expired",
+    "figureExpiredHint": "Past the date",
+    "figureQuarantined": "Quarantined",
+    "figureQuarantinedHint": "Received, not yet released"
   },
   "deliveries": {
     "status": {
