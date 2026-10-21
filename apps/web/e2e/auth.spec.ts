@@ -53,9 +53,14 @@ test.describe('the app is reachable', () => {
     // read a brand name, and the brand was the loudest thing on the screen.
     await expect(page.getByRole('heading', { name: /sign in/i })).toBeVisible();
 
-    // The brand is still there, as a mark beside the action. It is text, so it is
-    // announced; the glyph next to it is decorative and marked as such.
-    await expect(page.getByText(/bershama/i).first()).toBeVisible();
+    // The brand is still there, as a wordmark beside the action. It is text, so it
+    // is announced; the glyph next to it is decorative and says nothing.
+    //
+    // Asserted on the wordmark rather than on the text alone, because "Bershama" also
+    // appears in the document title, and a text matcher finds whichever it reaches
+    // first -- which is how this ended up asserting that a <title> element was visible.
+    await expect(page.getByTestId('wordmark')).toBeVisible();
+    await expect(page.getByTestId('wordmark')).toHaveText(/bershama/i);
   });
 
   test('serves the Arabic sign-in page right to left', async ({ page }) => {
