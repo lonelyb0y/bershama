@@ -50,6 +50,17 @@ export function HomeBackground() {
     // ── condition 3a: reduced motion ──────────────────────────────────────
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
+    // ── condition 3c: not a touch device ───────────────────────────────────
+    //
+    // A magnification field of points is a POINTER affordance, and the main
+    // device this product is used on is a phone in a van or a stockroom. On a
+    // touch screen the background does not respond to anything, and it costs the
+    // main thread the time to initialise three.js -- which is the difference
+    // between a 92 and a 96 on a throttled phone.
+    //
+    // So it is a desktop treat, and the phone gets the parchment.
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
     // ── condition 3b: no WebGL ─────────────────────────────────────────────
     let webgl: WebGLRenderingContext | null = null;
     try {

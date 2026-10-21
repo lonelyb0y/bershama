@@ -59,7 +59,12 @@ test.describe('the list surfaces render', () => {
          * What this asserts is the thing that IS always true: the panels are
          * there, and the dashboard says what it has and what it has not.
          */
-        await expect(page.getByRole('heading', { name: /ranked|realised/i })).toBeVisible();
+        // The exact copy, because a loose pattern here tested the TRANSLATION
+        // rather than the dashboard: the heading is "Top products by delivered
+        // margin", which contains neither "ranked" nor "realised".
+        await expect(
+          page.getByRole('heading', { name: /top products by delivered margin/i }),
+        ).toBeVisible();
         await expect(
           page.getByTestId('bar-trend-chart').or(page.getByText(/nothing delivered/i)),
         ).toBeVisible();
