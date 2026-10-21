@@ -187,18 +187,18 @@ export default async function ProductsPage({
             defaultValue={query}
             placeholder={t('searchPlaceholder')}
             aria-label={t('searchPlaceholder')}
-            className="w-full max-w-sm rounded-lg border bg-transparent px-3 py-1.5 text-sm"
+            className="w-full max-w-sm rounded-lg border bg-transparent px-3 py-2 text-sm"
           />
           <button
             type="submit"
-            className="rounded-lg border px-3 py-1.5 text-sm font-medium hover:bg-[color:var(--text-muted)]/10"
+            className="rounded-lg border px-3 py-2 text-sm font-medium hover:bg-[color:var(--text-muted)]/10"
           >
             {t('search')}
           </button>
           {query !== '' ? (
             <Link
               href="/admin/inventory/products"
-              className="rounded-lg border px-3 py-1.5 text-sm font-medium hover:bg-[color:var(--text-muted)]/10"
+              className="rounded-lg border px-3 py-2 text-sm font-medium hover:bg-[color:var(--text-muted)]/10"
             >
               {t('clear')}
             </Link>

@@ -166,7 +166,7 @@ export default async function RequisitionsPage({
       <div className="space-y-4">
         <header>
           <h1 className="text-2xl font-semibold tracking-tight">{t('title')}</h1>
-          <p className="text-[color:var(--text-muted)] mt-1 text-sm">
+          <p className="text-[color:var(--text-muted)] text-sm">
             {t('subtitle', { count: rows.length })}
           </p>
         </header>
@@ -294,7 +294,7 @@ function RequestDetail({
           <h2 dir="ltr" className="font-mono text-xl font-semibold tracking-tight">
             {row.code}
           </h2>
-          <p className="text-[color:var(--text-muted)] mt-1 text-sm">{facilityName}</p>
+          <p className="text-[color:var(--text-muted)] text-sm">{facilityName}</p>
           {row.justification && (
             <p className="mt-2 text-sm">{row.justification}</p>
           )}
@@ -377,7 +377,7 @@ function RequestDetail({
 
       {row.status === 'DRAFT' && canRaise && (
         <form action={submitRequisition}>
-          <input type="hidden" name="requisitionId" value={row.id} />
+          <input placeholder=" " type="hidden" name="requisitionId" value={row.id} />
           <button
             type="submit"
             className="rounded-lg bg-[var(--color-brand-600)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--color-brand-700)]"
@@ -393,7 +393,7 @@ function RequestDetail({
 
           <div className="flex flex-wrap items-center gap-2">
             <form action={approveRequisition}>
-              <input type="hidden" name="requisitionId" value={row.id} />
+              <input placeholder=" " type="hidden" name="requisitionId" value={row.id} />
               <button
                 type="submit"
                 className="rounded-lg bg-[var(--color-brand-600)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--color-brand-700)]"
@@ -407,7 +407,7 @@ function RequestDetail({
                 {labels.reject}
               </summary>
               <form action={rejectRequisition} className="mt-2 flex gap-2">
-                <input type="hidden" name="requisitionId" value={row.id} />
+                <input placeholder=" " type="hidden" name="requisitionId" value={row.id} />
                 <label className="sr-only" htmlFor="reject-note">
                   {labels.rejectReason}
                 </label>
@@ -416,11 +416,11 @@ function RequestDetail({
                   name="note"
                   required
                   placeholder={labels.rejectReason}
-                  className="flex-1 rounded-lg border px-3 py-2 text-sm"
+                  className="flex-1 rounded-2xl border px-3 text-sm"
                 />
                 <button
                   type="submit"
-                  className="rounded-lg border px-3 py-2 text-sm font-medium hover:bg-[color:var(--text-muted)]/10"
+                  className="rounded-2xl border px-3 text-sm font-medium hover:bg-[color:var(--text-muted)]/10"
                 >
                   {labels.reject}
                 </button>

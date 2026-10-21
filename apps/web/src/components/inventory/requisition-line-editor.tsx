@@ -249,7 +249,7 @@ export function RequisitionLineEditor({
             matches.map((p) => (
               <label
                 key={p.id}
-                className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-[color:var(--surface-raised)]"
+                className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-2 text-sm hover:bg-[color:var(--surface-raised)]"
               >
                 <input
                   type="radio"

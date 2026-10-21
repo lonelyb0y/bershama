@@ -139,7 +139,7 @@ export function RankedBars({
   const max = Math.max(...rows.map((r) => r.value), 1);
 
   return (
-    <ul aria-label={ariaLabel} data-testid="ranked-bars" className="space-y-2.5">
+    <ul aria-label={ariaLabel} data-testid="ranked-bars" className="space-y-3">
       {rows.map((row) => (
         <li key={row.id} className="group">
           <div className="flex items-baseline justify-between gap-3 text-sm">
@@ -147,7 +147,7 @@ export function RankedBars({
             <span className="shrink-0 tabular text-[color:var(--text-muted)]">{row.display}</span>
           </div>
           {row.sub && <p className="truncate text-xs text-[color:var(--text-muted)]">{row.sub}</p>}
-          <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-current/10">
+          <div className="mt-1 h-2 overflow-hidden rounded-full bg-current/10">
             <div
               className="h-full rounded-full bg-[color:var(--color-brand-600)] transition-[width] duration-500"
               style={{ width: `${Math.max(2, (row.value / max) * 100)}%` }}
@@ -182,7 +182,7 @@ export function ProportionRing({
   const fraction = total > 0 ? Math.min(1, value / total) : 0;
 
   return (
-    <div className="flex flex-col items-center gap-1.5 text-center">
+    <div className="flex flex-col items-center gap-2 text-center">
       <svg viewBox="0 0 64 64" className="size-16 -rotate-90" role="img" aria-label={`${label}: ${display}`}>
         <circle cx="32" cy="32" r={R} fill="none" stroke="currentColor" strokeOpacity="0.14" strokeWidth="6" />
         <circle

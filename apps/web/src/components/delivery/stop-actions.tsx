@@ -109,9 +109,9 @@ export function ArriveButton({
 
   return (
     <form action={submit} className="space-y-2">
-      <input type="hidden" name="stop_id" value={stopId} />
-      <input type="hidden" name="latitude" value={latitude} />
-      <input type="hidden" name="longitude" value={longitude} />
+      <input placeholder=" " type="hidden" name="stop_id" value={stopId} />
+      <input placeholder=" " type="hidden" name="latitude" value={latitude} />
+      <input placeholder=" " type="hidden" name="longitude" value={longitude} />
       <ErrorSummary state={state} messages={messages} inputRef={summaryRef} />
       <button
         type="submit"
@@ -171,19 +171,19 @@ export function SignSheet({
 
   return (
     <form action={submit} className="space-y-3" data-testid={`sign-sheet-${stopId}`}>
-      <input type="hidden" name="stop_id" value={stopId} />
-      <input type="hidden" name="latitude" value={latitude} />
-      <input type="hidden" name="longitude" value={longitude} />
-      <input type="hidden" name="signature_data" value={signature ?? ''} />
-      <input type="hidden" name="device_id" value={deviceId()} />
+      <input placeholder=" " type="hidden" name="stop_id" value={stopId} />
+      <input placeholder=" " type="hidden" name="latitude" value={latitude} />
+      <input placeholder=" " type="hidden" name="longitude" value={longitude} />
+      <input placeholder=" " type="hidden" name="signature_data" value={signature ?? ''} />
+      <input placeholder=" " type="hidden" name="device_id" value={deviceId()} />
 
-      <label className="block text-sm font-medium">
-        {labels.recipient}
+      <label className="pf-field block">
+        <span className="pf-field__label">{labels.recipient}</span>
         <input
           name="recipient_name"
           required
           placeholder={labels.recipientPlaceholder}
-          className="mt-1 w-full rounded-lg border bg-transparent px-3 py-2"
+          className="w-full rounded-2xl border bg-transparent px-3"
         />
       </label>
 
@@ -199,7 +199,7 @@ export function SignSheet({
         name="meaning"
         required
         defaultValue=""
-        className="mt-1 w-full rounded-lg border bg-transparent px-3 py-2"
+        className="w-full rounded-2xl border bg-transparent px-3"
       >
         <option value="" disabled>
           —
@@ -218,7 +218,7 @@ export function SignSheet({
             name="unsigned_reason"
             rows={2}
             placeholder={labels.unsignedReasonPlaceholder}
-            className="w-full rounded-lg border bg-transparent px-3 py-2"
+            className="w-full rounded-2xl border bg-transparent px-3"
           />
         </label>
       ) : (
@@ -264,10 +264,10 @@ export function FailStopForm({
 
   return (
     <form action={submit} className="space-y-2" data-testid={`fail-${stopId}`}>
-      <input type="hidden" name="stop_id" value={stopId} />
+      <input placeholder=" " type="hidden" name="stop_id" value={stopId} />
       <label className="block text-sm font-medium">
         {labels.reason}
-        <select name="reason" required defaultValue="" className="mt-1 w-full rounded-lg border bg-transparent px-3 py-2">
+        <select name="reason" required defaultValue="" className="w-full rounded-2xl border bg-transparent px-3">
           <option value="" disabled>
             —
           </option>

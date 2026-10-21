@@ -47,7 +47,7 @@ export default async function LoginPage({
 
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">{t('signIn')}</h1>
-        <p className="text-[color:var(--text-muted)] mt-1.5 text-sm">
+        <p className="text-[color:var(--text-muted)] mt-2 text-sm">
           {tLanding('headline')}
         </p>
       </div>

@@ -1172,6 +1172,123 @@
 }
 
 /*
+ * The floating label.
+ *
+ * ── what it is ───────────────────────────────────────────────────────────────
+ *
+ * The label starts INSIDE the field, where the text will go, and rises to the
+ * top edge when the field is focused or holds a value. So the field reads as a
+ * sentence -- "Panadol Extra 500 mg", "Lot reference" -- rather than as a
+ * stack of a label and an empty box, which is the shape a form takes when it
+ * is built by someone thinking about the markup instead of the person filling
+ * it in.
+ *
+ * ── why it is CSS and not JavaScript ─────────────────────────────────────────
+ *
+ * A label that moves is a label that re-renders. In JavaScript that means a
+ * state update on every keystroke, and a label that jitters by a pixel each
+ * time because the measurement moved. In CSS it is a transition on `top` and
+ * `font-size`, and the browser interpolates it on the compositor.
+ *
+ * The state comes from `:has()`: the wrapper knows whether its control has
+ * focus, and whether it still shows its placeholder. No listener, no state, no
+ * re-render.
+ *
+ * ── the accessible name is never sacrificed ─────────────────────────────────
+ *
+ * The `<label for>` element is still there, still associated, still the
+ * accessible name. It is not replaced by a placeholder -- a placeholder is not
+ * a label, it disappears the moment somebody types, and it is not announced
+ * reliably. The label is what a screen reader reads; the placeholder is only
+ * ever the visible inside text.
+ *
+ * ── the control's own padding never moves ───────────────────────────────────
+ *
+ * The control carries the clearance for a floated label at all times, so the
+ * text does not jump when the label rises. A floating label that shifts the
+ * text underneath it is worse than no floating label.
+ */
+.pf-field {
+  position: relative;
+}
+
+/*
+ * The clearance. 24px at the top, so a floated 11px label has room to sit.
+ *
+ * `:not([type='checkbox'])` and `:not([type='radio'])` because a check inside
+ * a Field is a different control entirely and a 24px top padding on a 16px box
+ * is a broken box.
+ */
+.pf-field :is(
+    input:not([type='checkbox']):not([type='radio']),
+    textarea,
+    select
+  ) {
+  padding-top: var(--space-6);
+  padding-bottom: var(--space-2);
+  min-height: 3rem;
+}
+
+.pf-field__label {
+  position: absolute;
+  inset-inline-start: var(--space-3);
+  top: var(--space-6);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+  /* The click belongs to the control underneath. */
+  pointer-events: none;
+  transition:
+    top 140ms var(--pf-spring),
+    font-size 140ms var(--pf-spring),
+    color 140ms var(--pf-ease);
+}
+
+/*
+ * Risen: focused, or holding a value.
+ *
+ * `:not(:placeholder-shown)` is the "has a value" test, and it works because
+ * every control in a Field carries a placeholder -- a single space when there
+ * is nothing to suggest. An empty value with a placeholder present is exactly
+ * what `:placeholder-shown` describes.
+ */
+.pf-field:has(:is(input, textarea):focus) .pf-field__label,
+.pf-field:has(:is(input, textarea):not(:placeholder-shown)) .pf-field__label {
+  top: var(--space-2);
+  font-size: 0.6875rem;
+  color: var(--accent-ink);
+}
+
+/*
+ * A select and a date field always display something -- a chosen option, or
+ * the browser's own date segments -- so their label is always up. There is no
+ * empty state to represent, so there is nothing to float out of.
+ */
+.pf-field:has(select) .pf-field__label,
+.pf-field:has(input[type='date']) .pf-field__label {
+  top: var(--space-2);
+  font-size: 0.6875rem;
+  color: var(--accent-ink);
+}
+
+/*
+ * When the control carries its OWN hint -- "VAN-1", "N02BE01" -- that hint is
+ * the inside text and the label is only for the risen state. Otherwise the two
+ * would be printed on top of each other.
+ */
+.pf-field[data-own-hint='true'] .pf-field__label {
+  opacity: 0;
+}
+
+.pf-field[data-own-hint='true']:has(:is(input, textarea, select):focus)
+  .pf-field__label,
+.pf-field[data-own-hint='true']:has(:is(input, textarea):not(:placeholder-shown))
+  .pf-field__label,
+.pf-field[data-own-hint='true']:has(select) .pf-field__label {
+  opacity: 1;
+}
+
+/*
  * Reduced motion is not optional.
  *
  * The reveals are decoration over content that is already there, so removing them
@@ -1184,5 +1301,13 @@
   .pf-stagger > *,
   .pf-live-dot {
     animation: none;
+  }
+
+  .pf-field__label {
+    transition: none;
+  }
+
+  .pf-field__label {
+    transition: none;
   }
 }

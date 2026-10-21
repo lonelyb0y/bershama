@@ -206,7 +206,7 @@ export default async function DriverPage({ params }: { params: Promise<{ locale:
                   // reads down them to see what is coming, and a card per stop makes
                   // that a scrolling exercise through eight near-identical boxes.
                   className={`rounded-xl border ${
-                    isNext ? 'space-y-3 border-sky-500/60 p-4' : 'p-2.5'
+                    isNext ? 'space-y-3 border-sky-500/60 p-4' : 'p-3'
                   }`}
                 >
                   <div className="flex flex-wrap items-center justify-between gap-2">

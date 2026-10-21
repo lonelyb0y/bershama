@@ -85,6 +85,7 @@ export function Field({
   hint,
   error,
   required,
+  placeholder,
   children,
 }: {
   id: string;
@@ -92,6 +93,14 @@ export function Field({
   hint?: string;
   error?: string | null;
   required?: boolean;
+  /**
+   * The control's OWN inside text, when it has one -- "VAN-1", "N02BE01".
+   *
+   * When it is absent the label itself is the inside text. When it is present
+   * the two would be printed on top of each other, so the label is only for
+   * the risen state.
+   */
+  placeholder?: string;
   // Direction is NOT a prop here. Each concrete field sets `dir` on its own
   // control, because the answer differs by field: a lot number is always LTR, a
   // note is whatever the writer used. Accepting `dir` on the wrapper and
@@ -104,6 +113,15 @@ export function Field({
     ref?: Ref<never>;
     describedBy?: string;
     invalid: boolean;
+    /**
+     * The control's inside text.
+     *
+     * A single space when the field has nothing to suggest, so that
+     * `:placeholder-shown` can tell an empty control from a filled one. A
+     * placeholder that is absent cannot, and the label would float out of a
+     * field the user has not touched.
+     */
+    placeholder: string;
   }) => ReactNode;
 }) {
   const hintId = hint ? `${id}-hint` : undefined;
@@ -112,25 +130,34 @@ export function Field({
 
   return (
     <div>
-      <label htmlFor={id} className="block text-sm font-medium">
-        {label}
-        {required ? (
-          // A visual asterisk, with `required` on the control doing the real
-          // work. The asterisk alone is decoration; assistive technology is told
-          // by the attribute.
-          <span aria-hidden="true" className="ms-1 text-[var(--color-stock-critical)]">
-            *
-          </span>
-        ) : null}
-      </label>
+      <div className="pf-field" data-own-hint={placeholder ? 'true' : undefined}>
+        {children({ id, describedBy, invalid: Boolean(error), placeholder: placeholder ?? ' ' })}
+
+        {/*
+          The label is after the control so that `:has()` sees it as a
+          sibling, and it is absolutely positioned over the control's text
+          area. It is still a real <label for>, so it is still the accessible
+          name -- the floating is a visual trick, not a replacement for the
+          markup that carries the meaning.
+        */}
+        <label htmlFor={id} className="pf-field__label">
+          {label}
+          {required ? (
+            // A visual asterisk, with `required` on the control doing the real
+            // work. The asterisk alone is decoration; assistive technology is told
+            // by the attribute.
+            <span aria-hidden="true" className="ms-1 text-[var(--color-stock-critical)]">
+              *
+            </span>
+          ) : null}
+        </label>
+      </div>
 
       {hint ? (
         <p id={hintId} className="mt-0.5 text-xs text-[color:var(--text-muted)]">
           {hint}
         </p>
       ) : null}
-
-      {children({ id, describedBy, invalid: Boolean(error) })}
 
       {error ? (
         <p id={errorId} role="alert" className="mt-1 text-xs text-[var(--color-stock-critical)]">
@@ -157,7 +184,7 @@ export function Field({
  * the radius, the padding, the focus ring -- is unchanged.
  */
 const inputClass =
-  'w-full min-h-11 rounded-lg border bg-transparent px-3 py-2 text-sm outline-none focus-visible:ring-2 disabled:opacity-60';
+  'w-full rounded-2xl border bg-transparent px-3 text-sm outline-none focus-visible:ring-2 disabled:opacity-60';
 
 const invalidClass = 'border-[var(--color-stock-critical)]';
 
@@ -189,8 +216,15 @@ export function TextField({
   disabled?: boolean;
 }) {
   return (
-    <Field id={id} label={label} hint={hint} error={error} required={required}>
-      {({ id: fieldId, describedBy, invalid, ...rest }) => (
+    <Field
+      id={id}
+      label={label}
+      hint={hint}
+      error={error}
+      required={required}
+      placeholder={placeholder}
+    >
+      {({ id: fieldId, describedBy, invalid, placeholder: ph, ...rest }) => (
         <input
           id={fieldId}
           type="text"
@@ -199,10 +233,10 @@ export function TextField({
           maxLength={maxLength}
           disabled={disabled}
           required={required}
-          placeholder={placeholder}
+          placeholder={ph}
           aria-describedby={describedBy}
           aria-invalid={invalid || undefined}
-          className={`mt-1 ${inputClass} ${invalid ? invalidClass : ''}`}
+          className={`${inputClass} ${invalid ? invalidClass : ''}`}
           {...rest}
           {...input}
         />
@@ -252,9 +286,16 @@ export function NumberField({
   disabled?: boolean;
 }) {
   return (
-    <Field id={id} label={label} hint={hint} error={error} required={required}>
-      {({ id: fieldId, describedBy, invalid, ...rest }) => (
-        <div className="relative mt-1">
+    <Field
+      id={id}
+      label={label}
+      hint={hint}
+      error={error}
+      required={required}
+      placeholder={placeholder}
+    >
+      {({ id: fieldId, describedBy, invalid, placeholder: ph, ...rest }) => (
+        <div className="relative">
           <input
             id={fieldId}
             type="text"
@@ -265,7 +306,7 @@ export function NumberField({
             dir="ltr"
             required={required}
             disabled={disabled}
-            placeholder={placeholder}
+            placeholder={ph}
             aria-describedby={describedBy}
             aria-invalid={invalid || undefined}
             // No min attribute: this is a text input, and browsers ignore min on
@@ -333,18 +374,19 @@ export function SignedNumberField({
 }) {
   return (
     <Field id={id} label={label} hint={hint} error={error} required={required}>
-      {({ id: fieldId, describedBy, invalid, ...rest }) => (
+      {({ id: fieldId, describedBy, invalid, placeholder: ph, ...rest }) => (
         <input
           id={fieldId}
           type="text"
           inputMode="numeric"
+          placeholder={ph}
           pattern="-?[0-9]*"
           dir="ltr"
           required={required}
           disabled={disabled}
           aria-describedby={describedBy}
           aria-invalid={invalid || undefined}
-          className={`mt-1 ${inputClass} ${invalid ? invalidClass : ''}`}
+          className={`${inputClass} ${invalid ? invalidClass : ''}`}
           {...rest}
           {...input}
           onChange={(e) => {
@@ -394,14 +436,14 @@ export function SelectField<T extends string = string>({
 }) {
   return (
     <Field id={id} label={label} hint={hint} error={error} required={required}>
-      {({ id: fieldId, describedBy, invalid, ...rest }) => (
+      {({ id: fieldId, describedBy, invalid, placeholder: _ph, ...rest }) => (
         <select
           id={fieldId}
           required={required}
           disabled={disabled}
           aria-describedby={describedBy}
           aria-invalid={invalid || undefined}
-          className={`mt-1 ${inputClass} ${invalid ? invalidClass : ''}`}
+          className={`${inputClass} ${invalid ? invalidClass : ''}`}
           {...rest}
           {...input}
         >
@@ -442,17 +484,24 @@ export function TextAreaField({
   maxLength?: number;
 }) {
   return (
-    <Field id={id} label={label} hint={hint} error={error} required={required}>
-      {({ id: fieldId, describedBy, invalid, ...rest }) => (
+    <Field
+      id={id}
+      label={label}
+      hint={hint}
+      error={error}
+      required={required}
+      placeholder={placeholder}
+    >
+      {({ id: fieldId, describedBy, invalid, placeholder: ph, ...rest }) => (
         <textarea
           id={fieldId}
           rows={rows}
           required={required}
           maxLength={maxLength}
-          placeholder={placeholder}
+          placeholder={ph}
           aria-describedby={describedBy}
           aria-invalid={invalid || undefined}
-          className={`mt-1 ${inputClass} resize-y ${invalid ? invalidClass : ''}`}
+          className={`${inputClass} resize-y ${invalid ? invalidClass : ''}`}
           {...rest}
           {...input}
         />
@@ -489,18 +538,19 @@ export function DateField({
     // browser, and letting them inherit an RTL container renders the date in a
     // sequence nobody in Egypt is used to reading.
     <Field id={id} label={label} hint={hint} error={error} required={required}>
-      {({ id: fieldId, describedBy, invalid, ...rest }) => (
+      {({ id: fieldId, describedBy, invalid, placeholder: ph, ...rest }) => (
         <input
           id={fieldId}
           type="date"
           dir="ltr"
+          placeholder={ph}
           required={required}
           disabled={disabled}
           min={min}
           max={max}
           aria-describedby={describedBy}
           aria-invalid={invalid || undefined}
-          className={`mt-1 ${inputClass} ${invalid ? invalidClass : ''}`}
+          className={`${inputClass} ${invalid ? invalidClass : ''}`}
           {...rest}
           {...input}
         />

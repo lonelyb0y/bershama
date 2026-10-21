@@ -93,6 +93,13 @@ jobs:
       - name: Every translation key exists
         run: make i18n-keys
 
+      # A half step is 6px, or 10px, or 14px -- none of which is a multiple of 4.
+      # It is how a layout drifts: every component that adds one makes the next
+      # one's spacing look wrong by comparison, so the drift is invisible from
+      # the inside and obvious from the outside.
+      - name: Every spacing value is on the 4px grid
+        run: make spacing
+
   # ── browser tests ─────────────────────────────────────────────────────────────
   #
   # This job exists because of a specific omission. Every product create and edit had

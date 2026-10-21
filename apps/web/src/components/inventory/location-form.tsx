@@ -49,7 +49,7 @@ export function LocationForm({
 
   return (
     <details open={state.ok} className="w-fit max-w-full rounded-xl border">
-      <summary className="cursor-pointer rounded-lg px-3 py-1.5 text-sm font-medium select-none hover:bg-[color:var(--text-muted)]/10">
+      <summary className="cursor-pointer rounded-lg px-3 py-2 text-sm font-medium select-none hover:bg-[color:var(--text-muted)]/10">
         {l.titleNewLocation}
       </summary>
 
@@ -61,12 +61,12 @@ export function LocationForm({
         )}
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <label className="block">
-            <span className="mb-1 block text-xs font-medium">{l.facility} *</span>
+          <label className="pf-field block">
+            <span className="pf-field__label">{l.facility} *</span>
             <select
               name="facilityId"
               aria-invalid={errorFor('facilityId') ? true : undefined}
-              className={`w-full rounded-lg border px-3 py-2 text-sm ${errorFor('facilityId') ? 'border-red-500' : ''}`}
+              className={`w-full rounded-2xl border px-3 text-sm ${errorFor('facilityId') ? 'border-red-500' : ''}`}
               defaultValue=""
             >
               <option value="" disabled>
@@ -79,7 +79,7 @@ export function LocationForm({
               ))}
             </select>
             {errorFor('facilityId') && (
-              <span role="alert" className="mt-1 block text-xs text-red-500">
+              <span role="alert" className="block text-xs text-red-500">
                 {errorFor('facilityId')}
               </span>
             )}
@@ -89,9 +89,9 @@ export function LocationForm({
           <Field label={l.nameEn} name="nameEn" error={errorFor('nameEn')} required />
           <Field label={l.nameAr} name="nameAr" error={errorFor('nameAr')} required dir="rtl" />
 
-          <label className="block">
-            <span className="mb-1 block text-xs font-medium">{l.kind}</span>
-            <select name="kind" defaultValue="AMBIENT" className="w-full rounded-lg border px-3 py-2 text-sm">
+          <label className="pf-field block">
+            <span className="pf-field__label">{l.kind}</span>
+            <select name="kind" defaultValue="AMBIENT" className="w-full rounded-2xl border px-3 text-sm">
               <option value="AMBIENT">AMBIENT</option>
               <option value="COLD">COLD</option>
               <option value="DISPENSE">DISPENSE</option>
@@ -167,10 +167,10 @@ function Field({
         dir={dir}
         placeholder={placeholder}
         aria-invalid={error ? true : undefined}
-        className={`w-full rounded-lg border px-3 py-2 text-sm ${error ? 'border-red-500' : ''}`}
+        className={`w-full rounded-2xl border px-3 text-sm ${error ? 'border-red-500' : ''}`}
       />
       {error && (
-        <span role="alert" className="mt-1 block text-xs text-red-500">
+        <span role="alert" className="block text-xs text-red-500">
           {error}
         </span>
       )}

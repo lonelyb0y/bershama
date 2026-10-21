@@ -278,3 +278,66 @@ describe('select', () => {
     expect(onSubmit.mock.calls[0][0].reason).toBe('DAMAGE');
   });
 });
+
+/*
+ * The floating label.
+ *
+ * The label starts inside the field and rises out of it. Three things have to
+ * hold for that to work, and all three are invisible on screen:
+ *
+ *   1. The label is a real <label for>, so the accessible name is unchanged.
+ *      A floating label that is only a placeholder loses its name the moment
+ *      somebody types, and a screen reader never reads a placeholder.
+ *   2. The control carries a placeholder, because `:placeholder-shown` is how
+ *      CSS asks "is this field empty?". A control with no placeholder attribute
+ *      is never `:placeholder-shown`, so the label would float out of a field
+ *      nobody has touched.
+ *   3. The label element is inside the field wrapper, because the CSS floats it
+ *      with a sibling selector.
+ */
+describe('the floating label', () => {
+  it('keeps the label associated with the control', () => {
+    render(<Harness onSubmit={() => {}} />);
+    // The accessible name is the label, whatever the label looks like.
+    expect(screen.getByLabelText(/Lot number/)).toBeInTheDocument();
+  });
+
+  it('puts the label inside the field wrapper, so the CSS can float it', () => {
+    const { container } = render(<Harness onSubmit={() => {}} />);
+    const field = container.querySelector('.pf-field');
+    expect(field).not.toBeNull();
+    expect(field?.querySelector('label')).not.toBeNull();
+    expect(field?.querySelector('input, textarea, select')).not.toBeNull();
+  });
+
+  it('gives every control a placeholder, so an empty field can be detected', () => {
+    render(<Harness onSubmit={() => {}} />);
+    // A select is excluded on purpose: it cannot carry a placeholder, and it
+    // does not need one, because a select always displays a chosen option and
+    // so its label is always in the risen state.
+    const controls = [
+      screen.getByLabelText(/Lot number/),
+      screen.getByLabelText(/Quantity/),
+      screen.getByLabelText(/Note/),
+    ];
+    for (const control of controls) {
+      expect(control).toHaveAttribute('placeholder');
+    }
+  });
+
+  it('marks a field that carries its own hint, so the two texts never collide', () => {
+    const { container } = render(
+      <TextField id="van" label="Van" placeholder="VAN-1" onChange={() => {}} />,
+    );
+    const field = container.querySelector('.pf-field');
+    expect(field).toHaveAttribute('data-own-hint', 'true');
+  });
+
+  it('does not mark a field whose inside text is the label', () => {
+    const { container } = render(
+      <TextField id="lot" label="Lot number" onChange={() => {}} />,
+    );
+    const field = container.querySelector('.pf-field');
+    expect(field).not.toHaveAttribute('data-own-hint');
+  });
+});

@@ -80,7 +80,7 @@ export function NewRequisitionForm({
             <p id="new-req-error" className="text-sm font-medium text-red-600">
               {l.errorSummary}
             </p>
-            <ul className="mt-1 list-inside list-disc text-sm text-red-600">
+            <ul className="list-inside list-disc text-sm text-red-600">
               {state.errors.map((e) => (
                 <li key={e.field}>
                   <a href="#new-req-facility" className="underline underline-offset-2">
@@ -92,14 +92,14 @@ export function NewRequisitionForm({
           </div>
         )}
 
-        <label className="block">
-          <span className="mb-1 block text-xs font-medium">{l.facility}</span>
+        <label className="pf-field block">
+          <span className="pf-field__label">{l.facility}</span>
           <select
             id="new-req-facility"
             name="facilityId"
             required
             aria-invalid={state.errors.some((e) => e.field === 'facility') || undefined}
-            className="w-full rounded-lg border px-3 py-2 text-sm"
+            className="w-full rounded-2xl border px-3 text-sm"
             defaultValue=""
           >
             <option value="" disabled>
@@ -113,13 +113,13 @@ export function NewRequisitionForm({
           </select>
         </label>
 
-        <label className="block">
-          <span className="mb-1 block text-xs font-medium">{l.justification}</span>
+        <label className="pf-field block">
+          <span className="pf-field__label">{l.justification}</span>
           <textarea
             name="justification"
             rows={2}
             placeholder={l.justificationHint}
-            className="w-full rounded-lg border px-3 py-2 text-sm"
+            className="w-full rounded-2xl border px-3 text-sm"
           />
         </label>
 

@@ -51,7 +51,7 @@ export function ErrorBanner({
     <div
       role="alert"
       data-code={error.code}
-      className="flex flex-wrap items-start gap-3 rounded-lg border border-[var(--color-stock-critical)]/40 bg-[var(--color-stock-critical)]/10 px-3 py-2.5 text-sm"
+      className="flex flex-wrap items-start gap-3 rounded-lg border border-[var(--color-stock-critical)]/40 bg-[var(--color-stock-critical)]/10 px-3 py-3 text-sm"
     >
       <div className="flex-1">
         <p>{error.message}</p>
@@ -68,7 +68,7 @@ export function ErrorBanner({
       </div>
 
       {onRetry ? (
-        <Button variant="secondary" onClick={onRetry} className="px-3 py-1.5 text-xs">
+        <Button variant="secondary" onClick={onRetry} className="px-3 py-2 text-xs">
           Try again
         </Button>
       ) : null}
@@ -101,7 +101,7 @@ export function NoticeBanner({
       // interrupting with a problem, and a screen reader should not interrupt
       // for it.
       role="status"
-      className={`rounded-lg border px-3 py-2.5 text-sm ${tones[tone]}`}
+      className={`rounded-lg border px-3 py-3 text-sm ${tones[tone]}`}
     >
       {children}
     </div>
@@ -183,7 +183,7 @@ export function DataTable<T>({
                 <th
                   key={c.key}
                   scope="col"
-                  className={`px-3 py-2.5 text-start font-medium text-[color:var(--text-muted)] ${
+                  className={`px-3 py-3 text-start font-medium text-[color:var(--text-muted)] ${
                     c.numeric ? 'text-end' : ''
                   } ${c.className ?? ''}`}
                 >
@@ -221,7 +221,7 @@ export function DataTable<T>({
                 {columns.map((c) => (
                   <td
                     key={c.key}
-                    className={`px-3 py-2.5 ${c.numeric ? 'text-end tabular-nums' : ''} ${
+                    className={`px-3 py-3 ${c.numeric ? 'text-end tabular-nums' : ''} ${
                       c.className ?? ''
                     }`}
                   >
@@ -242,7 +242,7 @@ export function DataTable<T>({
         <div className="flex items-center gap-2">
           <Button
             variant="secondary"
-            className="px-3 py-1.5"
+            className="px-3 py-2"
             disabled={safePage === 0 || isPending}
             onClick={() => onPageChange(safePage - 1)}
           >
@@ -253,7 +253,7 @@ export function DataTable<T>({
           </span>
           <Button
             variant="secondary"
-            className="px-3 py-1.5"
+            className="px-3 py-2"
             disabled={safePage >= pageCount - 1 || isPending}
             onClick={() => onPageChange(safePage + 1)}
           >

@@ -61,7 +61,7 @@ export function LocaleSwitcher() {
             disabled={isPending}
             // The accessible name stays in the UI language so a screen-reader
             // user hears "English" in Arabic, not a transliteration.
-            className={`rounded-md px-2.5 py-1 font-medium transition-colors disabled:opacity-50 ${
+            className={`rounded-md px-3 py-1 font-medium transition-colors disabled:opacity-50 ${
               isActive
                 ? 'bg-[var(--color-brand-600)] text-white'
                 : 'hover:bg-[color:var(--text-muted)]/10'
