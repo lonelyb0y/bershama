@@ -48,7 +48,35 @@
     "recaptchaChallenge": "Unusual activity on this network. Please try again, or tell an administrator if it keeps happening.",
     "continueWithGoogle": "Continue with Google",
     "noAccount": "Don't have an account?",
-    "createOrganisation": "Create an organisation"
+    "createOrganisation": "Create an organisation",
+    "accountAccess": "Account access",
+    "accountAccessBody": "Enter the credentials for your organisation.",
+    "createAccountAccess": "Organisation access",
+    "createAccountAccessBody": "The account is for a licensed organisation, not for a person.",
+    "showPassword": "Show",
+    "hidePassword": "Hide",
+    "rememberDevice": "Remember this device",
+    "forgotPassword": "Forgot password?",
+    "telemetry": {
+      "title": "Live inventory telemetry",
+      "hub": "Hub",
+      "lot": "Lot ref",
+      "product": "Product spec",
+      "units": "Units",
+      "status": "Status",
+      "foot": "LOT-2026-A0412 · 100 IU/mL · 240 units",
+      "expired": "Expired",
+      "days": "{days, plural, one {# day} other {# days}}",
+      "inDate": "In date"
+    },
+    "shell": {
+      "licence": "EDA Licence #8491/2023",
+      "hub": "Hub: CAI-01",
+      "operatorSignIn": "Operator sign in",
+      "support": "Support",
+      "footer": "© 2026 Bershama Pharmaceutical Logistics S.A.E. · AGPL-3.0 · Cairo, Egypt · WHO GDP-aligned batch traceability"
+    },
+    "slogan": "لو شغل متتزاكاش"
   },
   "roles": {
     "TENANT_ADMIN": "Administrator",

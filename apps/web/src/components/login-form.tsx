@@ -50,6 +50,11 @@ export function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
+  // Whether the password is visible. The state is here and not on the server
+  // because it is a viewing preference and it has to change on the same frame
+  // as the click.
+  const [showPassword, setShowPassword] = useState(false);
+
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
@@ -58,6 +63,28 @@ export function LoginForm() {
     const form = new FormData(event.currentTarget);
     const email = String(form.get('email') ?? '').trim();
     const password = String(form.get('password') ?? '');
+
+    /*
+     * "Remember this device", before the credentials go anywhere.
+     *
+     * It is a real preference and it is honoured by the server: the Supabase
+     * session cookie is written with a thirty-day lifetime when this is ticked,
+     * and as a session cookie -- which dies when the browser closes -- when it
+     * is not. See lib/supabase/server.ts, where the cookie's maxAge is read
+     * from this one.
+     *
+     * It is set BEFORE the sign-in, not after, because the cookie is written by
+     * the sign-in response. A preference recorded afterwards would be one
+     * response too late, and the first sign-in on a new device would always be
+     * the short-lived one.
+     */
+    const remember = form.get('remember') === 'on';
+    try {
+      document.cookie = `bershama:remember=${remember ? '1' : '0'}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
+    } catch {
+      // A browser that refuses cookies refuses them for the session too, and
+      // the sign-in still works.
+    }
 
     // A token per submission, before the password is sent anywhere. v3 scores the
     // interaction rather than the credentials, so this has to run on the real submit
@@ -183,18 +210,32 @@ export function LoginForm() {
         <input
           id="password"
           name="password"
-          type="password"
+          type={showPassword ? 'text' : 'password'}
           dir="ltr"
           autoComplete="current-password"
           required
           minLength={12}
           defaultValue=""
           placeholder=" "
-          className="w-full rounded-2xl border bg-transparent px-3 text-sm"
+          className="w-full rounded-2xl border bg-transparent px-3 pe-16 text-sm"
         />
         <label htmlFor="password" className="pf-field__label">
           {t('password')}
         </label>
+        {/*
+          The toggle sits at the END of the field, on the value band's line, and
+          it is a real button so it can be reached by keyboard and announced.
+          It is not a label: a label would move the focus to the input, which is
+          the opposite of what a person pressing "Show" wants.
+        */}
+        <button
+          type="button"
+          onClick={() => setShowPassword((v) => !v)}
+          aria-pressed={showPassword}
+          className="pf-field__toggle text-xs font-medium text-[var(--text-muted)] transition-colors hover:text-[var(--text)]"
+        >
+          {showPassword ? t('hidePassword') : t('showPassword')}
+        </button>
       </div>
 
       {error ? (
@@ -208,19 +249,37 @@ export function LoginForm() {
         </p>
       ) : null}
 
+      <div className="flex items-center justify-between gap-4">
+        <label className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
+          <input
+            type="checkbox"
+            name="remember"
+            defaultChecked
+            className="size-4 rounded border-[var(--border-control)] accent-[var(--primary)]"
+          />
+          {t('rememberDevice')}
+        </label>
+        <a
+          href="#forgot"
+          className="text-sm font-medium text-[var(--primary)] underline-offset-4 hover:underline"
+        >
+          {t('forgotPassword')}
+        </a>
+      </div>
+
       <button
         type="submit"
         disabled={isPending}
-        className="w-full rounded-lg bg-[var(--color-brand-600)] px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-[var(--color-brand-700)] disabled:opacity-60"
+        className="w-full rounded-xl bg-[var(--primary)] px-4 py-3 text-sm font-semibold text-[var(--primary-foreground)] transition-[filter,transform] hover:brightness-110 active:translate-y-px disabled:opacity-60"
       >
         {isPending ? '…' : t('signIn')}
       </button>
 
-      <p className="text-[color:var(--text-muted)] text-center text-xs">
+      <p className="text-center text-sm text-[var(--text-muted)]">
         {t('noAccount')}{' '}
         <Link
           href={`/${locale}/signup`}
-          className="font-medium underline underline-offset-2 hover:text-[color:var(--text)]"
+          className="font-medium text-[var(--primary)] underline-offset-4 hover:underline"
         >
           {t('createOrganisation')}
         </Link>

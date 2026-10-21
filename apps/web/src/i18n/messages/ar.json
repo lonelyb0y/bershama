@@ -48,7 +48,35 @@
     "recaptchaChallenge": "نشاط غير معتاد على هذه الشبكة. حاول مرة أخرى، أو أخبر المسؤول إن تكرر الأمر.",
     "continueWithGoogle": "المتابعة باستخدام Google",
     "noAccount": "ليس لديك حساب؟",
-    "createOrganisation": "أنشئ مؤسسة"
+    "createOrganisation": "أنشئ مؤسسة",
+    "accountAccess": "الوصول إلى الحساب",
+    "accountAccessBody": "أدخل بيانات الاعتماد الخاصة بمؤسستك.",
+    "createAccountAccess": "الوصول المؤسسي",
+    "createAccountAccessBody": "الحساب لمنشأة مرخّصة، لا لشخص.",
+    "showPassword": "إظهار",
+    "hidePassword": "إخفاء",
+    "rememberDevice": "تذكّر هذا الجهاز",
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "telemetry": {
+      "title": "بيانات المخزون الحية",
+      "hub": "المركز",
+      "lot": "رقم التشغيلة",
+      "product": "الصنف",
+      "units": "الوحدات",
+      "status": "الحالة",
+      "foot": "LOT-2026-A0412 · 100 IU/mL · 240 وحدة",
+      "expired": "منتهي الصلاحية",
+      "days": "{days, plural, zero {لا أيام} one {يوم واحد} two {يومان} few {# أيام} many {# يومًا} other {# يوم}}",
+      "inDate": "ساري"
+    },
+    "shell": {
+      "licence": "ترخيص EDA ‎#8491/2023",
+      "hub": "المركز: CAI-01",
+      "operatorSignIn": "دخول المشغّل",
+      "support": "الدعم",
+      "footer": "‎© 2026 برشامة للخدمات اللوجستية الدوائية ذ.م.م · AGPL-3.0 · القاهرة، مصر · تتبّع الدفعات متوافق مع WHO GDP"
+    },
+    "slogan": "لو شغل متتزاكاش"
   },
   "roles": {
     "TENANT_ADMIN": "مسؤول النظام",

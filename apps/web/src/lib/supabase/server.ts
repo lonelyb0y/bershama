@@ -57,6 +57,18 @@ function requireEnv(name: string): string {
  *     session and writes the rotated token, so the render pass has nothing to
  *     do. Swallowing it keeps a legitimate render from failing.
  */
+/**
+ * The cookie the sign-in form writes to say whether the session should outlive
+ * the browser, and the two constants that go with it.
+ *
+ * The cookie is written by the CLIENT, before the credentials are sent, because
+ * the session cookie is written by the sign-in RESPONSE -- a preference
+ * recorded afterwards would be one response too late, and the first sign-in on
+ * a new device would always be the short-lived one.
+ */
+const REMEMBER_COOKIE = 'bershama:remember';
+const REMEMBER_SECONDS = 60 * 60 * 24 * 30;
+
 export async function createSupabaseServerClient(): Promise<SupabaseClient<Db>> {
   const cookieStore = await cookies();
 
@@ -70,8 +82,26 @@ export async function createSupabaseServerClient(): Promise<SupabaseClient<Db>> 
         },
         setAll(cookiesToSet) {
           try {
+            // "Remember this device", read from the cookie the sign-in form
+            // wrote before it sent the credentials.
+            //
+            // Ticked: the session cookie outlives the browser, for thirty days.
+            // Not ticked: it is a SESSION cookie, and it dies when the browser
+            // closes. On a shared machine in a pharmacy that is the difference
+            // between a sign-in that expires and one that does not, and the
+            // person who is filling in the form is the one who knows whether
+            // the machine is theirs.
+            const remember = cookieStore.get(REMEMBER_COOKIE)?.value === '1';
+
             for (const { name, value, options } of cookiesToSet) {
-              cookieStore.set(name, value, options);
+              // The auth cookie is the one whose lifetime matters. The others --
+              // the project and the chunked token parts -- follow it.
+              const isSession = name.startsWith('sb-') && name.includes('-auth-token');
+              cookieStore.set(
+                name,
+                value,
+                isSession ? { ...options, maxAge: remember ? REMEMBER_SECONDS : 0 } : options,
+              );
             }
           } catch {
             // Server Component: the cookie store is read-only. See above.

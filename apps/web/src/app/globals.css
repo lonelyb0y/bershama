@@ -996,10 +996,18 @@
 /* ── the editorial headline ────────────────────────────────────────────────── */
 
 .pf-display {
-  /* Space Grotesk, since that is the application's display face now. The size
-     and weight stay as they were: this class is the editorial headline, and
-     the landing page's smaller headings use the `font-display` utility instead
-     so that the size is theirs to choose. */
+  /*
+   * The EDITORIAL HEADLINE.
+   *
+   * The size and the weight live here, not in the font stack, because this
+   * class is a size: 44px, weight 700, tight tracking. It is unlayered, so it
+   * outranks every Tailwind size utility -- `pf-display text-lg` is a 44px
+   * heading, not an 18px one.
+   *
+   * A heading that wants the display FACE but its own size uses the
+   * `font-display` utility instead, which is generated from `--font-display`
+   * and sets the family without touching the size.
+   */
   font-family: var(--font-display);
   font-size: clamp(1.75rem, 3.4vw, 2.75rem);
   font-weight: 700;
@@ -1356,8 +1364,31 @@
   ) {
   padding-top: 8px;
   padding-bottom: 8px;
+  /*
+   * 56px, and the content has to FIT it exactly when the field is focused:
+   * 26 + 20 + 8 = 54, which is the 54px available inside a 56px box once the
+   * border is taken out. One pixel more and the control grows by two, and
+   * everything below it moves -- which is a layout shift, in the one place
+   * where a person is typing.
+   */
   min-height: 56px;
   transition: padding-top 160ms var(--pf-spring);
+}
+
+/*
+ * A control inside the field, on the VALUE's line -- the eye of a password
+ * field, a unit, a currency.
+ *
+ * It moves with the value, because the value moves. The offsets are 18px and
+ * 28px, both on the grid, and they are the same two numbers the value uses.
+ */
+.pf-field__toggle {
+  position: absolute;
+  inset-inline-end: var(--space-3);
+  top: 18px;
+  height: 20px;
+  line-height: 20px;
+  transition: top 160ms var(--pf-spring);
 }
 
 .pf-field__label {
@@ -1388,8 +1419,8 @@
  */
 .pf-field:has(:is(input, textarea):focus) .pf-field__label,
 .pf-field:has(:is(input, textarea):not(:placeholder-shown)) .pf-field__label {
-  /* The top band. It ends at 20px, and the value starts at 26px. */
-  top: 6px;
+  /* The top band. It ends at 18px, and the value starts at 27px. */
+  top: 4px;
   font-size: 0.75rem;
   line-height: 0.875rem;
   color: var(--accent-ink);
@@ -1412,6 +1443,12 @@
     textarea
   ) {
   padding-top: 26px;
+}
+
+/* And the control on the value's line moves down with it. */
+.pf-field:has(:is(input, textarea):focus) .pf-field__toggle,
+.pf-field:has(:is(input, textarea):not(:placeholder-shown)) .pf-field__toggle {
+  top: 27px;
 }
 
 /*
@@ -1440,6 +1477,11 @@
     select
   ) {
   padding-top: 26px;
+}
+
+.pf-field:has(select) .pf-field__toggle,
+.pf-field:has(input[type='date']) .pf-field__toggle {
+  top: 27px;
 }
 
 /*

@@ -1,10 +1,11 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { redirect } from 'next/navigation';
 
+import { AuthShell } from '@/components/auth/auth-shell';
+import { TelemetryPanel } from '@/components/auth/telemetry-panel';
 import { SetupForm } from '@/components/setup-form';
 import { getSession, homeRouteForRole } from '@/lib/session';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { Logo } from '@/components/logo';
 import type { Locale } from '@/i18n/routing';
 
 /**
@@ -50,19 +51,22 @@ export default async function SetupPage({
   if (!authData.user) redirect(`/${locale}/login`);
 
   const t = await getTranslations('setup');
+  const tAuth = await getTranslations('auth');
+  const tLanding = await getTranslations('landing');
 
   return (
-    <main className="flex min-h-dvh items-center justify-center px-4 py-12">
-      <div className="w-full max-w-sm">
-        {/* The mark, so the two public entry screens look like the same product as
-            the one they lead into. A person who came from a link should not have
-            to guess whether they are somewhere else. */}
-        <div className="mb-6 flex justify-center">
-          <Logo />
-        </div>
+    <AuthShell
+      eyebrow={tLanding('eyebrow')}
+      title={t('title')}
+      pitch={t('subtitle')}
+      aside={<TelemetryPanel />}
+    >
+      <h2 className="font-display text-lg font-semibold">{tAuth('createAccountAccess')}</h2>
+      <p className="mt-1 text-sm text-[var(--text-muted)]">{tAuth('createAccountAccessBody')}</p>
+
+      <div className="mt-5">
         <SetupForm locale={locale} />
-        <p className="mt-6 text-center text-xs text-[color:var(--text-muted)]">{t('footnote')}</p>
       </div>
-    </main>
+    </AuthShell>
   );
 }

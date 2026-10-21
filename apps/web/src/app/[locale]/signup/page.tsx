@@ -1,9 +1,10 @@
-import { setRequestLocale } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { redirect } from 'next/navigation';
 
+import { AuthShell } from '@/components/auth/auth-shell';
+import { TelemetryPanel } from '@/components/auth/telemetry-panel';
 import { SignupForm } from '@/components/signup-form';
 import { getSession } from '@/lib/session';
-import { Logo } from '@/components/logo';
 import type { Locale } from '@/i18n/routing';
 
 /**
@@ -22,20 +23,24 @@ export default async function SignupPage({
   const { locale } = await params;
   setRequestLocale(locale);
 
+  const t = await getTranslations('auth');
+  const tLanding = await getTranslations('landing');
   const session = await getSession();
   if (session) redirect(`/${locale}/admin`);
 
   return (
-    <main className="flex min-h-dvh items-center justify-center px-4 py-12">
-      <div className="w-full max-w-sm">
-        {/* The mark, so the two public entry screens look like the same product as
-            the one they lead into. A person who came from a link should not have
-            to guess whether they are somewhere else. */}
-        <div className="mb-6 flex justify-center">
-          <Logo />
-        </div>
+    <AuthShell
+      eyebrow={tLanding('eyebrow')}
+      title={t('createOrganisation')}
+      pitch={tLanding('lede')}
+      aside={<TelemetryPanel />}
+    >
+      <h2 className="font-display text-lg font-semibold">{t('createAccountAccess')}</h2>
+      <p className="mt-1 text-sm text-[var(--text-muted)]">{t('createAccountAccessBody')}</p>
+
+      <div className="mt-5">
         <SignupForm locale={locale} />
       </div>
-    </main>
+    </AuthShell>
   );
 }

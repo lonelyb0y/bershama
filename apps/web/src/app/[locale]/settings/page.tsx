@@ -65,7 +65,7 @@ export default async function SettingsPage({
 
       {/* ── language ─────────────────────────────────────────────────────── */}
       <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface-raised)] p-5">
-        <h2 className="pf-display text-lg font-semibold">{t('language.title')}</h2>
+        <h2 className="font-display text-lg font-semibold">{t('language.title')}</h2>
         <p className="mt-1 text-sm text-[var(--text-muted)]">{t('language.body')}</p>
         <div className="mt-4">
           <LanguagePicker />
@@ -74,7 +74,7 @@ export default async function SettingsPage({
 
       {/* ── appearance ───────────────────────────────────────────────────── */}
       <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface-raised)] p-5">
-        <h2 className="pf-display text-lg font-semibold">{t('appearance.title')}</h2>
+        <h2 className="font-display text-lg font-semibold">{t('appearance.title')}</h2>
         <p className="mt-1 text-sm text-[var(--text-muted)]">{t('appearance.body')}</p>
         <div className="mt-4 flex items-center gap-3">
           <ThemeToggle />
@@ -84,7 +84,7 @@ export default async function SettingsPage({
 
       {/* ── profile ──────────────────────────────────────────────────────── */}
       <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface-raised)] p-5">
-        <h2 className="pf-display text-lg font-semibold">{t('profile.title')}</h2>
+        <h2 className="font-display text-lg font-semibold">{t('profile.title')}</h2>
         <p className="mt-1 text-sm text-[var(--text-muted)]">{t('profile.body')}</p>
         <div className="mt-4">
           <ProfileForm
@@ -97,7 +97,7 @@ export default async function SettingsPage({
 
       {/* ── notifications ────────────────────────────────────────────────── */}
       <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface-raised)] p-5">
-        <h2 className="pf-display text-lg font-semibold">{t('notifications.title')}</h2>
+        <h2 className="font-display text-lg font-semibold">{t('notifications.title')}</h2>
         <p className="mt-1 text-sm text-[var(--text-muted)]">{t('notifications.body')}</p>
         <div className="mt-4">
           <NotificationsForm initial={session.notifications} />
@@ -106,7 +106,7 @@ export default async function SettingsPage({
 
       {/* ── security ─────────────────────────────────────────────────────── */}
       <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface-raised)] p-5">
-        <h2 className="pf-display text-lg font-semibold">{t('security.title')}</h2>
+        <h2 className="font-display text-lg font-semibold">{t('security.title')}</h2>
         <p className="mt-1 text-sm text-[var(--text-muted)]">{t('security.body')}</p>
         <div className="mt-4">
           <SignOutEverywhere />

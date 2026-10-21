@@ -26,6 +26,10 @@ const SURFACES = [
   // components with a data boundary -- and a data boundary is exactly where a
   // chart breaks at runtime while every type check passes.
   { path: '/en/admin', expect: 'dashboard' },
+  // The three public forms. They share a shell, and the shell is new -- a bar, a
+  // split, a footer -- so a mistake in it would show on all three at once.
+  { path: '/en/login', expect: 'auth' },
+  { path: '/en/signup', expect: 'auth' },
   // The account settings. It is new, it is the only page a driver can reach
   // that an administrator cannot, and it carries a form, a database column and
   // a session scope -- all three of which are exactly the things that fail at
@@ -75,6 +79,15 @@ test.describe('the list surfaces render', () => {
          */
         await expect(page.getByTestId('margin-chart-empty').or(page.getByTestId('bar-trend-chart'))).toBeVisible();
         await expect(page.getByTestId('ranking-empty').or(page.getByTestId('ranked-bars'))).toBeVisible();
+      }
+
+      if (surface.expect === 'auth') {
+        // The floating label, the panel, and the telemetry. The label is the
+        // thing that breaks: it is absolutely positioned over the control, and
+        // a control that does not reserve room for it puts a caption on top of
+        // a text field.
+        await expect(page.getByTestId('email') ?? page.getByRole('textbox').first()).toBeVisible();
+        await expect(page.getByRole('heading', { name: /live inventory telemetry/i })).toBeVisible();
       }
 
       if (surface.expect === 'settings') {

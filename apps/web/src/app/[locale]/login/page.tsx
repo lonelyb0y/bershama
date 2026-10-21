@@ -1,10 +1,10 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { redirect } from 'next/navigation';
 
+import { AuthShell } from '@/components/auth/auth-shell';
+import { TelemetryPanel } from '@/components/auth/telemetry-panel';
 import { LoginForm } from '@/components/login-form';
 import { GoogleSignInButton } from '@/components/google-signin-button';
-import { LocaleFooterLink } from '@/components/locale-footer-link';
-import { Logo } from '@/components/logo';
 import { getSession, homeRouteForRole } from '@/lib/session';
 import type { Locale } from '@/i18n/routing';
 
@@ -36,41 +36,32 @@ export default async function LoginPage({
      * read a brand name -- they came here to sign in, and the brand was the loudest
      * thing on the screen.
      *
-     * So: the wordmark is a mark, the action is the heading, and the pitch is one
-     * line under it. Everything below is the form, which is the point of the page.
+     * So: the wordmark is a mark in the bar, the action is the heading, and the
+     * pitch is one line under it. The right half of the page is the product, which
+     * is the better half of an argument.
      */
-    <main className="mx-auto flex min-h-dvh max-w-sm flex-col gap-6 p-6">
-      <div className="flex items-center justify-between gap-4">
-        <Logo />
+    <AuthShell
+      eyebrow={tLanding('eyebrow')}
+      title={t('signIn')}
+      pitch={tLanding('headline')}
+      aside={<TelemetryPanel />}
+    >
+      <h2 className="font-display text-lg font-semibold">{t('accountAccess')}</h2>
+      <p className="mt-1 text-sm text-[var(--text-muted)]">{t('accountAccessBody')}</p>
+
+      <div className="mt-5">
+        <LoginForm />
       </div>
 
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">{t('signIn')}</h1>
-        <p className="text-[color:var(--text-muted)] mt-2 text-sm">
-          {tLanding('headline')}
-        </p>
+      <div className="mt-5 flex items-center gap-3">
+        <span className="h-px flex-1 bg-[var(--border)]" />
+        <span className="text-xs text-[var(--text-muted)]">{tCommon('or')}</span>
+        <span className="h-px flex-1 bg-[var(--border)]" />
       </div>
 
-      <LoginForm />
-
-      <div className="flex items-center gap-3">
-        <span className="h-px flex-1 bg-[color:var(--border)]" />
-        <span className="text-xs text-[color:var(--text-muted)]">
-          {tCommon('or')}
-        </span>
-        <span className="h-px flex-1 bg-[color:var(--border)]" />
+      <div className="mt-4">
+        <GoogleSignInButton label={t('continueWithGoogle')} />
       </div>
-
-      <GoogleSignInButton label={t('continueWithGoogle')} />
-
-      {/* The one place a signed-out visitor can change the language. It is a
-          footer link rather than a header switcher because the header is where
-          every other screen keeps its two permanent controls, and a language
-          switch is not needed on every screen -- only on the ones where
-          somebody has to be able to READ before they can sign in. */}
-      <div className="mt-auto pt-4">
-        <LocaleFooterLink />
-      </div>
-    </main>
+    </AuthShell>
   );
 }
