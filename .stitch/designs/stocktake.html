@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Bershama — Stocktake Console</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;family=Nunito+Sans:wght@400;600;700&amp;family=Outfit:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "primary-fixed-dim": "#6fdaaf",
+            "on-surface-variant": "#bdcac1",
+            "background": "#0f1512",
+            "surface-container": "#1C1F1B",
+            "surface-container-high": "#262b28",
+            "surface-dim": "#141613",
+            "outline": "#666660",
+            "surface-container-highest": "#303633",
+            "on-primary": "#003827",
+            "outline-variant": "#2d332e",
+            "primary-container": "#1f4838",
+            "inverse-primary": "#006c4e",
+            "on-tertiary-container": "#661a1b",
+            "on-surface": "#F1EFE8",
+            "secondary-fixed": "#93f6cf",
+            "tertiary-fixed-dim": "#ffb3ae",
+            "surface-bright": "#323630",
+            "secondary": "#77d9b3",
+            "inverse-on-surface": "#2c322e",
+            "secondary-container": "#037f5f",
+            "tertiary-fixed": "#ffdad7",
+            "surface": "#141613",
+            "on-primary-container": "#003e2c",
+            "on-tertiary": "#5e1516",
+            "secondary-fixed-dim": "#77d9b3",
+            "surface-container-lowest": "#0e100d",
+            "on-primary-fixed-variant": "#00513a",
+            "on-background": "#dee4df",
+            "on-secondary": "#003828",
+            "surface-tint": "#6fdaaf",
+            "on-secondary-fixed-variant": "#00513c",
+            "tertiary-container": "#ea807b",
+            "on-error-container": "#ffdad6",
+            "on-secondary-container": "#cfffe8",
+            "surface-variant": "#303633",
+            "on-secondary-fixed": "#002116",
+            "neutral-status": "#8C958A",
+            "on-tertiary-fixed-variant": "#7c2b2a",
+            "primary": "#6fdaaf",
+            "tertiary": "#ffb3ae",
+            "error-container": "#93000a",
+            "on-tertiary-fixed": "#410005",
+            "primary-fixed": "#8cf7ca",
+            "on-error": "#690005",
+            "surface-container-low": "#181b17",
+            "on-primary-fixed": "#002115",
+            "error": "#E86A55",
+            "inverse-surface": "#dee4df",
+            "warning": "#E2A43C"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "space-md": "1rem",
+            "gutter": "1rem",
+            "gutter-desktop": "1.5rem",
+            "space-xl": "2rem",
+            "space-xs": "0.25rem",
+            "margin-desktop": "2rem",
+            "margin": "1rem",
+            "margin-tablet": "1.5rem",
+            "space-2xl": "3rem",
+            "space-sm": "0.5rem",
+            "space-lg": "1.5rem"
+          },
+          "fontFamily": {
+            "label-sm": ["Nunito Sans"],
+            "body-md": ["Nunito Sans"],
+            "title-md": ["Outfit"],
+            "code-sm": ["JetBrains Mono"],
+            "label-lg": ["Nunito Sans"],
+            "headline-sm": ["Outfit"],
+            "display-lg": ["Outfit"],
+            "label-md": ["Nunito Sans"],
+            "headline-md": ["Outfit"],
+            "body-lg": ["Nunito Sans"],
+            "display-lg-mobile": ["Outfit"],
+            "body-sm": ["Nunito Sans"],
+            "headline-lg": ["Outfit"],
+            "code-md": ["JetBrains Mono"],
+            "cairo": ["Cairo", "sans-serif"]
+          },
+          "fontSize": {
+            "label-sm": ["11px", { "lineHeight": "14px", "fontWeight": "600" }],
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "title-md": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+            "code-sm": ["11px", { "lineHeight": "16px", "fontWeight": "400" }],
+            "label-lg": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+            "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+            "display-lg": ["48px", { "lineHeight": "56px", "fontWeight": "700" }],
+            "label-md": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+            "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "display-lg-mobile": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
+            "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+            "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+            "code-md": ["13px", { "lineHeight": "18px", "fontWeight": "400" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      line-height: 1;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #141613;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #2d332e;
+      border-radius: 2px;
+    }
+    .caret-blink {
+      animation: blink 1s step-end infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen flex flex-col font-body-md select-none antialiased overflow-x-hidden">
+<!-- TOP APP BAR (Shared Component Exact Specs) -->
+<header class="fixed top-0 left-0 w-full z-40 flex items-center justify-between px-margin min-h-[48px] bg-surface-container border-b border-outline-variant">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="warehouse">warehouse</span>
+<div class="flex items-baseline gap-2">
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold tracking-tight">Stocktake</span>
+<span class="font-label-sm text-label-sm text-neutral-status border border-outline-variant px-1.5 py-0.5 rounded-lg bg-surface-container-low font-cairo">برشامة pharma</span>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex items-center gap-1 text-label-md font-label-md text-primary bg-primary-container px-2.5 py-1.5 rounded-lg active:scale-95 transition-transform duration-100 min-h-[36px]">
+<span>Finish</span>
+<span class="material-symbols-outlined text-[16px]" data-icon="check_circle">check_circle</span>
+</button>
+</div>
+</header>
+<!-- MAIN SCROLLABLE AUDIT CANVAS -->
+<main class="flex-1 pt-[56px] pb-[160px] px-margin space-y-space-md max-w-lg mx-auto w-full">
+<!-- LOCATION, EDA STAMP & PROGRESS HERO BANNER -->
+<section class="bg-surface-container border border-outline-variant rounded-xl p-space-md">
+<div class="flex items-start justify-between gap-2 mb-space-sm">
+<div>
+<div class="flex items-center gap-2">
+<h1 class="font-headline-sm text-headline-sm text-on-surface font-semibold tracking-wide">Ambient Aisle 1</h1>
+<span class="bg-surface-container-highest text-primary font-code-sm text-code-sm px-1.5 py-0.5 rounded-lg border border-outline-variant font-medium">A1-04</span>
+</div>
+<div class="flex items-center gap-2 mt-1">
+<p class="font-body-sm text-body-sm text-on-surface-variant font-cairo" dir="rtl">الممر المعتدل ١ • رف ٤</p>
+<span class="text-outline text-body-sm">•</span>
+<span class="font-label-sm text-label-sm text-neutral-status flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-primary" data-icon="verified">verified</span>
+              EDA Audited
+            </span>
+</div>
+</div>
+<div class="text-right">
+<div class="font-code-md text-code-md text-on-surface font-bold">142 <span class="text-neutral-status font-normal">/ 260</span></div>
+<span class="font-label-sm text-label-sm text-primary">54.6%</span>
+</div>
+</div>
+<!-- High-contrast Segmented Progress Bar -->
+<div class="w-full bg-surface-container-lowest h-2 rounded-full overflow-hidden p-0.5 border border-outline-variant">
+<div class="bg-primary h-full rounded-full transition-all duration-300" style="width: 54.6%;"></div>
+</div>
+<!-- Quick Shelf Metadata Strip -->
+<div class="grid grid-cols-3 gap-2 mt-space-sm pt-space-xs border-t border-outline-variant">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-neutral-status">TEMP PROFILE</span>
+<span class="font-code-sm text-code-sm text-on-surface flex items-center gap-1 font-semibold">
+<span class="material-symbols-outlined text-[12px] text-neutral-status" data-icon="device_thermostat">device_thermostat</span>
+            21.4°C / 44%
+          </span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-neutral-status">LINES REMAINING</span>
+<span class="font-code-sm text-code-sm text-warning font-semibold">3 items (Bay 4)</span>
+</div>
+<div class="flex flex-col text-right">
+<span class="font-label-sm text-label-sm text-neutral-status">PALLET ID</span>
+<span class="font-code-sm text-code-sm text-on-surface font-semibold">EG-PLT-982</span>
+</div>
+</div>
+</section>
+<!-- GLOVE WORKFLOW CONTROL BAR -->
+<div class="flex items-center gap-space-sm">
+<button class="flex-1 bg-surface-container-high border border-outline-variant hover:border-outline text-on-surface min-h-[44px] px-space-md rounded-xl flex items-center justify-center gap-2 active:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="filter_list">filter_list</span>
+<span class="font-label-lg text-label-lg">Uncounted (3)</span>
+</button>
+<button class="flex-1 bg-surface-container-high border border-outline-variant hover:border-outline text-on-surface min-h-[44px] px-space-md rounded-xl flex items-center justify-center gap-2 active:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-warning text-[20px]" data-icon="report_problem">report_problem</span>
+<span class="font-label-lg text-label-lg">Discrepant (1)</span>
+</button>
+<button aria-label="Audio Beep Feedback" class="w-11 min-h-[44px] bg-surface-container-high border border-outline-variant text-on-surface rounded-xl flex items-center justify-center active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-neutral-status text-[20px]" data-icon="volume_up">volume_up</span>
+</button>
+</div>
+<!-- INVENTORY AUDIT TABLE MODULE (Glove Ergonomics: 44px+ Rows, Precise Tactile Cells) -->
+<section class="bg-surface-container border border-outline-variant rounded-xl overflow-hidden">
+<!-- Raised Table Header -->
+<div class="bg-surface-container-high border-b border-outline-variant px-3 py-2.5 flex items-center justify-between text-neutral-status font-label-sm text-label-sm uppercase tracking-wider">
+<div class="w-[50%]">PRODUCT / FORMULATION</div>
+<div class="w-[18%] text-right font-code-sm">EXP</div>
+<div class="w-[20%] text-right font-code-sm">COUNT</div>
+<div class="w-[12%] text-right font-code-sm">DIFF</div>
+</div>
+<div class="divide-y divide-outline-variant">
+<!-- LINE 1: PANADOL EXTRA (Discrepancy: -2 Warning Amber) -->
+<div class="p-3 bg-surface-container hover:bg-surface-container-high transition-colors">
+<div class="flex items-center justify-between min-h-[44px] gap-2">
+<!-- Product Info -->
+<div class="w-[50%] pr-1">
+<div class="flex items-center gap-1.5">
+<span class="font-title-md text-title-md text-on-surface font-semibold leading-tight truncate">Panadol Extra 500 mg</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Paracetamol 500mg, Caffeine 65mg</p>
+<div class="flex items-center gap-2 mt-1">
+<span class="font-code-sm text-code-sm text-neutral-status">SKU 9208-EG</span>
+<span class="inline-block w-1.5 h-1.5 rounded-full bg-neutral-status" title="In Date"></span>
+<span class="font-label-sm text-label-sm text-neutral-status">EXP 11/26</span>
+</div>
+</div>
+<!-- Expected -->
+<div class="w-[18%] text-right">
+<span class="font-code-md text-code-md text-on-surface font-semibold block">240</span>
+<span class="font-label-sm text-label-sm text-neutral-status">units</span>
+</div>
+<!-- Counted Input (Inactive Cell) -->
+<div class="w-[20%] flex justify-end">
+<button class="w-full min-h-[44px] bg-surface-container-lowest border border-outline-variant rounded-lg font-code-md text-code-md text-on-surface font-bold text-right px-2.5 flex items-center justify-end active:border-primary">
+                238
+              </button>
+</div>
+<!-- Difference (-2 Highlighted in #E2A43C) -->
+<div class="w-[12%] text-right">
+<span class="font-code-md text-code-md text-warning font-bold inline-block bg-surface-container-lowest px-1.5 py-1 rounded border border-outline-variant">-2</span>
+</div>
+</div>
+<!-- Note / Shelf Incident Row -->
+<div class="mt-2.5 pt-2 border-t border-outline-variant/60 flex items-center justify-between">
+<div class="flex items-center gap-2 text-warning bg-surface-container-lowest px-2.5 py-1 rounded-lg border border-outline-variant">
+<span class="material-symbols-outlined text-[15px]" data-icon="inventory">inventory</span>
+<span class="font-body-sm text-body-sm text-warning font-medium">Damaged outer box on shelf tier 2</span>
+</div>
+<button class="min-h-[44px] px-2 text-neutral-status hover:text-on-surface flex items-center gap-1 font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px]" data-icon="edit">edit</span>
+              Edit
+            </button>
+</div>
+</div>
+<!-- LINE 2: AUGMENTIN (Accurate: 0 Difference Neutral) -->
+<div class="p-3 bg-surface-container hover:bg-surface-container-high transition-colors">
+<div class="flex items-center justify-between min-h-[44px] gap-2">
+<!-- Product Info -->
+<div class="w-[50%] pr-1">
+<div class="flex items-center gap-1.5">
+<span class="font-title-md text-title-md text-on-surface font-semibold leading-tight truncate">Augmentin 875/125 mg</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Amoxicillin, Clavulanate</p>
+<div class="flex items-center gap-2 mt-1">
+<span class="font-code-sm text-code-sm text-neutral-status">SKU 4110-EG</span>
+<span class="inline-block w-1.5 h-1.5 rounded-full bg-neutral-status" title="In Date"></span>
+<span class="font-label-sm text-label-sm text-neutral-status">EXP 08/25</span>
+</div>
+</div>
+<!-- Expected -->
+<div class="w-[18%] text-right">
+<span class="font-code-md text-code-md text-on-surface font-semibold block">80</span>
+<span class="font-label-sm text-label-sm text-neutral-status">units</span>
+</div>
+<!-- Counted Input (Inactive Cell) -->
+<div class="w-[20%] flex justify-end">
+<button class="w-full min-h-[44px] bg-surface-container-lowest border border-outline-variant rounded-lg font-code-md text-code-md text-on-surface font-bold text-right px-2.5 flex items-center justify-end active:border-primary">
+                80
+              </button>
+</div>
+<!-- Difference (0 in Neutral Status #8C958A) -->
+<div class="w-[12%] text-right">
+<span class="font-code-md text-code-md text-neutral-status font-medium inline-block bg-surface-container-lowest px-2 py-1 rounded border border-outline-variant">0</span>
+</div>
+</div>
+<!-- Note Trigger (Empty) -->
+<div class="mt-2 pt-2 border-t border-outline-variant/40 flex items-center justify-between">
+<button class="min-h-[44px] w-full text-left flex items-center gap-1.5 text-neutral-status hover:text-on-surface font-body-sm text-body-sm px-1">
+<span class="material-symbols-outlined text-[16px] text-neutral-status" data-icon="add_comment">add_comment</span>
+<span>Tap to add batch or seal note...</span>
+</button>
+</div>
+</div>
+<!-- LINE 3: REHYDRAN ORS (ACTIVELY FOCUSED CELL / GLOVE INPUT IN PROGRESS) -->
+<div class="p-3 bg-surface-container-high border-l-4 border-l-primary transition-colors">
+<div class="flex items-center justify-between min-h-[44px] gap-2">
+<!-- Product Info -->
+<div class="w-[50%] pr-1">
+<div class="flex items-center gap-1.5">
+<span class="font-title-md text-title-md text-on-surface font-bold leading-tight truncate">Rehydran ORS Sachet 5.5g</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Oral Rehydration Salts WHO Formula</p>
+<div class="flex items-center gap-2 mt-1">
+<span class="font-code-sm text-code-sm text-primary font-medium">SKU 1092-EG</span>
+<span class="font-label-sm text-label-sm text-primary bg-primary-container px-1 py-0.2 rounded font-cairo" dir="rtl">نشط الآن</span>
+</div>
+</div>
+<!-- Expected -->
+<div class="w-[18%] text-right">
+<span class="font-code-md text-code-md text-on-surface font-bold block">120</span>
+<span class="font-label-sm text-label-sm text-neutral-status">units</span>
+</div>
+<!-- Counted Input (ACTIVELY FOCUSED with 2px #43B189 Ring & #232924 Interactive Plane) -->
+<div class="w-[20%] flex justify-end">
+<div class="w-full min-h-[44px] bg-surface-container-high ring-2 ring-primary rounded-lg flex items-center justify-end px-2 shadow-sm">
+<span class="font-code-md text-code-md text-on-surface font-bold">120</span>
+<span class="w-0.5 h-4 bg-primary ml-0.5 caret-blink"></span>
+</div>
+</div>
+<!-- Difference -->
+<div class="w-[12%] text-right">
+<span class="font-code-md text-code-md text-neutral-status font-bold inline-block bg-surface-container-lowest px-2 py-1 rounded border border-outline-variant">0</span>
+</div>
+</div>
+<!-- Note Trigger (Focused Row Action) -->
+<div class="mt-2.5 pt-2 border-t border-outline-variant flex items-center justify-between">
+<button class="min-h-[44px] w-full text-left flex items-center gap-2 text-on-surface-variant hover:text-on-surface font-body-sm text-body-sm px-1 active:bg-surface-container-highest rounded">
+<span class="material-symbols-outlined text-[18px] text-primary" data-icon="edit_note">edit_note</span>
+<span>Tap to attach lot barcode or expiry audit note</span>
+</button>
+<span class="font-code-sm text-code-sm text-neutral-status whitespace-nowrap">LOT #B892</span>
+</div>
+</div>
+</div>
+</section>
+<!-- EXPANDABLE RAPID NUMERIC STEPPER / GLOVE ACTION STRIP (Docked right above BottomNav) -->
+<section class="bg-surface-container border border-outline-variant rounded-xl p-3 space-y-2">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-neutral-status uppercase tracking-wider">Quick Qty Stepper (Line 3: Rehydran)</span>
+<span class="font-code-sm text-code-sm text-primary">Target: 120</span>
+</div>
+<div class="grid grid-cols-4 gap-2">
+<button class="min-h-[48px] bg-surface-container-high border border-outline-variant hover:border-outline text-on-surface active:bg-surface-container-highest rounded-xl font-code-md text-code-md font-bold flex items-center justify-center text-center">
+          -10
+        </button>
+<button class="min-h-[48px] bg-surface-container-high border border-outline-variant hover:border-outline text-on-surface active:bg-surface-container-highest rounded-xl font-code-md text-code-md font-bold flex items-center justify-center text-center">
+          -1
+        </button>
+<button class="min-h-[48px] bg-surface-container-high border border-outline-variant hover:border-outline text-on-surface active:bg-surface-container-highest rounded-xl font-code-md text-code-md font-bold flex items-center justify-center text-center">
+          +1
+        </button>
+<button class="min-h-[48px] bg-surface-container-high border border-outline-variant hover:border-outline text-on-surface active:bg-surface-container-highest rounded-xl font-code-md text-code-md font-bold flex items-center justify-center text-center">
+          +10
+        </button>
+</div>
+<!-- Quick Action Pill: Match Expected Stock -->
+<button class="w-full min-h-[44px] bg-surface-container-lowest border border-outline-variant hover:border-primary text-on-surface-variant hover:text-primary rounded-xl flex items-center justify-center gap-2 font-label-md text-label-md transition-colors active:scale-[0.99]">
+<span class="material-symbols-outlined text-[18px]" data-icon="done_all">done_all</span>
+<span>Accept Expected Quantity (120 units)</span>
+</button>
+</section>
+<!-- FINISH COUNT CALLOUT BANNER -->
+<section class="pt-2">
+<button class="w-full min-h-[48px] bg-primary text-on-primary font-title-md text-title-md font-bold rounded-xl flex items-center justify-center gap-2.5 shadow-none active:-translate-y-px transition-transform duration-100">
+<span class="material-symbols-outlined text-[20px]" data-icon="task_alt" style="font-variation-settings: 'FILL' 1;">task_alt</span>
+<span>Finish count</span>
+<span class="font-code-sm text-code-sm bg-on-primary/10 px-2 py-0.5 rounded ml-1">3/3</span>
+</button>
+<p class="font-body-sm text-body-sm text-center text-neutral-status mt-2">
+        Egyptian Drug Authority (EDA) Audit Timestamp: 14:32:09 CLT
+      </p>
+</section>
+</main>
+<!-- DOCKED BOTTOM NAVIGATION (Shared Component Exact Specs) -->
+<!-- Active Tab: 'Stocktake' exactly mapped -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-gutter py-1 bg-surface-container border-t border-outline-variant">
+<!-- Tab 1: Stocktake (ACTIVE) -->
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-lg px-3 py-1.5 min-h-[48px] min-w-[48px] active:scale-95 transition-transform duration-100" href="#stocktake">
+<span class="material-symbols-outlined text-[22px] text-primary" data-icon="inventory_2" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
+<span class="font-label-sm text-label-sm text-primary font-bold">Stocktake</span>
+</a>
+<!-- Tab 2: Scanner (INACTIVE) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1.5 min-h-[48px] min-w-[48px] hover:bg-surface-container-high hover:text-on-surface active:scale-95 transition-transform duration-100" href="#scanner">
+<span class="material-symbols-outlined text-[22px]" data-icon="qr_code_scanner">qr_code_scanner</span>
+<span class="font-label-sm text-label-sm">Scanner</span>
+</a>
+<!-- Tab 3: Discrepancies (INACTIVE) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1.5 min-h-[48px] min-w-[48px] hover:bg-surface-container-high hover:text-on-surface active:scale-95 transition-transform duration-100 relative" href="#discrepancies">
+<span class="material-symbols-outlined text-[22px]" data-icon="warning">warning</span>
+<span class="font-label-sm text-label-sm">Discrepancies</span>
+<!-- Mini Warning Indicator Dot -->
+<span class="absolute top-1.5 right-3 w-2 h-2 rounded-full bg-warning"></span>
+</a>
+<!-- Tab 4: Sync (INACTIVE) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1.5 min-h-[48px] min-w-[48px] hover:bg-surface-container-high hover:text-on-surface active:scale-95 transition-transform duration-100" href="#sync">
+<span class="material-symbols-outlined text-[22px]" data-icon="sync">sync</span>
+<span class="font-label-sm text-label-sm">Sync</span>
+</a>
+</nav>
+<!-- GLOVE SCANNER FLOATING ACTION ACCESSORY (Aligned with Mobile Stocktake Task) -->
+<aside class="fixed right-4 bottom-20 z-40">
+<button aria-label="Trigger Barcode Scan" class="w-14 h-14 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-lg active:scale-90 transition-transform duration-100 border-2 border-surface-container-low">
+<span class="material-symbols-outlined text-[28px]" data-icon="barcode_scanner">barcode_scanner</span>
+</button>
+</aside>
+</body></html>

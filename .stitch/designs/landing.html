@@ -3,15 +3,15 @@
 <html class="dark" lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Bershama — Pharmaceutical Operations Hub</title>
-<!-- Material Symbols -->
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<!-- Fonts -->
+<title>Bershama | Pharmaceutical Distribution Hub Egypt</title>
+<!-- Google Fonts: Outfit (headings), Nunito Sans (body), JetBrains Mono (lots/telemetry), Cairo (Arabic) -->
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Plus+Jakarta+Sans:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Nunito+Sans:wght@400;500;600&amp;family=Outfit:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<!-- Tailwind CSS -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS v3 -->
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script id="tailwind-config">
     tailwind.config = {
@@ -19,583 +19,641 @@
       theme: {
         extend: {
           colors: {
-            "on-surface-variant": "#bbc9cd",
-            "on-secondary-fixed-variant": "#474649",
-            "on-tertiary-fixed-variant": "#47464a",
-            "on-error": "#690005",
-            "surface-tint": "#2fd9f4",
-            "on-tertiary": "#303033",
-            "tertiary-container": "#c2c0c4",
-            "surface-container-lowest": "#0e0e0e",
+            "on-tertiary-fixed-variant": "#614000",
+            "on-secondary-fixed-variant": "#00513c",
+            "primary-fixed-dim": "#6fdaaf",
+            "surface-dim": "#121411",
+            "background": "#141613",
+            "on-tertiary": "#442c00",
+            "surface-container": "#1C1F1B",
+            "on-secondary-fixed": "#002116",
+            "secondary-container": "#037f5f",
+            "on-secondary-container": "#cfffe8",
+            "on-tertiary-container": "#4b3000",
+            "surface-container-high": "#232924",
+            "on-primary": "#003827",
+            "outline-variant": "#2e342c",
+            "on-surface-variant": "#A6A499",
+            "tertiary-fixed-dim": "#fcbb51",
+            "on-secondary": "#003828",
             "error": "#ffb4ab",
-            "inverse-primary": "#006877",
-            "surface-container-low": "#1c1b1b",
-            "on-tertiary-fixed": "#1b1b1e",
-            "on-secondary": "#303032",
-            "primary-container": "#22d3ee",
-            "inverse-surface": "#e5e2e1",
-            "primary-fixed-dim": "#2fd9f4",
-            "surface-variant": "#353534",
-            "surface-dim": "#131313",
-            "on-primary-fixed-variant": "#004e5a",
-            "secondary": "#c8c6c8",
-            "primary-fixed": "#a2eeff",
+            "tertiary": "#fcbb51",
+            "on-background": "#F1EFE8",
+            "surface-bright": "#383a36",
+            "surface-container-highest": "#333532",
+            "inverse-surface": "#e3e3dd",
+            "outline": "#666660",
+            "surface-container-lowest": "#0d0f0c",
+            "on-tertiary-fixed": "#281800",
+            "primary": "#43B189",
+            "primary-highlight": "#6FD1AC",
+            "surface-variant": "#1C1F1B",
             "on-error-container": "#ffdad6",
-            "surface": "#131313",
-            "inverse-on-surface": "#313030",
-            "surface-container": "#201f1f",
+            "on-surface": "#F1EFE8",
+            "on-primary-fixed": "#002115",
+            "on-primary-fixed-variant": "#00513a",
+            "primary-fixed": "#8cf7ca",
+            "secondary": "#77d9b3",
+            "secondary-fixed-dim": "#77d9b3",
+            "inverse-on-surface": "#2f312d",
+            "secondary-fixed": "#93f6cf",
+            "primary-container": "#43b189",
+            "surface": "#141613",
             "error-container": "#93000a",
-            "secondary-fixed": "#e4e2e4",
-            "outline": "#859397",
-            "on-tertiary-container": "#4f4e52",
-            "secondary-fixed-dim": "#c8c6c8",
-            "on-primary": "#00363e",
-            "on-surface": "#e5e2e1",
-            "outline-variant": "#3c494c",
-            "tertiary-fixed": "#e4e1e5",
-            "secondary-container": "#474649",
-            "on-background": "#e5e2e1",
-            "on-primary-fixed": "#001f25",
-            "surface-container-high": "#2a2a2a",
-            "surface-container-highest": "#353534",
-            "background": "#131313",
-            "on-primary-container": "#005763",
-            "tertiary-fixed-dim": "#c8c6c9",
-            "on-secondary-container": "#b7b4b7",
-            "primary": "#8aebff",
-            "on-secondary-fixed": "#1b1b1d",
-            "tertiary": "#dedce0",
-            "surface-bright": "#393939"
+            "tertiary-container": "#cf932c",
+            "surface-container-low": "#181a17",
+            "inverse-primary": "#006c4e",
+            "on-primary-container": "#141613",
+            "surface-tint": "#43B189",
+            "tertiary-fixed": "#ffddb0",
+            "on-error": "#690005",
+            "status-neutral": "#8C958A",
+            "status-warning": "#E2A43C",
+            "status-critical": "#E86A55"
           },
           borderRadius: {
             "DEFAULT": "0.25rem",
             "lg": "0.5rem",
             "xl": "0.75rem",
+            "2xl": "1rem",
             "full": "9999px"
           },
           spacing: {
-            "space-sm": "0.5rem",
-            "gutter-desktop": "1.5rem",
-            "space-xl": "2.5rem",
-            "space-md": "1rem",
-            "gutter": "1rem",
-            "space-lg": "1.5rem",
-            "space-xs": "0.25rem",
+            "gutter": "0.75rem",
+            "space-lg": "1rem",
+            "gutter-lg": "1rem",
+            "margin-lg": "1.5rem",
             "margin": "1rem",
-            "margin-desktop": "2rem"
+            "space-xl": "1.5rem",
+            "space-md": "0.75rem",
+            "space-sm": "0.5rem",
+            "space-xs": "0.25rem"
           },
           fontFamily: {
-            "headline-xl-mobile": ["Space Grotesk"],
-            "headline-xl": ["Space Grotesk"],
-            "headline-md": ["Space Grotesk"],
-            "body-md": ["Plus Jakarta Sans"],
-            "mono-sm": ["JetBrains Mono"],
-            "body-lg": ["Plus Jakarta Sans"],
-            "headline-lg-mobile": ["Space Grotesk"],
-            "headline-sm": ["Space Grotesk"],
-            "mono-lg": ["JetBrains Mono"],
-            "headline-lg": ["Space Grotesk"],
-            "label-badge": ["JetBrains Mono"],
-            "body-sm": ["Plus Jakarta Sans"],
-            "mono-md": ["JetBrains Mono"],
-            "arabic": ["IBM Plex Sans Arabic", "sans-serif"]
+            "data-mono-lg": ["JetBrains Mono", "monospace"],
+            "data-mono-md": ["JetBrains Mono", "monospace"],
+            "data-mono-sm": ["JetBrains Mono", "monospace"],
+            "body-lg": ["Nunito Sans", "sans-serif"],
+            "body-md": ["Nunito Sans", "sans-serif"],
+            "body-sm": ["Nunito Sans", "sans-serif"],
+            "display-lg": ["Outfit", "sans-serif"],
+            "headline-lg": ["Outfit", "sans-serif"],
+            "headline-md": ["Outfit", "sans-serif"],
+            "title-sm": ["Outfit", "sans-serif"],
+            "label-caps": ["Outfit", "sans-serif"],
+            "arabic": ["Cairo", "sans-serif"]
           },
           fontSize: {
-            "headline-xl-mobile": ["32px", { lineHeight: "40px", letterSpacing: "-0.02em", fontWeight: "700" }],
-            "headline-xl": ["44px", { lineHeight: "52px", letterSpacing: "-0.02em", fontWeight: "700" }],
-            "headline-md": ["24px", { lineHeight: "32px", letterSpacing: "-0.015em", fontWeight: "600" }],
-            "body-md": ["13px", { lineHeight: "20px", fontWeight: "400" }],
-            "mono-sm": ["11px", { lineHeight: "16px", fontWeight: "400" }],
-            "body-lg": ["15px", { lineHeight: "24px", fontWeight: "400" }],
-            "headline-lg-mobile": ["24px", { lineHeight: "32px", letterSpacing: "-0.02em", fontWeight: "600" }],
-            "headline-sm": ["18px", { lineHeight: "26px", letterSpacing: "-0.01em", fontWeight: "500" }],
-            "mono-lg": ["15px", { lineHeight: "22px", fontWeight: "500" }],
-            "headline-lg": ["32px", { lineHeight: "40px", letterSpacing: "-0.02em", fontWeight: "600" }],
-            "label-badge": ["11px", { lineHeight: "14px", letterSpacing: "0.04em", fontWeight: "600" }],
-            "body-sm": ["12px", { lineHeight: "18px", fontWeight: "400" }],
-            "mono-md": ["13px", { lineHeight: "18px", fontWeight: "400" }]
+            "data-mono-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+            "data-mono-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400" }],
+            "data-mono-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "500" }],
+            "body-lg": ["15px", { "lineHeight": "22px", "fontWeight": "400" }],
+            "body-md": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "body-sm": ["11px", { "lineHeight": "16px", "fontWeight": "400" }],
+            "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "500" }],
+            "title-sm": ["16px", { "lineHeight": "22px", "fontWeight": "500" }],
+            "label-caps": ["11px", { "lineHeight": "14px", "letterSpacing": "0.08em", "fontWeight": "700" }]
           }
         }
       }
-    };
+    }
   </script>
 <style>
-    /* Tactical brutalist custom properties */
-    :root {
-      --off-black: #121212;
-      --raised-slate: #1A1A1C;
-      --lifted-graphite: #232326;
-      --deep-well: #0D0D0E;
-      --bone-white: #F2EFE9;
-      --ash-grey: #A1A1AA;
-      --dim-slate: #5C5C66;
-      --hairline: rgba(255, 255, 255, 0.08);
-      --signal-cyan: #22D3EE;
-      --vital-red: #F2555A;
-      --caution-amber: #F5A524;
-      --stable-green: #3ECF8E;
-    }
-
+    /* Precision Dark Operational Rules */
     body {
-      background-color: var(--off-black);
-      color: var(--bone-white);
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      margin: 0;
-      padding: 0;
+      background-color: #141613;
+      color: #F1EFE8;
+      font-family: 'Nunito Sans', sans-serif;
       -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
-    .border-hairline {
-      border-color: var(--hairline);
-    }
-    .divide-hairline > * + * {
-      border-color: var(--hairline);
-    }
-
-    /* Spring-loaded fade-up animation */
-    @keyframes tacticalFadeUp {
-      0% {
-        opacity: 0;
-        transform: translateY(8px);
+    /* 2.4s Breathing Telemetry Dot */
+    @keyframes pulse-breathing {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+        box-shadow: 0 0 0 0 rgba(67, 177, 137, 0.6);
       }
-      100% {
+      50% {
+        transform: scale(1.12);
+        opacity: 0.85;
+        box-shadow: 0 0 0 4px rgba(67, 177, 137, 0.0);
+      }
+    }
+    .live-pulse {
+      animation: pulse-breathing 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    /* Staggered load transitions */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(8px);
+      animation: fadeUpIn 0.45s ease-out forwards;
+    }
+    @keyframes fadeUpIn {
+      to {
         opacity: 1;
         transform: translateY(0);
       }
     }
+    .delay-1 { animation-delay: 60ms; }
+    .delay-2 { animation-delay: 120ms; }
+    .delay-3 { animation-delay: 180ms; }
+    .delay-4 { animation-delay: 240ms; }
 
-    .animate-tactical-up {
-      animation: tacticalFadeUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1) forwards;
+    /* Custom scrollbar suppression for operational feel */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
     }
 
-    /* Live Telemetry Pulse Loop */
-    @keyframes livePulse {
-      0%, 100% {
-        opacity: 1;
-        transform: scale(1);
-      }
-      50% {
-        opacity: 0.35;
-        transform: scale(0.85);
-      }
-    }
-
-    .animate-pulse-slow {
-      animation: livePulse 2.4s ease-in-out infinite;
-    }
-
-    /* Scroll rail mask */
-    .edge-fade-mask {
-      mask-image: linear-gradient(to right, transparent 0px, black 32px, black calc(100% - 32px), transparent 100%);
-      -webkit-mask-image: linear-gradient(to right, transparent 0px, black 32px, black calc(100% - 32px), transparent 100%);
-    }
-
-    /* Monospace Tabular Figures */
-    .tabular-nums {
-      font-variant-numeric: tabular-nums;
-    }
-
-    /* Action button active mechanical step */
-    .btn-tactical:active {
-      transform: translateY(1px);
+    /* Subtle edge gradients for horizontal telemetry rail */
+    .rail-fade-mask {
+      mask-image: linear-gradient(to right, black 88%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to right, black 88%, transparent 100%);
     }
   </style>
 </head>
-<body class="min-h-[1024px] flex flex-col bg-[#121212] selection:bg-[#22D3EE] selection:text-[#121212] overflow-x-hidden">
-<!-- 1. TopNavBar (Shared Component implementation) -->
-<header class="bg-surface-container-low dark:bg-surface-container-low docked full-width top-0 sticky z-50 border-b border-outline-variant/30">
-<div class="flex justify-between items-center w-full max-w-[1400px] mx-auto px-gutter-desktop h-14">
-<!-- Brand & Capabilities Navigation -->
-<div class="flex items-center space-x-8">
-<a class="text-headline-md font-headline-md font-bold tracking-tight text-on-surface dark:text-on-surface flex items-center gap-2" href="#">
-          Bershama
-        </a>
-<!-- Desktop Navigation Cluster -->
-<nav class="hidden md:flex items-center space-x-6">
-<a class="text-on-surface-variant dark:text-on-surface-variant font-mono-md text-mono-md hover:text-on-surface dark:hover:text-on-surface transition-colors" href="#">Capabilities</a>
-<a class="text-on-surface-variant dark:text-on-surface-variant font-mono-md text-mono-md hover:text-on-surface dark:hover:text-on-surface transition-colors" href="#">Compliance</a>
-<a class="text-on-surface-variant dark:text-on-surface-variant font-mono-md text-mono-md hover:text-on-surface dark:hover:text-on-surface transition-colors" href="#">Audit Trail</a>
-<a class="text-on-surface-variant dark:text-on-surface-variant font-mono-md text-mono-md hover:text-on-surface dark:hover:text-on-surface transition-colors" href="#">Network</a>
-<a class="text-primary dark:text-primary font-mono-md text-mono-md" href="#">Telemetry</a>
-</nav>
+<body class="bg-background text-on-surface antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- ================= TOP APP BAR (Shared Components JSON Anchor) ================= -->
+<header class="docked full-width top-0 sticky z-50 bg-surface dark:bg-surface border-b border-outline-variant dark:border-outline-variant flat no shadows">
+<div class="w-full px-space-xl max-w-7xl mx-auto flex items-center justify-between h-16">
+<!-- Left: Logo & Wordmark -->
+<div class="flex items-center space-x-6">
+<a class="text-headline-md font-headline-md font-semibold text-on-surface dark:text-on-surface tracking-tight flex items-center space-x-2" href="#">
+<span>Bershama</span>
+<span class="inline-block w-1.5 h-1.5 rounded-full bg-primary align-middle ml-1"></span>
+</a>
+<div class="hidden lg:flex items-center space-x-6 text-data-mono-md font-data-mono-md border-l border-outline-variant pl-6">
+<span class="text-primary dark:text-primary border-b-2 border-primary dark:border-primary font-body-md text-body-md pb-1 cursor-pointer">Cold-Chain Telemetry</span>
+<span class="text-on-surface-variant dark:text-on-surface-variant font-body-md text-body-md hover:text-on-surface dark:hover:text-on-surface transition-colors duration-150 cursor-pointer">Batch Traceability</span>
+<span class="text-on-surface-variant dark:text-on-surface-variant font-body-md text-body-md hover:text-on-surface dark:hover:text-on-surface transition-colors duration-150 cursor-pointer">Depot Network</span>
+<span class="text-on-surface-variant dark:text-on-surface-variant font-body-md text-body-md hover:text-on-surface dark:hover:text-on-surface transition-colors duration-150 cursor-pointer">Regulatory Compliance</span>
 </div>
-<!-- Trailing Controls Cluster -->
+</div>
+<!-- Right: Actions -->
 <div class="flex items-center space-x-3">
-<!-- Language Switcher -->
-<button class="flex items-center gap-1.5 px-2.5 h-[36px] rounded-[10px] bg-[#232326] border border-[rgba(255,255,255,0.08)] hover:border-outline-variant text-[#A1A1AA] hover:text-[#F2EFE9] font-mono-sm text-mono-sm transition-colors btn-tactical" title="Switch Language">
-<span class="material-symbols-outlined text-[16px]">translate</span>
-<span class="hidden sm:inline">English / العربية</span>
+<button class="text-on-surface-variant hover:text-on-surface text-body-md font-body-md px-3 py-1.5 rounded transition-colors duration-150 hidden sm:inline-flex items-center space-x-1">
+<span class="material-symbols-outlined text-[16px]">language</span>
+<span class="font-data-mono-sm text-data-mono-sm">EG-AR</span>
 </button>
-<!-- Secondary Action: Sign in -->
-<button class="px-3.5 h-[36px] rounded-[10px] text-[#A1A1AA] hover:text-[#F2EFE9] font-mono-md text-mono-md hover:border-outline-variant transition-colors btn-tactical">
+<button class="text-on-surface-variant hover:text-on-surface text-body-md font-body-md px-3 py-2 transition-colors duration-150">
           Sign in
         </button>
-<!-- Primary Action: Create organisation -->
-<button class="px-4 h-[36px] rounded-[10px] bg-[#22D3EE] hover:bg-[#67E8F9] text-[#121212] font-mono-md text-mono-md font-semibold transition-colors btn-tactical flex items-center justify-center">
-          Create organisation
+<button class="bg-primary hover:bg-primary-highlight text-on-primary-container font-headline-md font-semibold text-[13px] px-4 py-2 rounded-xl transition-all duration-150 active:scale-[0.98] border border-primary">
+          Create your organisation
         </button>
 </div>
 </div>
 </header>
-<!-- Main Operational Canvas -->
-<main class="flex-1 w-full max-w-[1400px] mx-auto px-gutter-desktop py-space-xl flex flex-col gap-16 md:gap-24">
-<!-- 2. Hero: Split Screen Display (60% / 40%) -->
-<section class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-<!-- Left Column: Operations Status & Value Proposition (60%) -->
-<div class="lg:col-span-7 flex flex-col items-start pt-2">
-<div class="font-mono-sm text-mono-sm uppercase text-[#A1A1AA] tracking-wider mb-4 flex items-center gap-2">
-<span class="inline-block w-1.5 h-1.5 bg-[#22D3EE]"></span>
-          PHARMACEUTICAL DISTRIBUTION · EGYPT
-        </div>
-<h1 class="font-headline-xl text-headline-xl text-[#F2EFE9] font-semibold tracking-[-0.02em] max-w-[20ch] mb-6 leading-tight">
-          Direct pharmaceutical supply between licensed distributors and verified Egyptian pharmacies.
-        </h1>
-<p class="font-body-lg text-body-lg text-[#A1A1AA] max-w-[65ch] mb-8 leading-relaxed">
-          Order directly by lot number with verified cold-chain logs and guaranteed FEFO dispatch. No grey market, no middle brokers.
-        </p>
-<!-- CTAs Side-by-Side -->
-<div class="flex flex-wrap items-center gap-4">
-<button class="px-5 h-[44px] rounded-[10px] bg-[#22D3EE] hover:bg-[#67E8F9] text-[#121212] font-mono-md text-mono-md font-semibold transition-colors btn-tactical flex items-center gap-2">
-<span>Create organisation</span>
-<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
-</button>
-<button class="px-5 h-[44px] rounded-[10px] bg-transparent border border-[rgba(255,255,255,0.08)] hover:border-[rgba(255,255,255,0.2)] text-[#F2EFE9] font-mono-md text-mono-md transition-colors btn-tactical">
-            Talk to sales
-          </button>
-</div>
-<!-- Metric micro-strip -->
-<div class="mt-12 pt-6 border-t border-[rgba(255,255,255,0.08)] w-full grid grid-cols-3 gap-4">
-<div>
-<div class="font-mono-sm text-mono-sm text-[#5C5C66]">EDA LICENSURE</div>
-<div class="font-mono-md text-mono-md text-[#F2EFE9] mt-0.5">#8491/2023</div>
-</div>
-<div>
-<div class="font-mono-sm text-mono-sm text-[#5C5C66]">AUDIT STANDARD</div>
-<div class="font-mono-md text-mono-md text-[#F2EFE9] mt-0.5">WHO GDP</div>
-</div>
-<div>
-<div class="font-mono-sm text-mono-sm text-[#5C5C66]">DISPATCH LOGIC</div>
-<div class="font-mono-md text-mono-md text-[#22D3EE]">FEFO STRICT</div>
-</div>
-</div>
-</div>
-<!-- Right Column: Live Inventory Console (40%) -->
-<div class="lg:col-span-5 relative w-full animate-tactical-up">
-<!-- Low opacity ambient radial blur behind console panel -->
-<div class="absolute -inset-4 bg-[#22D3EE]/5 blur-3xl rounded-full pointer-events-none -z-10"></div>
-<div class="bg-[#1A1A1C] border border-[rgba(255,255,255,0.08)] rounded-[16px] overflow-hidden shadow-2xl">
-<!-- Console Top Banner -->
-<div class="h-10 px-4 bg-[#232326] border-b border-[rgba(255,255,255,0.08)] flex items-center justify-between">
-<div class="flex items-center gap-2.5">
-<span class="w-2 h-2 rounded-full bg-[#22D3EE] animate-pulse-slow"></span>
-<span class="font-mono-sm text-mono-sm font-semibold tracking-wider text-[#F2EFE9]">LIVE INVENTORY TELEMETRY</span>
-</div>
-<span class="font-mono-sm text-mono-sm text-[#A1A1AA]">HUB: CAI-01</span>
-</div>
-<!-- Tabular Telemetry Stream -->
-<div class="w-full overflow-x-auto">
-<table class="w-full text-left border-collapse">
-<thead>
-<tr class="h-9 bg-[#232326]/60 border-b border-[rgba(255,255,255,0.08)] font-mono-sm text-mono-sm text-[#A1A1AA] uppercase">
-<th class="px-4 font-normal">Lot Ref</th>
-<th class="px-4 font-normal">Product Spec</th>
-<th class="px-4 font-normal text-right">Units</th>
-<th class="px-4 font-normal text-right">Status</th>
-</tr>
-</thead>
-<tbody class="divide-y divide-[rgba(255,255,255,0.08)] font-body-md text-body-md">
-<!-- Row 1: Expired -->
-<tr class="h-[44px] hover:bg-[#232326] transition-colors group">
-<td class="px-4 font-mono-md text-mono-md text-[#22D3EE]">LOT-EG-8821</td>
-<td class="px-4 text-[#F2EFE9] truncate max-w-[140px]">Insulin Glargine 100 IU/mL</td>
-<td class="px-4 font-mono-md text-mono-md text-[#A1A1AA] text-right tabular-nums">140 pk</td>
-<td class="px-4 text-right">
-<span class="inline-flex items-center px-2 py-0.5 rounded-full font-label-badge text-[11px] bg-[#F2555A]/10 text-[#F2555A] border border-[#F2555A]/30">
-                      ▲ Expired
-                    </span>
-</td>
-</tr>
-<!-- Row 2: Caution -->
-<tr class="h-[44px] hover:bg-[#232326] transition-colors group">
-<td class="px-4 font-mono-md text-mono-md text-[#22D3EE]">LOT-EG-9042</td>
-<td class="px-4 text-[#F2EFE9] truncate max-w-[140px]">Ceftriaxone 1g Vial</td>
-<td class="px-4 font-mono-md text-mono-md text-[#A1A1AA] text-right tabular-nums">650 pk</td>
-<td class="px-4 text-right">
-<span class="inline-flex items-center px-2 py-0.5 rounded-full font-label-badge text-[11px] bg-[#F5A524]/10 text-[#F5A524] border border-[#F5A524]/30">
-                      ● 8 days
-                    </span>
-</td>
-</tr>
-<!-- Row 3: Stable -->
-<tr class="h-[44px] hover:bg-[#232326] transition-colors group">
-<td class="px-4 font-mono-md text-mono-md text-[#22D3EE]">LOT-EG-9118</td>
-<td class="px-4 text-[#F2EFE9] truncate max-w-[140px]">Atorvastatin 20mg Tablets</td>
-<td class="px-4 font-mono-md text-mono-md text-[#A1A1AA] text-right tabular-nums">1,200 pk</td>
-<td class="px-4 text-right">
-<span class="inline-flex items-center px-2 py-0.5 rounded-full font-label-badge text-[11px] bg-[#3ECF8E]/10 text-[#3ECF8E] border border-[#3ECF8E]/30">
-                      ◆ 240 days
-                    </span>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-<!-- Terminal Recessed Strip Footer -->
-<div class="px-4 py-2.5 bg-[#0D0D0E] border-t border-[rgba(255,255,255,0.08)] flex items-center justify-between">
-<span class="font-mono-sm text-mono-sm text-[#A1A1AA] tabular-nums">LOT-2026-A0412 · 100 IU/mL · 240 units</span>
-<span class="font-mono-sm text-mono-sm text-[#3ECF8E] flex items-center gap-1">
-<span class="inline-block w-1 h-1 bg-[#3ECF8E] rounded-full"></span>
-              LIVE LOG
+<main class="w-full">
+<!-- ================= HERO SECTION (Split screen, left-aligned) ================= -->
+<section class="max-w-7xl mx-auto px-space-xl pt-10 pb-16 lg:pt-14 lg:pb-20">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<!-- Left Column: 60% (7 cols on 12-col grid) -->
+<div class="lg:col-span-7 flex flex-col justify-center pr-0 lg:pr-6">
+<div class="fade-up">
+<span class="font-data-mono-sm text-data-mono-sm text-on-surface-variant tracking-wider uppercase font-semibold">
+              PHARMACEUTICAL DISTRIBUTION · EGYPT
             </span>
 </div>
+<h1 class="fade-up delay-1 mt-4 text-[38px] sm:text-[44px] leading-[1.12] font-display-lg font-semibold tracking-[-0.02em] text-on-surface max-w-[20ch]">
+            Pharmaceutical distribution, tracked from batch to delivery.
+          </h1>
+<p class="fade-up delay-2 mt-4 text-body-lg font-body-lg text-on-surface-variant max-w-[65ch]">
+            Distributors list lots with verified expiry and temperature logs. Egyptian community pharmacies order with guaranteed FEFO dispatch and delivery proofs.
+          </p>
+<div class="fade-up delay-3 mt-8 flex flex-wrap items-center gap-3">
+<button class="bg-primary hover:bg-primary-highlight text-on-primary-container font-display-lg font-semibold text-[14px] px-5 h-[44px] rounded-xl transition-colors duration-150 active:scale-[0.98] border border-primary flex items-center justify-center">
+              Create your organisation
+            </button>
+<button class="bg-surface-container-high hover:border-outline text-on-surface font-body-md text-body-md px-5 h-[44px] rounded-xl border border-outline-variant hover:text-on-surface transition-colors duration-150 flex items-center justify-center">
+              Talk to sales
+            </button>
+</div>
+<!-- Operational Signals Micro-footer -->
+<div class="fade-up delay-4 mt-10 pt-6 border-t border-outline-variant grid grid-cols-3 gap-4 text-left">
+<div>
+<div class="text-data-mono-sm font-data-mono-sm text-on-surface-variant uppercase tracking-wider">EDA COMPLIANCE</div>
+<div class="font-data-mono-md text-data-mono-md text-on-surface mt-0.5">Circ. 8491/2023</div>
+</div>
+<div>
+<div class="text-data-mono-sm font-data-mono-sm text-on-surface-variant uppercase tracking-wider">ROUTING ENGINE</div>
+<div class="font-data-mono-md text-data-mono-md text-on-surface mt-0.5">FEFO Deterministic</div>
+</div>
+<div>
+<div class="text-data-mono-sm font-data-mono-sm text-on-surface-variant uppercase tracking-wider">TELEMETRY POLLING</div>
+<div class="font-data-mono-md text-data-mono-md text-primary mt-0.5">60s Node Cycle</div>
+</div>
+</div>
+</div>
+<!-- Right Column: 40% (5 cols on 12-col grid) with faint jade radial glow -->
+<div class="lg:col-span-5 relative mt-4 lg:mt-0">
+<!-- Ambient Glow (Low opacity, non-intrusive) -->
+<div class="absolute -inset-1 bg-primary/10 rounded-3xl blur-2xl pointer-events-none"></div>
+<!-- Operations Panel Card -->
+<div class="relative bg-surface-container border border-outline-variant rounded-2xl p-6 shadow-none">
+<!-- Header inside panel -->
+<div class="flex items-center justify-between pb-4 border-b border-outline-variant">
+<div class="flex items-center space-x-2">
+<span class="w-2 h-2 rounded-full bg-primary live-pulse"></span>
+<span class="text-data-mono-sm font-data-mono-sm text-on-surface tracking-wider uppercase font-semibold">
+                  LIVE BATCH TELEMETRY
+                </span>
+</div>
+<span class="font-data-mono-sm text-data-mono-sm text-on-surface-variant bg-surface-container-high px-2 py-0.5 rounded border border-outline-variant">
+                HUB: CAI-01
+              </span>
+</div>
+<!-- Compact Pharmaceutical Batch Table -->
+<div class="mt-4 divide-y divide-outline-variant/60">
+<!-- Row 1: Expired -->
+<div class="py-3 flex items-center justify-between text-left group">
+<div class="space-y-0.5 pr-2">
+<div class="font-data-mono-sm text-data-mono-sm text-on-surface-variant group-hover:text-primary transition-colors">
+                    LOT-EG-8821
+                  </div>
+<div class="text-body-md font-body-md font-medium text-on-surface">
+                    Insulin Glargine 100 IU/mL
+                  </div>
+</div>
+<div class="text-right flex flex-col items-end space-y-1">
+<span class="font-data-mono-sm text-data-mono-sm text-on-surface">140 pk</span>
+<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-data-mono-sm border border-status-critical/30 text-status-critical bg-status-critical/10">
+                    ▲ Expired
+                  </span>
+</div>
+</div>
+<!-- Row 2: Expiring soon -->
+<div class="py-3 flex items-center justify-between text-left group">
+<div class="space-y-0.5 pr-2">
+<div class="font-data-mono-sm text-data-mono-sm text-on-surface-variant group-hover:text-primary transition-colors">
+                    LOT-EG-9042
+                  </div>
+<div class="text-body-md font-body-md font-medium text-on-surface">
+                    Ceftriaxone 1g Vial
+                  </div>
+</div>
+<div class="text-right flex flex-col items-end space-y-1">
+<span class="font-data-mono-sm text-data-mono-sm text-on-surface">650 pk</span>
+<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-data-mono-sm border border-status-warning/30 text-status-warning bg-status-warning/10">
+                    ● 8 days
+                  </span>
+</div>
+</div>
+<!-- Row 3: In date (Strictly NEUTRAL grey) -->
+<div class="py-3 flex items-center justify-between text-left group">
+<div class="space-y-0.5 pr-2">
+<div class="font-data-mono-sm text-data-mono-sm text-on-surface-variant group-hover:text-primary transition-colors">
+                    LOT-EG-9118
+                  </div>
+<div class="text-body-md font-body-md font-medium text-on-surface">
+                    Atorvastatin 20mg
+                  </div>
+</div>
+<div class="text-right flex flex-col items-end space-y-1">
+<span class="font-data-mono-sm text-data-mono-sm text-on-surface">1,200 pk</span>
+<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-data-mono-sm border border-status-neutral/30 text-status-neutral bg-status-neutral/10">
+                    ◆ 240 days
+                  </span>
+</div>
+</div>
+</div>
+<!-- Under Table Telemetry Readout -->
+<div class="mt-4 pt-3 border-t border-outline-variant flex items-center justify-between text-data-mono-sm font-data-mono-sm">
+<span class="text-on-surface-variant truncate pr-2">LOT-2026-A0412 · 100 IU/mL · 240 units</span>
+<span class="text-primary font-semibold whitespace-nowrap bg-primary/10 border border-primary/20 px-2 py-0.5 rounded text-[10px]">
+                +4.2°C STABLE
+              </span>
+</div>
+</div>
 </div>
 </div>
 </section>
-<!-- 3. Two Audiences (Asymmetric Zig-Zag Layout) -->
-<section class="pt-12 border-t border-[rgba(255,255,255,0.08)]">
-<div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-16">
-<!-- Left: For Distributors -->
-<div class="bg-[#1A1A1C] p-6 lg:p-8 rounded-[16px] border border-[rgba(255,255,255,0.08)] flex flex-col justify-between">
-<div>
-<div class="w-10 h-10 rounded-[4px] bg-[#232326] border border-[rgba(255,255,255,0.08)] flex items-center justify-center text-[#22D3EE] mb-6">
-<span class="material-symbols-outlined text-[20px]">warehouse</span>
+<!-- ================= TWO AUDIENCES (Zig-zag, not 3 equal cards) ================= -->
+<section class="w-full border-t border-outline-variant">
+<div class="max-w-7xl mx-auto px-space-xl py-16">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-14">
+<!-- Column 1: For distributors -->
+<div class="flex flex-col items-start space-y-4">
+<div class="w-10 h-10 rounded-lg bg-surface-container border border-outline-variant flex items-center justify-center">
+<!-- Warehouse / Box SVG glyph with thin 1.5px jade stroke -->
+<svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewbox="0 0 24 24">
+<path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path>
+<path d="m3.3 7 8.7 5 8.7-5"></path>
+<path d="M12 22V12"></path>
+</svg>
 </div>
-<h2 class="font-headline-md text-headline-md text-[#F2EFE9] font-semibold mb-3">
+<h2 class="text-[24px] font-headline-lg font-semibold text-on-surface tracking-tight">
               For distributors
             </h2>
-<p class="font-body-md text-body-md text-[#A1A1AA] leading-relaxed mb-6">
+<p class="text-[14px] leading-relaxed text-on-surface-variant max-w-[48ch]">
               Liquidate short-dated inventory before write-down and dispatch full lots directly to verified pharmacies with cold-chain receipts.
             </p>
-</div>
-<div>
-<a class="inline-flex items-center gap-1 font-mono-md text-mono-md text-[#22D3EE] hover:underline group" href="#">
+<a class="inline-flex items-center space-x-1.5 text-primary hover:text-primary-highlight text-body-md font-body-md font-medium pt-1 group" href="#expiry-engine">
 <span>See how expiry works</span>
-<span class="transition-transform group-hover:translate-x-0.5">→</span>
+<span class="group-hover:translate-x-1 transition-transform">→</span>
 </a>
 </div>
+<!-- Column 2: For pharmacies -->
+<div class="flex flex-col items-start space-y-4">
+<div class="w-10 h-10 rounded-lg bg-surface-container border border-outline-variant flex items-center justify-center">
+<!-- Pharmacy Cross glyph with thin 1.5px jade stroke -->
+<svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewbox="0 0 24 24">
+<path d="M12 4v16m-8-8h16"></path>
+<rect height="18" rx="2" width="18" x="3" y="3"></rect>
+</svg>
 </div>
-<!-- Right: For Pharmacies -->
-<div class="bg-[#1A1A1C] p-6 lg:p-8 rounded-[16px] border border-[rgba(255,255,255,0.08)] flex flex-col justify-between">
-<div>
-<div class="w-10 h-10 rounded-[4px] bg-[#232326] border border-[rgba(255,255,255,0.08)] flex items-center justify-center text-[#22D3EE] mb-6">
-<span class="material-symbols-outlined text-[20px]">local_pharmacy</span>
-</div>
-<h2 class="font-headline-md text-headline-md text-[#F2EFE9] font-semibold mb-3">
+<h2 class="text-[24px] font-headline-lg font-semibold text-on-surface tracking-tight">
               For pharmacies
             </h2>
-<p class="font-body-md text-body-md text-[#A1A1AA] leading-relaxed mb-6">
+<p class="text-[14px] leading-relaxed text-on-surface-variant max-w-[48ch]">
               Secure genuine medication with documented lot origin, EDA regulatory compliance, and scheduled temperature-controlled delivery.
             </p>
-</div>
-<div>
-<a class="inline-flex items-center gap-1 font-mono-md text-mono-md text-[#22D3EE] hover:underline group" href="#">
+<a class="inline-flex items-center space-x-1.5 text-primary hover:text-primary-highlight text-body-md font-body-md font-medium pt-1 group" href="#order-verification">
 <span>See how ordering works</span>
-<span class="transition-transform group-hover:translate-x-0.5">→</span>
+<span class="group-hover:translate-x-1 transition-transform">→</span>
 </a>
 </div>
 </div>
 </div>
 </section>
-<!-- 4. Capabilities Band: Real Copy Grid -->
-<section class="pt-8">
-<div class="mb-10">
-<h2 class="font-headline-md text-headline-md text-[#F2EFE9] font-semibold mb-2">
-          Built for the shelf, not the spreadsheet
-        </h2>
-<p class="font-body-md text-body-md text-[#A1A1AA]">
-          Operational tooling designed around pharmacy cash-flow and warehouse physical shelf life.
-        </p>
-</div>
-<div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 divide-[rgba(255,255,255,0.08)] border-t border-[rgba(255,255,255,0.08)]">
-<!-- Capabilities Row 1 -->
-<div class="py-6 md:pr-8 md:border-b md:border-[rgba(255,255,255,0.08)]">
-<div class="font-mono-sm text-mono-sm uppercase text-[#A1A1AA] tracking-wider mb-1">LOT VERIFICATION</div>
-<h3 class="font-headline-sm text-headline-sm text-[#F2EFE9] mb-2 font-medium">Batch-level expiry</h3>
-<p class="font-body-md text-body-md text-[#A1A1AA]">
-            Inspect individual lot expiration dates prior to purchase confirmation rather than batch averages.
+<!-- ================= CAPABILITIES BAND (Negative space, 2-column zig-zag, no cards) ================= -->
+<section class="w-full border-t border-outline-variant bg-surface-container-low/40">
+<div class="max-w-7xl mx-auto px-space-xl py-16">
+<!-- Section Header -->
+<div class="mb-10 text-left">
+<h2 class="text-[24px] font-headline-lg font-semibold text-on-surface tracking-tight">
+            What it does
+          </h2>
+<p class="mt-1 text-[14px] text-on-surface-variant max-w-2xl font-body-md">
+            Operational tooling designed around pharmacy cash-flow and warehouse physical shelf life.
           </p>
 </div>
-<!-- Capabilities Row 2 -->
-<div class="py-6 md:pl-8 md:border-b md:border-[rgba(255,255,255,0.08)]">
-<div class="font-mono-sm text-mono-sm uppercase text-[#A1A1AA] tracking-wider mb-1">TELEMETRY LOGS</div>
-<h3 class="font-headline-sm text-headline-sm text-[#F2EFE9] mb-2 font-medium">Cold chain with evidence</h3>
-<p class="font-body-md text-body-md text-[#A1A1AA]">
-            Continuous logger readings from central warehouse cold storage to the pharmacy doorstep.
-          </p>
+<!-- 4 Items in 2-Column Grid with Hairline Dividers -->
+<div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 divide-outline-variant border-t border-outline-variant">
+<!-- Item 1 -->
+<div class="py-8 md:pr-10 border-b border-outline-variant">
+<div class="text-[13px] font-data-mono-sm text-on-surface-variant uppercase font-medium tracking-wider">
+              LOT VERIFICATION
+            </div>
+<h3 class="text-[18px] font-headline-md font-semibold text-on-surface mt-1.5 tracking-tight">
+              Batch-level expiry
+            </h3>
+<p class="text-[14px] leading-relaxed text-on-surface-variant mt-2 font-body-md">
+              Inspect individual lot expiration dates prior to purchase confirmation rather than batch averages.
+            </p>
 </div>
-<!-- Capabilities Row 3 -->
-<div class="py-6 md:pr-8 md:border-b md:border-[rgba(255,255,255,0.08)]">
-<div class="font-mono-sm text-mono-sm uppercase text-[#A1A1AA] tracking-wider mb-1">INVENTORY DISPATCH</div>
-<h3 class="font-headline-sm text-headline-sm text-[#F2EFE9] mb-2 font-medium">FEFO allocation</h3>
-<p class="font-body-md text-body-md text-[#A1A1AA]">
-            First-Expired, First-Out rule automation built directly into the order picking and pack station.
-          </p>
+<!-- Item 2 -->
+<div class="py-8 md:pl-10 border-b border-outline-variant md:border-l">
+<div class="text-[13px] font-data-mono-sm text-on-surface-variant uppercase font-medium tracking-wider">
+              TELEMETRY LOGS
+            </div>
+<h3 class="text-[18px] font-headline-md font-semibold text-on-surface mt-1.5 tracking-tight">
+              Cold chain, with evidence
+            </h3>
+<p class="text-[14px] leading-relaxed text-on-surface-variant mt-2 font-body-md">
+              Continuous logger readings from central warehouse cold storage to the pharmacy doorstep.
+            </p>
 </div>
-<!-- Capabilities Row 4 -->
-<div class="py-6 md:pl-8 md:border-b md:border-[rgba(255,255,255,0.08)]">
-<div class="font-mono-sm text-mono-sm uppercase text-[#A1A1AA] tracking-wider mb-1">CHAIN OF CUSTODY</div>
-<h3 class="font-headline-sm text-headline-sm text-[#F2EFE9] mb-2 font-medium">Deliveries with proof</h3>
-<p class="font-body-md text-body-md text-[#A1A1AA]">
-            Digital handover timestamps and licensed pharmacist stamp verification at point of receipt.
-          </p>
+<!-- Item 3 -->
+<div class="py-8 md:pr-10 border-b md:border-b-0 border-outline-variant">
+<div class="text-[13px] font-data-mono-sm text-on-surface-variant uppercase font-medium tracking-wider">
+              INVENTORY DISPATCH
+            </div>
+<h3 class="text-[18px] font-headline-md font-semibold text-on-surface mt-1.5 tracking-tight">
+              Requisitions, filled FEFO
+            </h3>
+<p class="text-[14px] leading-relaxed text-on-surface-variant mt-2 font-body-md">
+              First-Expired, First-Out rule automation built directly into the order picking and pack station.
+            </p>
+</div>
+<!-- Item 4 -->
+<div class="py-8 md:pl-10 md:border-l border-outline-variant">
+<div class="text-[13px] font-data-mono-sm text-on-surface-variant uppercase font-medium tracking-wider">
+              CHAIN OF CUSTODY
+            </div>
+<h3 class="text-[18px] font-headline-md font-semibold text-on-surface mt-1.5 tracking-tight">
+              Delivery runs
+            </h3>
+<p class="text-[14px] leading-relaxed text-on-surface-variant mt-2 font-body-md">
+              Digital handover timestamps and licensed pharmacist stamp verification at point of receipt.
+            </p>
+</div>
 </div>
 </div>
 </section>
-<!-- 5. Horizontal Scroll Strip: Active Repository -->
-<section class="pt-4 overflow-hidden">
-<div class="flex items-center justify-between mb-4">
-<div class="font-mono-sm text-mono-sm text-[#A1A1AA] uppercase tracking-wider flex items-center gap-2">
-<span class="w-1.5 h-1.5 bg-[#3ECF8E] rounded-full"></span>
-          ACTIVE LOT REPOSITORY · CAIRO / GIZA HUB
-        </div>
-<span class="font-mono-sm text-mono-sm text-[#5C5C66] hidden sm:inline">5 BATCHES SYNCHRONISED</span>
-</div>
-<!-- Edge-masked Horizontal Rail -->
-<div class="w-full overflow-x-auto pb-4 pt-1 edge-fade-mask no-scrollbar flex items-stretch gap-4">
-<!-- Record Card 1 -->
-<div class="w-[280px] shrink-0 bg-[#1A1A1C] border border-[rgba(255,255,255,0.08)] rounded-[16px] p-4 flex flex-col justify-between hover:border-[rgba(255,255,255,0.2)] transition-colors">
+<!-- ================= LIVE PHARMACEUTICAL RECORDS (Horizontal Scroll Rail) ================= -->
+<section class="w-full border-t border-outline-variant py-14 overflow-hidden">
+<div class="max-w-7xl mx-auto px-space-xl mb-6 flex items-center justify-between">
 <div>
-<div class="flex items-center justify-between mb-3">
-<span class="font-mono-sm text-mono-sm text-[#A1A1AA] tabular-nums">SKU-GSK-0012</span>
-<span class="inline-flex items-center px-2 py-0.5 rounded-full font-label-badge text-[11px] bg-[#3ECF8E]/10 text-[#3ECF8E] border border-[#3ECF8E]/30">
-                ◆ In Date
-              </span>
+<span class="font-data-mono-sm text-data-mono-sm uppercase text-on-surface-variant font-semibold tracking-wider">
+            ACTIVE LOT REPOSITORY · CAIRO / GIZA HUB
+          </span>
+<p class="text-body-sm font-body-sm text-on-surface-variant/80 mt-0.5">
+            Real-time FEFO serialization queue awaiting night-shift manifest confirmation.
+          </p>
 </div>
-<h4 class="font-headline-sm text-headline-sm text-[#F2EFE9] font-medium leading-snug mb-2">
-              Panadol Extra 500 mg Tablets
-            </h4>
-</div>
-<div class="pt-3 border-t border-[rgba(255,255,255,0.08)] font-mono-sm text-mono-sm text-[#5C5C66]">
-            LOT: <span class="text-[#F2EFE9]">LOT-24G09</span>
+<div class="hidden sm:flex items-center space-x-2 text-data-mono-sm text-on-surface-variant">
+<span>5 LOTS IN BUFFER</span>
 </div>
 </div>
-<!-- Record Card 2 -->
-<div class="w-[280px] shrink-0 bg-[#1A1A1C] border border-[rgba(255,255,255,0.08)] rounded-[16px] p-4 flex flex-col justify-between hover:border-[rgba(255,255,255,0.2)] transition-colors">
+<!-- Single Horizontal Scroll Row (Exactly 280px wide each) with subtle rail fade mask -->
+<div class="max-w-7xl mx-auto px-space-xl">
+<div class="flex space-x-4 overflow-x-auto no-scrollbar pb-4 pt-1 rail-fade-mask">
+<!-- Card 1: Panadol Extra -->
+<div class="w-[280px] min-w-[280px] bg-surface-container border border-outline-variant rounded-2xl p-5 flex flex-col justify-between hover:border-outline transition-colors">
 <div>
-<div class="flex items-center justify-between mb-3">
-<span class="font-mono-sm text-mono-sm text-[#A1A1AA] tabular-nums">SKU-GSK-0875</span>
-<span class="inline-flex items-center px-2 py-0.5 rounded-full font-label-badge text-[11px] bg-[#3ECF8E]/10 text-[#3ECF8E] border border-[#3ECF8E]/30">
-                ◆ In Date
-              </span>
+<div class="flex items-center justify-between">
+<span class="font-data-mono-sm text-data-mono-sm text-primary font-semibold">SKU-GSK-0012</span>
+<span class="px-2 py-0.5 rounded text-[11px] font-data-mono-sm border border-status-neutral/30 text-status-neutral bg-status-neutral/10">
+                  ◆ In Date
+                </span>
 </div>
-<h4 class="font-headline-sm text-headline-sm text-[#F2EFE9] font-medium leading-snug mb-2">
-              Augmentin 875 mg/125 mg Film-Coated Tablets
-            </h4>
+<h4 class="text-title-sm font-title-sm font-semibold text-on-surface mt-3">
+                Panadol Extra 500 mg Tablets
+              </h4>
+<div class="mt-4 font-data-mono-sm text-data-mono-sm text-on-surface-variant">
+                LOT: <span class="text-on-surface">LOT-24G09</span>
 </div>
-<div class="pt-3 border-t border-[rgba(255,255,255,0.08)] font-mono-sm text-mono-sm text-[#5C5C66]">
-            LOT: <span class="text-[#F2EFE9]">LOT-24H22</span>
+</div>
+<div class="mt-6 pt-3 border-t border-outline-variant flex items-center justify-between text-data-mono-sm font-data-mono-sm">
+<span class="text-on-surface-variant">Stock</span>
+<span class="text-on-surface font-semibold">240 pk</span>
 </div>
 </div>
-<!-- Record Card 3 -->
-<div class="w-[280px] shrink-0 bg-[#1A1A1C] border border-[rgba(255,255,255,0.08)] rounded-[16px] p-4 flex flex-col justify-between hover:border-[rgba(255,255,255,0.2)] transition-colors">
+<!-- Card 2: Augmentin -->
+<div class="w-[280px] min-w-[280px] bg-surface-container border border-outline-variant rounded-2xl p-5 flex flex-col justify-between hover:border-outline transition-colors">
 <div>
-<div class="flex items-center justify-between mb-3">
-<span class="font-mono-sm text-mono-sm text-[#A1A1AA] tabular-nums">SKU-NOVO-100</span>
-<span class="inline-flex items-center px-2 py-0.5 rounded-full font-label-badge text-[11px] bg-[#F5A524]/10 text-[#F5A524] border border-[#F5A524]/30">
-                ● 14 Days
-              </span>
+<div class="flex items-center justify-between">
+<span class="font-data-mono-sm text-data-mono-sm text-primary font-semibold">SKU-GSK-0875</span>
+<span class="px-2 py-0.5 rounded text-[11px] font-data-mono-sm border border-status-neutral/30 text-status-neutral bg-status-neutral/10">
+                  ◆ In Date
+                </span>
 </div>
-<h4 class="font-headline-sm text-headline-sm text-[#F2EFE9] font-medium leading-snug mb-2">
-              NovoRapid FlexPen 100 IU/mL Solution for Injection
-            </h4>
+<h4 class="text-title-sm font-title-sm font-semibold text-on-surface mt-3">
+                Augmentin 875 mg/125 mg Film-Coated Tablets
+              </h4>
+<div class="mt-4 font-data-mono-sm text-data-mono-sm text-on-surface-variant">
+                LOT: <span class="text-on-surface">LOT-24H22</span>
 </div>
-<div class="pt-3 border-t border-[rgba(255,255,255,0.08)] font-mono-sm text-mono-sm text-[#5C5C66]">
-            LOT: <span class="text-[#F2EFE9]">LOT-24K04</span>
+</div>
+<div class="mt-6 pt-3 border-t border-outline-variant flex items-center justify-between text-data-mono-sm font-data-mono-sm">
+<span class="text-on-surface-variant">Stock</span>
+<span class="text-on-surface font-semibold">80 pk</span>
 </div>
 </div>
-<!-- Record Card 4 -->
-<div class="w-[280px] shrink-0 bg-[#1A1A1C] border border-[rgba(255,255,255,0.08)] rounded-[16px] p-4 flex flex-col justify-between hover:border-[rgba(255,255,255,0.2)] transition-colors">
+<!-- Card 3: NovoRapid FlexPen -->
+<div class="w-[280px] min-w-[280px] bg-surface-container border border-outline-variant rounded-2xl p-5 flex flex-col justify-between hover:border-outline transition-colors">
 <div>
-<div class="flex items-center justify-between mb-3">
-<span class="font-mono-sm text-mono-sm text-[#A1A1AA] tabular-nums">SKU-CID-0419</span>
-<span class="inline-flex items-center px-2 py-0.5 rounded-full font-label-badge text-[11px] bg-[#3ECF8E]/10 text-[#3ECF8E] border border-[#3ECF8E]/30">
-                ◆ In Date
-              </span>
+<div class="flex items-center justify-between">
+<span class="font-data-mono-sm text-data-mono-sm text-primary font-semibold">SKU-NOVO-100</span>
+<span class="px-2 py-0.5 rounded text-[11px] font-data-mono-sm border border-status-warning/30 text-status-warning bg-status-warning/10">
+                  ● 14 Days
+                </span>
 </div>
-<h4 class="font-headline-sm text-headline-sm text-[#F2EFE9] font-medium leading-snug mb-2">
-              Rehydran ORS Sachet 5.5g
-            </h4>
+<h4 class="text-title-sm font-title-sm font-semibold text-on-surface mt-3">
+                NovoRapid FlexPen 100 IU/mL Solution for Injection
+              </h4>
+<div class="mt-2 text-data-mono-sm text-primary">
+                2°C - 8°C Telemetry Logged
+              </div>
+<div class="mt-2 font-data-mono-sm text-data-mono-sm text-on-surface-variant">
+                LOT: <span class="text-on-surface">LOT-24K04</span>
 </div>
-<div class="pt-3 border-t border-[rgba(255,255,255,0.08)] font-mono-sm text-mono-sm text-[#5C5C66]">
-            LOT: <span class="text-[#F2EFE9]">LOT-24D11</span>
+</div>
+<div class="mt-6 pt-3 border-t border-outline-variant flex items-center justify-between text-data-mono-sm font-data-mono-sm">
+<span class="text-on-surface-variant">Stock</span>
+<span class="text-on-surface font-semibold">Available 80 pk</span>
 </div>
 </div>
-<!-- Record Card 5 -->
-<div class="w-[280px] shrink-0 bg-[#1A1A1C] border border-[rgba(255,255,255,0.08)] rounded-[16px] p-4 flex flex-col justify-between hover:border-[rgba(255,255,255,0.2)] transition-colors">
+<!-- Card 4: Rehydran ORS -->
+<div class="w-[280px] min-w-[280px] bg-surface-container border border-outline-variant rounded-2xl p-5 flex flex-col justify-between hover:border-outline transition-colors">
 <div>
-<div class="flex items-center justify-between mb-3">
-<span class="font-mono-sm text-mono-sm text-[#A1A1AA] tabular-nums">SKU-SAN-0051</span>
-<span class="inline-flex items-center px-2 py-0.5 rounded-full font-label-badge text-[11px] bg-[#3ECF8E]/10 text-[#3ECF8E] border border-[#3ECF8E]/30">
-                ◆ Cold Chain 2-8°C
-              </span>
+<div class="flex items-center justify-between">
+<span class="font-data-mono-sm text-data-mono-sm text-primary font-semibold">SKU-CID-0419</span>
+<span class="px-2 py-0.5 rounded text-[11px] font-data-mono-sm border border-status-neutral/30 text-status-neutral bg-status-neutral/10">
+                  ◆ In Date
+                </span>
 </div>
-<h4 class="font-headline-sm text-headline-sm text-[#F2EFE9] font-medium leading-snug mb-2">
-              Pentaxim DTaP-IPV-Hib Vaccine
-            </h4>
+<h4 class="text-title-sm font-title-sm font-semibold text-on-surface mt-3">
+                Rehydran ORS Sachet 5.5g
+              </h4>
+<div class="mt-4 font-data-mono-sm text-data-mono-sm text-on-surface-variant">
+                LOT: <span class="text-on-surface">LOT-24D11</span>
 </div>
-<div class="pt-3 border-t border-[rgba(255,255,255,0.08)] font-mono-sm text-mono-sm text-[#5C5C66]">
-            LOT: <span class="text-[#F2EFE9]">LOT-24L99</span>
+</div>
+<div class="mt-6 pt-3 border-t border-outline-variant flex items-center justify-between text-data-mono-sm font-data-mono-sm">
+<span class="text-on-surface-variant">Stock</span>
+<span class="text-on-surface font-semibold">330 pk</span>
+</div>
+</div>
+<!-- Card 5: Influenza Vaccine -->
+<div class="w-[280px] min-w-[280px] bg-surface-container border border-outline-variant rounded-2xl p-5 flex flex-col justify-between hover:border-outline transition-colors">
+<div>
+<div class="flex items-center justify-between">
+<span class="font-data-mono-sm text-data-mono-sm text-primary font-semibold">SKU-VAC-9002</span>
+<span class="px-2 py-0.5 rounded text-[11px] font-data-mono-sm border border-status-warning/30 text-status-warning bg-status-warning/10">
+                  ● 14 Days
+                </span>
+</div>
+<h4 class="text-title-sm font-title-sm font-semibold text-on-surface mt-3">
+                Influenza Vaccine 0.5 mL Pre-filled Syringe
+              </h4>
+<div class="mt-2 text-data-mono-sm text-primary">
+                Cold-Chain 4.1°C
+              </div>
+<div class="mt-2 font-data-mono-sm text-data-mono-sm text-on-surface-variant">
+                LOT: <span class="text-on-surface">LOT-24V01</span>
+</div>
+</div>
+<div class="mt-6 pt-3 border-t border-outline-variant flex items-center justify-between text-data-mono-sm font-data-mono-sm">
+<span class="text-on-surface-variant">Stock</span>
+<span class="text-on-surface font-semibold">45 pk</span>
+</div>
 </div>
 </div>
 </div>
 </section>
 </main>
-<!-- 6. Footer (Shared Component implementation) -->
-<footer class="bg-surface-container-lowest dark:bg-surface-container-lowest docked full-width bottom border-t border-outline-variant/30 mt-auto">
-<div class="w-full max-w-[1400px] mx-auto px-gutter-desktop py-space-xl">
-<!-- Top Grid: Wordmark & Loud Arabic Slogan vs Links -->
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
-<!-- Left: Bershama Wordmark & Team Slogan -->
-<div class="lg:col-span-6 flex flex-col items-start">
-<div class="text-headline-lg font-headline-lg text-on-surface dark:text-on-surface tracking-tight mb-4">
-            Bershama
-          </div>
-<!-- Loud Egyptian Slogan -->
-<div class="font-headline-lg text-headline-lg font-bold text-[#F2EFE9] font-arabic tracking-tight mb-4 text-left" dir="rtl">
+<!-- ================= REGULATORY OPERATIONS FOOTER (Shared Components JSON Anchor) ================= -->
+<footer class="docked full-width bottom-0 bg-surface-container-lowest dark:bg-surface-container-lowest border-t border-outline-variant dark:border-outline-variant flat no shadows">
+<div class="w-full px-space-xl py-space-xl max-w-7xl mx-auto flex flex-col space-y-space-lg">
+<!-- Upper Section: Bilingual identity + 3 Columns -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-10">
+<!-- Left: Wordmark & Arabic Motto -->
+<div class="md:col-span-5 flex flex-col items-start space-y-4">
+<div class="text-headline-lg font-headline-lg font-semibold text-on-surface dark:text-on-surface flex items-center space-x-2">
+<span>Bershama</span>
+<span class="w-1.5 h-1.5 rounded-full bg-primary inline-block"></span>
+</div>
+<!-- Arabic Motto: لو شغل متتزاكاش in bold Cairo -->
+<div class="text-[32px] sm:text-[36px] font-bold text-on-surface font-arabic tracking-normal text-right md:text-left leading-none" dir="rtl">
             لو شغل متتزاكاش
           </div>
-<p class="font-body-sm text-body-sm text-[#A1A1AA] max-w-sm">
+<p class="text-body-sm font-body-sm text-on-surface-variant max-w-sm">
             High-integrity pharmaceutical logistics operating across Cairo, Giza, and regional delta supply routes.
           </p>
+<div class="pt-2">
+<span class="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded bg-surface-container-high border border-outline-variant text-[11px] font-data-mono-sm text-on-surface-variant">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+<span>NOCTURNAL ENGINE · ACTIVE V3.8</span>
+</span>
 </div>
-<!-- Right: 3 Muted Link Columns -->
-<div class="lg:col-span-6 grid grid-cols-3 gap-6">
-<!-- Col 1: Distribution -->
-<div>
-<div class="font-mono-sm text-mono-sm font-semibold uppercase text-[#F2EFE9] mb-3">Distribution</div>
-<ul class="space-y-2 font-mono-sm text-mono-sm">
-<li><a class="text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary transition-colors" href="#">Batch API</a></li>
-<li><a class="text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary transition-colors" href="#">Cold-Chain Protocol</a></li>
-<li><a class="text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary transition-colors" href="#">FEFO Automation</a></li>
+</div>
+<!-- Right: 3 Regulatory & Link Columns -->
+<div class="md:col-span-7 grid grid-cols-3 gap-6 sm:gap-8">
+<!-- Column 1: Distribution -->
+<div class="flex flex-col space-y-3">
+<div class="text-label-caps font-label-caps text-on-surface font-semibold uppercase tracking-wider">
+              DISTRIBUTION
+            </div>
+<ul class="space-y-2 text-body-sm font-body-sm">
+<li><a class="text-on-surface-variant hover:text-on-surface transition-colors duration-150" href="#">Cold-Chain Routing</a></li>
+<li><a class="text-on-surface-variant hover:text-on-surface transition-colors duration-150" href="#">Serialised Dispatch</a></li>
+<li><a class="text-on-surface-variant hover:text-on-surface transition-colors duration-150" href="#">Depot Telemetry</a></li>
+<li><a class="text-on-surface-variant hover:text-on-surface transition-colors duration-150" href="#">Transit Manifests</a></li>
 </ul>
 </div>
-<!-- Col 2: Regulatory -->
-<div>
-<div class="font-mono-sm text-mono-sm font-semibold uppercase text-[#F2EFE9] mb-3">Regulatory</div>
-<ul class="space-y-2 font-mono-sm text-mono-sm">
-<li><a class="text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary transition-colors" href="#">WHO GDP Guidelines</a></li>
-<li><a class="text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary transition-colors" href="#">EDA License #8491/2023</a></li>
-<li><a class="text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary transition-colors" href="#">Security &amp; Traceability</a></li>
+<!-- Column 2: Regulatory -->
+<div class="flex flex-col space-y-3">
+<div class="text-label-caps font-label-caps text-on-surface font-semibold uppercase tracking-wider">
+              REGULATORY
+            </div>
+<ul class="space-y-2 text-body-sm font-body-sm">
+<li><a class="text-on-surface-variant hover:text-on-surface transition-colors duration-150" href="#">EDA Compliance</a></li>
+<li><a class="text-on-surface-variant hover:text-on-surface transition-colors duration-150" href="#">GSP Verification</a></li>
+<li><a class="text-on-surface-variant hover:text-on-surface transition-colors duration-150" href="#">Batch Recalls</a></li>
+<li><a class="text-on-surface-variant hover:text-on-surface transition-colors duration-150" href="#">License #8491/2023</a></li>
 </ul>
 </div>
-<!-- Col 3: Infrastructure -->
-<div>
-<div class="font-mono-sm text-mono-sm font-semibold uppercase text-[#F2EFE9] mb-3">Infrastructure</div>
-<ul class="space-y-2 font-mono-sm text-mono-sm">
-<li><a class="text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary transition-colors" href="#">System Status</a></li>
-<li><a class="text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary transition-colors" href="#">Cairo Gateway</a></li>
-<li><a class="text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary transition-colors" href="#">Telemetry Nodes</a></li>
+<!-- Column 3: Infrastructure -->
+<div class="flex flex-col space-y-3">
+<div class="text-label-caps font-label-caps text-on-surface font-semibold uppercase tracking-wider">
+              INFRASTRUCTURE
+            </div>
+<ul class="space-y-2 text-body-sm font-body-sm">
+<li><a class="text-on-surface-variant hover:text-on-surface transition-colors duration-150" href="#">Cairo Core Depot</a></li>
+<li><a class="text-on-surface-variant hover:text-on-surface transition-colors duration-150" href="#">Suez Transit Node</a></li>
+<li><a class="text-on-surface-variant hover:text-on-surface transition-colors duration-150" href="#">Nocturnal API</a></li>
+<li><a class="text-on-surface-variant hover:text-on-surface transition-colors duration-150" href="#">Incident Escalation</a></li>
 </ul>
 </div>
 </div>
 </div>
-<!-- Bottom Bar: Exact Copyright & Architecture Specs -->
-<div class="pt-6 border-t border-[rgba(255,255,255,0.08)] flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
-<div class="font-mono-sm text-mono-sm text-[#A1A1AA]">
-          © 2025 BERSHAMA PHARMACEUTICAL LOGISTICS S.A.E. · CAIRO, EGYPT · WHO GDP COMPLIANT
+<!-- Bottom Separator & Telemetry Baseline Meta -->
+<div class="pt-6 border-t border-outline-variant flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 font-data-mono-sm text-data-mono-sm text-on-surface-variant">
+<div>
+          © 2025 Bershama Logistics Hub. AGPL-3.0 Cairo Egypt. Certified Night-Shift Pharmaceutical Protocol.
         </div>
-<div class="font-mono-sm text-mono-sm text-[#5C5C66]">
-          AGPL-3.0 · Cairo, Egypt · WHO GDP-aligned batch traceability
+<div class="text-[11px] text-on-surface-variant">
+          WHO GDP-aligned batch traceability · CAI GATEWAY 01
         </div>
 </div>
 </div>

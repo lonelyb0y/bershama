@@ -78,6 +78,15 @@ apps/web/src/
 
 ### High Priority
 
+- [x] **The design system, rebuilt.** The apothecary palette, the rounded type,
+      the named spacing scale, and two themes generated from one list.
+- [x] **Seventeen screens generated** on the new system, in
+      `.stitch/designs/`, with the ids in `.stitch/metadata.json`.
+- [x] **The floating label**, the regen icons, the marketing header, the
+      console dock, the Vanta home background, and the account settings page.
+- [ ] **Implementing the seventeen screens.** The designs exist; the pages do
+      not look like them yet. The order is in `.stitch/next-prompt.md`.
+
 - [x] **Dark-first re-skin** — the token set now moves to the near-black canvas, the
       media-query fallback and the explicit `.dark` block share one generated list so
       they cannot drift, and dark is the default rather than a preference to be

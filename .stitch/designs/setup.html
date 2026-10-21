@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Organisation Setup — Bershama Pharma Ops</title>
+<!-- Fonts: Outfit (Headlines), Nunito Sans (Body), JetBrains Mono (Data/Labels) -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&amp;family=Nunito+Sans:wght@400;600;700&amp;family=Outfit:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS v3 -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "tertiary-fixed-dim": "#fcbb51",
+            "tertiary": "#fcbb51",
+            "surface": "#121411",
+            "on-surface": "#e3e3dd",
+            "on-tertiary-fixed": "#281800",
+            "secondary-fixed-dim": "#c0c9bd",
+            "on-tertiary": "#442c00",
+            "on-error": "#690005",
+            "on-primary-fixed-variant": "#00513a",
+            "inverse-primary": "#006c4e",
+            "on-tertiary-container": "#4b3000",
+            "primary-container": "#43b189",
+            "surface-tint": "#6fdaaf",
+            "surface-variant": "#333532",
+            "secondary": "#c0c9bd",
+            "primary-fixed": "#8cf7ca",
+            "outline": "#87948c",
+            "inverse-on-surface": "#2f312d",
+            "secondary-fixed": "#dce5d9",
+            "outline-variant": "#3e4943",
+            "on-tertiary-fixed-variant": "#614000",
+            "on-secondary-fixed-variant": "#404940",
+            "on-secondary-fixed": "#161d16",
+            "on-primary": "#003827",
+            "primary": "#6fdaaf",
+            "surface-container-lowest": "#0d0f0c",
+            "surface-container": "#1e201d",
+            "secondary-container": "#404940",
+            "on-background": "#e3e3dd",
+            "tertiary-fixed": "#ffddb0",
+            "surface-dim": "#121411",
+            "on-primary-container": "#003e2c",
+            "on-surface-variant": "#bdcac1",
+            "surface-container-highest": "#333532",
+            "error": "#ffb4ab",
+            "background": "#121411",
+            "primary-fixed-dim": "#6fdaaf",
+            "surface-bright": "#383a36",
+            "on-secondary": "#2a332a",
+            "tertiary-container": "#cf932c",
+            "on-error-container": "#ffdad6",
+            "on-secondary-container": "#afb8ac",
+            "inverse-surface": "#e3e3dd",
+            "surface-container-high": "#292b27",
+            "error-container": "#93000a",
+            "on-primary-fixed": "#002115",
+            "surface-container-low": "#1a1c19"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "2xl": "1rem",
+            "3xl": "1.5rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-xs": "0.25rem",
+            "margin": "1rem",
+            "margin-desktop": "2rem",
+            "space-md": "1rem",
+            "space-sm": "0.5rem",
+            "gutter": "1rem",
+            "gutter-desktop": "1.5rem",
+            "space-xl": "2rem",
+            "space-lg": "1.5rem"
+          },
+          "fontFamily": {
+            "headline-xl-mobile": ["Outfit"],
+            "data-md": ["JetBrains Mono"],
+            "data-sm": ["JetBrains Mono"],
+            "body-md": ["Nunito Sans"],
+            "headline-md": ["Outfit"],
+            "label-caps": ["JetBrains Mono"],
+            "body-sm": ["Nunito Sans"],
+            "data-lg": ["JetBrains Mono"],
+            "headline-sm": ["Outfit"],
+            "headline-xl": ["Outfit"],
+            "headline-lg": ["Outfit"],
+            "body-lg": ["Nunito Sans"]
+          },
+          "fontSize": {
+            "headline-xl-mobile": ["30px", { "lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "data-md": ["14px", { "lineHeight": "18px", "fontWeight": "500" }],
+            "data-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "400" }],
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "headline-md": ["22px", { "lineHeight": "28px", "fontWeight": "500" }],
+            "label-caps": ["10px", { "lineHeight": "12px", "letterSpacing": "0.08em", "fontWeight": "600" }],
+            "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+            "data-lg": ["20px", { "lineHeight": "24px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "500" }],
+            "headline-xl": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md antialiased min-h-screen flex flex-col justify-between selection:bg-primary-container selection:text-on-primary-container">
+<!-- TOP APP BAR -->
+<header class="w-full bg-surface-container-low border-b border-outline-variant h-14 px-space-md lg:px-margin-desktop flex items-center justify-between z-20">
+<div class="flex items-center gap-space-sm">
+<div class="flex items-center gap-2">
+<span class="font-headline-md text-headline-md tracking-tight text-on-surface uppercase font-bold">BERSHAMA</span>
+<div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full border border-primary-container/40 bg-surface-container">
+<span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+<span class="font-label-caps text-label-caps text-primary uppercase">TELEMETRY ONLINE</span>
+</div>
+</div>
+</div>
+<!-- Right Gateway & Language Indicators -->
+<div class="flex items-center gap-space-sm">
+<div class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-outline-variant bg-surface-container">
+<span class="material-symbols-outlined text-primary text-sm">verified_user</span>
+<span class="font-data-sm text-data-sm text-on-surface-variant">EDA-SEC-4481</span>
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+</div>
+<button class="flex items-center gap-1 px-2.5 py-1 rounded-xl border border-outline-variant bg-surface-container text-on-surface hover:bg-surface-container-highest transition-colors font-data-sm text-data-sm" type="button">
+<span class="material-symbols-outlined text-sm">language</span>
+<span>العربية / EN</span>
+</button>
+</div>
+</header>
+<!-- MAIN ONBOARDING CONTAINER -->
+<main class="w-full max-w-[1240px] mx-auto px-space-md lg:px-space-xl py-space-lg flex-1 flex flex-col justify-center">
+<!-- STEP PROGRESS INDICATOR -->
+<section aria-label="Onboarding Progress" class="w-full max-w-3xl mx-auto mb-space-lg">
+<div class="flex items-center justify-between relative">
+<!-- Step 1 (Active) -->
+<div class="flex items-center gap-3 z-10">
+<div class="w-8 h-8 rounded-full bg-primary-container text-surface flex items-center justify-center font-data-md text-data-md font-bold">
+            1
+          </div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface">Organisation</span>
+<span class="font-label-caps text-label-caps text-primary tracking-wider uppercase">In progress</span>
+</div>
+</div>
+<!-- Connecting Line 1 to 2 -->
+<div class="flex-1 mx-4 h-[1px] bg-primary-container/60 relative">
+<div class="absolute left-0 top-1/2 -translate-y-1/2 h-[2px] w-1/2 bg-primary-container"></div>
+</div>
+<!-- Step 2 (Upcoming) -->
+<div class="flex items-center gap-3 z-10">
+<div class="w-8 h-8 rounded-full bg-surface-container-high border border-outline-variant text-outline flex items-center justify-center font-data-md text-data-md font-medium">
+            2
+          </div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-outline">Locations</span>
+<span class="font-label-caps text-label-caps text-outline tracking-wider uppercase">Next</span>
+</div>
+</div>
+<!-- Connecting Line 2 to 3 -->
+<div class="flex-1 mx-4 h-[1px] bg-outline-variant"></div>
+<!-- Step 3 (Upcoming) -->
+<div class="flex items-center gap-3 z-10">
+<div class="w-8 h-8 rounded-full bg-surface-container-high border border-outline-variant text-outline flex items-center justify-center font-data-md text-data-md font-medium">
+            3
+          </div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-outline">Go live</span>
+<span class="font-label-caps text-label-caps text-outline tracking-wider uppercase">Pending</span>
+</div>
+</div>
+</div>
+</section>
+<!-- TWO-COLUMN WORKBENCH SPLIT -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+<!-- PRIMARY COLUMN: Interactive Onboarding Form -->
+<section class="lg:col-span-7 bg-surface-container-low border border-outline-variant/60 rounded-3xl p-6 sm:p-8 relative">
+<div class="flex items-center justify-between mb-4">
+<span class="font-label-caps text-label-caps text-primary px-2.5 py-1 rounded bg-surface-container border border-primary-container/30">
+            INITIAL STAGING PROTOCOL · SEC-LEVEL-1
+          </span>
+<span class="font-data-sm text-data-sm text-outline">SYSTEM ID: BSH-EG-01</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg font-bold text-on-surface tracking-tight">
+          Register operating organisation
+        </h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1 mb-8">
+          Set your legal entity and dispatch credentials for the national pharmaceutical ledger.
+        </p>
+<!-- FORM CONTROLS WITH FLOATING LABELS -->
+<form class="space-y-4" onsubmit="event.preventDefault();">
+<!-- Field 1: Organisation Name -->
+<div class="relative bg-surface-container border border-outline-variant rounded-2xl h-14 px-4 py-2 flex flex-col justify-center focus-within:border-primary-container transition-colors group">
+<label class="font-label-caps text-label-caps text-outline group-focus-within:text-primary transition-colors" for="org_name">
+              ORGANISATION NAME
+            </label>
+<div class="flex items-center justify-between">
+<input class="w-full bg-transparent border-0 p-0 font-body-md text-body-md text-on-surface focus:ring-0 focus:outline-none" id="org_name" name="organisation_name" type="text" value="Misr Delta Distribution Hub S.A.E."/>
+<span class="material-symbols-outlined text-outline group-focus-within:text-primary text-xl ml-2 shrink-0">warehouse</span>
+</div>
+</div>
+<!-- Field 2: Full Name -->
+<div class="relative bg-surface-container border border-outline-variant rounded-2xl h-14 px-4 py-2 flex flex-col justify-center focus-within:border-primary-container transition-colors group">
+<label class="font-label-caps text-label-caps text-outline group-focus-within:text-primary transition-colors" for="full_name">
+              FULL NAME (PHARMACIST-IN-CHARGE)
+            </label>
+<div class="flex items-center justify-between">
+<input class="w-full bg-transparent border-0 p-0 font-body-md text-body-md text-on-surface focus:ring-0 focus:outline-none" id="full_name" name="full_name" type="text" value="Dr. Tarek Mansour"/>
+<span class="material-symbols-outlined text-outline group-focus-within:text-primary text-xl ml-2 shrink-0">badge</span>
+</div>
+</div>
+<!-- Field 3: Email Address -->
+<div class="relative bg-surface-container border border-outline-variant rounded-2xl h-14 px-4 py-2 flex flex-col justify-center focus-within:border-primary-container transition-colors group">
+<label class="font-label-caps text-label-caps text-outline group-focus-within:text-primary transition-colors" for="email_addr">
+              EMAIL ADDRESS (LEDGER NOTICES)
+            </label>
+<div class="flex items-center justify-between">
+<input class="w-full bg-transparent border-0 p-0 font-body-md text-body-md text-on-surface focus:ring-0 focus:outline-none font-data-md" id="email_addr" name="email" type="email" value="tarek.mansour@deltapharm.eg"/>
+<span class="material-symbols-outlined text-outline group-focus-within:text-primary text-xl ml-2 shrink-0">mail</span>
+</div>
+</div>
+<!-- ACTION BUTTON -->
+<div class="pt-4">
+<button class="w-full h-11 bg-primary-container text-on-primary-container font-headline-sm text-headline-sm font-semibold rounded-xl flex items-center justify-center gap-2 hover:bg-primary-fixed transition-colors active:scale-[0.99] duration-150" type="submit">
+<span>Continue to Locations</span>
+<span class="material-symbols-outlined text-base">arrow_forward</span>
+</button>
+</div>
+<!-- SECURITY CAPTION -->
+<div class="flex items-center justify-center gap-1.5 pt-2 text-outline">
+<span class="material-symbols-outlined text-xs">lock</span>
+<p class="font-data-sm text-data-sm">
+              Encrypted under EDA Good Distribution Practice (WHO GDP Annex 5).
+            </p>
+</div>
+</form>
+</section>
+<!-- SECONDARY COLUMN: The Road Ahead & Future Prerequisites -->
+<aside class="lg:col-span-5 space-y-space-md">
+<!-- The Road Ahead Card -->
+<div class="bg-surface-container-low border border-outline-variant/60 rounded-3xl p-6">
+<div class="flex items-center justify-between mb-5">
+<h2 class="font-headline-sm text-headline-sm font-semibold text-on-surface">The road ahead</h2>
+<span class="font-label-caps text-label-caps bg-surface-container px-2 py-0.5 rounded border border-outline-variant text-on-surface-variant">3 STAGES</span>
+</div>
+<div class="space-y-4">
+<!-- Stage 1 -->
+<div class="p-3.5 rounded-xl border border-primary-container/40 bg-surface-container flex gap-3.5">
+<div class="mt-1">
+<span class="w-2.5 h-2.5 rounded-full bg-primary-container block"></span>
+</div>
+<div>
+<span class="font-label-caps text-label-caps text-primary block mb-0.5">STAGE 1 · CURRENT</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-medium leading-tight">Organisation</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">
+                  Establish legal entity, licensing, and primary ledger credentials.
+                </p>
+</div>
+</div>
+<!-- Stage 2 -->
+<div class="p-3.5 rounded-xl border border-outline-variant/30 bg-surface-container/40 flex gap-3.5">
+<div class="mt-1">
+<span class="w-2.5 h-2.5 rounded-full bg-outline block"></span>
+</div>
+<div>
+<span class="font-label-caps text-label-caps text-outline block mb-0.5">STAGE 2</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-medium leading-tight">Locations</h3>
+<p class="font-body-sm text-body-sm text-outline mt-1">
+                  Map central warehouses, quarantine nodes, and cold-chain hubs.
+                </p>
+</div>
+</div>
+<!-- Stage 3 -->
+<div class="p-3.5 rounded-xl border border-outline-variant/30 bg-surface-container/40 flex gap-3.5">
+<div class="mt-1">
+<span class="w-2.5 h-2.5 rounded-full bg-outline block"></span>
+</div>
+<div>
+<span class="font-label-caps text-label-caps text-outline block mb-0.5">STAGE 3</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-medium leading-tight">Go live</h3>
+<p class="font-body-sm text-body-sm text-outline mt-1">
+                  Issue dispatch keys, verify sensor telemetry, and connect licensed pharmacies.
+                </p>
+</div>
+</div>
+</div>
+</div>
+<!-- What You Will Need Later Info Box -->
+<div class="bg-surface-container-low border border-outline-variant/60 rounded-3xl p-6">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-tertiary text-base">info</span>
+<h4 class="font-headline-sm text-headline-sm text-on-surface font-medium">What you will need later</h4>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-4">
+            EDA License Number, Cold-chain calibration certificates (2°C - 8°C), and Pharmacist-in-Charge syndicate ID.
+          </p>
+<div class="flex flex-wrap gap-2">
+<span class="font-data-sm text-data-sm px-2.5 py-1 rounded bg-surface-container border border-outline-variant text-on-surface-variant">
+              EDA License No.
+            </span>
+<span class="font-data-sm text-data-sm px-2.5 py-1 rounded bg-surface-container border border-outline-variant text-on-surface-variant">
+              ISO 17025 Calib
+            </span>
+<span class="font-data-sm text-data-sm px-2.5 py-1 rounded bg-surface-container border border-outline-variant text-on-surface-variant">
+              Syndicate Card
+            </span>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<!-- FOOTER -->
+<footer class="w-full bg-surface-container-lowest border-t border-outline-variant px-space-md lg:px-margin-desktop py-space-md">
+<div class="max-w-[1240px] mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+<div class="max-w-2xl">
+<p class="font-body-sm text-body-sm text-outline leading-relaxed">
+          © 2025 Bershama Pharmaceutical Operations. Licensed under Egyptian Drug Authority (EDA) Decree 122/2022 &amp; WHO Technical Report Series No. 957 (Good Distribution Practices - GDP). Authorized for Cairo &amp; MENA Supply Chain Telemetry.
+        </p>
+</div>
+<nav aria-label="Regulatory Links" class="flex flex-wrap items-center gap-x-4 gap-y-2 shrink-0">
+<a class="font-data-sm text-data-sm text-outline hover:text-on-surface transition-colors" href="#">WHO GDP Certification</a>
+<span class="text-outline-variant text-xs">·</span>
+<a class="font-data-sm text-data-sm text-outline hover:text-on-surface transition-colors" href="#">EDA License Verification</a>
+<span class="text-outline-variant text-xs">·</span>
+<a class="font-data-sm text-data-sm text-outline hover:text-on-surface transition-colors" href="#">Cold-Chain Audit Protocol</a>
+<span class="text-outline-variant text-xs">·</span>
+<a class="font-data-sm text-data-sm text-outline hover:text-on-surface transition-colors" href="#">System Incident Log</a>
+</nav>
+</div>
+</footer>
+</body></html>
