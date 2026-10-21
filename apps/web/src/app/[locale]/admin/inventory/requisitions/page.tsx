@@ -2,6 +2,8 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 
 import { getSupabase } from '@/lib/supabase/server';
+import { RequisitionQueue } from '@/components/inventory/requisition-queue';
+import { timeAgo } from '@/lib/format';
 import { getSession } from '@/lib/session';
 import { Link } from '@/i18n/routing';
 import {
@@ -94,6 +96,23 @@ export default async function RequisitionsPage({
     return locale === 'ar' ? (f.nameAr ?? f.nameEn) : f.nameEn;
   };
 
+  // The queue's view model. Plain strings, not database rows: a component that
+  // takes a row and computes a date is a component that has to be a client
+  // component, and this page is a server component that should stay one.
+  const queueRows = rows.map((r) => ({
+    id: r.id,
+    code: r.code,
+    facility: facilityName(r.facility_id),
+    status: r.status,
+    statusLabel: t(`status.${r.status}`),
+    requestedAgo: timeAgo(r.requested_at, new Date(), locale),
+    justification: r.justification,
+    // A requisition is waiting for a decision until it has one. SUBMITTED is the
+    // only state that means "somebody has to do something"; DRAFT is not yet
+    // raised, and the rest are already decided.
+    needsDecision: r.status === 'SUBMITTED',
+  }));
+
   // ── the open request, if any ─────────────────────────────────────────────
   const openRow = open ? rows.find((r) => r.id === open) : undefined;
   const onRequest = new Set<string>();
@@ -152,42 +171,29 @@ export default async function RequisitionsPage({
           </p>
         </header>
 
-        <nav aria-label={t('listLabel')} className="space-y-1">
-          {rows.length === 0 ? (
-            <p className="rounded-xl border p-6 text-center text-sm text-[color:var(--text-muted)]">
-              {t('empty')}
-            </p>
-          ) : (
-            rows.map((r) => {
-              const isOpen = r.id === openRow?.id;
-
-              return (
-                <Link
-                  key={r.id}
-                  href={isOpen ? '/admin/inventory/requisitions' : `/admin/inventory/requisitions?open=${r.id}`}
-                  // Same reasoning as the catalogue's per-row edit links: one prefetch
-                  // per row, each re-running the requisitions query to prove an open
-                  // panel exists.
-                  prefetch={false}
-                  aria-current={isOpen ? 'page' : undefined}
-                  className={`block rounded-lg border p-3 transition-colors hover:bg-[color:var(--surface-raised)] ${
-                    isOpen ? 'border-[var(--color-brand-600)] bg-[var(--color-brand-600)]/5' : ''
-                  }`}
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <span dir="ltr" className="font-mono text-sm font-medium">
-                      {r.code}
-                    </span>
-                    <StatusPill status={r.status} label={t(`status.${r.status}`)} />
-                  </div>
-                  <p className="text-[color:var(--text-muted)] mt-1 truncate text-xs">
-                    {facilityName(r.facility_id)}
-                  </p>
-                </Link>
-              );
-            })
-          )}
-        </nav>
+        <RequisitionQueue
+          locale={locale}
+          rows={queueRows}
+          labels={{
+            code: t('column.code'),
+            facility: t('column.facility'),
+            status: t('column.status'),
+            requested: t('column.requested'),
+            justification: t('column.justification'),
+            needsAction: t('filter.needsAction'),
+            canWait: t('filter.canWait'),
+            all: t('filter.all'),
+            searchPlaceholder: t('searchPlaceholder'),
+            searchLabel: t('searchLabel'),
+            emptyNeedsAction: t('emptyNeedsAction'),
+            emptyNeedsActionBody: t('emptyNeedsActionBody'),
+            emptyAll: t('emptyAll'),
+            emptyAllBody: t('emptyAllBody'),
+            caption: t('listLabel'),
+            needsActionTitle: t('filter.needsAction'),
+            canWaitTitle: t('filter.canWait'),
+          }}
+        />
 
         {canRaise && (
           <NewRequisitionForm

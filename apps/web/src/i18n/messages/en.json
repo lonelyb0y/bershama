@@ -69,7 +69,11 @@
       "title": "Stocktake",
       "body": "Count what is on the shelf"
     },
-    "batch": "Batch"
+    "batch": "Batch",
+    "figures": "Key figures",
+    "doors": "Inventory sections",
+    "lowStockLabel": "Below reorder level",
+    "lowStockHint": "Products that need replenishing"
   },
   "requisitions": {
     "title": "Requisitions",
@@ -122,7 +126,25 @@
       "errorSummary": "The line could not be added",
       "lineAdded": "Added to the request.",
       "lineRemoved": "Line removed."
-    }
+    },
+    "column": {
+      "code": "Code",
+      "facility": "Facility",
+      "status": "Status",
+      "requested": "Requested",
+      "justification": "Reason"
+    },
+    "filter": {
+      "needsAction": "Needs a decision",
+      "canWait": "Decided",
+      "all": "All"
+    },
+    "searchPlaceholder": "Search code, facility or reason",
+    "searchLabel": "Search requisitions",
+    "emptyNeedsAction": "Nothing waiting for a decision",
+    "emptyNeedsActionBody": "Every requisition has been allocated or turned down. New ones from a pharmacy arrive here.",
+    "emptyAll": "No requisitions yet",
+    "emptyAllBody": "A pharmacy raises one against your stock. It arrives here with a reason and a facility."
   },
   "delivery": {
     "trips": "Trips",
@@ -134,7 +156,13 @@
     "recipientName": "Received by",
     "signature": "Signature",
     "photo": "Photo",
-    "offline": "You are offline. Your work is saved and will sync automatically."
+    "offline": "You are offline. Your work is saved and will sync automatically.",
+    "dispatcher": {
+      "runs": "Delivery runs",
+      "status": "Status",
+      "vehicle": "Van",
+      "driver": "Driver"
+    }
   },
   "alerts": {
     "title": "Alerts",
@@ -542,7 +570,8 @@
     "notMoving": "not moving",
     "unitsHeld": "{n} units held",
     "noStock": "No stock on hand.",
-    "footnote": "Valued at batch cost. Cover extrapolates the last 30 days of issues linearly, so it is a prompt to reorder rather than a forecast."
+    "footnote": "Valued at batch cost. Cover extrapolates the last 30 days of issues linearly, so it is a prompt to reorder rather than a forecast.",
+    "showNumbers": "Show the numbers"
   },
   "signup": {
     "title": "Create your organisation",
@@ -630,5 +659,33 @@
     "securityArabic": "English and Arabic, with full right-to-left support throughout",
     "footerLicence": "AGPL-3.0 · Egypt",
     "footerTraceability": "WHO GDP-aligned batch traceability"
+  },
+  "pharmacy": {
+    "subtitle": "{name} · {count, plural, one {# requisition raised} other {# requisitions raised}}",
+    "emptyTitle": "No requisitions yet",
+    "emptyBody": "Raise one from the catalogue and it arrives here, with its state.",
+    "browseCatalogue": "Browse the catalogue",
+    "yourFacility": "Your pharmacy",
+    "searchPlaceholder": "Search code or reason",
+    "searchLabel": "Search your requisitions",
+    "caption": "Your requisitions",
+    "summary": "Waiting: {waiting} · Allocated: {allocated}",
+    "column": {
+      "code": "Code",
+      "raisedBy": "Raised by",
+      "status": "Status",
+      "requested": "Raised",
+      "justification": "Reason"
+    },
+    "filter": {
+      "all": "All"
+    },
+    "status": {
+      "DRAFT": "Draft",
+      "SUBMITTED": "Waiting for a decision",
+      "ALLOCATED": "Allocated",
+      "REJECTED": "Refused",
+      "DISCARDED": "Discarded"
+    }
   }
 }

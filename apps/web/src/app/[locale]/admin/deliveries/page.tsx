@@ -2,6 +2,8 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 
 import { getSupabase } from '@/lib/supabase/server';
+import { SimpleTable, Td } from '@/components/ui/simple-table';
+import { Badge } from '@/components/ui/badge';
 import { getSession } from '@/lib/session';
 import { ROLES_BY_SURFACE } from '@/lib/roles';
 import {
@@ -112,6 +114,11 @@ export default async function DeliveriesPage({
     (d) => ({ id: d.id, label: locale === 'ar' ? (d.full_name_ar ?? d.full_name) : d.full_name }),
   );
 
+  // The van and the driver, by id. The list needs them: a dispatcher comparing runs
+  // is comparing which van and who is driving it, and neither was on the screen.
+  const vehicleLabel = new Map(vehicles.map((v) => [v.id, v.label]));
+  const driverLabel = new Map(drivers.map((d) => [d.id, d.label]));
+
   const facilityLabel = new Map(
     ((facilityData ?? []) as Array<{ id: string; name_en: string; name_ar: string | null }>).map((f) => [
       f.id,
@@ -201,27 +208,83 @@ export default async function DeliveriesPage({
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,20rem)_minmax(0,1fr)]">
         <section className="space-y-3" aria-label={t('dispatcher.runs')}>
-          <ul className="space-y-2">
-            {trips.length === 0 && <li className="rounded-lg border border-dashed p-3 text-sm">{t('dispatcher.noRuns')}</li>}
-            {trips.map((trip) => (
-              <li key={trip.id}>
-                <a
-                  href={`/${locale}/admin/deliveries?run=${trip.id}`}
-                  data-testid={`run-${trip.run_date}`}
-                  aria-current={selected?.id === trip.id ? 'true' : undefined}
-                  className={`block rounded-lg border p-3 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 ${
-                    selected?.id === trip.id ? 'border-sky-500/60' : ''
+          {/*
+            A table, and three columns it did not have.
+
+            The list showed a date, a status and a note. A dispatcher comparing runs is
+            comparing *which van*, *which driver* and *how far it has got* -- and none
+            of those were on the screen. So a person who wanted to know whether VAN-1
+            was out and who was driving it had to open each run in turn.
+
+            The run date is still the thing that is written on the paperwork, so it
+            stays first, and the note stays because it is what the dispatcher typed.
+          */}
+          {trips.length === 0 ? (
+            <p className="rounded-lg border border-dashed p-3 text-sm">
+              {t('dispatcher.noRuns')}
+            </p>
+          ) : (
+            <SimpleTable
+              caption={t('dispatcher.runs')}
+              headers={[
+                { label: t('dispatcher.runDate') },
+                { label: t('dispatcher.vehicle') },
+                { label: t('dispatcher.driver') },
+                { label: t('dispatcher.status') },
+              ]}
+            >
+              {trips.map((trip) => (
+                <tr
+                  key={trip.id}
+                  className={`border-b last:border-0 ${
+                    selected?.id === trip.id ? 'bg-[var(--color-brand-600)]/5' : ''
                   }`}
                 >
-                  <span className="flex items-baseline justify-between gap-2">
-                    <span className="font-medium">{trip.run_date}</span>
-                    <span className="text-xs text-current/60">{t(`status.trip.${trip.status}`)}</span>
-                  </span>
-                  {trip.notes && <span className="block text-xs text-current/60">{trip.notes}</span>}
-                </a>
-              </li>
-            ))}
-          </ul>
+                  <Td>
+                    <a
+                      href={`/${locale}/admin/deliveries?run=${trip.id}`}
+                      data-testid={`run-${trip.run_date}`}
+                      aria-current={selected?.id === trip.id ? 'true' : undefined}
+                      className="font-medium hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
+                    >
+                      {trip.run_date}
+                    </a>
+                    {trip.notes ? (
+                      <span className="block text-xs text-[color:var(--text-muted)]">
+                        {trip.notes}
+                      </span>
+                    ) : null}
+                  </Td>
+                  <Td>{vehicleLabel.get(trip.vehicle_id ?? '') ?? '—'}</Td>
+                  <Td>{driverLabel.get(trip.driver_id ?? '') ?? '—'}</Td>
+                  <Td>
+                    <Badge
+                      tone={
+                        trip.status === 'COMPLETED'
+                          ? 'good'
+                          : trip.status === 'IN_TRANSIT'
+                            ? 'warn'
+                            : trip.status === 'CANCELLED'
+                              ? 'bad'
+                              : 'neutral'
+                      }
+                      shape={
+                        trip.status === 'COMPLETED'
+                          ? 'diamond'
+                          : trip.status === 'IN_TRANSIT'
+                            ? 'circle'
+                            : trip.status === 'CANCELLED'
+                              ? 'triangle'
+                              : 'square'
+                      }
+                    >
+                      {t(`status.trip.${trip.status}`)}
+                    </Badge>
+                  </Td>
+                </tr>
+              ))}
+            </SimpleTable>
+          )}
 
           <NewRunForm
             vehicles={vehicles}

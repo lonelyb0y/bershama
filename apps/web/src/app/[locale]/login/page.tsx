@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { LoginForm } from '@/components/login-form';
 import { GoogleSignInButton } from '@/components/google-signin-button';
 import { LocaleSwitcher } from '@/components/locale-switcher';
+import { Logo } from '@/components/logo';
 import { getSession, homeRouteForRole } from '@/lib/session';
 import type { Locale } from '@/i18n/routing';
 
@@ -26,20 +27,29 @@ export default async function LoginPage({
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-sm flex-col gap-8 p-6">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {tCommon('appName')}
-          </h1>
-          <p className="text-[color:var(--text-muted)] mt-1 text-sm">
-            {t('signIn')}
-          </p>
-          <p className="text-[color:var(--text-muted)] mt-3 text-sm">
-            {tLanding('headline')}
-          </p>
-        </div>
+    /*
+     * The heading is the action, not the brand.
+     *
+     * It was the other way round: the app name as the h1, "Sign in" as a subtitle,
+     * and the sentence explaining what the product is underneath both. A person who
+     * followed a link from a catalogue or a requisition email did not come here to
+     * read a brand name -- they came here to sign in, and the brand was the loudest
+     * thing on the screen.
+     *
+     * So: the wordmark is a mark, the action is the heading, and the pitch is one
+     * line under it. Everything below is the form, which is the point of the page.
+     */
+    <main className="mx-auto flex min-h-dvh max-w-sm flex-col gap-6 p-6">
+      <div className="flex items-center justify-between gap-4">
+        <Logo />
         <LocaleSwitcher />
+      </div>
+
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">{t('signIn')}</h1>
+        <p className="text-[color:var(--text-muted)] mt-1.5 text-sm">
+          {tLanding('headline')}
+        </p>
       </div>
 
       <LoginForm />

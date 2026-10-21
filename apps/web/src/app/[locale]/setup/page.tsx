@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { SetupForm } from '@/components/setup-form';
 import { getSession, homeRouteForRole } from '@/lib/session';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { Logo } from '@/components/logo';
 import type { Locale } from '@/i18n/routing';
 
 /**
@@ -53,6 +54,12 @@ export default async function SetupPage({
   return (
     <main className="flex min-h-dvh items-center justify-center px-4 py-12">
       <div className="w-full max-w-sm">
+        {/* The mark, so the two public entry screens look like the same product as
+            the one they lead into. A person who came from a link should not have
+            to guess whether they are somewhere else. */}
+        <div className="mb-6 flex justify-center">
+          <Logo />
+        </div>
         <SetupForm locale={locale} />
         <p className="mt-6 text-center text-xs text-[color:var(--text-muted)]">{t('footnote')}</p>
       </div>

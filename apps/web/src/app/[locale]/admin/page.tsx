@@ -502,7 +502,7 @@ export default async function AdminDashboard({
           </section>
 
           {/* ── the hero, and the ranked column ────────────────────────────── */}
-          <div data-reveal className="pf-split">
+          <div data-reveal className="pf-split items-start">
             <section className="pf-hero p-5" aria-labelledby="margin-heading">
               <div className="flex items-start justify-between gap-3">
                 <div>
@@ -519,7 +519,11 @@ export default async function AdminDashboard({
                 </Link>
               </div>
 
-              <p className="pf-hero__value mt-4">{formatMoney(totalDeliveredMargin, { locale, compact: true })}</p>
+              <p className="pf-hero__value mt-4">
+                {fulfilledLines.length > 0
+                  ? formatMoney(totalDeliveredMargin, { locale, compact: true })
+                  : '—'}
+              </p>
               <p className="mt-1 text-xs opacity-80">
                 {t('deliveredValueAndCost', {
                   value: formatMoney(realisedRevenueMinor, { locale, compact: true }),
@@ -529,7 +533,11 @@ export default async function AdminDashboard({
 
               <div className="mt-4">
                 {fulfilledLines.length === 0 ? (
-                  <p className="py-10 text-center text-sm opacity-80">{t('nothingDeliveredYet')}</p>
+                  /* The empty state sat in the middle of a 300px panel with 40px of
+                     padding above and below it, so the screen's largest element was
+                     a sentence in the middle of nothing. It now sits directly under
+                     the figure, where the eye is already looking. */
+                  <p className="mt-3 max-w-sm text-sm opacity-80">{t('nothingDeliveredYet')}</p>
                 ) : (
                   <BarTrendChart points={marginSeries} ariaLabel={t('deliveredMargin')} />
                 )}
@@ -606,7 +614,7 @@ export default async function AdminDashboard({
           </div>
 
           {/* ── waiting on a decision, and what changed ─────────────────── */}
-          <div data-reveal className="pf-split">
+          <div data-reveal className="pf-split items-start">
             <GlassPanel className="p-5" as="section">
               <h2 className="pf-section-title">{t('waitingOnYou')}</h2>
               {approvals.length === 0 ? (

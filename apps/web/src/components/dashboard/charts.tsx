@@ -203,3 +203,75 @@ export function ProportionRing({
     </div>
   );
 }
+
+/**
+ * A chart, and the numbers behind it.
+ *
+ * ── why a chart needs a table beside it ─────────────────────────────────────────
+ *
+ * A bar chart is a picture of a table. On a screen it is faster, and it is the
+ * right thing to look at. But it is a picture: a person cannot copy a value out
+ * of it, cannot sort it, and cannot hand it to an auditor.
+ *
+ * So every chart here has a table twin. Not instead of the chart -- the chart is
+ * what you read -- but under it, one click away, with the numbers in cells.
+ *
+ * This matters most in the case this was built for: a QA inspector asking what
+ * the expiry exposure is, on a printed report, on a connection that cannot load
+ * an interactive chart. The data has to be there, as data.
+ */
+export function RankedBarsWithTable({
+  rows,
+  ariaLabel,
+  tableLabel,
+  showLabel,
+}: {
+  rows: Array<{ id: string; label: string; sub?: string; value: number; display: string }>;
+  ariaLabel: string;
+  tableLabel: string;
+  /** The text on the disclosure. */
+  showLabel: string;
+}) {
+  return (
+    <>
+      <RankedBars rows={rows} ariaLabel={ariaLabel} />
+      {rows.length > 0 ? (
+        <details className="mt-3">
+          <summary className="cursor-pointer text-xs font-medium text-[color:var(--text-muted)] hover:text-[color:var(--text)]">
+            {showLabel}
+          </summary>
+          <div className="mt-2 overflow-x-auto rounded-lg border">
+            <table className="w-full border-collapse text-[13px]">
+              <caption className="sr-only">{tableLabel}</caption>
+              <thead>
+                <tr className="border-b bg-[color:var(--surface-2)]/60">
+                  <th scope="col" className="px-3 py-2 text-start font-medium text-[color:var(--text-muted)]">
+                    {ariaLabel}
+                  </th>
+                  <th scope="col" className="px-3 py-2 text-end font-medium text-[color:var(--text-muted)]">
+                    {tableLabel}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row) => (
+                  <tr key={row.id} className="border-b last:border-0">
+                    <td className="px-3 py-2">
+                      <span className="block font-medium">{row.label}</span>
+                      {row.sub ? (
+                        <span className="block text-xs text-[color:var(--text-muted)]">
+                          {row.sub}
+                        </span>
+                      ) : null}
+                    </td>
+                    <td className="px-3 py-2 text-end tabular-nums">{row.display}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </details>
+      ) : null}
+    </>
+  );
+}

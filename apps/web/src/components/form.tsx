@@ -141,8 +141,23 @@ export function Field({
   );
 }
 
+/**
+ * The control's own class.
+ *
+ * `min-h-11` is 44px, and it is not decoration.
+ *
+ * A control under 44px is below the minimum touch target, and the people using
+ * these forms are filling in a delivery note, a stock count or a temperature reading
+ * while holding a phone, sometimes wearing gloves, often in a cold store where the
+ * hand is stiff. A 38px row of text is a mis-tap waiting to happen, and a mis-tap in
+ * a quantity field is a wrong number in somebody's stock.
+ *
+ * The form fields are read and written on a phone as often as on a desk, so the
+ * target is sized for the phone in both places. Everything else about the class --
+ * the radius, the padding, the focus ring -- is unchanged.
+ */
 const inputClass =
-  'w-full rounded-lg border bg-transparent px-3 py-2 text-sm outline-none focus-visible:ring-2 disabled:opacity-60';
+  'w-full min-h-11 rounded-lg border bg-transparent px-3 py-2 text-sm outline-none focus-visible:ring-2 disabled:opacity-60';
 
 const invalidClass = 'border-[var(--color-stock-critical)]';
 
