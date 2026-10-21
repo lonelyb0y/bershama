@@ -263,7 +263,7 @@ function Field({
           placeholder={placeholder ?? ' '}
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? `${name}-error` : undefined}
-          className={`w-full rounded-2xl border px-3 text-sm ${error ? 'border-red-500' : ''}`}
+          className={`w-full rounded-2xl border border-[var(--border-control)] px-3 text-sm ${error ? 'border-red-500' : ''}`}
           {...rest}
         />
         <label htmlFor={name} className="pf-field__label">

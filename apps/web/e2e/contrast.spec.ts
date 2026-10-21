@@ -43,16 +43,33 @@ const RATIO_FN = `(tokens) => {
   cv.width = cv.height = 1;
   const ctx = cv.getContext('2d');
 
-  const paint = (c) => {
+  /*
+   * The foreground is painted OVER the background, not onto a cleared canvas.
+   *
+   * A cleared canvas is transparent, so a translucent colour came back with its
+   * own RGB and a tiny alpha -- and the alpha was thrown away. That made a 9%
+   * white measure as pure white, which is how a dark theme's 1.28:1 hairline
+   * passed a 3:1 test and nobody noticed that the dark inputs were fainter
+   * than the light ones.
+   *
+   * Compositing is what a person actually sees: a translucent border is a
+   * blend of itself and whatever is behind it, and the ratio that matters is
+   * the one between the blend and the surface.
+   */
+  const paint = (c, over) => {
     ctx.clearRect(0, 0, 1, 1);
     ctx.fillStyle = '#ff00ff';           // sentinel, so a rejected colour is visible
+    if (over) {
+      ctx.fillStyle = over;
+      ctx.fillRect(0, 0, 1, 1);
+    }
     ctx.fillStyle = c;
     ctx.fillRect(0, 0, 1, 1);
     return [...ctx.getImageData(0, 0, 1, 1).data].slice(0, 3);
   };
 
-  const luminance = (c) => {
-    const [r, g, b] = paint(c).map((v) => {
+  const luminance = (c, over) => {
+    const [r, g, b] = paint(c, over).map((v) => {
       const s = v / 255;
       return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
     });
@@ -63,8 +80,9 @@ const RATIO_FN = `(tokens) => {
 
   const out = {};
   for (const [name, [fg, bg, minimum]] of Object.entries(tokens)) {
-    const a = luminance(resolve(fg));
-    const b = luminance(resolve(bg));
+    const bgColour = resolve(bg);
+    const a = luminance(resolve(fg), bgColour);
+    const b = luminance(bgColour);
     const [hi, lo] = [a, b].sort((x, y) => y - x);
     out[name] = { ratio: Math.round(((hi + 0.05) / (lo + 0.05)) * 100) / 100, minimum };
   }
@@ -111,8 +129,19 @@ function pairs(scheme: 'light' | 'dark'): Record<string, Pair> {
     'text on a raised card': ['var(--text)', 'var(--surface-raised)', 4.5] as Pair,
     'muted text on the surface': ['var(--text-muted)', 'var(--surface)', 4.5] as Pair,
     'muted text on a card': ['var(--text-muted)', 'var(--surface-raised)', 4.5] as Pair,
-    // Non-text UI, so 3:1.
-    'border on the surface': ['var(--border)', 'var(--surface)', 3] as Pair,
+    /*
+     * Non-text UI, so 3:1 -- and specifically the CONTROL boundary.
+     *
+     * WCAG 1.4.11 is about "visual information required to identify user
+     * interface components and states". An input's edge is that information: it
+     * is the only thing saying "this is a field you can type in". A rule
+     * between two table rows is not, and holding a hairline to 3:1 is how a
+     * design ends up with borders so heavy the page reads as a wireframe.
+     *
+     * So there are two tokens: --border, the hairline, and --border-control,
+     * the edge of a field. This asserts the second one.
+     */
+    'control border on the surface': ['var(--border-control)', 'var(--surface)', 3] as Pair,
   };
 }
 
@@ -139,6 +168,29 @@ test('the measurement is sound', async ({ page }) => {
   // 118 is the classic boundary case: 4.54:1, the last integer that passes AA.
   expect(known.midGrey.ratio, 'the 118 grey boundary case measures ~4.54').toBeGreaterThanOrEqual(4.5);
 });
+
+  test('a translucent colour is measured as a blend, not as its own RGB', async ({ page }) => {
+    /*
+     * The instrument, checked against something known to be true.
+     *
+     * A 9% white over a near-black surface is a dark grey -- and it must measure
+     * as one. Before the composite, it measured as pure white, which is how a
+     * dark theme's 1.28:1 hairline passed a 3:1 test.
+     */
+    await page.goto('/en/login');
+
+    const measured = await page.evaluate((fn) => {
+      const ratio = eval(fn);
+      return ratio({
+        '9% white over the surface': ['rgba(255,255,255,0.09)', 'var(--surface)', 3] as Pair,
+      });
+    }, RATIO_FN);
+
+    expect(
+      measured['9% white over the surface'].ratio,
+      'a translucent colour must be composited over its background before it is measured',
+    ).toBeLessThan(3);
+  });
 
 for (const scheme of ['light', 'dark'] as const) {
   test(`every token pair meets its threshold in ${scheme} mode`, async ({ page }) => {

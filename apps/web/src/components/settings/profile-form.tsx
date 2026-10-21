@@ -53,7 +53,7 @@ export function ProfileForm({
             defaultValue={fullName}
             placeholder=" "
             autoComplete="name"
-            className="w-full rounded-2xl border bg-transparent px-3 text-sm"
+            className="w-full rounded-2xl border border-[var(--border-control)] bg-transparent px-3 text-sm"
           />
           <label htmlFor="settings-full-name" className="pf-field__label">
             {t('fullName')}
@@ -67,7 +67,7 @@ export function ProfileForm({
             defaultValue={fullNameAr}
             dir="rtl"
             placeholder=" "
-            className="w-full rounded-2xl border bg-transparent px-3 text-sm"
+            className="w-full rounded-2xl border border-[var(--border-control)] bg-transparent px-3 text-sm"
           />
           <label htmlFor="settings-full-name-ar" className="pf-field__label">
             {t('fullNameAr')}
@@ -84,7 +84,7 @@ export function ProfileForm({
           dir="ltr"
           placeholder=" "
           autoComplete="tel"
-          className="w-full rounded-2xl border bg-transparent px-3 text-sm"
+          className="w-full rounded-2xl border border-[var(--border-control)] bg-transparent px-3 text-sm"
         />
         <label htmlFor="settings-phone" className="pf-field__label">
           {t('phone')}

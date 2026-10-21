@@ -118,6 +118,10 @@
   --surface-2: #252924;
   --surface-muted: #252924;
   --border: rgba(255, 255, 255, 0.09);
+  /* The edge of a field, at 3:1 against the surface. A hairline is decoration;
+     an input's boundary is the only thing saying "this is a field", so it is
+     held to the non-text contrast bar that the light theme holds it to. */
+  --border-control: #666660;
   --text: #f1efe8;
   --text-muted: #a6a499;
 
@@ -202,6 +206,8 @@
   --surface-2: #ede9df;
   --surface-muted: #ede9df;
   --border: #e2dccb;
+  /* The edge of a field, at 3:1 against the surface. */
+  --border-control: #8c8a80;
   --text: #1b1915;
   --text-muted: #6b6557;
 

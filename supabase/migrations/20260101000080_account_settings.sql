@@ -85,8 +85,14 @@ begin
 end;
 $$;
 
+-- Postgres grants EXECUTE to PUBLIC on every new function, and PUBLIC includes
+-- anon. So the grant above is not enough: without this revoke the function is
+-- callable by a request with no session at all, and the rls_coverage suite
+-- fails on it. This is the same trap migration 0016 documents for whoami.
 grant execute on function api.update_my_notifications(boolean, boolean, boolean)
   to authenticated, service_role;
+revoke execute on function api.update_my_notifications(boolean, boolean, boolean)
+  from anon, public;
 
 -- ── the public wrapper ───────────────────────────────────────────────────────
 --
@@ -219,5 +225,15 @@ $$;
 comment on function api.whoami() is
   'Identity, tenant, role and account settings of the caller. Returns zero rows for an unknown, inactive or profileless user, which every caller must read as "no session" rather than as a broken tenant.';
 
+-- `public` as well as `anon`, and the order matters.
+--
+-- Postgres grants EXECUTE to PUBLIC on every new function, and PUBLIC includes
+-- anon. So `revoke ... from anon` removes the DIRECT grant to anon and leaves
+-- the inherited one, and `has_function_privilege('anon', ...)` still resolves to
+-- true -- which is exactly what the rls_coverage suite asserts against.
+--
+-- Migration 0016 revoked from anon alone and passed, because the PUBLIC grant
+-- had already been swept by migration 0076. Dropping and recreating the
+-- function here gives it a fresh PUBLIC grant, so the sweep has to be restated.
 grant execute on function api.whoami() to authenticated, service_role;
-revoke execute on function api.whoami() from anon;
+revoke execute on function api.whoami() from anon, public;

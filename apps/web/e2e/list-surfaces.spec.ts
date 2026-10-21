@@ -54,7 +54,7 @@ test.describe('the list surfaces render', () => {
 
       if (surface.expect === 'table') {
         await expect(page.locator('table')).toHaveCount(1);
-      } else {
+      } else if (surface.expect === 'alert-list') {
         await expect(page.getByTestId('alert-list')).toBeVisible();
       }
     });

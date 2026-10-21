@@ -184,7 +184,7 @@ export function Field({
  * the radius, the padding, the focus ring -- is unchanged.
  */
 const inputClass =
-  'w-full rounded-2xl border bg-transparent px-3 text-sm outline-none focus-visible:ring-2 disabled:opacity-60';
+  'w-full rounded-2xl border border-[var(--border-control)] bg-transparent px-3 text-sm outline-none focus-visible:ring-2 disabled:opacity-60';
 
 const invalidClass = 'border-[var(--color-stock-critical)]';
 
