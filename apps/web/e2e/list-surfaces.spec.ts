@@ -59,15 +59,22 @@ test.describe('the list surfaces render', () => {
          * What this asserts is the thing that IS always true: the panels are
          * there, and the dashboard says what it has and what it has not.
          */
-        // The exact copy, because a loose pattern here tested the TRANSLATION
-        // rather than the dashboard: the heading is "Top products by delivered
-        // margin", which contains neither "ranked" nor "realised".
-        await expect(
-          page.getByRole('heading', { name: /top products by delivered margin/i }),
-        ).toBeVisible();
-        await expect(
-          page.getByTestId('bar-trend-chart').or(page.getByText(/nothing delivered/i)),
-        ).toBeVisible();
+        /*
+         * The panels, by STRUCTURE and not by copy.
+         *
+         * Two earlier versions of this assertion failed, and both were testing
+         * the translation rather than the dashboard: one looked for a heading
+         * matching /ranked|realised/ when the heading says "Top products by
+         * delivered margin", and one looked for /nothing delivered/ when the
+         * empty state says "Nothing has been delivered against a requisition".
+         *
+         * A copy change should not break a smoke test, so the panels carry
+         * test ids and the assertion names those. What is being checked is
+         * that the dashboard's chart panels are there -- whether they hold a
+         * chart or an empty state depends on the data, and both are correct.
+         */
+        await expect(page.getByTestId('margin-chart-empty').or(page.getByTestId('bar-trend-chart'))).toBeVisible();
+        await expect(page.getByTestId('ranking-empty').or(page.getByTestId('ranked-bars'))).toBeVisible();
       }
 
       if (surface.expect === 'settings') {
