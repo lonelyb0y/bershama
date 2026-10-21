@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Deliveries &amp; Orders — Bershama Pharmaceutical Logistics</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind Script -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-tertiary": "#303033",
+            "error-container": "#93000a",
+            "primary-container": "#22d3ee",
+            "surface-container-low": "#1c1b1b",
+            "inverse-on-surface": "#313030",
+            "primary": "#8aebff",
+            "secondary-fixed-dim": "#c8c6c8",
+            "secondary-container": "#474649",
+            "primary-fixed-dim": "#2fd9f4",
+            "on-primary-container": "#005763",
+            "background": "#131313",
+            "primary-fixed": "#a2eeff",
+            "tertiary-container": "#c2c0c4",
+            "on-surface": "#e5e2e1",
+            "surface-dim": "#131313",
+            "on-tertiary-container": "#4f4e52",
+            "inverse-primary": "#006877",
+            "on-primary-fixed-variant": "#004e5a",
+            "on-primary": "#00363e",
+            "error": "#ffb4ab",
+            "secondary-fixed": "#e4e2e4",
+            "surface-bright": "#393939",
+            "outline": "#859397",
+            "on-error-container": "#ffdad6",
+            "tertiary": "#dedce0",
+            "surface-container-high": "#2a2a2a",
+            "on-error": "#690005",
+            "tertiary-fixed": "#e4e1e5",
+            "on-secondary-fixed": "#1b1b1d",
+            "surface-container-lowest": "#0e0e0e",
+            "on-background": "#e5e2e1",
+            "tertiary-fixed-dim": "#c8c6c9",
+            "surface-variant": "#353534",
+            "on-tertiary-fixed-variant": "#47464a",
+            "surface-tint": "#2fd9f4",
+            "on-secondary-container": "#b7b4b7",
+            "surface-container-highest": "#353534",
+            "on-surface-variant": "#bbc9cd",
+            "on-primary-fixed": "#001f25",
+            "on-tertiary-fixed": "#1b1b1e",
+            "on-secondary-fixed-variant": "#474649",
+            "on-secondary": "#303032",
+            "surface": "#131313",
+            "secondary": "#c8c6c8",
+            "outline-variant": "#3c494c",
+            "surface-container": "#201f1f",
+            "inverse-surface": "#e5e2e1"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-xl": "2.5rem",
+            "space-sm": "0.5rem",
+            "space-lg": "1.5rem",
+            "space-xs": "0.25rem",
+            "gutter-desktop": "1.5rem",
+            "margin": "1rem",
+            "margin-desktop": "2rem",
+            "gutter": "1rem",
+            "space-md": "1rem"
+          },
+          "fontFamily": {
+            "body-sm": ["Plus Jakarta Sans"],
+            "mono-sm": ["JetBrains Mono"],
+            "body-md": ["Plus Jakarta Sans"],
+            "headline-lg-mobile": ["Space Grotesk"],
+            "mono-lg": ["JetBrains Mono"],
+            "body-lg": ["Plus Jakarta Sans"],
+            "headline-md": ["Space Grotesk"],
+            "headline-lg": ["Space Grotesk"],
+            "headline-xl": ["Space Grotesk"],
+            "mono-md": ["JetBrains Mono"],
+            "headline-xl-mobile": ["Space Grotesk"],
+            "headline-sm": ["Space Grotesk"],
+            "label-badge": ["JetBrains Mono"]
+          },
+          "fontSize": {
+            "body-sm": ["12px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "mono-sm": ["11px", { "lineHeight": "16px", "fontWeight": "400" }],
+            "body-md": ["13px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "mono-lg": ["15px", { "lineHeight": "22px", "fontWeight": "500" }],
+            "body-lg": ["15px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" }],
+            "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "headline-xl": ["44px", { "lineHeight": "52px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "mono-md": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "headline-xl-mobile": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "headline-sm": ["18px", { "lineHeight": "26px", "letterSpacing": "-0.01em", "fontWeight": "500" }],
+            "label-badge": ["11px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "600" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    /* Strict Hairline & Precision Rules */
+    .border-hairline {
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+    .divide-hairline > * + * {
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    /* Motion: Staggered Fade Up 8px */
+    @keyframes fadeUp {
+      0% {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate-stagger-1 {
+      animation: fadeUp 0.35s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    }
+    .animate-stagger-2 {
+      animation: fadeUp 0.35s cubic-bezier(0.25, 1, 0.5, 1) 0.06s forwards;
+      opacity: 0;
+    }
+    .animate-stagger-3 {
+      animation: fadeUp 0.35s cubic-bezier(0.25, 1, 0.5, 1) 0.12s forwards;
+      opacity: 0;
+    }
+    .animate-stagger-4 {
+      animation: fadeUp 0.35s cubic-bezier(0.25, 1, 0.5, 1) 0.18s forwards;
+      opacity: 0;
+    }
+
+    /* Micro-loop: 2.4s Breathing Pulse */
+    @keyframes livePulse {
+      0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.35;
+        transform: scale(0.85);
+      }
+    }
+    .animate-live-dot {
+      animation: livePulse 2.4s ease-in-out infinite;
+    }
+
+    /* Tabular figures for telemetry data */
+    .tabular-numbers {
+      font-variant-numeric: tabular-nums;
+    }
+  </style>
+</head>
+<body class="bg-[#121212] text-[#F2EFE9] min-h-[1024px] flex flex-col antialiased selection:bg-[#22D3EE] selection:text-[#121212]">
+<!-- Top Bar (Shared Component Contract Executed) -->
+<header class="docked full-width top-0 sticky z-50 bg-[#1A1A1C] border-b border-hairline flat no shadows">
+<div class="flex justify-between items-center w-full max-w-[1400px] mx-auto px-gutter-desktop h-14">
+<!-- Left: Brand Logo & Navigation -->
+<div class="flex items-center space-x-8">
+<span class="text-headline-md font-headline-md font-bold tracking-tight text-[#F2EFE9]">Bershama</span>
+<nav aria-label="Global Navigation" class="hidden md:flex items-center space-x-6">
+<!-- Active tab -->
+<a class="text-[#22D3EE] font-mono-md text-mono-md flex items-center gap-1.5 transition-colors" href="#">
+<span class="inline-block w-1.5 h-1.5 rounded-full bg-[#22D3EE]"></span>
+            Runs &amp; Fleet
+          </a>
+<a class="text-[#A1A1AA] font-mono-md text-mono-md hover:text-[#F2EFE9] transition-colors" href="#">Requisitions</a>
+<a class="text-[#A1A1AA] font-mono-md text-mono-md hover:text-[#F2EFE9] transition-colors" href="#">Cold-Chain Logs</a>
+<a class="text-[#A1A1AA] font-mono-md text-mono-md hover:text-[#F2EFE9] transition-colors" href="#">Pharmacies</a>
+<a class="text-[#A1A1AA] font-mono-md text-mono-md hover:text-[#F2EFE9] transition-colors" href="#">Audit Trail</a>
+</nav>
+</div>
+<!-- Right: Search, Language & Identity block -->
+<div class="flex items-center space-x-4">
+<!-- Search bar -->
+<div class="relative hidden lg:block w-72">
+<span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-[#5C5C66]">
+<span class="material-symbols-outlined text-[18px]">search</span>
+</span>
+<input class="w-full h-[36px] bg-[#232326] border border-hairline rounded-[10px] pl-9 pr-3 text-body-sm font-body-sm text-[#F2EFE9] placeholder-[#5C5C66] focus:outline-none focus:ring-2 focus:ring-[#22D3EE] focus:border-transparent transition-all" placeholder="Search run ID, vehicle, SKU, pharmacy..." type="text"/>
+</div>
+<!-- Language switcher badge -->
+<button class="h-[36px] px-2.5 rounded-[10px] bg-[#232326] border border-hairline text-mono-sm font-mono-sm text-[#A1A1AA] hover:text-[#F2EFE9] hover:border-[rgba(255,255,255,0.14)] active:translate-y-[1px] transition-all flex items-center gap-1.5" title="Switch language">
+<span class="material-symbols-outlined text-[16px] text-[#22D3EE]">translate</span>
+<span class="tracking-wide">العربية / EN</span>
+</button>
+<!-- Hairline Vertical Separator -->
+<div class="h-5 w-[1px] bg-[rgba(255,255,255,0.08)] hidden sm:block"></div>
+<!-- Identity Block -->
+<div class="flex items-center space-x-3">
+<div class="text-right hidden sm:block">
+<div class="font-body-md text-body-md text-[#F2EFE9] leading-tight font-medium">Ahmed Hassan</div>
+<div class="font-mono-sm text-mono-sm text-[#A1A1AA] leading-none mt-0.5">Administrator</div>
+</div>
+<div aria-label="AH initials" class="w-8 h-8 rounded-full bg-[#232326] border border-hairline flex items-center justify-center font-mono-sm text-[#22D3EE] font-medium">
+            AH
+          </div>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Cockpit Surface -->
+<main class="w-full max-w-[1400px] mx-auto px-gutter-desktop py-space-lg flex-1 flex flex-col space-y-6">
+<!-- Split Header Row -->
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2">
+<div class="animate-stagger-1">
+<h1 class="text-headline-lg font-headline-lg text-[#F2EFE9] tracking-tight">Deliveries &amp; orders</h1>
+<p class="font-body-md text-body-md text-[#A1A1AA] mt-0.5">Today's runs and every order in flight</p>
+</div>
+<div class="flex items-center space-x-3 animate-stagger-1">
+<!-- Secondary Action Button -->
+<button class="h-[36px] px-4 rounded-[10px] bg-[#232326] border border-hairline text-[#F2EFE9] font-mono-md text-mono-md font-medium hover:border-[rgba(255,255,255,0.14)] active:translate-y-[1px] transition-all">
+          New requisition
+        </button>
+<!-- Primary Action Button -->
+<button class="h-[36px] px-4 rounded-[10px] bg-[#22D3EE] text-[#121212] font-mono-md text-mono-md font-semibold hover:bg-[#67E8F9] active:translate-y-[1px] transition-all flex items-center gap-1.5">
+<span class="text-base leading-none font-bold">+</span>
+          New run
+        </button>
+</div>
+</div>
+<!-- 2-Column Asymmetric Cockpit Grid (NEVER three equal cards) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- LEFT PANEL: TODAY'S RUNS (7 Cols) -->
+<section class="lg:col-span-7 bg-[#1A1A1C] border border-hairline rounded-[16px] overflow-hidden flex flex-col animate-stagger-2">
+<!-- Panel Header -->
+<div class="h-12 px-5 bg-[#1A1A1C] border-b border-hairline flex items-center justify-between">
+<div class="flex items-center gap-2.5">
+<span class="text-mono-sm font-mono-sm uppercase tracking-wider text-[#A1A1AA]">TODAY'S RUNS</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-[#22D3EE]/30 bg-[#22D3EE]/10 text-label-badge font-label-badge text-[#22D3EE]">
+<span class="w-1.5 h-1.5 rounded-full bg-[#22D3EE] animate-live-dot"></span>
+              LIVE HUB
+            </span>
+</div>
+<span class="text-mono-sm font-mono-sm text-[#5C5C66]">3 DISPATCHED / 2 ACTIVE</span>
+</div>
+<!-- Table Viewport -->
+<div class="overflow-x-auto w-full">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-[#232326] h-[36px] border-b border-hairline text-mono-sm font-mono-sm text-[#A1A1AA] uppercase tracking-wider">
+<th class="px-5 font-normal">RUN</th>
+<th class="px-4 font-normal">VEHICLE</th>
+<th class="px-4 font-normal">DRIVER</th>
+<th class="px-4 text-right font-normal">STOPS</th>
+<th class="px-5 text-right font-normal">STATE</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-hairline font-mono-md text-mono-md text-[#F2EFE9]">
+<!-- Row 1 -->
+<tr class="h-[36px] hover:bg-[#232326] transition-colors group cursor-default">
+<td class="px-5 whitespace-nowrap text-[#F2EFE9] tabular-numbers">2026-10-21</td>
+<td class="px-4 whitespace-nowrap text-[#22D3EE] font-medium">VAN-1</td>
+<td class="px-4 whitespace-nowrap font-body-md text-body-md text-[#F2EFE9]">Karim Nabil</td>
+<td class="px-4 whitespace-nowrap text-right tabular-numbers text-[#F2EFE9]">6</td>
+<td class="px-5 whitespace-nowrap text-right">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-label-badge font-label-badge border border-[#22D3EE]/30 text-[#22D3EE] bg-[#22D3EE]/5">
+                    ■ IN TRANSIT
+                  </span>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="h-[36px] hover:bg-[#232326] transition-colors group cursor-default">
+<td class="px-5 whitespace-nowrap text-[#F2EFE9] tabular-numbers">2026-10-20</td>
+<td class="px-4 whitespace-nowrap text-[#A1A1AA]">VAN-1</td>
+<td class="px-4 whitespace-nowrap font-body-md text-body-md text-[#F2EFE9]">Karim Nabil</td>
+<td class="px-4 whitespace-nowrap text-right tabular-numbers text-[#A1A1AA]">0</td>
+<td class="px-5 whitespace-nowrap text-right">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-label-badge font-label-badge border border-[#3ECF8E]/30 text-[#3ECF8E] bg-[#3ECF8E]/5">
+                    ◆ DELIVERED
+                  </span>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="h-[36px] hover:bg-[#232326] transition-colors group cursor-default">
+<td class="px-5 whitespace-nowrap text-[#F2EFE9] tabular-numbers">2026-10-21</td>
+<td class="px-4 whitespace-nowrap text-[#A1A1AA]">VAN-3</td>
+<td class="px-4 whitespace-nowrap font-body-md text-body-md text-[#F2EFE9]">Tarek Mansour</td>
+<td class="px-4 whitespace-nowrap text-right tabular-numbers text-[#F2EFE9]">4</td>
+<td class="px-5 whitespace-nowrap text-right">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-label-badge font-label-badge border border-[#F5A524]/30 text-[#F5A524] bg-[#F5A524]/5">
+                    ● SCHEDULED
+                  </span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Panel Footer Metric Line -->
+<div class="mt-auto px-5 py-3 border-t border-hairline bg-[#1A1A1C] flex justify-between items-center text-mono-sm font-mono-sm text-[#5C5C66]">
+<span>VAN-1 GPS: Ring Road Sector 4 · 48 km/h</span>
+<span class="text-[#A1A1AA]">EDA Protocol #8491</span>
+</div>
+</section>
+<!-- RIGHT PANEL: ORDERS IN FLIGHT (5 Cols) -->
+<section class="lg:col-span-5 bg-[#1A1A1C] border border-hairline rounded-[16px] overflow-hidden flex flex-col animate-stagger-2">
+<!-- Panel Header -->
+<div class="h-12 px-5 bg-[#1A1A1C] border-b border-hairline flex items-center justify-between">
+<span class="text-mono-sm font-mono-sm uppercase tracking-wider text-[#A1A1AA]">ORDERS IN FLIGHT</span>
+<span class="text-mono-sm font-mono-sm text-[#22D3EE] font-medium tabular-numbers">2 active</span>
+</div>
+<!-- Story Style Stack List -->
+<div class="divide-y divide-hairline flex-1">
+<!-- Entry 1 -->
+<div class="p-4 hover:bg-[#232326] transition-colors">
+<div class="flex items-start justify-between">
+<div>
+<span class="font-mono-lg text-mono-lg font-bold text-[#F2EFE9] tracking-tight">REQ-0001</span>
+<p class="font-body-md text-body-md text-[#A1A1AA] mt-0.5">CI Warehouse</p>
+</div>
+<span class="text-mono-sm font-mono-sm text-[#A1A1AA] tabular-numbers">41 seconds ago</span>
+</div>
+<div class="mt-3 flex items-center justify-between">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-label-badge font-label-badge border border-[#F5A524]/30 text-[#F5A524] bg-[#F5A524]/5">
+                ● Waiting for a decision
+              </span>
+<button class="text-mono-sm font-mono-sm text-[#A1A1AA] hover:text-[#22D3EE] transition-colors">Inspect →</button>
+</div>
+</div>
+<!-- Entry 2 -->
+<div class="p-4 hover:bg-[#232326] transition-colors">
+<div class="flex items-start justify-between">
+<div>
+<span class="font-mono-lg text-mono-lg font-bold text-[#F2EFE9] tracking-tight">REQ-0002</span>
+<p class="font-body-md text-body-md text-[#A1A1AA] mt-0.5">Giza Regional Depot</p>
+</div>
+<span class="text-mono-sm font-mono-sm text-[#A1A1AA] tabular-numbers">4 minutes ago</span>
+</div>
+<div class="mt-3 flex items-center justify-between">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-label-badge font-label-badge border border-[#3ECF8E]/30 text-[#3ECF8E] bg-[#3ECF8E]/5">
+                ◆ Allocated
+              </span>
+<button class="text-mono-sm font-mono-sm text-[#A1A1AA] hover:text-[#22D3EE] transition-colors">Inspect →</button>
+</div>
+</div>
+<!-- Entry 3 -->
+<div class="p-4 hover:bg-[#232326] transition-colors">
+<div class="flex items-start justify-between">
+<div>
+<span class="font-mono-lg text-mono-lg font-bold text-[#F2EFE9] tracking-tight">REQ-0003</span>
+<p class="font-body-md text-body-md text-[#A1A1AA] mt-0.5">Alexandria Coastal Hub</p>
+</div>
+<span class="text-mono-sm font-mono-sm text-[#A1A1AA] tabular-numbers">12 minutes ago</span>
+</div>
+<div class="mt-3 flex items-center justify-between">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-label-badge font-label-badge border border-[#22D3EE]/30 text-[#22D3EE] bg-[#22D3EE]/5">
+                ■ Staged for pack
+              </span>
+<button class="text-mono-sm font-mono-sm text-[#A1A1AA] hover:text-[#22D3EE] transition-colors">Inspect →</button>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- WIDE PANEL: PROOFS OF DELIVERY -->
+<section class="bg-[#1A1A1C] border border-hairline rounded-[16px] p-6 animate-stagger-3">
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 gap-1">
+<div>
+<h2 class="text-mono-sm font-mono-sm uppercase tracking-wider text-[#A1A1AA]">PROOFS OF DELIVERY</h2>
+<p class="font-body-md text-body-md text-[#F2EFE9] mt-0.5">Real-time biological consignment release verifications</p>
+</div>
+<span class="text-mono-sm font-mono-sm text-[#5C5C66]">AUDIT SYNC: PASSING</span>
+</div>
+<!-- Table Viewport -->
+<div class="overflow-x-auto w-full mt-2">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-[#232326] h-[36px] border-b border-hairline text-mono-sm font-mono-sm text-[#A1A1AA] uppercase tracking-wider">
+<th class="px-4 font-normal w-16">STOP</th>
+<th class="px-4 font-normal">FACILITY</th>
+<th class="px-4 font-normal w-32">DELIVERED</th>
+<th class="px-4 text-right font-normal w-24">LINES</th>
+<th class="px-4 text-right font-normal w-36">PROOF</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-hairline font-mono-md text-mono-md">
+<!-- Row 1 -->
+<tr class="h-[36px] hover:bg-[#232326] transition-colors group cursor-default">
+<td class="px-4 whitespace-nowrap text-[#A1A1AA] tabular-numbers">4</td>
+<td class="px-4 whitespace-nowrap font-body-md text-body-md text-[#F2EFE9] font-medium">Orchard Branch Pharmacy</td>
+<td class="px-4 whitespace-nowrap text-[#F2EFE9] tabular-numbers">11:42</td>
+<td class="px-4 whitespace-nowrap text-right tabular-numbers text-[#F2EFE9]">6</td>
+<td class="px-4 whitespace-nowrap text-right">
+<a class="inline-flex items-center gap-1 text-[#22D3EE] hover:text-[#67E8F9] transition-colors font-mono-sm text-mono-sm font-medium" href="#signature-stop-4">
+                  Signature →
+                </a>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="h-[36px] hover:bg-[#232326] transition-colors group cursor-default">
+<td class="px-4 whitespace-nowrap text-[#A1A1AA] tabular-numbers">3</td>
+<td class="px-4 whitespace-nowrap font-body-md text-body-md text-[#F2EFE9] font-medium">Al-Amal Clinical Center, Dokki</td>
+<td class="px-4 whitespace-nowrap text-[#F2EFE9] tabular-numbers">10:18</td>
+<td class="px-4 whitespace-nowrap text-right tabular-numbers text-[#F2EFE9]">14</td>
+<td class="px-4 whitespace-nowrap text-right">
+<a class="inline-flex items-center gap-1 text-[#22D3EE] hover:text-[#67E8F9] transition-colors font-mono-sm text-mono-sm font-medium" href="#signature-stop-3">
+                  Signature →
+                </a>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="h-[36px] hover:bg-[#232326] transition-colors group cursor-default">
+<td class="px-4 whitespace-nowrap text-[#A1A1AA] tabular-numbers">2</td>
+<td class="px-4 whitespace-nowrap font-body-md text-body-md text-[#F2EFE9] font-medium">Misr Central Pharmacy, Zamalek</td>
+<td class="px-4 whitespace-nowrap text-[#F2EFE9] tabular-numbers">09:35</td>
+<td class="px-4 whitespace-nowrap text-right tabular-numbers text-[#F2EFE9]">8</td>
+<td class="px-4 whitespace-nowrap text-right">
+<a class="inline-flex items-center gap-1 text-[#22D3EE] hover:text-[#67E8F9] transition-colors font-mono-sm text-mono-sm font-medium" href="#signature-stop-2">
+                  Signature →
+                </a>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="mt-4 pt-3 border-t border-hairline flex items-center justify-between text-body-sm font-body-sm text-[#A1A1AA]">
+<span>Every stop is signed for, and the signature is attached to the run record.</span>
+<span class="font-mono-sm text-mono-sm text-[#5C5C66] tabular-numbers">EDA-HASH: 7e2f-90a1-c884</span>
+</div>
+</section>
+<!-- FULL-WIDTH STRIP: COLD CHAIN ON THE ROAD -->
+<section class="bg-[#0D0D0E] border border-hairline rounded-[16px] p-5 animate-stagger-4">
+<div class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-hairline">
+<!-- Readout 1: Temperature -->
+<div class="pb-4 md:pb-0 md:pr-6 flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="text-mono-sm font-mono-sm text-[#A1A1AA] uppercase tracking-wider">VAN-1</span>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-label-badge font-label-badge border border-[#3ECF8E]/30 text-[#3ECF8E] bg-[#3ECF8E]/5">
+              ◆ OK
+            </span>
+</div>
+<div class="my-2 flex items-baseline gap-2">
+<span class="text-headline-md font-mono-lg font-bold text-[#22D3EE] tabular-numbers tracking-tight">2.8 °C</span>
+<span class="inline-block w-2 h-2 rounded-full bg-[#22D3EE] animate-live-dot" title="Sensor live telemetry"></span>
+</div>
+<span class="text-mono-sm font-mono-sm text-[#A1A1AA]">cabinet temperature</span>
+</div>
+<!-- Readout 2: Last Reading -->
+<div class="py-4 md:py-0 md:px-6 flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="text-mono-sm font-mono-sm text-[#A1A1AA] uppercase tracking-wider">LAST READING</span>
+<span class="text-mono-sm font-mono-sm text-[#5C5C66]">GATEWAY L4</span>
+</div>
+<div class="my-2">
+<span class="text-headline-md font-mono-lg font-bold text-[#F2EFE9] tabular-numbers tracking-tight">11:42</span>
+</div>
+<span class="text-mono-sm font-mono-sm text-[#A1A1AA]">from the van gateway</span>
+</div>
+<!-- Readout 3: Route Progress -->
+<div class="pt-4 md:pt-0 md:pl-6 flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="text-mono-sm font-mono-sm text-[#A1A1AA] uppercase tracking-wider">ROUTE</span>
+<span class="text-mono-sm font-mono-sm text-[#5C5C66]">CAIRO WEST ZONE</span>
+</div>
+<div class="my-2">
+<span class="text-headline-md font-mono-lg font-bold text-[#F2EFE9] tabular-numbers tracking-tight">6 stops</span>
+</div>
+<span class="text-mono-sm font-mono-sm text-[#A1A1AA]">2 delivered</span>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer (Shared Component Contract Executed) -->
+<footer class="docked full-width bottom bg-[#0E0E0E] border-t border-hairline flat no shadows mt-12">
+<div class="w-full max-w-[1400px] mx-auto px-gutter-desktop py-space-xl flex flex-col md:flex-row items-center justify-between gap-6">
+<!-- Brand & Copyright -->
+<div class="flex flex-col space-y-1 text-center md:text-left">
+<span class="text-headline-sm font-headline-sm font-bold text-[#F2EFE9] tracking-tight">Bershama</span>
+<p class="font-mono-sm text-mono-sm text-[#A1A1AA]">
+          © 2025 BERSHAMA PHARMACEUTICAL LOGISTICS S.A.E. · CAIRO, EGYPT · WHO GDP COMPLIANT
+        </p>
+</div>
+<!-- Links Grid -->
+<nav aria-label="Regulatory Links" class="flex flex-wrap items-center justify-center md:justify-end gap-x-6 gap-y-2 text-mono-sm font-mono-sm">
+<a class="text-[#A1A1AA] hover:text-[#22D3EE] transition-colors" href="#">WHO GDP Guidelines</a>
+<a class="text-[#A1A1AA] hover:text-[#22D3EE] transition-colors" href="#">EDA License #8491/2023</a>
+<a class="text-[#A1A1AA] hover:text-[#22D3EE] transition-colors" href="#">Cold-Chain Protocol</a>
+<a class="text-[#A1A1AA] hover:text-[#22D3EE] transition-colors" href="#">Security &amp; Traceability</a>
+<a class="text-[#A1A1AA] hover:text-[#22D3EE] transition-colors" href="#">Batch API</a>
+<a class="text-[#A1A1AA] hover:text-[#22D3EE] transition-colors" href="#">System Status</a>
+</nav>
+</div>
+</footer>
+</body></html>

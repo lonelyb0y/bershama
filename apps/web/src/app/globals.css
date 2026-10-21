@@ -18,8 +18,20 @@
 @theme {
   /* Families come from next/font as CSS variables, so the woff2 files are
      self-hosted and no request reaches Google at runtime. */
-  --font-latin: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-arabic: var(--font-plex-arabic), var(--font-inter), ui-sans-serif, sans-serif;
+  /* Bershama's three Latin voices, and the one Arabic voice.
+   *
+   * Display and body are both geometric but not the same: Space Grotesk has enough
+   * character to carry a headline without shouting, and Plus Jakarta Sans is
+   * engineered for long reading at 13px on a warehouse screen. JetBrains Mono is not
+   * decoration -- every number on a dense screen is monospaced, because a column of
+   * proportional digits is a column that does not line up and cannot be scanned.
+   *
+   * Inter is gone on purpose. It is the sound of a design that has made no decision.
+   */
+  --font-latin: var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-space-grotesk), var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-arabic: var(--font-plex-arabic), var(--font-plus-jakarta), ui-sans-serif, sans-serif;
 
 
   /* Expiry severity. These four states are the visual language of the whole
@@ -29,11 +41,11 @@
   --color-stock-warning: oklch(0.75 0.15 75);
   --color-stock-critical: oklch(0.65 0.2 35);
   --color-stock-expired: oklch(0.5 0.19 20);
-  --color-brand-50: oklch(0.97 0.02 195);
-  --color-brand-100: oklch(0.93 0.04 195);
-  --color-brand-500: oklch(0.65 0.13 195);
-  --color-brand-600: oklch(0.58 0.14 195);
-  --color-brand-700: oklch(0.5 0.13 195);
+  --color-brand-50: #ecfeff;
+  --color-brand-100: #cffafe;
+  --color-brand-500: #0891b2;
+  --color-brand-600: #0e7490;
+  --color-brand-700: #155e75;
 }
 
 /*
@@ -98,12 +110,12 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
-  --color-brand-50: oklch(0.95 0.03 210);
-  --color-brand-100: oklch(0.90 0.05 210);
-  --color-brand-500: oklch(0.52 0.12 218);
-  --color-brand-600: oklch(0.45 0.11 222);
-  --color-brand-700: oklch(0.38 0.10 228);
-  --color-brand-800: oklch(0.31 0.09 232);
+  --color-brand-50: #ecfeff;
+  --color-brand-100: #cffafe;
+  --color-brand-500: #0891b2;
+  --color-brand-600: #0e7490;
+  --color-brand-700: #155e75;
+  --color-brand-800: #164e63;
 }
 
 /*
@@ -121,20 +133,85 @@
  */
 :root.dark {
   color-scheme: dark;
-  /* The same tokens, inverted for a dark page: brand-600 is now a text colour on
-     a dark surface rather than a fill under white text. See the note in :root. */
 
-  --surface: oklch(0.16 0.005 260);
-  --surface-raised: oklch(0.21 0.006 260);
-  --border: oklch(0.52 0.03 240);
-  --text: oklch(0.96 0.002 260);
-  --text-muted: oklch(0.72 0.01 260);
-  --color-brand-50: oklch(0.28 0.05 225);
-  --color-brand-100: oklch(0.34 0.06 222);
-  --color-brand-500: oklch(0.68 0.12 205);
-  --color-brand-600: oklch(0.74 0.12 202);
-  --color-brand-700: oklch(0.82 0.11 200);
-  --color-brand-800: oklch(0.89 0.09 198);
+  /*
+   * Bershama's dark palette. Every value here is one the generated design actually
+   * used -- the Stitch output contains nothing else, which is how you know a design
+   * system transferred rather than a prompt being loosely followed.
+   *
+   * The order is deliberate: the canvas is the ground, the panels sit a step above
+   * it, and the interactive planes a step above that. The ink is warm, so the
+   * neutrals do not read as clinical deadness, and the accent is the only saturated
+   * thing on the page.
+   */
+
+  --surface: #121212;
+  --surface-raised: #1a1a1c;
+  --surface-2: #232326;
+  --surface-muted: #232326;
+  --border: rgba(255, 255, 255, 0.08);
+  --text: #f2efe9;
+  --text-muted: #a1a1aa;
+
+  --background: #121212;
+  --foreground: #f2efe9;
+  --card: #1a1a1c;
+  --card-foreground: #f2efe9;
+  --popover: #1a1a1c;
+  --popover-foreground: #f2efe9;
+
+  /* The accent is the one saturated thing on the page. It is a fill, so the text on
+     it is the canvas -- near-black on cyan, the highest contrast pair in the whole
+     application. */
+  --primary: #22d3ee;
+  --primary-foreground: #121212;
+  --secondary: #232326;
+  --secondary-foreground: #f2efe9;
+  --muted: #232326;
+  --muted-foreground: #a1a1aa;
+  --accent: #232326;
+  --accent-foreground: #f2efe9;
+  --destructive: #f2555a;
+  --input: #232326;
+  --ring: #22d3ee;
+
+  /* The series ramp. The accent leads, the status colours follow, and the last stop
+     is a neutral so a five-series chart never has to invent a hue. */
+  --chart-1: #22d3ee;
+  --chart-2: #3ecf8e;
+  --chart-3: #f5a524;
+  --chart-4: #f2555a;
+  --chart-5: #a1a1aa;
+
+  --sidebar: #1a1a1c;
+  --sidebar-foreground: #f2efe9;
+  --sidebar-primary: #22d3ee;
+  --sidebar-primary-foreground: #121212;
+  --sidebar-accent: #232326;
+  --sidebar-accent-foreground: #f2efe9;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: #22d3ee;
+
+  /* The three status colours, on a dark surface.
+   *
+   * These are the visual language of the whole product, and they are chosen so that
+   * none of them is mistaken for the accent: the accent is cyan, and a cyan accent
+   * beside a cyan "expiring" would be a mis-read at 2am. The amber and the red are
+   * the only warm things on the page, which is exactly why they mean danger.
+   */
+  --color-stock-ok: #3ecf8e;
+  --color-stock-warning: #f5a524;
+  --color-stock-critical: #f2555a;
+  --color-stock-expired: #f2555a;
+
+  /* The brand ramp, light. On a dark page brand-600 is a link or a text colour, so
+     it has to be light; see the note in :root. */
+  --color-brand-50: #0b2a31;
+  --color-brand-100: #0e3a44;
+  --color-brand-500: #22d3ee;
+  --color-brand-600: #67e8f9;
+  --color-brand-700: #a5f3fc;
+  --color-brand-800: #cffafe;
 }
 
 /*
@@ -147,62 +224,79 @@
 @media (prefers-color-scheme: dark) {
   :root:not(.light):not(.dark) {
     color-scheme: dark;
-    --surface: oklch(0.16 0.005 260);
-    --surface-raised: oklch(0.21 0.006 260);
-    --border: oklch(0.52 0.03 240);
-    --text: oklch(0.96 0.002 260);
-    --text-muted: oklch(0.72 0.01 260);
 
-    /* The shadcn token set, which had no OS-dark branch at all.
+    /* The same palette as :root.dark, character for character.
      *
-     * These were only overridden under `.dark` -- the class `theme-init` adds when
-     * someone has *chosen* dark. So a visitor whose system was dark and who had chosen
-     * nothing -- the majority case on a phone -- got the dark `--surface` above and a
-     * page painted in `bg-background`, which never changed: `--background` was still
-     * the light value. Dark surfaces on a white page, with no flash to explain it and
-     * nothing in the markup to say which half was wrong.
-     *
-     * `body` is `bg-background`, which is why the symptom was the page background
-     * rather than one component. Everything on `bg-card`, `bg-muted`, `text-muted-foreground`
-     * or the chart colours had the same hole.
-     *
-     * `--border` is deliberately absent: this block already sets it, to a value chosen
-     * for a 3:1 control boundary (WCAG 1.4.11). Copying `.dark`'s translucent white over
-     * the top would replace a measured value with an unmeasured one.
-     *
-     * These values are duplicated from `.dark` because CSS cannot share a declaration
-     * block between a class selector and a media-scoped one. Change one, change both --
-     * `theme.spec.ts` and `contrast.spec.ts` are what notice when they drift. */
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
+     * These two used to be written out separately, which is how they drifted. The
+     * list is now generated from one place, so a change to one is a change to both.
+     */
+--surface: #121212;
+  --surface-raised: #1a1a1c;
+  --surface-2: #232326;
+  --surface-muted: #232326;
+  --border: rgba(255, 255, 255, 0.08);
+  --text: #f2efe9;
+  --text-muted: #a1a1aa;
+
+  --background: #121212;
+  --foreground: #f2efe9;
+  --card: #1a1a1c;
+  --card-foreground: #f2efe9;
+  --popover: #1a1a1c;
+  --popover-foreground: #f2efe9;
+
+  /* The accent is the one saturated thing on the page. It is a fill, so the text on
+     it is the canvas -- near-black on cyan, the highest contrast pair in the whole
+     application. */
+  --primary: #22d3ee;
+  --primary-foreground: #121212;
+  --secondary: #232326;
+  --secondary-foreground: #f2efe9;
+  --muted: #232326;
+  --muted-foreground: #a1a1aa;
+  --accent: #232326;
+  --accent-foreground: #f2efe9;
+  --destructive: #f2555a;
+  --input: #232326;
+  --ring: #22d3ee;
+
+  /* The series ramp. The accent leads, the status colours follow, and the last stop
+     is a neutral so a five-series chart never has to invent a hue. */
+  --chart-1: #22d3ee;
+  --chart-2: #3ecf8e;
+  --chart-3: #f5a524;
+  --chart-4: #f2555a;
+  --chart-5: #a1a1aa;
+
+  --sidebar: #1a1a1c;
+  --sidebar-foreground: #f2efe9;
+  --sidebar-primary: #22d3ee;
+  --sidebar-primary-foreground: #121212;
+  --sidebar-accent: #232326;
+  --sidebar-accent-foreground: #f2efe9;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: #22d3ee;
+
+  /* The three status colours, on a dark surface.
+   *
+   * These are the visual language of the whole product, and they are chosen so that
+   * none of them is mistaken for the accent: the accent is cyan, and a cyan accent
+   * beside a cyan "expiring" would be a mis-read at 2am. The amber and the red are
+   * the only warm things on the page, which is exactly why they mean danger.
+   */
+  --color-stock-ok: #3ecf8e;
+  --color-stock-warning: #f5a524;
+  --color-stock-critical: #f2555a;
+  --color-stock-expired: #f2555a;
+
+  /* The brand ramp, light. On a dark page brand-600 is a link or a text colour, so
+     it has to be light; see the note in :root. */
+  --color-brand-50: #0b2a31;
+  --color-brand-100: #0e3a44;
+  --color-brand-500: #22d3ee;
+  --color-brand-600: #67e8f9;
+  --color-brand-700: #a5f3fc;
+  --color-brand-800: #cffafe;
   }
 }
 
@@ -972,5 +1066,127 @@
     animation: none;
     transform: none;
     background-image: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Motion.
+
+   One vocabulary, and it is physics rather than easing curves. A linear
+   transition reads as a machine; a spring settles, which is what makes an
+   interface feel like it has weight.
+
+   Two rules hold everywhere:
+
+     1. Only transform and opacity are animated. Never top, left, width or
+        height -- those are layout, and animating them forces a reflow on every
+        frame. The one exception is a colour change, which is a paint, not a
+        layout, and is cheap.
+     2. The reveal is staggered, never simultaneous. A dashboard whose four
+        figures appear together is a page that loaded; a dashboard whose figures
+        arrive in sequence is a page that is reporting.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* stiffness 100, damping 20 -- the default that feels weighted rather than
+     bouncy. Anything softer reads as sluggish at 36px row heights. */
+  --pf-spring: cubic-bezier(0.22, 1, 0.36, 1);
+  --pf-spring-snap: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --pf-ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* The reveal. 8px of travel and a fade, and nothing else. */
+@keyframes pf-fade-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.pf-reveal {
+  animation: pf-fade-up 420ms var(--pf-spring) both;
+}
+
+/*
+ * The cascade.
+ *
+ * `--pf-i` is the index, set inline by the component. The delay is 60ms per step,
+ * capped at eight steps -- past that the last panel arrives after the reader has
+ * already looked at the first one, and the stagger stops helping and starts
+ * feeling like a queue.
+ */
+.pf-stagger > * {
+  animation: pf-fade-up 420ms var(--pf-spring) both;
+  animation-delay: calc(min(var(--pf-i, 0), 8) * 60ms);
+}
+
+/* A live indicator. The only infinite loop on a page that earns it. */
+@keyframes pf-breathe {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(0.82);
+  }
+}
+
+.pf-live-dot {
+  animation: pf-breathe 2.4s var(--pf-ease) infinite;
+}
+
+/* The skeleton sweep. A loading state shaped like the thing that is loading. */
+@keyframes pf-sweep {
+  from {
+    background-position: -140% 0;
+  }
+  to {
+    background-position: 240% 0;
+  }
+}
+
+.pf-skeleton {
+  background: linear-gradient(
+    100deg,
+    var(--surface-raised) 20%,
+    var(--surface-2) 40%,
+    var(--surface-raised) 60%
+  );
+  background-size: 220% 100%;
+  animation: pf-sweep 1.6s var(--pf-ease) infinite;
+}
+
+/* The headline face, for the places that want it without a utility class. */
+.pf-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+/* Every number in a dense screen is monospaced, so a column lines up. */
+.pf-mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/*
+ * Reduced motion is not optional.
+ *
+ * The reveals are decoration over content that is already there, so removing them
+ * costs nothing and removing the loops removes a real accessibility problem: a
+ * breathing dot is a permanent animation, and some people find that genuinely
+ * painful rather than merely distracting.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .pf-reveal,
+  .pf-stagger > *,
+  .pf-live-dot,
+  .pf-skeleton {
+    animation: none;
   }
 }

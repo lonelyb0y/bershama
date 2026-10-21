@@ -27,7 +27,11 @@
     "catalogue": "الكتالوج",
     "audit": "سجل التدقيق",
     "stocktake": "الجرد",
-    "sections": "الأقسام"
+    "sections": "الأقسام",
+    "primary": "Primary",
+    "capabilities": "Capabilities",
+    "compliance": "Compliance",
+    "network": "Network"
   },
   "auth": {
     "signIn": "تسجيل الدخول",
@@ -658,7 +662,52 @@
     "securityMfa": "مصادقة متعددة العوامل إلزامية للمسؤولين",
     "securityArabic": "العربية والإنجليزية، مع دعم كامل للاتجاه من اليمين إلى اليسار",
     "footerLicence": "رخصة AGPL-3.0 · مصر",
-    "footerTraceability": "تتبّع تشغيلات متوافق مع معايير منظمة الصحة العالمية"
+    "footerTraceability": "تتبّع تشغيلات متوافق مع معايير منظمة الصحة العالمية",
+    "eyebrow": "توزيع الأدوية · مصر",
+    "talkToSales": "تحدث مع المبيعات",
+    "liveTelemetry": "بيانات المخزون الحية",
+    "hubLabel": "المركز: CAI-01",
+    "colLot": "رقم التشغيلة",
+    "colProduct": "الصنف",
+    "colUnits": "الوحدات",
+    "colStatus": "الحالة",
+    "telemetryFoot": "LOT-2026-A0412 · 100 IU/mL · 240 وحدة",
+    "seeExpiry": "كيف يعمل الانتهاء",
+    "seeOrdering": "كيف يعمل الطلب",
+    "capabilitiesLede": "أدوات تشغيل مصممة حول التدفق النقدي للصيدليات والعمر الافتراضي للرفوف.",
+    "railHeading": "مستودع التشغيلات النشط · مركز القاهرة / الجيزة",
+    "railHint": "اسحب أفقياً",
+    "railFoot": "LOT: 24G09 · متاح",
+    "slogan": "لو شغل متتزاكاش",
+    "footerLede": "لوجستيات دوائية عالية النزاهة تعمل عبر القاهرة والجيزة وطرق الإمداد في الدلتا.",
+    "footerDistribution": "التوزيع",
+    "footerRegulatory": "التنظيم",
+    "footerInfrastructure": "البنية التحتية",
+    "capability": {
+      "traceability": {
+        "eyebrow": "التحقق من التشغيلة"
+      },
+      "coldChain": {
+        "eyebrow": "سجلات القياسات"
+      },
+      "fefo": {
+        "eyebrow": "صرف المخزون"
+      },
+      "delivery": {
+        "eyebrow": "سلسلة الحيازة"
+      }
+    },
+    "footer": {
+      "distribution": {
+        "items": "واجهة الدفعات | بروتوكول سلسلة التبريد | أتمتة FEFO"
+      },
+      "regulatory": {
+        "items": "إرشادات WHO GDP | ترخيص EDA ‎#8491/2023 | الأمن والتتبّع"
+      },
+      "infrastructure": {
+        "items": "حالة النظام | بوابة القاهرة | عقد القياسات"
+      }
+    }
   },
   "pharmacy": {
     "subtitle": "{name} · {count, plural, zero {لا طلبات} one {طلب واحد مرفوع} two {طلبان مرفوعان} few {# طلبات مرفوعة} many {# طلبًا مرفوعًا} other {# طلب مرفوع}}",

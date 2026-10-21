@@ -47,9 +47,13 @@ export function ThemeInit() {
       return;
     }
 
-    if (stored !== 'light' && stored !== 'dark') return;
-
-    const dark = stored === 'dark';
+    // Bershama is dark-first.
+    //
+    // The absence of a stored preference used to mean "follow the OS", which meant a
+    // visitor whose laptop was set to light saw a white page -- the one thing this
+    // design is not. The default is now the product's own theme, and the toggle is
+    // how you leave it.
+    const dark = stored !== 'light';
     root.classList.toggle('dark', dark);
     root.classList.toggle('light', !dark);
   }, []);
