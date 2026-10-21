@@ -28,10 +28,10 @@
     "audit": "سجل التدقيق",
     "stocktake": "الجرد",
     "sections": "الأقسام",
-    "primary": "Primary",
-    "capabilities": "Capabilities",
-    "compliance": "Compliance",
-    "network": "Network"
+    "primary": "التنقل الرئيسي",
+    "capabilities": "الإمكانات",
+    "compliance": "الامتثال",
+    "network": "الشبكة"
   },
   "auth": {
     "signIn": "تسجيل الدخول",
@@ -707,6 +707,11 @@
       "infrastructure": {
         "items": "حالة النظام | بوابة القاهرة | عقد القياسات"
       }
+    },
+    "status": {
+      "expired": "منتهي الصلاحية",
+      "inDate": "ساري",
+      "days": "{days, plural, zero {لا أيام} one {يوم واحد} two {يومان} few {# أيام} many {# يومًا} other {# يوم}}"
     }
   },
   "pharmacy": {
