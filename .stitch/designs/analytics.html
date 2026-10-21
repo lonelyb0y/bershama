@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bershama — Stock Value & Expiry Analytics</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Nunito+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            surface: {
+              canvas: '#141613',
+              panel: '#1C1F1B',
+              plane: '#232924',
+              edge: '#666660',
+            },
+            ink: {
+              primary: '#F1EFE8',
+              secondary: '#A6A499',
+            },
+            accent: {
+              DEFAULT: '#43B189',
+              text: '#6FD1AC',
+            },
+            status: {
+              indate: '#8C958A',
+              warning: '#E2A43C',
+              critical: '#E86A55',
+            }
+          },
+          fontFamily: {
+            display: ['Outfit', 'sans-serif'],
+            body: ['"Nunito Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+            arabic: ['Cairo', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #141613;
+      color: #F1EFE8;
+      font-family: 'Nunito Sans', sans-serif;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+    .font-display { font-family: 'Outfit', sans-serif; letter-spacing: -0.02em; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    .font-arabic { font-family: 'Cairo', sans-serif; }
+
+    /* Hairline borders using control edge with opacity */
+    .border-edge { border-color: rgba(102, 102, 96, 0.28); }
+    .border-edge-strong { border-color: rgba(102, 102, 96, 0.55); }
+
+    /* Bar entrance animation */
+    @keyframes barGrow {
+      from { transform: scaleY(0); }
+      to { transform: scaleY(1); }
+    }
+    .animate-bar {
+      transform-origin: bottom;
+      animation: barGrow 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Stagger delay classes */
+    .delay-0 { animation-delay: 0ms; }
+    .delay-60 { animation-delay: 60ms; }
+    .delay-120 { animation-delay: 120ms; }
+    .delay-180 { animation-delay: 180ms; }
+    .delay-240 { animation-delay: 240ms; }
+    .delay-300 { animation-delay: 300ms; }
+
+    /* Hairline grid background for chart */
+    .chart-grid-line {
+      stroke: rgba(102, 102, 96, 0.16);
+      stroke-width: 1;
+    }
+
+    /* Range active pill */
+    .range-btn.active {
+      background-color: #232924;
+      color: #6FD1AC;
+      border-color: #43B189;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body class="min-h-[100dvh] flex flex-col bg-[#141613] text-[#F1EFE8]">
+
+  <!-- TOP APP HEADER (Bershama standard dark operations console) -->
+  <header class="w-full border-b border-edge bg-[#1C1F1B] sticky top-0 z-40">
+    <div class="max-w-[1400px] mx-auto px-6 h-14 flex items-center justify-between">
+      <!-- Left: Brand & Telemetry Context -->
+      <div class="flex items-center gap-6">
+        <a href="#" class="flex items-center gap-2 text-ink-primary font-display font-bold text-lg tracking-tight hover:opacity-90">
+          <span class="inline-block w-2.5 h-2.5 rounded-full bg-[#43B189]"></span>
+          <span>Bershama</span>
+        </a>
+        <div class="h-4 w-[1px] bg-edge opacity-30"></div>
+        <nav class="hidden md:flex items-center gap-5 text-[13px]">
+          <a href="#" class="text-ink-secondary hover:text-ink-primary transition-colors">Inventory</a>
+          <a href="#" class="text-ink-secondary hover:text-ink-primary transition-colors">Deliveries</a>
+          <a href="#" class="text-ink-secondary hover:text-ink-primary transition-colors">Requisitions</a>
+          <a href="#" class="text-ink-secondary hover:text-ink-primary transition-colors">Cold-Chain</a>
+          <a href="#" class="text-accent-text font-semibold border-b-2 border-accent pb-0.5">Analytics</a>
+          <a href="#" class="text-ink-secondary hover:text-ink-primary transition-colors">Compliance</a>
+          <a href="#" class="text-ink-secondary hover:text-ink-primary transition-colors">Audit Trail</a>
+        </nav>
+      </div>
+
+      <!-- Right: Operational Status & User -->
+      <div class="flex items-center gap-4">
+        <!-- Live Node Indicator -->
+        <div class="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded bg-[#232924] border border-edge text-[11px] font-mono text-ink-secondary">
+          <span class="w-1.5 h-1.5 rounded-full bg-[#43B189] animate-pulse"></span>
+          <span>CAIRO-HUB-04</span>
+          <span class="text-ink-primary">2.4°C</span>
+        </div>
+
+        <!-- Language Switcher -->
+        <button class="text-ink-secondary hover:text-ink-primary text-xs font-arabic px-2 py-1 rounded transition-colors" title="Switch to Arabic">
+          العربية
+        </button>
+
+        <div class="h-4 w-[1px] bg-edge opacity-30"></div>
+
+        <!-- Operator Badge -->
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-lg bg-[#232924] border border-edge flex items-center justify-center font-mono text-[11px] font-semibold text-accent-text">
+            TM
+          </div>
+          <div class="hidden lg:flex flex-col text-left leading-none">
+            <span class="text-[12px] font-semibold text-ink-primary">Dr. Tarek Mansour</span>
+            <span class="text-[11px] font-mono text-ink-secondary">Lead Pharmacist · Shift 02</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN VIEWPORT -->
+  <main class="flex-1 w-full max-w-[1400px] mx-auto px-6 py-8 flex flex-col gap-8">
+
+    <!-- PAGE HEADER: Headline with underline & In-URL Time-Range Control -->
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-4 border-b border-edge">
+      <div>
+        <div class="flex items-center gap-2.5 mb-1.5">
+          <span class="text-[11px] font-mono text-ink-secondary uppercase tracking-wider">Cairo S.A.E. · Telemetry Stream</span>
+          <span class="text-[11px] font-mono text-status-indate">● GS1-128 Verified</span>
+        </div>
+        <h1 class="text-3xl font-display font-bold text-ink-primary tracking-tight">Analytics</h1>
+      </div>
+
+      <!-- TIME-RANGE CONTROL (IN THE URL) -->
+      <div class="flex items-center gap-3">
+        <span class="text-xs font-mono text-ink-secondary uppercase tracking-wider">Range:</span>
+        <div class="inline-flex p-1 rounded-xl bg-[#1C1F1B] border border-edge gap-1" id="timeRangeContainer">
+          <a href="?range=7d" 
+             class="range-btn px-3 py-1.5 rounded-lg text-xs font-mono transition-all text-ink-secondary hover:text-ink-primary border border-transparent" 
+             data-range="7d"
+             onclick="selectRange('7d', event)">7d</a>
+          <a href="?range=30d" 
+             class="range-btn active px-3 py-1.5 rounded-lg text-xs font-mono transition-all border" 
+             data-range="30d"
+             onclick="selectRange('30d', event)">30d</a>
+          <a href="?range=90d" 
+             class="range-btn px-3 py-1.5 rounded-lg text-xs font-mono transition-all text-ink-secondary hover:text-ink-primary border border-transparent" 
+             data-range="90d"
+             onclick="selectRange('90d', event)">90d</a>
+        </div>
+        <!-- Live Timestamp -->
+        <div class="hidden md:flex items-center gap-1.5 text-xs font-mono text-ink-secondary pl-2 border-l border-edge">
+          <span class="material-symbols-outlined text-sm text-ink-secondary">schedule</span>
+          <span>02:40 CLT</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- FULL-WIDTH PANEL: STOCK VALUE (Line Chart of 30 days + Hover Crosshair + Twin Table) -->
+    <section class="rounded-3xl bg-[#1C1F1B] border border-edge p-6 flex flex-col gap-6">
+      <!-- Section Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-xs font-mono font-semibold uppercase tracking-wider text-accent-text">Metrics Series 01</span>
+            <span class="text-xs font-mono text-ink-secondary">· Daily Valuation Ledger</span>
+          </div>
+          <h2 class="text-xl font-display font-semibold text-ink-primary">STOCK VALUE</h2>
+        </div>
+        
+        <!-- Summary Stats Pills -->
+        <div class="flex items-center gap-6">
+          <div class="text-right">
+            <div class="text-[11px] font-mono text-ink-secondary uppercase">Current Ledger</div>
+            <div class="text-xl font-mono font-bold text-ink-primary">EGP 62,400</div>
+          </div>
+          <div class="h-8 w-[1px] bg-edge opacity-30"></div>
+          <div class="text-right">
+            <div class="text-[11px] font-mono text-ink-secondary uppercase">30d Net Delta</div>
+            <div class="text-sm font-mono font-semibold text-accent-text">+EGP 8,150 (+15.0%)</div>
+          </div>
+          <div class="h-8 w-[1px] bg-edge opacity-30"></div>
+          <div class="text-right">
+            <div class="text-[11px] font-mono text-ink-secondary uppercase">Cold-Chain Share</div>
+            <div class="text-sm font-mono text-ink-primary">EGP 18,400 (29.4%)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHART CONTAINER: Interactive SVG with crosshair, baseline, and tooltip -->
+      <div class="relative w-full h-[280px] bg-[#141613] rounded-2xl border border-edge p-4 select-none" id="stockChartContainer">
+        <!-- SVG Canvas -->
+        <svg id="stockChartSvg" class="w-full h-full overflow-visible" viewBox="0 0 1000 220" preserveAspectRatio="none">
+          <defs>
+            <!-- Gradient for subtle line fill -->
+            <linearGradient id="stockLineGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#43B189" stop-opacity="0.22"/>
+              <stop offset="100%" stop-color="#43B189" stop-opacity="0.0"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Hairline Horizontal Grid Lines -->
+          <line x1="0" y1="20" x2="1000" y2="20" class="chart-grid-line" />
+          <line x1="0" y1="70" x2="1000" y2="70" class="chart-grid-line" />
+          <line x1="0" y1="120" x2="1000" y2="120" class="chart-grid-line" />
+          <line x1="0" y1="170" x2="1000" y2="170" class="chart-grid-line" />
+          <line x1="0" y1="210" x2="1000" y2="210" class="chart-grid-line" stroke-dasharray="2,2" />
+
+          <!-- Y-Axis labels in Mono -->
+          <text x="8" y="24" fill="#666660" font-family="JetBrains Mono" font-size="10">EGP 70k</text>
+          <text x="8" y="74" fill="#666660" font-family="JetBrains Mono" font-size="10">EGP 60k</text>
+          <text x="8" y="124" fill="#666660" font-family="JetBrains Mono" font-size="10">EGP 50k</text>
+          <text x="8" y="174" fill="#666660" font-family="JetBrains Mono" font-size="10">EGP 40k</text>
+
+          <!-- Area fill -->
+          <polygon points="
+            40,165 
+            70,160 105,152 140,158 175,145 210,140 245,148 280,135 315,130 350,138 
+            385,122 420,118 455,125 490,110 525,102 560,112 595,98 630,92 665,99 
+            700,85 735,78 770,82 805,68 840,62 875,66 910,58 945,52 970,48
+            970,210 40,210"
+            fill="url(#stockLineGradient)" />
+
+          <!-- Main Accent Line -->
+          <polyline id="stockPolyline" points="
+            40,165 
+            70,160 105,152 140,158 175,145 210,140 245,148 280,135 315,130 350,138 
+            385,122 420,118 455,125 490,110 525,102 560,112 595,98 630,92 665,99 
+            700,85 735,78 770,82 805,68 840,62 875,66 910,58 945,52 970,48"
+            fill="none"
+            stroke="#43B189"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round" />
+
+          <!-- Interactive Active Crosshair Line (Horizontal & Vertical) -->
+          <line id="crosshairV" x1="840" y1="0" x2="840" y2="210" stroke="#6FD1AC" stroke-width="1" stroke-dasharray="3,3" class="opacity-90 transition-all duration-75" />
+          <line id="crosshairH" x1="0" y1="62" x2="1000" y2="62" stroke="#666660" stroke-width="0.75" stroke-dasharray="2,2" class="opacity-60 transition-all duration-75" />
+
+          <!-- Target point dot -->
+          <circle id="crosshairPoint" cx="840" cy="62" r="4.5" fill="#141613" stroke="#43B189" stroke-width="2.5" class="transition-all duration-75" />
+        </svg>
+
+        <!-- FLOATING TOOLTIP: defaulted to "EGP 62,400 · 21 Oct" as specified -->
+        <div id="chartTooltip" 
+             class="absolute top-8 left-[78%] -translate-x-1/2 pointer-events-none z-20 px-3 py-1.5 rounded-xl bg-[#232924] border border-accent shadow-xl flex items-center gap-2 transition-all duration-100">
+          <span class="w-1.5 h-1.5 rounded-full bg-[#43B189]"></span>
+          <span class="text-xs font-mono font-bold text-ink-primary" id="tooltipVal">EGP 62,400</span>
+          <span class="text-[11px] font-mono text-ink-secondary" id="tooltipDate">· 21 Oct</span>
+        </div>
+
+        <!-- Date markers bottom axis -->
+        <div class="w-full flex justify-between text-[11px] font-mono text-ink-secondary pt-2 px-6">
+          <span>22 Sep</span>
+          <span>29 Sep</span>
+          <span>06 Oct</span>
+          <span>13 Oct</span>
+          <span class="text-accent-text font-semibold">21 Oct (Today)</span>
+        </div>
+      </div>
+
+      <!-- DISCLOSURE: Show the numbers (Table Twin) -->
+      <div class="border-t border-edge pt-4">
+        <button onclick="toggleDisclosure('stockTableWrapper', this)" 
+                class="flex items-center gap-2 text-xs font-mono font-semibold text-accent-text hover:text-ink-primary transition-colors py-1">
+          <span class="material-symbols-outlined text-sm transition-transform duration-200" id="stockTableArrow">expand_more</span>
+          <span>Show the numbers</span>
+          <span class="text-[11px] text-ink-secondary font-normal">(Table twin · 30 daily data rows)</span>
+        </button>
+
+        <!-- Collapsible Table Twin -->
+        <div id="stockTableWrapper" class="hidden mt-4 overflow-hidden rounded-2xl border border-edge bg-[#141613]">
+          <div class="overflow-x-auto max-h-72">
+            <table class="w-full text-left border-collapse text-[13px]">
+              <thead class="sticky top-0 bg-[#232924] border-b border-edge text-ink-secondary font-mono text-[11px] uppercase tracking-wider">
+                <tr class="h-9">
+                  <th class="px-4 font-semibold">Date</th>
+                  <th class="px-4 font-semibold text-right">Ambient Stock (EGP)</th>
+                  <th class="px-4 font-semibold text-right">Cold-Chain Stock (EGP)</th>
+                  <th class="px-4 font-semibold text-right">Total Valuation (EGP)</th>
+                  <th class="px-4 font-semibold text-right">Daily Change</th>
+                  <th class="px-4 font-semibold text-center">Audit Status</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-edge font-mono">
+                <tr class="h-9 hover:bg-[#1C1F1B] transition-colors">
+                  <td class="px-4 text-ink-primary font-semibold">21 Oct 2024</td>
+                  <td class="px-4 text-right text-ink-primary">44,000</td>
+                  <td class="px-4 text-right text-accent-text">18,400</td>
+                  <td class="px-4 text-right text-ink-primary font-bold">62,400</td>
+                  <td class="px-4 text-right text-accent-text">+400 (+0.6%)</td>
+                  <td class="px-4 text-center">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] border border-edge text-status-indate">● Synced</span>
+                  </td>
+                </tr>
+                <tr class="h-9 hover:bg-[#1C1F1B] transition-colors">
+                  <td class="px-4 text-ink-primary">20 Oct 2024</td>
+                  <td class="px-4 text-right text-ink-secondary">43,800</td>
+                  <td class="px-4 text-right text-ink-secondary">18,200</td>
+                  <td class="px-4 text-right text-ink-primary">62,000</td>
+                  <td class="px-4 text-right text-accent-text">+1,200 (+2.0%)</td>
+                  <td class="px-4 text-center">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] border border-edge text-status-indate">● Synced</span>
+                  </td>
+                </tr>
+                <tr class="h-9 hover:bg-[#1C1F1B] transition-colors">
+                  <td class="px-4 text-ink-primary">19 Oct 2024</td>
+                  <td class="px-4 text-right text-ink-secondary">43,100</td>
+                  <td class="px-4 text-right text-ink-secondary">17,700</td>
+                  <td class="px-4 text-right text-ink-primary">60,800</td>
+                  <td class="px-4 text-right text-status-warning">-300 (-0.5%)</td>
+                  <td class="px-4 text-center">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] border border-edge text-status-indate">● Synced</span>
+                  </td>
+                </tr>
+                <tr class="h-9 hover:bg-[#1C1F1B] transition-colors">
+                  <td class="px-4 text-ink-primary">18 Oct 2024</td>
+                  <td class="px-4 text-right text-ink-secondary">43,300</td>
+                  <td class="px-4 text-right text-ink-secondary">17,800</td>
+                  <td class="px-4 text-right text-ink-primary">61,100</td>
+                  <td class="px-4 text-right text-accent-text">+850 (+1.4%)</td>
+                  <td class="px-4 text-center">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] border border-edge text-status-indate">● Synced</span>
+                  </td>
+                </tr>
+                <tr class="h-9 hover:bg-[#1C1F1B] transition-colors">
+                  <td class="px-4 text-ink-primary">17 Oct 2024</td>
+                  <td class="px-4 text-right text-ink-secondary">42,650</td>
+                  <td class="px-4 text-right text-ink-secondary">17,600</td>
+                  <td class="px-4 text-right text-ink-primary">60,250</td>
+                  <td class="px-4 text-right text-accent-text">+1,100 (+1.9%)</td>
+                  <td class="px-4 text-center">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] border border-edge text-status-indate">● Synced</span>
+                  </td>
+                </tr>
+                <tr class="h-9 hover:bg-[#1C1F1B] transition-colors">
+                  <td class="px-4 text-ink-primary">16 Oct 2024</td>
+                  <td class="px-4 text-right text-ink-secondary">41,900</td>
+                  <td class="px-4 text-right text-ink-secondary">17,250</td>
+                  <td class="px-4 text-right text-ink-primary">59,150</td>
+                  <td class="px-4 text-right text-accent-text">+600 (+1.0%)</td>
+                  <td class="px-4 text-center">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] border border-edge text-status-indate">● Synced</span>
+                  </td>
+                </tr>
+                <tr class="h-9 hover:bg-[#1C1F1B] transition-colors">
+                  <td class="px-4 text-ink-primary">22 Sep 2024 (Start)</td>
+                  <td class="px-4 text-right text-ink-secondary">38,800</td>
+                  <td class="px-4 text-right text-ink-secondary">15,450</td>
+                  <td class="px-4 text-right text-ink-primary">54,250</td>
+                  <td class="px-4 text-right text-ink-secondary">Baseline</td>
+                  <td class="px-4 text-center">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] border border-edge text-status-indate">● Baseline</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="px-4 py-2 border-t border-edge bg-[#1C1F1B] text-[11px] font-mono text-ink-secondary flex justify-between items-center">
+            <span>Showing top recent of 30 serialized ledger snapshots</span>
+            <span class="text-accent-text">Checksum: EDA-LEDGER-HASH-8491A</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2-COLUMN GRID: Wide Panel (Expiry Exposure) + Narrow Panel (Top Products) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+      <!-- WIDE PANEL (col-span-8): EXPIRY EXPOSURE BY MONTH (6-Month Bar Chart with Grow Animation & Warning States) -->
+      <section class="lg:col-span-7 xl:col-span-8 rounded-3xl bg-[#1C1F1B] border border-edge p-6 flex flex-col gap-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-xs font-mono font-semibold uppercase tracking-wider text-accent-text">FEFO Allocation Matrix</span>
+              <span class="text-xs font-mono text-ink-secondary">· 6 Months Horizon</span>
+            </div>
+            <h2 class="text-xl font-display font-semibold text-ink-primary">EXPIRY EXPOSURE BY MONTH</h2>
+          </div>
+          <!-- Legend adhering to "In-date is deliberately neutral; only states that need attention carry a colour" -->
+          <div class="flex items-center gap-4 text-xs font-mono">
+            <div class="flex items-center gap-1.5">
+              <span class="w-3 h-3 rounded-sm bg-[#8C958A]"></span>
+              <span class="text-ink-secondary">Nominal (#8C958A)</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-3 h-3 rounded-sm bg-[#E2A43C]"></span>
+              <span class="text-status-warning font-semibold">Warning (#E2A43C)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bar Chart Container -->
+        <div class="relative w-full h-[260px] bg-[#141613] rounded-2xl border border-edge p-6 flex flex-col justify-end">
+          
+          <!-- Background Threshold Line (Warning Horizon) -->
+          <div class="absolute inset-x-6 top-16 border-b border-dashed border-[#E2A43C]/40 flex items-center justify-end pr-2 pointer-events-none">
+            <span class="text-[10px] font-mono text-status-warning bg-[#141613] px-1.5 -translate-y-1/2">
+              Warning Threshold: EGP 6,000 Risk Limit
+            </span>
+          </div>
+
+          <!-- 6 Bars Grid with Spring Grow Animation -->
+          <div class="w-full h-[180px] flex items-end justify-between gap-3 sm:gap-6 px-2 select-none">
+            
+            <!-- Month 1: Nov 2024 - Nominal -->
+            <div class="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
+              <span class="text-[11px] font-mono text-ink-secondary group-hover:text-ink-primary">EGP 2,400</span>
+              <div class="w-full max-w-[48px] bg-[#8C958A] rounded-t-lg transition-transform duration-200 group-hover:brightness-110 animate-bar delay-0"
+                   style="height: 32%;">
+              </div>
+              <span class="text-xs font-mono text-ink-secondary">Nov '24</span>
+            </div>
+
+            <!-- Month 2: Dec 2024 - Nominal -->
+            <div class="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
+              <span class="text-[11px] font-mono text-ink-secondary group-hover:text-ink-primary">EGP 3,850</span>
+              <div class="w-full max-w-[48px] bg-[#8C958A] rounded-t-lg transition-transform duration-200 group-hover:brightness-110 animate-bar delay-60"
+                   style="height: 48%;">
+              </div>
+              <span class="text-xs font-mono text-ink-secondary">Dec '24</span>
+            </div>
+
+            <!-- Month 3: Jan 2025 - WARNING (Amber #E2A43C) -->
+            <div class="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
+              <div class="flex items-center gap-1 text-[11px] font-mono text-status-warning font-bold">
+                <span>EGP 6,800</span>
+              </div>
+              <div class="w-full max-w-[48px] bg-[#E2A43C] rounded-t-lg transition-transform duration-200 group-hover:brightness-110 shadow-lg shadow-[#E2A43C]/10 animate-bar delay-120"
+                   style="height: 76%;">
+              </div>
+              <span class="text-xs font-mono text-status-warning font-semibold">Jan '25 ⚠</span>
+            </div>
+
+            <!-- Month 4: Feb 2025 - WARNING (Amber #E2A43C) -->
+            <div class="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
+              <div class="flex items-center gap-1 text-[11px] font-mono text-status-warning font-bold">
+                <span>EGP 7,950</span>
+              </div>
+              <div class="w-full max-w-[48px] bg-[#E2A43C] rounded-t-lg transition-transform duration-200 group-hover:brightness-110 shadow-lg shadow-[#E2A43C]/10 animate-bar delay-180"
+                   style="height: 89%;">
+              </div>
+              <span class="text-xs font-mono text-status-warning font-semibold">Feb '25 ⚠</span>
+            </div>
+
+            <!-- Month 5: Mar 2025 - Nominal -->
+            <div class="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
+              <span class="text-[11px] font-mono text-ink-secondary group-hover:text-ink-primary">EGP 4,200</span>
+              <div class="w-full max-w-[48px] bg-[#8C958A] rounded-t-lg transition-transform duration-200 group-hover:brightness-110 animate-bar delay-240"
+                   style="height: 52%;">
+              </div>
+              <span class="text-xs font-mono text-ink-secondary">Mar '25</span>
+            </div>
+
+            <!-- Month 6: Apr 2025 - Nominal -->
+            <div class="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
+              <span class="text-[11px] font-mono text-ink-secondary group-hover:text-ink-primary">EGP 3,100</span>
+              <div class="w-full max-w-[48px] bg-[#8C958A] rounded-t-lg transition-transform duration-200 group-hover:brightness-110 animate-bar delay-300"
+                   style="height: 38%;">
+              </div>
+              <span class="text-xs font-mono text-ink-secondary">Apr '25</span>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- DISCLOSURE: Show the numbers (Table Twin) -->
+        <div class="border-t border-edge pt-4">
+          <button onclick="toggleDisclosure('expiryTableWrapper', this)" 
+                  class="flex items-center gap-2 text-xs font-mono font-semibold text-accent-text hover:text-ink-primary transition-colors py-1">
+            <span class="material-symbols-outlined text-sm transition-transform duration-200" id="expiryTableArrow">expand_more</span>
+            <span>Show the numbers</span>
+            <span class="text-[11px] text-ink-secondary font-normal">(Table twin · 6 monthly buckets)</span>
+          </button>
+
+          <!-- Collapsible Table Twin -->
+          <div id="expiryTableWrapper" class="hidden mt-4 overflow-hidden rounded-2xl border border-edge bg-[#141613]">
+            <table class="w-full text-left border-collapse text-[13px]">
+              <thead class="bg-[#232924] border-b border-edge text-ink-secondary font-mono text-[11px] uppercase tracking-wider">
+                <tr class="h-9">
+                  <th class="px-4 font-semibold">Month</th>
+                  <th class="px-4 font-semibold text-right">Units at Risk</th>
+                  <th class="px-4 font-semibold text-right">Exposure Value (EGP)</th>
+                  <th class="px-4 font-semibold text-center">Warning Status</th>
+                  <th class="px-4 font-semibold text-right">Primary Action</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-edge font-mono">
+                <tr class="h-9 hover:bg-[#1C1F1B] transition-colors">
+                  <td class="px-4 text-ink-primary">November 2024</td>
+                  <td class="px-4 text-right text-ink-primary">140 pk</td>
+                  <td class="px-4 text-right text-ink-primary">2,400</td>
+                  <td class="px-4 text-center">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] border border-edge text-status-indate">
+                      ● Nominal
+                    </span>
+                  </td>
+                  <td class="px-4 text-right text-ink-secondary">FEFO Dispatch</td>
+                </tr>
+                <tr class="h-9 hover:bg-[#1C1F1B] transition-colors">
+                  <td class="px-4 text-ink-primary">December 2024</td>
+                  <td class="px-4 text-right text-ink-primary">210 pk</td>
+                  <td class="px-4 text-right text-ink-primary">3,850</td>
+                  <td class="px-4 text-center">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] border border-edge text-status-indate">
+                      ● Nominal
+                    </span>
+                  </td>
+                  <td class="px-4 text-right text-ink-secondary">Standard Store</td>
+                </tr>
+                <tr class="h-9 hover:bg-[#1C1F1B] transition-colors bg-[#E2A43C]/5">
+                  <td class="px-4 text-status-warning font-semibold">January 2025</td>
+                  <td class="px-4 text-right text-status-warning font-bold">420 pk</td>
+                  <td class="px-4 text-right text-status-warning font-bold">6,800</td>
+                  <td class="px-4 text-center">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] border border-status-warning text-status-warning">
+                      ▲ Warning (+EGP 800 over limit)
+                    </span>
+                  </td>
+                  <td class="px-4 text-right text-accent-text font-semibold">Short-Dated Triage</td>
+                </tr>
+                <tr class="h-9 hover:bg-[#1C1F1B] transition-colors bg-[#E2A43C]/5">
+                  <td class="px-4 text-status-warning font-semibold">February 2025</td>
+                  <td class="px-4 text-right text-status-warning font-bold">480 pk</td>
+                  <td class="px-4 text-right text-status-warning font-bold">7,950</td>
+                  <td class="px-4 text-center">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] border border-status-warning text-status-warning">
+                      ▲ Warning (+EGP 1,950 over limit)
+                    </span>
+                  </td>
+                  <td class="px-4 text-right text-accent-text font-semibold">Hospital Re-allocation</td>
+                </tr>
+                <tr class="h-9 hover:bg-[#1C1F1B] transition-colors">
+                  <td class="px-4 text-ink-primary">March 2025</td>
+                  <td class="px-4 text-right text-ink-primary">260 pk</td>
+                  <td class="px-4 text-right text-ink-primary">4,200</td>
+                  <td class="px-4 text-center">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] border border-edge text-status-indate">
+                      ● Nominal
+                    </span>
+                  </td>
+                  <td class="px-4 text-right text-ink-secondary">Periodic Audit</td>
+                </tr>
+                <tr class="h-9 hover:bg-[#1C1F1B] transition-colors">
+                  <td class="px-4 text-ink-primary">April 2025</td>
+                  <td class="px-4 text-right text-ink-primary">190 pk</td>
+                  <td class="px-4 text-right text-ink-primary">3,100</td>
+                  <td class="px-4 text-center">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] border border-edge text-status-indate">
+                      ● Nominal
+                    </span>
+                  </td>
+                  <td class="px-4 text-right text-ink-secondary">Buffer Reserve</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- NARROW PANEL (col-span-4): TOP PRODUCTS BY VALUE (Ranked List of 4 + Hairline Bar + Twin Table) -->
+      <section class="lg:col-span-5 xl:col-span-4 rounded-3xl bg-[#1C1F1B] border border-edge p-6 flex flex-col gap-6">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-xs font-mono font-semibold uppercase tracking-wider text-accent-text">SKU Ranking</span>
+            <span class="text-xs font-mono text-ink-secondary">· Capital Exposure</span>
+          </div>
+          <h2 class="text-xl font-display font-semibold text-ink-primary">TOP PRODUCTS BY VALUE</h2>
+        </div>
+
+        <!-- Ranked List of 4 Products -->
+        <div class="flex flex-col gap-5">
+
+          <!-- Rank 01: Panadol Extra 500 mg Tablets -->
+          <div class="flex flex-col gap-1.5">
+            <div class="flex items-baseline justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-mono text-accent-text font-bold">01</span>
+                <div>
+                  <div class="text-[13px] font-semibold text-ink-primary leading-tight">Panadol Extra 500 mg</div>
+                  <div class="text-[11px] font-mono text-ink-secondary">Paracetamol / Caffeine · 2,140 pk</div>
+                </div>
+              </div>
+              <div class="text-right">
+                <div class="text-sm font-mono font-bold text-ink-primary">EGP 31,200</div>
+                <div class="text-[10px] font-mono text-ink-secondary">50.0% of stock</div>
+              </div>
+            </div>
+            <!-- Hairline bar beneath -->
+            <div class="w-full h-1 bg-[#141613] rounded-full overflow-hidden">
+              <div class="h-full bg-[#43B189] rounded-full" style="width: 50%;"></div>
+            </div>
+          </div>
+
+          <!-- Rank 02: NovoRapid FlexPen 100 IU/mL -->
+          <div class="flex flex-col gap-1.5">
+            <div class="flex items-baseline justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-mono text-ink-secondary font-bold">02</span>
+                <div>
+                  <div class="text-[13px] font-semibold text-ink-primary leading-tight">NovoRapid FlexPen</div>
+                  <div class="text-[11px] font-mono text-accent-text">Insulin Aspart (2°C-8°C) · 240 pk</div>
+                </div>
+              </div>
+              <div class="text-right">
+                <div class="text-sm font-mono font-bold text-ink-primary">EGP 18,400</div>
+                <div class="text-[10px] font-mono text-ink-secondary">29.4% of stock</div>
+              </div>
+            </div>
+            <!-- Hairline bar beneath -->
+            <div class="w-full h-1 bg-[#141613] rounded-full overflow-hidden">
+              <div class="h-full bg-[#6FD1AC] rounded-full" style="width: 29.4%;"></div>
+            </div>
+          </div>
+
+          <!-- Rank 03: Augmentin 875 mg/125 mg Tablets -->
+          <div class="flex flex-col gap-1.5">
+            <div class="flex items-baseline justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-mono text-ink-secondary font-bold">03</span>
+                <div>
+                  <div class="text-[13px] font-semibold text-ink-primary leading-tight">Augmentin 875/125 mg</div>
+                  <div class="text-[11px] font-mono text-ink-secondary">Amoxicillin/Clavulanate · 80 pk</div>
+                </div>
+              </div>
+              <div class="text-right">
+                <div class="text-sm font-mono font-bold text-ink-primary">EGP 6,800</div>
+                <div class="text-[10px] font-mono text-ink-secondary">10.9% of stock</div>
+              </div>
+            </div>
+            <!-- Hairline bar beneath -->
+            <div class="w-full h-1 bg-[#141613] rounded-full overflow-hidden">
+              <div class="h-full bg-[#8C958A] rounded-full" style="width: 10.9%;"></div>
+            </div>
+          </div>
+
+          <!-- Rank 04: Rehydran ORS Sachet 5.5g -->
+          <div class="flex flex-col gap-1.5">
+            <div class="flex items-baseline justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-mono text-ink-secondary font-bold">04</span>
+                <div>
+                  <div class="text-[13px] font-semibold text-ink-primary leading-tight">Rehydran ORS Sachet</div>
+                  <div class="text-[11px] font-mono text-ink-secondary">WHO Formula · 330 pk</div>
+                </div>
+              </div>
+              <div class="text-right">
+                <div class="text-sm font-mono font-bold text-ink-primary">EGP 3,600</div>
+                <div class="text-[10px] font-mono text-ink-secondary">5.8% of stock</div>
+              </div>
+            </div>
+            <!-- Hairline bar beneath -->
+            <div class="w-full h-1 bg-[#141613] rounded-full overflow-hidden">
+              <div class="h-full bg-[#8C958A] rounded-full" style="width: 5.8%;"></div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- DISCLOSURE: Show the numbers (Table Twin) -->
+        <div class="border-t border-edge pt-4 mt-auto">
+          <button onclick="toggleDisclosure('productsTableWrapper', this)" 
+                  class="flex items-center gap-2 text-xs font-mono font-semibold text-accent-text hover:text-ink-primary transition-colors py-1">
+            <span class="material-symbols-outlined text-sm transition-transform duration-200" id="productsTableArrow">expand_more</span>
+            <span>Show the numbers</span>
+            <span class="text-[11px] text-ink-secondary font-normal">(Table twin · 4 ranked SKUs)</span>
+          </button>
+
+          <!-- Collapsible Table Twin -->
+          <div id="productsTableWrapper" class="hidden mt-4 overflow-hidden rounded-2xl border border-edge bg-[#141613]">
+            <table class="w-full text-left border-collapse text-[13px]">
+              <thead class="bg-[#232924] border-b border-edge text-ink-secondary font-mono text-[11px] uppercase tracking-wider">
+                <tr class="h-9">
+                  <th class="px-3 font-semibold">SKU / Formulation</th>
+                  <th class="px-2 font-semibold text-right">Units</th>
+                  <th class="px-3 font-semibold text-right">Valuation</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-edge font-mono">
+                <tr class="h-9 hover:bg-[#1C1F1B] transition-colors">
+                  <td class="px-3 text-ink-primary">
+                    <span class="font-bold text-accent-text mr-1">#1</span> Panadol Extra
+                  </td>
+                  <td class="px-2 text-right text-ink-secondary">2,140</td>
+                  <td class="px-3 text-right text-ink-primary font-bold">EGP 31,200</td>
+                </tr>
+                <tr class="h-9 hover:bg-[#1C1F1B] transition-colors">
+                  <td class="px-3 text-ink-primary">
+                    <span class="font-bold text-ink-secondary mr-1">#2</span> NovoRapid FlexPen
+                  </td>
+                  <td class="px-2 text-right text-ink-secondary">240</td>
+                  <td class="px-3 text-right text-accent-text font-bold">EGP 18,400</td>
+                </tr>
+                <tr class="h-9 hover:bg-[#1C1F1B] transition-colors">
+                  <td class="px-3 text-ink-primary">
+                    <span class="font-bold text-ink-secondary mr-1">#3</span> Augmentin 875mg
+                  </td>
+                  <td class="px-2 text-right text-ink-secondary">80</td>
+                  <td class="px-3 text-right text-ink-primary">EGP 6,800</td>
+                </tr>
+                <tr class="h-9 hover:bg-[#1C1F1B] transition-colors">
+                  <td class="px-3 text-ink-primary">
+                    <span class="font-bold text-ink-secondary mr-1">#4</span> Rehydran ORS
+                  </td>
+                  <td class="px-2 text-right text-ink-secondary">330</td>
+                  <td class="px-3 text-right text-ink-primary">EGP 3,600</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- REGULATORY TELEMETRY FOOTER (Bershama standard compliant console) -->
+    <footer class="w-full mt-6 pt-6 pb-8 border-t border-edge flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-mono text-ink-secondary">
+      <div class="flex items-center gap-3">
+        <span class="font-display font-semibold text-ink-primary">Bershama</span>
+        <span>·</span>
+        <span>Egyptian Drug Authority (EDA) Reg #EGY-CAI-20491-C</span>
+        <span>·</span>
+        <span>WHO GDP Annex 5 Telemetry Active</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <span class="text-accent-text">Node 04 Cairo Central: +2.4°C Nominal</span>
+        <span class="text-edge">|</span>
+        <a href="#" class="hover:text-ink-primary transition-colors">Cold-Chain SOP v4.2</a>
+        <a href="#" class="hover:text-ink-primary transition-colors">Incident Escalation</a>
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- INTERACTION SCRIPT FOR URL RANGE, HOVER CROSSHAIR & DISCLOSURES -->
+  <script>
+    // 1. In-URL Time-Range Control
+    function selectRange(range, event) {
+      if (event) event.preventDefault();
+      
+      // Update browser URL state without page reload
+      const url = new URL(window.location);
+      url.searchParams.set('range', range);
+      window.history.pushState({}, '', url);
+
+      // Update button styling
+      document.querySelectorAll('.range-btn').forEach(btn => {
+        if (btn.getAttribute('data-range') === range) {
+          btn.classList.add('active', 'border-accent', 'text-accent-text');
+          btn.classList.remove('text-ink-secondary', 'border-transparent');
+        } else {
+          btn.classList.remove('active', 'border-accent', 'text-accent-text');
+          btn.classList.add('text-ink-secondary', 'border-transparent');
+        }
+      });
+    }
+
+    // Initialize range from URL if present
+    document.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      const range = params.get('range') || '30d';
+      selectRange(range);
+    });
+
+    // 2. Interactive Crosshair on Hover for Stock Value Chart
+    const container = document.getElementById('stockChartContainer');
+    const crosshairV = document.getElementById('crosshairV');
+    const crosshairH = document.getElementById('crosshairH');
+    const crosshairPoint = document.getElementById('crosshairPoint');
+    const tooltip = document.getElementById('chartTooltip');
+    const tooltipVal = document.getElementById('tooltipVal');
+    const tooltipDate = document.getElementById('tooltipDate');
+
+    // 30 days sample dataset for mouse interpolation
+    const dataPoints = [
+      { day: '22 Sep', val: 'EGP 54,250', x: 40, y: 165 },
+      { day: '25 Sep', val: 'EGP 55,400', x: 105, y: 152 },
+      { day: '28 Sep', val: 'EGP 56,100', x: 175, y: 145 },
+      { day: '02 Oct', val: 'EGP 57,800', x: 280, y: 135 },
+      { day: '06 Oct', val: 'EGP 58,900', x: 385, y: 122 },
+      { day: '10 Oct', val: 'EGP 60,100', x: 490, y: 110 },
+      { day: '14 Oct', val: 'EGP 61,000', x: 595, y: 98 },
+      { day: '17 Oct', val: 'EGP 60,250', x: 700, y: 85 },
+      { day: '19 Oct', val: 'EGP 60,800', x: 770, y: 82 },
+      { day: '21 Oct', val: 'EGP 62,400', x: 840, y: 62 },
+      { day: '22 Oct', val: 'EGP 63,100', x: 970, y: 48 }
+    ];
+
+    container.addEventListener('mousemove', (e) => {
+      const rect = container.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const normalizedX = (mouseX / rect.width) * 1000;
+
+      // Find closest data point
+      let closest = dataPoints[0];
+      let minDiff = Math.abs(normalizedX - closest.x);
+      for (let p of dataPoints) {
+        let diff = Math.abs(normalizedX - p.x);
+        if (diff < minDiff) {
+          minDiff = diff;
+          closest = p;
+        }
+      }
+
+      // Update SVG crosshair
+      crosshairV.setAttribute('x1', closest.x);
+      crosshairV.setAttribute('x2', closest.x);
+      crosshairH.setAttribute('y1', closest.y);
+      crosshairH.setAttribute('y2', closest.y);
+      crosshairPoint.setAttribute('cx', closest.x);
+      crosshairPoint.setAttribute('cy', closest.y);
+
+      // Update Tooltip content & position
+      tooltipVal.textContent = closest.val;
+      tooltipDate.textContent = '· ' + closest.day;
+
+      const pct = (closest.x / 1000) * 100;
+      tooltip.style.left = `${pct}%`;
+      tooltip.style.top = `${Math.max(16, (closest.y / 220) * rect.height - 48)}px`;
+    });
+
+    // Reset to 21 Oct on mouse leave
+    container.addEventListener('mouseleave', () => {
+      crosshairV.setAttribute('x1', '840');
+      crosshairV.setAttribute('x2', '840');
+      crosshairH.setAttribute('y1', '62');
+      crosshairH.setAttribute('y2', '62');
+      crosshairPoint.setAttribute('cx', '840');
+      crosshairPoint.setAttribute('cy', '62');
+      tooltipVal.textContent = 'EGP 62,400';
+      tooltipDate.textContent = '· 21 Oct';
+      tooltip.style.left = '78%';
+      tooltip.style.top = '32px';
+    });
+
+    // 3. Disclosure Toggle for Table Twins
+    function toggleDisclosure(tableId, buttonElement) {
+      const tableWrapper = document.getElementById(tableId);
+      const icon = buttonElement.querySelector('.material-symbols-outlined');
+      const isHidden = tableWrapper.classList.contains('hidden');
+
+      if (isHidden) {
+        tableWrapper.classList.remove('hidden');
+        if (icon) icon.style.transform = 'rotate(180deg)';
+      } else {
+        tableWrapper.classList.add('hidden');
+        if (icon) icon.style.transform = 'rotate(0deg)';
+      }
+    }
+  </script>
+</body>
+</html>

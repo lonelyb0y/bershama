@@ -47,11 +47,22 @@ test.describe('the list surfaces render', () => {
       await expect(page.getByText(/server error occurred/i)).toHaveCount(0);
 
       if (surface.expect === 'dashboard') {
-        // The charts, not just the page. A dashboard whose charts failed to
-        // mount renders its panels and loses its data, which looks like an
-        // empty dashboard rather than like a broken one.
-        await expect(page.getByTestId('bar-trend-chart')).toBeVisible();
-        await expect(page.getByTestId('ranked-bars')).toBeVisible();
+        /*
+         * The panels, not the charts.
+         *
+         * The charts are CONDITIONAL -- they render when there are fulfilled
+         * deliveries, and the CI fixture has none -- so asserting them here
+         * asserted that the fixture had deliveries, which is a claim about the
+         * fixture and not about the dashboard. The chart's own mount is tested
+         * in charts.test.tsx, where the data is deterministic.
+         *
+         * What this asserts is the thing that IS always true: the panels are
+         * there, and the dashboard says what it has and what it has not.
+         */
+        await expect(page.getByRole('heading', { name: /ranked|realised/i })).toBeVisible();
+        await expect(
+          page.getByTestId('bar-trend-chart').or(page.getByText(/nothing delivered/i)),
+        ).toBeVisible();
       }
 
       if (surface.expect === 'settings') {

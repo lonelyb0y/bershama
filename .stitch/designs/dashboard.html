@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Bershama — Operations Console</title>
+<!-- Google Fonts: Outfit, Nunito Sans, JetBrains Mono -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;family=Nunito+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&amp;family=Outfit:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS v3 -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-secondary": "#003828",
+            "surface-bright": "#383a36",
+            "on-tertiary-fixed-variant": "#614000",
+            "on-tertiary-fixed": "#281800",
+            "on-primary-fixed-variant": "#00513a",
+            "secondary": "#77d9b3",
+            "surface": "#121411",
+            "inverse-surface": "#e3e3dd",
+            "surface-container": "#1e201d",
+            "surface-container-high": "#292b27",
+            "primary": "#6fdaaf",
+            "on-tertiary": "#442c00",
+            "surface-dim": "#121411",
+            "on-error": "#690005",
+            "outline-variant": "#3e4943",
+            "on-error-container": "#ffdad6",
+            "inverse-on-surface": "#2f312d",
+            "error": "#ffb4ab",
+            "primary-fixed-dim": "#6fdaaf",
+            "secondary-fixed": "#93f6cf",
+            "inverse-primary": "#006c4e",
+            "tertiary": "#fcbb51",
+            "primary-container": "#43b189",
+            "surface-container-highest": "#333532",
+            "secondary-fixed-dim": "#77d9b3",
+            "on-surface": "#e3e3dd",
+            "on-background": "#e3e3dd",
+            "surface-tint": "#6fdaaf",
+            "background": "#121411",
+            "outline": "#87948c",
+            "on-surface-variant": "#bdcac1",
+            "tertiary-fixed-dim": "#fcbb51",
+            "on-primary-fixed": "#002115",
+            "error-container": "#93000a",
+            "on-tertiary-container": "#4b3000",
+            "secondary-container": "#037f5f",
+            "on-secondary-container": "#cfffe8",
+            "on-secondary-fixed-variant": "#00513c",
+            "on-secondary-fixed": "#002116",
+            "primary-fixed": "#8cf7ca",
+            "on-primary": "#003827",
+            "surface-container-low": "#1a1c19",
+            "surface-container-lowest": "#0d0f0c",
+            "tertiary-container": "#cf932c",
+            "tertiary-fixed": "#ffddb0",
+            "on-primary-container": "#003e2c",
+            "surface-variant": "#333532"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "gutter": "1rem",
+            "space-lg": "1rem",
+            "space-sm": "0.5rem",
+            "margin": "1rem",
+            "gutter-desktop": "1.5rem",
+            "margin-desktop": "2rem",
+            "space-xl": "1.5rem",
+            "space-xs": "0.25rem",
+            "space-md": "0.75rem",
+            "space-2xl": "2rem"
+          },
+          "fontFamily": {
+            "body-lg": [
+              "Nunito Sans"
+            ],
+            "mono-data-sm": [
+              "JetBrains Mono"
+            ],
+            "mono-data-lg": [
+              "JetBrains Mono"
+            ],
+            "headline-sm": [
+              "Outfit"
+            ],
+            "display-hero": [
+              "Outfit"
+            ],
+            "headline-md": [
+              "Outfit"
+            ],
+            "display-hero-mobile": [
+              "Outfit"
+            ],
+            "body-sm": [
+              "Nunito Sans"
+            ],
+            "headline-lg": [
+              "Outfit"
+            ],
+            "mono-data-default": [
+              "JetBrains Mono"
+            ],
+            "badge-label": [
+              "JetBrains Mono"
+            ],
+            "headline-lg-mobile": [
+              "Outfit"
+            ]
+          },
+          "fontSize": {
+            "body-lg": [
+              "15px",
+              {
+                "lineHeight": "24px",
+                "letterSpacing": "0em",
+                "fontWeight": "400"
+              }
+            ],
+            "mono-data-sm": [
+              "12px",
+              {
+                "lineHeight": "16px",
+                "letterSpacing": "0em",
+                "fontWeight": "500"
+              }
+            ],
+            "mono-data-lg": [
+              "15px",
+              {
+                "lineHeight": "22px",
+                "letterSpacing": "-0.01em",
+                "fontWeight": "500"
+              }
+            ],
+            "headline-sm": [
+              "18px",
+              {
+                "lineHeight": "24px",
+                "letterSpacing": "0em",
+                "fontWeight": "600"
+              }
+            ],
+            "display-hero": [
+              "44px",
+              {
+                "lineHeight": "52px",
+                "letterSpacing": "-0.02em",
+                "fontWeight": "700"
+              }
+            ],
+            "headline-md": [
+              "24px",
+              {
+                "lineHeight": "30px",
+                "letterSpacing": "-0.01em",
+                "fontWeight": "600"
+              }
+            ],
+            "display-hero-mobile": [
+              "32px",
+              {
+                "lineHeight": "40px",
+                "letterSpacing": "-0.02em",
+                "fontWeight": "700"
+              }
+            ],
+            "body-sm": [
+              "13px",
+              {
+                "lineHeight": "20px",
+                "letterSpacing": "0em",
+                "fontWeight": "400"
+              }
+            ],
+            "headline-lg": [
+              "32px",
+              {
+                "lineHeight": "38px",
+                "letterSpacing": "-0.02em",
+                "fontWeight": "600"
+              }
+            ],
+            "mono-data-default": [
+              "13px",
+              {
+                "lineHeight": "18px",
+                "letterSpacing": "0em",
+                "fontWeight": "500"
+              }
+            ],
+            "badge-label": [
+              "11px",
+              {
+                "lineHeight": "14px",
+                "letterSpacing": "0.04em",
+                "fontWeight": "600"
+              }
+            ],
+            "headline-lg-mobile": [
+              "24px",
+              {
+                "lineHeight": "30px",
+                "letterSpacing": "-0.01em",
+                "fontWeight": "600"
+              }
+            ]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+      font-size: 18px;
+      line-height: 1;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      height: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #141613;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #3e4943;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="bg-[#141613] text-on-surface font-body-sm min-h-[1024px] flex flex-col antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar (Shared Component from JSON) -->
+<header class="w-full bg-surface-container-low border-b border-outline-variant/30 sticky top-0 z-40">
+<div class="w-full max-w-[1400px] mx-auto px-margin-desktop flex justify-between items-center h-14">
+<!-- Brand & Global Nav Links -->
+<div class="flex items-center gap-space-2xl">
+<div class="flex items-center gap-2">
+<span class="text-headline-md font-headline-md font-bold tracking-tight text-on-surface">Bershama</span>
+<span class="w-1.5 h-1.5 rounded-full bg-primary inline-block"></span>
+</div>
+<nav class="hidden lg:flex items-center gap-space-lg">
+<a class="text-primary border-b-2 border-primary font-mono-data-default text-mono-data-default pb-1 hover:text-primary transition-colors duration-150 active:translate-y-[1px]" href="#">Inventory</a>
+<a class="text-on-surface-variant font-mono-data-default text-mono-data-default hover:text-primary transition-colors duration-150 active:translate-y-[1px]" href="#">Deliveries</a>
+<a class="text-on-surface-variant font-mono-data-default text-mono-data-default hover:text-primary transition-colors duration-150 active:translate-y-[1px]" href="#">Requisitions</a>
+<a class="text-on-surface-variant font-mono-data-default text-mono-data-default hover:text-primary transition-colors duration-150 active:translate-y-[1px]" href="#">Cold-Chain Logs</a>
+<a class="text-on-surface-variant font-mono-data-default text-mono-data-default hover:text-primary transition-colors duration-150 active:translate-y-[1px]" href="#">Compliance</a>
+<a class="text-on-surface-variant font-mono-data-default text-mono-data-default hover:text-primary transition-colors duration-150 active:translate-y-[1px]" href="#">Audit Trail</a>
+</nav>
+</div>
+<!-- Right Search & Trailing Controls -->
+<div class="flex items-center gap-space-md">
+<!-- Quick search with key hint -->
+<div class="relative hidden sm:flex items-center">
+<span class="material-symbols-outlined absolute left-2.5 text-outline pointer-events-none text-[16px]">search</span>
+<input class="bg-surface-container-high text-on-surface font-mono-data-sm text-mono-data-sm placeholder:text-outline border border-outline-variant/40 rounded-lg pl-8 pr-10 py-1.5 w-64 focus:outline-none focus:border-primary transition-colors" placeholder="Scan GTIN or search SKU..." type="text"/>
+<kbd class="absolute right-2 text-[10px] font-mono-data-sm text-outline border border-outline-variant/50 rounded px-1.5 py-0.5 bg-surface-container-low">⌘K</kbd>
+</div>
+<!-- Telemetry Icons (Literal names from JSON) -->
+<div class="flex items-center gap-1 text-on-surface-variant px-1 border-l border-r border-outline-variant/30">
+<button class="p-1.5 hover:text-primary transition-colors rounded hover:bg-surface-container" title="Notifications">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-1.5 hover:text-primary transition-colors rounded hover:bg-surface-container" title="Cold-Chain Temperature Sensor">
+<span class="material-symbols-outlined" data-icon="thermostat">thermostat</span>
+</button>
+<button class="p-1.5 hover:text-primary transition-colors rounded hover:bg-surface-container" title="Telemetry Mesh Link">
+<span class="material-symbols-outlined" data-icon="wifi">wifi</span>
+</button>
+</div>
+<!-- Arabic Language Selector -->
+<button class="px-2 py-1 text-mono-data-sm font-mono-data-sm text-on-surface-variant hover:text-primary border border-outline-variant/30 rounded-lg bg-surface-container-high transition-colors active:translate-y-[1px]">
+          العربية
+        </button>
+<!-- Admin Profile -->
+<div class="flex items-center gap-2 pl-1">
+<div class="w-7 h-7 rounded-lg bg-surface-container-high border border-outline-variant/50 flex items-center justify-center text-primary font-mono-data-sm font-semibold">
+            AH
+          </div>
+<div class="hidden xl:flex flex-col text-left">
+<span class="text-body-sm font-body-sm font-semibold text-on-surface leading-tight">Ahmed Hassan</span>
+<span class="text-[10px] font-mono-data-sm text-outline leading-tight">Admin · Node 04</span>
+</div>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Canvas Cockpit -->
+<main class="w-full max-w-[1400px] mx-auto px-margin-desktop py-space-xl flex-1 flex flex-col gap-space-xl">
+<!-- Header Area -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-md border-b border-outline-variant/20 pb-space-lg">
+<div class="flex flex-col">
+<h1 class="text-headline-lg font-headline-lg font-bold tracking-tight text-on-surface">Good evening</h1>
+<p class="text-on-surface-variant font-mono-data-default text-mono-data-default mt-1 flex items-center gap-2">
+<span>Thursday Night Shift · 02:14 Cairo Local Time · Node 04 Central Hub</span>
+<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-badge-label border border-outline-variant/40 bg-surface-container text-secondary">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span>
+            ACTIVE TELEMETRY
+          </span>
+</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="h-9 px-4 rounded-xl bg-primary-container text-on-primary font-body-sm font-semibold hover:brightness-105 active:translate-y-[1px] transition-all flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px]">radar</span>
+<span>Run expiry scan</span>
+</button>
+</div>
+</div>
+<!-- Row of FOUR Figure Panels -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">
+<!-- Panel 1 -->
+<div class="bg-[#1C1F1B] rounded-2xl border border-outline-variant/30 p-5 flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="text-badge-label font-badge-label uppercase text-on-surface-variant tracking-wider">CAPITAL IN STOCK</span>
+<span class="material-symbols-outlined text-outline text-[16px]">account_balance_wallet</span>
+</div>
+<div class="my-3">
+<span class="font-mono-data-lg text-[28px] font-bold tracking-tight text-on-surface block leading-none">EGP 62,400</span>
+</div>
+<span class="text-mono-data-sm font-mono-data-sm text-on-surface-variant">what the business has tied up at cost</span>
+</div>
+<!-- Panel 2 -->
+<div class="bg-[#1C1F1B] rounded-2xl border border-outline-variant/30 p-5 flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="text-badge-label font-badge-label uppercase text-on-surface-variant tracking-wider">MARGIN IF STOCK IS SOLD</span>
+<span class="material-symbols-outlined text-outline text-[16px]">trending_up</span>
+</div>
+<div class="my-3">
+<span class="font-mono-data-lg text-[28px] font-bold tracking-tight text-on-surface block leading-none">—</span>
+</div>
+<span class="text-mono-data-sm font-mono-data-sm text-on-surface-variant">No sell prices entered yet</span>
+</div>
+<!-- Panel 3 -->
+<div class="bg-[#1C1F1B] rounded-2xl border border-outline-variant/30 p-5 flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="text-badge-label font-badge-label uppercase text-on-surface-variant tracking-wider">EXPIRING</span>
+<span class="text-tertiary font-mono-data-sm text-[11px] border border-tertiary/30 bg-tertiary/10 px-1.5 py-0.5 rounded">PRIORITY</span>
+</div>
+<div class="my-3">
+<span class="font-mono-data-lg text-[28px] font-bold tracking-tight text-tertiary block leading-none">1</span>
+</div>
+<span class="text-mono-data-sm font-mono-data-sm text-on-surface-variant">within 90 days</span>
+</div>
+<!-- Panel 4 -->
+<div class="bg-[#1C1F1B] rounded-2xl border border-outline-variant/30 p-5 flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="text-badge-label font-badge-label uppercase text-on-surface-variant tracking-wider">UNITS ON HAND</span>
+<span class="material-symbols-outlined text-outline text-[16px]">inventory_2</span>
+</div>
+<div class="my-3">
+<span class="font-mono-data-lg text-[28px] font-bold tracking-tight text-on-surface block leading-none">650</span>
+</div>
+<span class="text-mono-data-sm font-mono-data-sm text-on-surface-variant">0 quarantined</span>
+</div>
+</section>
+<!-- Middle Split Section (Wide 2/3 Expiry panel, Narrow 1/3 column of 2 panels) -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-space-lg">
+<!-- WIDE EXPIRY PANEL (left 2/3) -->
+<div class="lg:col-span-2 bg-[#1C1F1B] rounded-2xl border border-outline-variant/30 p-5 flex flex-col justify-between">
+<div>
+<!-- Header Bar -->
+<div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-outline-variant/20">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<span class="text-badge-label font-badge-label uppercase text-on-surface-variant tracking-wider">EXPIRY EXPOSURE</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="flex items-center bg-[#232924] p-0.5 rounded-lg border border-outline-variant/30">
+<button class="px-3 py-1 rounded-md bg-[#141613] text-on-surface text-mono-data-sm font-mono-data-sm font-medium">90d</button>
+<button class="px-3 py-1 text-outline hover:text-on-surface text-mono-data-sm font-mono-data-sm transition-colors">180d</button>
+</div>
+<button class="px-3 py-1 rounded-xl text-mono-data-sm font-mono-data-sm border border-outline-variant/40 text-on-surface hover:bg-[#232924] transition-colors active:translate-y-[1px]">
+                Run scan
+              </button>
+</div>
+</div>
+<!-- Table Container -->
+<div class="mt-4 overflow-x-auto">
+<div class="min-w-[620px]">
+<!-- Header band -->
+<div class="bg-[#232924] rounded-lg px-4 py-2 grid grid-cols-12 text-badge-label font-badge-label uppercase text-on-surface-variant items-center">
+<div class="col-span-3">BATCH</div>
+<div class="col-span-4">PRODUCT</div>
+<div class="col-span-2">LOCATION</div>
+<div class="col-span-1 text-right">QTY</div>
+<div class="col-span-1 text-right">EXPIRY</div>
+<div class="col-span-1 text-right">DAYS</div>
+</div>
+<!-- Table Rows -->
+<div class="divide-y divide-outline-variant/20 mt-1">
+<!-- Row 1: Expiring soon (Amber) -->
+<div class="px-4 py-2.5 grid grid-cols-12 items-center hover:bg-[#232924] transition-colors text-body-sm font-body-sm">
+<div class="col-span-3 font-mono-data-default text-primary">LOT-2026-A0412</div>
+<div class="col-span-4 pr-2">
+<p class="font-semibold text-on-surface leading-snug">Panadol Extra 500 mg Tablets</p>
+<p class="text-mono-data-sm font-mono-data-sm text-outline text-[12px] leading-none mt-0.5">Paracetamol / Caffeine</p>
+</div>
+<div class="col-span-2 text-on-surface-variant font-mono-data-sm">Ambient Aisle 1</div>
+<div class="col-span-1 text-right font-mono-data-default text-on-surface">240</div>
+<div class="col-span-1 text-right font-mono-data-default text-on-surface-variant">2026-11-09</div>
+<div class="col-span-1 flex justify-end">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-badge-label font-badge-label text-tertiary border border-tertiary/40 bg-tertiary/10">
+<span>●</span> 8 days
+                    </span>
+</div>
+</div>
+<!-- Row 2: Expired / Critical (Red) -->
+<div class="px-4 py-2.5 grid grid-cols-12 items-center hover:bg-[#232924] transition-colors text-body-sm font-body-sm">
+<div class="col-span-3 font-mono-data-default text-primary">LOT-2025-C0442</div>
+<div class="col-span-4 pr-2">
+<p class="font-semibold text-on-surface leading-snug">Panadol Extra 500 mg Tablets</p>
+<p class="text-mono-data-sm font-mono-data-sm text-outline text-[12px] leading-none mt-0.5">Paracetamol / Caffeine</p>
+</div>
+<div class="col-span-2 text-on-surface-variant font-mono-data-sm">Ambient Aisle 2</div>
+<div class="col-span-1 text-right font-mono-data-default text-on-surface">60</div>
+<div class="col-span-1 text-right font-mono-data-default text-error">2026-10-11</div>
+<div class="col-span-1 flex justify-end">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-badge-label font-badge-label text-error border border-error/40 bg-error-container/20">
+<span>▲</span> Expired
+                    </span>
+</div>
+</div>
+<!-- Row 3: In-Date (Neutral diamond - NEVER green!) -->
+<div class="px-4 py-2.5 grid grid-cols-12 items-center hover:bg-[#232924] transition-colors text-body-sm font-body-sm">
+<div class="col-span-3 font-mono-data-default text-primary">LOT-2026-B1180</div>
+<div class="col-span-4 pr-2">
+<p class="font-semibold text-on-surface leading-snug">Augmentin 875 mg/125 mg Film-Coated Tablets</p>
+<p class="text-mono-data-sm font-mono-data-sm text-outline text-[12px] leading-none mt-0.5">Amoxicillin / Clavulanate</p>
+</div>
+<div class="col-span-2 text-on-surface-variant font-mono-data-sm">Ambient Aisle 1</div>
+<div class="col-span-1 text-right font-mono-data-default text-on-surface">80</div>
+<div class="col-span-1 text-right font-mono-data-default text-on-surface-variant">2028-04-12</div>
+<div class="col-span-1 flex justify-end">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-badge-label font-badge-label text-outline border border-outline/40 bg-surface-container-high">
+<span>◆</span> 240 days
+                    </span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Expiry Footer -->
+<div class="pt-4 mt-4 border-t border-outline-variant/20 flex items-center justify-between">
+<p class="text-mono-data-sm font-mono-data-sm text-outline">
+            Showing 3 monitored batches requiring priority shift triage · Auto-refreshed 12s ago
+          </p>
+<span class="text-mono-data-sm font-mono-data-sm text-secondary flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> Live ledger sync
+          </span>
+</div>
+</div>
+<!-- NARROW RIGHT-HAND COLUMN (1/3 width, flex col gap-4) -->
+<div class="flex flex-col gap-space-md">
+<!-- Panel 1: WAITING ON YOU -->
+<div class="bg-[#1C1F1B] rounded-2xl border border-outline-variant/30 p-5 flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between pb-3 border-b border-outline-variant/20">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary animate-ping"></span>
+<span class="text-badge-label font-badge-label uppercase text-on-surface-variant tracking-wider">WAITING ON YOU</span>
+</div>
+<span class="px-2 py-0.5 rounded text-[10px] font-badge-label bg-surface-container-high text-primary border border-primary/30">1 PENDING</span>
+</div>
+<div class="mt-4 flex items-start justify-between">
+<div>
+<span class="font-mono-data-lg text-[16px] font-bold text-on-surface block leading-tight">REQ-0001</span>
+<span class="text-body-sm font-body-sm text-outline block mt-0.5">CI Warehouse</span>
+</div>
+<span class="font-mono-data-sm font-mono-data-sm text-outline text-[11px]">41 seconds ago</span>
+</div>
+<div class="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#232924] border border-outline-variant/40 text-[12px] font-mono-data-sm text-tertiary">
+<span class="material-symbols-outlined text-[14px]">pending_actions</span>
+<span>Dispatch Clearance Required</span>
+</div>
+</div>
+<div class="mt-4 pt-3 border-t border-outline-variant/20">
+<a class="text-primary font-mono-data-sm font-mono-data-sm text-[12px] hover:underline inline-flex items-center gap-1" href="#">
+<span>Open requisitions</span>
+<span>→</span>
+</a>
+</div>
+</div>
+<!-- Panel 2: AUDIT LOG -->
+<div class="bg-[#1C1F1B] rounded-2xl border border-outline-variant/30 p-5 flex flex-col">
+<div class="flex items-center justify-between pb-3 border-b border-outline-variant/20">
+<span class="text-badge-label font-badge-label uppercase text-on-surface-variant tracking-wider">AUDIT LOG</span>
+<span class="text-badge-label font-badge-label text-secondary flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> LIVE
+            </span>
+</div>
+<div class="divide-y divide-outline-variant/20 mt-1">
+<!-- Log Entry 1 -->
+<div class="py-2.5">
+<p class="text-body-sm font-body-sm text-on-surface leading-tight">
+                created a Product · <span class="font-semibold text-secondary">Augmentin 875 mg/125 mg Film-Coated Tablets</span>
+</p>
+<p class="text-[11px] font-mono-data-sm text-outline mt-0.5">CI Admin · 41 seconds ago</p>
+</div>
+<!-- Log Entry 2 -->
+<div class="py-2.5">
+<p class="text-body-sm font-body-sm text-on-surface leading-tight">
+                verified lot <span class="font-mono-data-sm text-primary">LOT-24G09</span> · Panadol Extra 500 mg
+              </p>
+<p class="text-[11px] font-mono-data-sm text-outline mt-0.5">Night Pharmacist M. Taha · 4 minutes ago</p>
+</div>
+<!-- Log Entry 3 -->
+<div class="py-2.5">
+<p class="text-body-sm font-body-sm text-on-surface leading-tight">
+                logged Cold-Chain Node 04 sensor calibration
+              </p>
+<p class="text-[11px] font-mono-data-sm text-outline mt-0.5">Telemetry Daemons · 11 minutes ago</p>
+</div>
+<!-- Log Entry 4 -->
+<div class="py-2.5">
+<p class="text-body-sm font-body-sm text-on-surface leading-tight">
+                authorized quarantine release · <span class="font-mono-data-sm text-primary">LOT-2026-B1180</span>
+</p>
+<p class="text-[11px] font-mono-data-sm text-outline mt-0.5">QA Supervisor Tariq S. · 28 minutes ago</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- HORIZONTAL SCROLL RAIL (Active Lot Repository) -->
+<section class="flex flex-col">
+<div class="flex justify-between items-center mb-3">
+<span class="text-badge-label font-badge-label uppercase text-on-surface-variant tracking-wider">
+          ACTIVE LOT REPOSITORY · CAIRO / GIZA HUB
+        </span>
+<span class="text-mono-data-sm font-mono-data-sm text-outline flex items-center gap-1 text-[11px]">
+<span>Horizontal Drag</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</span>
+</div>
+<div class="overflow-x-auto pb-2 custom-scrollbar">
+<div class="flex gap-space-md w-max">
+<!-- Card 1 -->
+<div class="w-[280px] shrink-0 bg-[#1C1F1B] rounded-2xl border border-outline-variant/30 p-4 flex flex-col justify-between hover:border-outline transition-colors">
+<div>
+<div class="flex items-center justify-between">
+<span class="font-mono-data-sm text-[11px] text-outline">SKU-GSK-0012</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-badge-label font-badge-label text-outline border border-outline/40 bg-surface-container-high">
+<span>◆</span> In Date
+                </span>
+</div>
+<h3 class="text-on-surface font-semibold text-[14px] mt-2 line-clamp-2 leading-snug">
+                Panadol Extra 500 mg Tablets
+              </h3>
+<p class="font-mono-data-sm text-[11px] text-outline mt-1.5">LOT-24G09</p>
+</div>
+<div class="mt-4 pt-2.5 border-t border-outline-variant/20 flex items-center justify-between font-mono-data-sm text-[12px]">
+<span class="text-outline">Stock</span>
+<span class="text-on-surface font-semibold">Available: 240 pk</span>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="w-[280px] shrink-0 bg-[#1C1F1B] rounded-2xl border border-outline-variant/30 p-4 flex flex-col justify-between hover:border-outline transition-colors">
+<div>
+<div class="flex items-center justify-between">
+<span class="font-mono-data-sm text-[11px] text-outline">SKU-GSK-0875</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-badge-label font-badge-label text-outline border border-outline/40 bg-surface-container-high">
+<span>◆</span> In Date
+                </span>
+</div>
+<h3 class="text-on-surface font-semibold text-[14px] mt-2 line-clamp-2 leading-snug">
+                Augmentin 875 mg/125 mg Film-Coated Tablets
+              </h3>
+<p class="font-mono-data-sm text-[11px] text-outline mt-1.5">LOT-24H22</p>
+</div>
+<div class="mt-4 pt-2.5 border-t border-outline-variant/20 flex items-center justify-between font-mono-data-sm text-[12px]">
+<span class="text-outline">Stock</span>
+<span class="text-on-surface font-semibold">Available: 80 pk</span>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="w-[280px] shrink-0 bg-[#1C1F1B] rounded-2xl border border-outline-variant/30 p-4 flex flex-col justify-between hover:border-outline transition-colors">
+<div>
+<div class="flex items-center justify-between">
+<span class="font-mono-data-sm text-[11px] text-outline">SKU-NOVO-100</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-badge-label font-badge-label text-tertiary border border-tertiary/40 bg-tertiary/10">
+<span>●</span> 14 Days
+                </span>
+</div>
+<h3 class="text-on-surface font-semibold text-[14px] mt-2 line-clamp-2 leading-snug">
+                NovoRapid FlexPen 100 IU/mL Solution for Injection
+              </h3>
+<p class="font-mono-data-sm text-[11px] text-outline mt-1.5">LOT-24K04</p>
+</div>
+<div class="mt-4 pt-2.5 border-t border-outline-variant/20 flex items-center justify-between font-mono-data-sm text-[12px]">
+<span class="text-secondary flex items-center gap-1">
+<span>❄</span> 2°C - 8°C
+              </span>
+<span class="text-secondary font-semibold">Telemetry Logged</span>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="w-[280px] shrink-0 bg-[#1C1F1B] rounded-2xl border border-outline-variant/30 p-4 flex flex-col justify-between hover:border-outline transition-colors">
+<div>
+<div class="flex items-center justify-between">
+<span class="font-mono-data-sm text-[11px] text-outline">SKU-CID-0419</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-badge-label font-badge-label text-outline border border-outline/40 bg-surface-container-high">
+<span>◆</span> In Date
+                </span>
+</div>
+<h3 class="text-on-surface font-semibold text-[14px] mt-2 line-clamp-2 leading-snug">
+                Rehydran ORS Sachet 5.5g
+              </h3>
+<p class="font-mono-data-sm text-[11px] text-outline mt-1.5">LOT-24D11</p>
+</div>
+<div class="mt-4 pt-2.5 border-t border-outline-variant/20 flex items-center justify-between font-mono-data-sm text-[12px]">
+<span class="text-outline">Stock</span>
+<span class="text-on-surface font-semibold">Available: 330 pk</span>
+</div>
+</div>
+<!-- Card 5 -->
+<div class="w-[280px] shrink-0 bg-[#1C1F1B] rounded-2xl border border-outline-variant/30 p-4 flex flex-col justify-between hover:border-outline transition-colors">
+<div>
+<div class="flex items-center justify-between">
+<span class="font-mono-data-sm text-[11px] text-outline">SKU-VAC-7701</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-badge-label font-badge-label text-error border border-error/40 bg-error-container/20">
+<span>▲</span> Expired
+                </span>
+</div>
+<h3 class="text-on-surface font-semibold text-[14px] mt-2 line-clamp-2 leading-snug">
+                Pentaxim DTaP-IPV-Hib Vaccine Suspension
+              </h3>
+<p class="font-mono-data-sm text-[11px] text-outline mt-1.5">LOT-23M19</p>
+</div>
+<div class="mt-4 pt-2.5 border-t border-outline-variant/20 flex items-center justify-between font-mono-data-sm text-[12px]">
+<span class="text-error flex items-center gap-1">
+<span>❄</span> 4.1°C
+              </span>
+<span class="text-error font-semibold">Quarantined / Do Not Dispense</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer (Shared Component from JSON) -->
+<footer class="w-full bg-surface-container-lowest border-t border-outline-variant/30 mt-auto">
+<div class="w-full max-w-[1400px] mx-auto px-margin-desktop py-space-sm flex flex-col md:flex-row justify-between items-center gap-3">
+<!-- Regulatory & Telemetry License line -->
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary inline-block"></span>
+<span class="text-badge-label font-badge-label text-on-surface-variant text-[11px]">
+          Cairo S.A.E. · WHO GDP Compliant · EDA License #8491/2023 · Telemetry Active: Node 04
+        </span>
+</div>
+<!-- Links array verbatim from JSON -->
+<nav class="flex flex-wrap items-center gap-space-lg">
+<a class="text-primary font-mono-data-sm text-mono-data-sm hover:text-on-surface transition-colors duration-150 cursor-pointer active:opacity-80" href="#">
+          Cold-Chain Telemetry
+        </a>
+<a class="text-outline font-mono-data-sm text-mono-data-sm hover:text-on-surface transition-colors duration-150 cursor-pointer active:opacity-80" href="#">
+          Node Status
+        </a>
+<a class="text-outline font-mono-data-sm text-mono-data-sm hover:text-on-surface transition-colors duration-150 cursor-pointer active:opacity-80" href="#">
+          Audit Log
+        </a>
+<a class="text-outline font-mono-data-sm text-mono-data-sm hover:text-on-surface transition-colors duration-150 cursor-pointer active:opacity-80" href="#">
+          System Diagnostics
+        </a>
+<a class="text-outline font-mono-data-sm text-mono-data-sm hover:text-on-surface transition-colors duration-150 cursor-pointer active:opacity-80" href="#">
+          Support Dispatch
+        </a>
+</nav>
+</div>
+</footer>
+</body></html>
