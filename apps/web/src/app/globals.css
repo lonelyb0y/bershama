@@ -35,10 +35,21 @@
    * proportional digits is a column that does not line up and cannot be scanned.
    *
    * Inter is gone on purpose. It is the sound of a design that has made no decision.
+   *
+   * IBM Plex Sans Arabic is not only in the Arabic stack. It is in every stack,
+   * because font fallback is per CHARACTER: a heading that says "LOT-2026-A0412"
+   * and "منتهي الصلاحية" in the same line needs Latin from one face and Arabic
+   * from another, and the browser resolves them in stack order. Without it, the
+   * Arabic half of a display heading falls past Space Grotesk -- which has no
+   * Arabic glyphs -- and lands on whatever the operating system happens to have.
+   * Measured: an Arabic heading rendered 220.1px wide under this stack and
+   * 180.9px under IBM Plex Sans Arabic, which is the system fallback's width.
+   * The Arabic was not being rendered in the face the design specifies; it was
+   * being rendered in whatever the device decided.
    */
-  --font-latin: var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-space-grotesk), var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-latin: var(--font-plus-jakarta), var(--font-plex-arabic), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-space-grotesk), var(--font-plus-jakarta), var(--font-plex-arabic), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), var(--font-plex-arabic), ui-monospace, SFMono-Regular, Menlo, monospace;
   --font-arabic: var(--font-plex-arabic), var(--font-plus-jakarta), ui-sans-serif, sans-serif;
 
 
