@@ -106,7 +106,32 @@
     "figures": "Key figures",
     "doors": "Inventory sections",
     "lowStockLabel": "Below reorder level",
-    "lowStockHint": "Products that need replenishing"
+    "lowStockHint": "Products that need replenishing",
+    "live": "Live",
+    "asOf": "As of {time}",
+    "newProduct": "New product",
+    "receiveStock": "Receive stock",
+    "expiringLabel": "Expiring in 90 days",
+    "expiringHint": "Batches that need a decision",
+    "quarantinedLabel": "Quarantined",
+    "quarantinedHint": "Received, not yet released",
+    "byLocation": {
+      "title": "By location",
+      "zones": "zones",
+      "zone": "Location",
+      "units": "Units",
+      "value": "Value",
+      "expiry": "Soonest expiry",
+      "empty": "No storage locations yet."
+    },
+    "mostAtRisk": {
+      "title": "Most at risk",
+      "shiftTriage": "Triage",
+      "lot": "Lot",
+      "empty": "Nothing is within ninety days of its expiry."
+    },
+    "expired": "Expired",
+    "days": "{days, plural, one {# day} other {# days}}"
   },
   "requisitions": {
     "title": "Requisitions",

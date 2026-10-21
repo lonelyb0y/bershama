@@ -106,7 +106,32 @@
     "figures": "الأرقام الأساسية",
     "doors": "أقسام المخزون",
     "lowStockLabel": "أقل من حد إعادة الطلب",
-    "lowStockHint": "منتجات تحتاج إعادة تعبئة"
+    "lowStockHint": "منتجات تحتاج إعادة تعبئة",
+    "live": "مباشر",
+    "asOf": "حتى {time}",
+    "newProduct": "منتج جديد",
+    "receiveStock": "استلام بضاعة",
+    "expiringLabel": "تنتهي خلال ٩٠ يومًا",
+    "expiringHint": "دفعات تحتاج قرارًا",
+    "quarantinedLabel": "في الحجر الصحي",
+    "quarantinedHint": "مستلمة ولم تُفرج عنها بعد",
+    "byLocation": {
+      "title": "حسب الموقع",
+      "zones": "مواقع",
+      "zone": "الموقع",
+      "units": "الوحدات",
+      "value": "القيمة",
+      "expiry": "أقرب انتهاء",
+      "empty": "لا توجد مواقع تخزين بعد."
+    },
+    "mostAtRisk": {
+      "title": "الأكثر تعرضًا",
+      "shiftTriage": "فرز",
+      "lot": "التشغيلة",
+      "empty": "لا شيء يمر بقرب انتهاء خلال تسعين يومًا."
+    },
+    "expired": "منتهي الصلاحية",
+    "days": "{days, plural, zero {لا أيام} one {يوم واحد} two {يومان} few {# أيام} many {# يومًا} other {# يوم}}"
   },
   "requisitions": {
     "title": "الطلبات",
