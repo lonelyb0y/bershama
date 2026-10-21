@@ -524,12 +524,18 @@ export default async function AdminDashboard({
                   ? formatMoney(totalDeliveredMargin, { locale, compact: true })
                   : '—'}
               </p>
-              <p className="mt-1 text-xs opacity-80">
-                {t('deliveredValueAndCost', {
-                  value: formatMoney(realisedRevenueMinor, { locale, compact: true }),
-                  cost: formatMoney(realisedCostMinor, { locale, compact: true }),
-                })}
-              </p>
+              {/* Not shown when nothing has been delivered. The figure above says
+                  "—" and this said "EGP 0 against EGP 0 of cost", which is a
+                  different claim: a zero of delivered margin, rather than the
+                  absence of a figure. */}
+              {fulfilledLines.length > 0 ? (
+                <p className="mt-1 text-xs opacity-80">
+                  {t('deliveredValueAndCost', {
+                    value: formatMoney(realisedRevenueMinor, { locale, compact: true }),
+                    cost: formatMoney(realisedCostMinor, { locale, compact: true }),
+                  })}
+                </p>
+              ) : null}
 
               <div className="mt-4">
                 {fulfilledLines.length === 0 ? (
