@@ -287,6 +287,26 @@
       "CRITICAL": "Critical",
       "WARN": "Warning",
       "INFO": "Info"
+    },
+    "liveDispatchFeed": "LIVE DISPATCH FEED",
+    "searchAlerts": "Search alert ID, Lot #, Route, or SKU...",
+    "filter": {
+      "allHubs": "Filter: All Hubs"
+    },
+    "activeAlerts": "Active Alerts Stream",
+    "chamberGateway": "Chamber Gateway Telemetry",
+    "consoleConfig": "Console Configuration",
+    "emergencyQuarantine": "Emergency Quarantine",
+    "operatorBadge": "Operator duty badge Egyptian Drug Authority verified",
+    "section": {
+      "needsDecision": "Needs a Decision",
+      "requiresSignoff": "Requires supervisor sign-off or FEFO override",
+      "pollingActive": "POLLING ACTIVE // 4s"
+    },
+    "action": {
+      "acknowledge": "Acknowledge",
+      "resolve": "Resolve",
+      "toggleArabic": "Toggle Arabic Interface"
     }
   },
   "m0": {

@@ -287,6 +287,26 @@
       "CRITICAL": "حرج",
       "WARN": "تحذير",
       "INFO": "معلومة"
+    },
+    "liveDispatchFeed": "التغذية المباشرة للإرسال",
+    "searchAlerts": "ابحث في معرف التنبيه، رقم الدفعة، المسار أو رمز المخزون...",
+    "filter": {
+      "allHubs": "تصفية: جميع المحاور"
+    },
+    "activeAlerts": "تغذية التنبيهات النشطة",
+    "chamberGateway": "قياس عن بعد بوابة الحجرة",
+    "consoleConfig": "تكوين وحدة التحكم",
+    "emergencyQuarantine": "حجر صحي طارئ",
+    "operatorBadge": "شارة مسؤول هيئة الدواء المصرية",
+    "section": {
+      "needsDecision": "يحتاج قرارًا",
+      "requiresSignoff": "يتطلب موافقة المشرف أو تجاوز فيفو",
+      "pollingActive": "جاري الاستطلاع // ٤ ثوانٍ"
+    },
+    "action": {
+      "acknowledge": "إقرار",
+      "resolve": "إغلاق",
+    "toggleArabic": "التحويل إلى واجهة عربية"
     }
   },
   "m0": {
