@@ -328,7 +328,9 @@
   },
   "products": {
     "title": "المنتجات",
-    "subtitle": "{count, plural, zero {لا منتجات} one {منتج واحد} two {منتجان} few {# منتجات} many {# منتجًا} other {# منتج}} في هذا الكتالوج",
+    "subtitle": "{count, plural, zero {لا منتجات} one {منتج واحد} two {منتجان} few {# منتجات} many {# منتجًا} other {# منتج}} مسجلة في القائمة الدوائية",
+    "activeFormulary": "القائمة الدوائية",
+    "newProduct": "منتج جديد",
     "searchPlaceholder": "ابحث بالاسم أو الاسم العلمي أو رمز المنتج",
     "search": "بحث",
     "clear": "مسح",
@@ -392,15 +394,48 @@
     "column": {
       "product": "المنتج",
       "sku": "الرمز",
-      "form": "التركيز",
+      "form": "شكل الصيغة الصيدلانية",
+      "strength": "التركيز",
       "pack": "العبوة",
-      "flags": "العلامات"
+      "cold": "بارد",
+      "flags": "العلامات",
+      "status": "الحالة",
+      "actions": "أعمال"
+    },
+    "filter": {
+      "allForms": "جميع الأشكال (أقراص, كيس, محلول...)",
+      "tablet": "أقراص",
+      "sachet": "كيس",
+      "solution": "محلول",
+      "powder": "بودرة",
+      "syringe": "حقنة",
+      "allStrengths": "جميع مستويات التركيز",
+      "strength500": "500 ملغ",
+      "strength875": "875/125 ملغ",
+      "strength100": "100 وحدة دولية/مل",
+      "strength1g": "1 غرام",
+      "strength05": "0.5 مل",
+      "rx": "يطلب وصفة طبية",
+      "coldChain": "سلسلة التبريد",
+      "displayOptions": "خيارات العرض"
+    },
+    "coldChain": "2\u00b0C - 8\u00b0C",
+    "status": {
+      "inFormulary": "في القائمة",
+      "outOfFormulary": "خارج القائمة"
     },
     "action": {
       "edit": "تعديل {name}",
       "deactivate": "إيقاف {name}",
       "reactivate": "تنشيط {name}"
     },
+    "showing": "{count, plural, one {# منتج} other {# منتج}} من {total}",
+    "activeProducts": "تركيبة دوائية نشطة",
+    "rows": "أسطر:",
+    "rows50": "50 / الصفحة",
+    "rows100": "100 / الصفحة",
+    "rows250": "250 / الصفحة",
+    "page": "الصفحة {current} من {total}",
     "emptyBody": "المنتج هو ما ترتبط به التشغيلة. أضف أول منتج لتسجيل المخزون عليه.",
     "emptySearchBody": "لا يوجد ما يطابق «{query}». يشمل البحث الاسم والاسم العربي والرمز."
   },

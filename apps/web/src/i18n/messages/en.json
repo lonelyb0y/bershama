@@ -328,7 +328,52 @@
   },
   "products": {
     "title": "Products",
-    "subtitle": "{count, plural, one {# product} other {# products}} in this catalogue",
+    "subtitle": "{count, plural, one {# product} other {# products}} registered in active formulary",
+    "activeFormulary": "Active Formulary",
+    "newProduct": "New product",
+    "filter": {
+      "allForms": "All forms (Tablet, Sachet, Solution...)",
+      "tablet": "Tablet",
+      "sachet": "Sachet",
+      "solution": "Solution",
+      "powder": "Powder",
+      "syringe": "Syringe",
+      "allStrengths": "All strengths",
+      "strength500": "500 mg",
+      "strength875": "875/125 mg",
+      "strength100": "100 IU/mL",
+      "strength1g": "1 g",
+      "strength05": "0.5 mL",
+      "rx": "Prescription only (Rx)",
+      "coldChain": "Cold chain",
+      "displayOptions": "Display options"
+    },
+    "column": {
+      "product": "Product",
+      "sku": "SKU",
+      "form": "Form",
+      "strength": "Strength",
+      "cold": "Cold",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "coldChain": "2°C - 8°C",
+    "status": {
+      "inFormulary": "In formulary",
+      "outOfFormulary": "Out of formulary"
+    },
+    "action": {
+      "edit": "Edit {name}",
+      "deactivate": "Deactivate {name}",
+      "reactivate": "Reactivate {name}"
+    },
+    "showing": "{count, plural, one {# product} other {# products}} of {total}",
+    "activeProducts": "active pharmaceutical formulations",
+    "rows": "Rows:",
+    "rows50": "50 / page",
+    "rows100": "100 / page",
+    "rows250": "250 / page",
+    "page": "Page {current} of {total}",
     "searchPlaceholder": "Search by name, generic name or SKU",
     "search": "Search",
     "clear": "Clear",
@@ -392,9 +437,13 @@
     "column": {
       "product": "Product",
       "sku": "SKU",
-      "form": "Strength",
+      "form": "Form",
       "pack": "Pack",
-      "flags": "Flags"
+      "strength": "Strength",
+      "cold": "Cold",
+      "flags": "Flags",
+      "status": "Status",
+      "actions": "Actions"
     },
     "action": {
       "edit": "Edit {name}",

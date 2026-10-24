@@ -2,37 +2,21 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 
 import { getSupabase } from '@/lib/supabase/server';
-import { Link } from '@/i18n/routing';
 import { getSession } from '@/lib/session';
-import { setProductActive } from './actions';
-import { ProductForm } from '@/components/inventory/product-form';
-import { ProductTable } from '@/components/inventory/product-table';
-import { LocationForm } from '@/components/inventory/location-form';
-import { PageHeader } from '@/components/ui/page-header';
-import { Toolbar } from '@/components/ui/toolbar';
+import { ROLES_BY_SURFACE } from '@/lib/roles';
+import { formatQuantity } from '@/lib/format';
+import { Link } from '@/i18n/routing';
 import type { Locale } from '@/i18n/routing';
-import type { Product } from '@/lib/types';
+import type { Database } from '@/lib/database.types';
 
-/**
- * The product catalogue.
- *
- * Products are the spine of the system: a batch belongs to one, a stock balance
- * refers to one, and a requisition line cannot be priced without one. This screen
- * is therefore the first of the CRUD surfaces, and the shape of it is what the
- * rest follow.
- *
- * Deliberately not paginated yet. A distributor's catalogue runs to a few
- * thousand rows, which fits in a page; when it does not, the fix is a cursor
- * rather than an offset, and building the offset now means building it twice.
- * The search box narrows in the database, so it stays fast as the catalogue grows
- * and does not depend on shipping every row to the browser first.
- */
+type ProductRow = Database['public']['Tables']['products']['Row'];
+
 export default async function ProductsPage({
   params,
   searchParams,
 }: {
   params: Promise<{ locale: Locale }>;
-  searchParams: Promise<{ q?: string; edit?: string }>;
+  searchParams: Promise<{ q?: string }>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
@@ -41,25 +25,19 @@ export default async function ProductsPage({
   const session = await getSession();
   if (!session) notFound();
 
-  // WAREHOUSE_MANAGER and TENANT_ADMIN may write; the policy allows exactly
-  // these two roles. Derived from the same list rather than from a second
-  // hard-coded set that could drift from the policy.
-  const canWrite = session.role === 'TENANT_ADMIN' || session.role === 'WAREHOUSE_MANAGER';
-
-  const { q, edit } = await searchParams;
-  const query = (q ?? '').trim();
+  if (!ROLES_BY_SURFACE.admin.includes(session.role)) notFound();
 
   const supabase = await getSupabase();
+  const { q } = await searchParams;
+  const query = (q ?? '').trim();
+
   let select = supabase
     .from('products')
     .select(
-      'id, sku, name_en, name_ar, generic_name_en, generic_name_ar, brand, form, strength, strength_unit, pack_size, uom, atc_code, gtin, eda_reg_no, requires_prescription, is_controlled, is_cold_chain, shelf_life_months, sell_price_minor, is_active',
+      'id, sku, name_en, name_ar, generic_name_en, generic_name_ar, form, strength, strength_unit, uom, is_cold_chain, requires_prescription, is_active',
     )
     .order('name_en');
 
-  // ilike on both names, so an Arabic search works as well as an English one.
-  // `%` and `_` are escaped: they are wildcards, and a user pasting a GTIN that
-  // contains one should get a literal comparison rather than every row.
   if (query !== '') {
     const escaped = query.replace(/[%_]/g, (c) => `\\${c}`);
     select = select.or(
@@ -67,233 +45,279 @@ export default async function ProductsPage({
     );
   }
 
-  const { data, error } = await select.limit(200);
-  const products = ((data ?? []) as unknown as ProductRow[]).map(toProduct);
+  const { data } = await select.limit(200);
+  const products: ProductRow[] = (data ?? []) as ProductRow[];
 
-  // The form is shown for one product, or blank for a new one. A query
-  // parameter rather than a route segment, so editing does not need a URL of its
-  // own and the list stays one page deep.
-  const editing = edit ? products.find((p) => p.id === edit) : undefined;
-
-  // Facilities are needed by the location form on the same page.
-  const { data: facilityData } = await supabase
-    .from('facilities')
-    .select('id, name_en, name_ar, code, kind')
-    .eq('is_active', true)
-    .order('name_en');
-  const facilities = (facilityData ?? []).map((f) => ({
-    id: f.id as string,
-    label: `${f.name_en}${f.name_ar ? ` · ${f.name_ar}` : ''}`,
-    code: f.code as string,
-  }));
-
-  const displayName = (p: Product) => (locale === 'ar' ? p.nameAr : p.nameEn);
+  const displayName = (p: ProductRow) => (locale === 'ar' ? p.name_ar : p.name_en);
 
   return (
-    <div className="space-y-4">
-      <PageHeader
-        title={t('title')}
-        description={t('subtitle', { count: products.length })}
-      />
+    <div className="min-h-[100dvh] bg-[var(--surface)] text-[var(--text)]">
+      {/* ── PAGE HEADER ── */}
+      <section className="mx-auto max-w-[1720px] px-6 py-8 flex flex-col gap-4">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="pf-display text-[1.5rem] font-semibold tracking-tight">
+                {t('title')}
+              </h1>
+              <span className="px-2 py-0.5 rounded-full border border-[var(--border)]/30 text-[11px] font-mono text-[var(--primary)]">
+                {t('activeFormulary')}
+              </span>
+            </div>
+            <p className="text-[13px] text-[var(--text-muted)] mt-0.5 tracking-normal">
+              {t('subtitle', { count: products.length })} · Node 04 Central Hub
+            </p>
+          </div>
 
-      {/*
-        The two disclosures, side by side and the width of their labels.
-
-        They were full-width bordered strips, one word each, stacked — two entire rows
-        of the screen for two actions, and the widest elements on the page. `w-fit`
-        makes the closed disclosure exactly as wide as its summary, and the form
-        inside sets its own width when it opens.
-      */}
-      <div className="flex flex-wrap items-start gap-2">
-        <ProductForm
-          canWrite={canWrite}
-          editing={editing ?? null}
-          labels={{
-            titleNew: t('form.newTitle'),
-            register: {
-              title: t('form.register.title'),
-              placeholder: t('form.register.placeholder'),
-              searching: t('form.register.searching'),
-              noResults: t('form.register.noResults'),
-              use: t('form.register.use'),
-              provenance: t('form.register.provenance'),
-            },
-            titleEdit: t('form.editTitle'),
-            sku: t('form.sku'),
-            nameEn: t('form.nameEn'),
-            nameAr: t('form.nameAr'),
-            genericNameEn: t('form.genericNameEn'),
-            genericNameAr: t('form.genericNameAr'),
-            brand: t('form.brand'),
-            form: t('form.form'),
-            strength: t('form.strength'),
-            strengthUnit: t('form.strengthUnit'),
-            packSize: t('form.packSize'),
-            uom: t('form.uom'),
-            atcCode: t('form.atcCode'),
-            gtin: t('form.gtin'),
-            edaRegNo: t('form.edaRegNo'),
-            requiresPrescription: t('form.requiresPrescription'),
-            isControlled: t('form.isControlled'),
-            isColdChain: t('form.isColdChain'),
-            shelfLifeMonths: t('form.shelfLifeMonths'),
-            sellPrice: t('form.sellPrice'),
-            sellPriceHint: t('form.sellPriceHint'),
-            isActive: t('form.isActive'),
-            facility: t('form.facility'),
-            code: t('form.code'),
-            kind: t('form.kind'),
-            tempMinC: t('form.tempMinC'),
-            tempMaxC: t('form.tempMaxC'),
-            submit: t('form.submit'),
-            cancel: t('form.cancel'),
-            saved: t('form.saved'),
-            created: t('form.created'),
-            titleNewLocation: t('form.newLocationTitle'),
-            locationSaved: t('form.locationSaved'),
-            submitLocation: t('form.submitLocation'),
-          }}
-        />
-
-        <LocationForm canWrite={canWrite} facilities={facilities} labels={{
-          facility: t('form.facility'),
-          code: t('form.code'),
-          nameEn: t('form.nameEn'),
-          nameAr: t('form.nameAr'),
-          kind: t('form.kind'),
-          tempMinC: t('form.tempMinC'),
-          tempMaxC: t('form.tempMaxC'),
-          isActive: t('form.isActive'),
-          titleNewLocation: t('form.newLocationTitle'),
-          locationSaved: t('form.locationSaved'),
-          submitLocation: t('form.submitLocation'),
-        }} />
-      </div>
-
-      {/*
-        One search landmark, not six.
-
-        The catalogue had a search form and two disclosure forms and an action form
-        per row, so the page announced six form landmarks and a screen reader user
-        listing them heard "form" six times. The search is a `role="search"` region
-        with a name, and the per-row action forms are inside the table where they
-        belong.
-      */}
-      <Toolbar label={t('searchPlaceholder')}>
-        <form method="get" className="flex flex-1 gap-2">
-          <input
-            type="search"
-            name="q"
-            defaultValue={query}
-            placeholder={t('searchPlaceholder')}
-            aria-label={t('searchPlaceholder')}
-            className="w-full max-w-sm rounded-lg border bg-transparent px-3 py-2 text-sm"
-          />
-          <button
-            type="submit"
-            className="rounded-lg border px-3 py-2 text-sm font-medium hover:bg-[color:var(--text-muted)]/10"
-          >
-            {t('search')}
-          </button>
-          {query !== '' ? (
+          {/* ── Action Cluster ── */}
+          <div className="flex items-center gap-2">
+            <div className="relative w-full sm:w-80">
+              <span
+                aria-hidden="true"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-[var(--text-muted)]"
+              >
+                <span className="w-5 h-5" />
+              </span>
+              <input
+                type="search"
+                name="q"
+                defaultValue={query}
+                placeholder={t('searchPlaceholder')}
+                aria-label={t('searchPlaceholder')}
+                className="w-full h-11 pl-9 pr-8 bg-[var(--surface-2)] border border-[var(--border)] rounded-xl font-mono text-[11px] text-[var(--text)] placeholder:[var(--text-muted)]/50 focus:border-[var(--primary)] focus:ring-0 focus:outline-none transition-colors"
+              />
+              {query !== '' ? (
+                <Link
+                  href="/admin/inventory/products"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-0.5 text-[11px] font-mono rounded bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-muted)] hover:bg-[var(--surface-muted)]"
+                >
+                  {t('clear')}
+                </Link>
+              ) : null}
+            </div>
             <Link
-              href="/admin/inventory/products"
-              className="rounded-lg border px-3 py-2 text-sm font-medium hover:bg-[color:var(--text-muted)]/10"
+              href="/admin/inventory/products?edit=new"
+              className="h-11 px-5 rounded-xl bg-[var(--primary)] text-[var(--primary-foreground)] font-mono text-[11px] font-semibold flex items-center gap-2 hover:bg-[color:var(--primary)]/90 transition-colors active:scale-[0.98] whitespace-nowrap"
             >
-              {t('clear')}
+              <span className="w-4 h-4" />{' '}
+              {t('newProduct')}
             </Link>
-          ) : null}
-        </form>
-      </Toolbar>
+          </div>
+        </div>
 
-      {error ? (
-        <p
-          role="alert"
-          className="rounded-xl border border-[var(--color-stock-critical)]/40 bg-[var(--color-stock-critical)]/5 p-4 text-sm text-[var(--color-stock-critical)]"
-        >
-          {t('loadError')}
-        </p>
-      ) : (
-        <ProductTable
-          rows={products}
-          locale={locale}
-          canWrite={canWrite}
-          setActiveAction={setProductActive}
-          labels={{
-            columnProduct: t('column.product'),
-            columnSku: t('column.sku'),
-            columnForm: t('column.form'),
-            columnPack: t('column.pack'),
-            columnFlags: t('column.flags'),
-            edit: t('edit'),
-            deactivate: t('deactivate'),
-            reactivate: t('reactivate'),
-            actionEdit: t('action.edit'),
-            actionDeactivate: t('action.deactivate'),
-            actionReactivate: t('action.reactivate'),
-            rx: t('badge.rx'),
-            controlled: t('badge.controlled'),
-            cold: t('badge.cold'),
-            inactive: t('badge.inactive'),
-            empty: query === '' ? t('empty') : t('emptySearch', { query }),
-            emptyBody: query === '' ? t('emptyBody') : t('emptySearchBody', { query }),
-            caption: t('title'),
-          }}
-        />
-      )}
+        {/* ── FILTER TOOLBAR ── */}
+        <div className="bg-[var(--surface-raised)] border border-[var(--border)] rounded-xl px-4 py-2 flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="relative">
+              <select
+                defaultValue="all"
+                className="h-9 pl-3 pr-8 bg-[var(--surface-2)] border border-[var(--border)] rounded-lg text-[13px] font-body-md text-[var(--text)] focus:border-[var(--primary)] focus:ring-0 appearance-none cursor-pointer"
+              >
+                <option value="all">{t('filter.allForms')}</option>
+                <option value="tablet">{t('filter.tablet')}</option>
+                <option value="sachet">{t('filter.sachet')}</option>
+                <option value="solution">{t('filter.solution')}</option>
+                <option value="powder">{t('filter.powder')}</option>
+                <option value="syringe">{t('filter.syringe')}</option>
+              </select>
+              <span
+                aria-hidden="true"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-[16px] text-[var(--text-muted)] pointer-events-none"
+              >
+                <span className="w-3 h-3" />
+              </span>
+            </div>
+            <div className="relative">
+              <select
+                defaultValue="all"
+                className="h-9 pl-3 pr-8 bg-[var(--surface-2)] border border-[var(--border)] rounded-lg text-[13px] font-body-md text-[var(--text)] focus:border-[var(--primary)] focus:ring-0 appearance-none cursor-pointer"
+              >
+                <option value="all">{t('filter.allStrengths')}</option>
+                <option value="500mg">{t('filter.strength500')}</option>
+                <option value="875-125mg">{t('filter.strength875')}</option>
+                <option value="100iu">{t('filter.strength100')}</option>
+                <option value="1g">{t('filter.strength1g')}</option>
+                <option value="0.5ml">{t('filter.strength05')}</option>
+              </select>
+              <span
+                aria-hidden="true"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-[16px] text-[var(--text-muted)] pointer-events-none"
+              >
+                <span className="w-3 h-3" />
+              </span>
+            </div>
+            <div className="h-4 w-[1px] bg-[var(--border)] hidden sm:block mx-1" />
+            <label className="h-9 px-3 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] flex items-center gap-2 cursor-pointer hover:border-[var(--border)]/60 transition-colors select-none">
+              <input
+                type="checkbox"
+                className="w-3 h-3 rounded border-[var(--border)] text-[var(--primary)] focus:ring-0 focus:ring-offset-0 bg-[var(--surface)]"
+              />
+              <span className="text-[13px] font-body-md text-[var(--text)]">{t('filter.rx')}</span>
+            </label>
+            <label className="h-9 px-3 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] flex items-center gap-2 cursor-pointer hover:border-[var(--border)]/60 transition-colors select-none">
+              <span className="w-4 h-4 text-[var(--primary)]" />
+              <span className="text-[13px] font-body-md text-[var(--text)]">{t('filter.coldChain')}</span>
+            </label>
+          </div>
+          <button
+            className="h-9 px-3 rounded-lg bg-[var(--surface-2)] hover:bg-[var(--surface-muted)] text-[var(--text)] border border-[var(--border)] text-[11px] font-body-sm flex items-center gap-1 transition-colors duration-150"
+          >
+            <span className="w-4 h-4" /> {t('filter.displayOptions')}
+          </button>
+        </div>
+
+        {/* ── DENSE TABLE ── */}
+        <div className="mt-4 bg-[var(--surface-raised)] border border-[var(--border)] rounded-xl overflow-hidden flex flex-col flex-1">
+          <div className="overflow-x-auto w-full">
+            <table className="w-full text-left border-collapse min-w-[960px]">
+              <thead>
+                <tr className="bg-[var(--surface)]/50 border-b border-[var(--border)] text-[11px] font-mono text-[var(--text-muted)] uppercase tracking-wider">
+                  <th className="px-3 py-2 text-left" scope="col">
+                    {t('column.product')}
+                  </th>
+                  <th className="px-3 py-3 text-left font-mono w-28" scope="col">
+                    {t('column.sku')}
+                  </th>
+                  <th className="px-3 py-3 text-left font-mono w-28" scope="col">
+                    {t('column.form')}
+                  </th>
+                  <th className="px-3 py-3 text-left font-mono w-32" scope="col">
+                    {t('column.strength')}
+                  </th>
+                  <th className="px-3 py-3 text-left font-mono w-36" scope="col">
+                    {t('column.cold')}
+                  </th>
+                  <th className="px-3 py-3 text-left font-mono w-32" scope="col">
+                    {t('column.status')}
+                  </th>
+                  <th className="px-3 py-3 w-16 text-right" scope="col">
+                    <span className="sr-only">{t('column.actions')}</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--border)]/30 text-[13px] font-body-md">
+                {products.map((p) => {
+                  const isCold = p.is_cold_chain;
+                  const isActive = p.is_active;
+                  const status = isActive
+                    ? { label: t('status.inFormulary'), tone: 'ok' as const }
+                    : { label: t('status.outOfFormulary'), tone: 'neutral' as const };
+                  return (
+                    <tr
+                      key={p.id}
+                      className="group hover:bg-[var(--surface-2)]/50 transition-colors duration-100"
+                    >
+                      <td className="px-3 py-3">
+                        <div className="font-mono text-[13px] leading-tight text-[var(--text)] font-semibold truncate">
+                          {displayName(p)}
+                        </div>
+                        <div className="text-[12px] leading-normal text-[var(--text-muted)] truncate">
+                          {p.generic_name_en ?? p.generic_name_ar ?? ''}
+                        </div>
+                      </td>
+                      <td className="px-3 py-3 whitespace-nowrap font-mono text-[11px] text-[var(--text-muted)]">
+                        <Ltr>{p.sku}</Ltr>
+                      </td>
+                      <td className="px-3 py-3">
+                        <span
+                          className="inline-block px-2 py-0.5 rounded text-[10px] font-mono tracking-wider uppercase bg-[var(--surface-2)] text-[var(--text-muted)] border border-[var(--border)]/20"
+                        >
+                          {p.form}
+                        </span>
+                      </td>
+                      <td className="px-3 py-3 whitespace-nowrap font-mono text-[11px] text-[var(--text)]">
+                        {p.strength} {p.strength_unit ?? ''}
+                      </td>
+                      <td className="px-3 py-3 whitespace-nowrap">
+                        {isCold ? (
+                          <span
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono text-[var(--primary)] border border-[var(--primary)]/30 bg-[var(--primary)]/10"
+                          >
+                            <span className="w-3 h-3 text-[var(--primary)]" /> {t('coldChain')}
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 text-[10px] text-[var(--text-muted)]">—</span>
+                        )}
+                      </td>
+                      <td className="px-3 py-3 whitespace-nowrap">
+                        <span
+                          className={`inline-flex items-center gap-2 px-2 py-0.5 rounded-full text-[10px] font-mono ${
+                            status.tone === 'ok'
+                              ? 'bg-[var(--color-stock-ok)]/15 text-[var(--color-stock-ok)] border border-[var(--color-stock-ok)]/30'
+                              : 'bg-[var(--color-stock-critical)]/15 text-[var(--color-stock-critical)] border border-[var(--color-stock-critical)]/30'
+                          }`}
+                        >
+                          <span
+                            className="w-1 h-1 rounded-full"
+                            style={{ backgroundColor: status.tone === 'ok' ? 'var(--color-stock-ok)' : 'var(--color-stock-critical)' }}
+                          />
+                          {status.label}
+                        </span>
+                      </td>
+                      <td className="px-3 py-3 text-right">
+                        <Link
+                          href={`/admin/inventory/products?edit=${p.id}`}
+                          className="opacity-0 group-hover:opacity-100 px-3 py-1 rounded bg-[var(--surface-2)] hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)] text-[var(--text)] text-[11px] font-mono transition-all duration-150 border border-[var(--border)]/30"
+                          aria-label={`${t('action.edit')} ${displayName(p)}`}
+                        >
+                          {t('edit')}
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
+                {products.length === 0 && (
+                  <tr>
+                    <td colSpan={7} className="px-3 py-6 text-center text-[var(--text-muted)]">
+                      {t('empty')}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* ── FOOTER / PAGINATION BAND ── */}
+          <div className="mt-auto border-t border-[var(--border)]/20 bg-[var(--surface)] px-4 py-2 flex flex-col sm:flex-row items-center justify-between gap-2">
+            <div className="text-[11px] font-mono text-[var(--text-muted)]">
+              {t('showing', { count: products.length, total: products.length })} {t('activeProducts')}
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1 text-[11px] font-mono text-[var(--text-muted)]">
+                <span>{t('rows')}</span>
+                <select
+                  defaultValue="50"
+                  className="h-7 px-2 bg-[var(--surface-2)] border border-[var(--border)] rounded text-[11px] font-mono text-[var(--text)] focus:ring-0 focus:border-[var(--primary)]"
+                >
+                  <option value="50">{t('rows50')}</option>
+                  <option value="100">{t('rows100')}</option>
+                  <option value="250">{t('rows250')}</option>
+                </select>
+              </div>
+              <div className="h-4 w-[1px] bg-[var(--border)]" />
+              <div className="flex items-center gap-1 text-[11px] font-mono text-[var(--text-muted)]">
+                <span className="px-2">{t('page', { current: 1, total: 1 })}</span>
+                <button
+                  disabled
+                  className="w-7 h-7 rounded flex items-center justify-center bg-[var(--surface-2)] border border-[var(--border)]/20 text-[var(--text-muted)]/40 cursor-not-allowed"
+                >
+                  <span className="w-3 h-3" />
+                </button>
+                <button
+                  disabled
+                  className="w-7 h-7 rounded flex items-center justify-center bg-[var(--surface-2)] border border-[var(--border)]/20 text-[var(--text-muted)]/40 cursor-not-allowed"
+                >
+                  <span className="w-3 h-3" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
 
-/* ── row shapes ────────────────────────────────────────────────────────────── */
-
-interface ProductRow {
-  id: string;
-  sku: string;
-  name_en: string;
-  name_ar: string;
-  generic_name_en: string | null;
-  generic_name_ar: string | null;
-  brand: string | null;
-  form: string;
-  strength: string;
-  strength_unit: string | null;
-  pack_size: number;
-  uom: string;
-  atc_code: string | null;
-  gtin: string | null;
-  eda_reg_no: string | null;
-  requires_prescription: boolean;
-  is_controlled: boolean;
-  is_cold_chain: boolean;
-  shelf_life_months: number;
-  sell_price_minor: number;
-  is_active: boolean;
-}
-
-function toProduct(r: ProductRow): Product {
-  return {
-    id: r.id,
-    tenantId: '',
-    sku: r.sku,
-    nameEn: r.name_en,
-    nameAr: r.name_ar,
-    genericNameEn: r.generic_name_en,
-    genericNameAr: r.generic_name_ar,
-    brand: r.brand,
-    form: r.form,
-    strength: r.strength,
-    strengthUnit: r.strength_unit,
-    packSize: r.pack_size,
-    uom: r.uom,
-    atcCode: r.atc_code,
-    gtin: r.gtin,
-    edaRegNo: r.eda_reg_no,
-    requiresPrescription: r.requires_prescription,
-    isControlled: r.is_controlled,
-    isColdChain: r.is_cold_chain,
-    shelfLifeMonths: r.shelf_life_months,
-    sellPriceMinor: r.sell_price_minor,
-    isActive: r.is_active,
-  };
+function Ltr({ children, className }: { children: React.ReactNode; className?: string }) {
+  return <bdi dir="ltr" className={className}>{children}</bdi>;
 }
