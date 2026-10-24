@@ -659,7 +659,77 @@
     "nothingDeliveredYet": "Nothing has been delivered against a requisition in this window yet.",
     "marginOnStock": "Margin if stock is sold",
     "rankedByRealised": "Top products by delivered margin",
-    "deliveredUnits": "{n} units delivered"
+    "deliveredUnits": "{n} units delivered",
+    "goodEvening": "Good evening",
+    "shiftInfo": "Thursday Night Shift · {time} Cairo Local Time",
+    "activeTelemetry": "ACTIVE TELEMETRY",
+    "runExpiryScan": "Run expiry scan",
+    "panel": {
+      "capital": "CAPITAL IN STOCK",
+      "capitalHint": "what the business has tied up at cost",
+      "margin": "MARGIN IF STOCK IS SOLD",
+      "marginHint": "No sell prices entered yet",
+      "expiring": "EXPIRING",
+      "priority": "PRIORITY",
+      "expiringHint": "within 90 days",
+      "units": "UNITS ON HAND",
+      "unitsHint": "{quarantined} quarantined"
+    },
+    "expiry": {
+      "title": "EXPIRY EXPOSURE",
+      "empty": "Nothing is within ninety days of its expiry.",
+      "footer": "{count, plural, one {# monitored batch requiring priority shift triage} other {# monitored batches requiring priority shift triage}} · Auto-refreshed 12s ago",
+      "liveSync": "Live ledger sync"
+    },
+    "window90": "90d",
+    "window180": "180d",
+    "runScan": "Run scan",
+    "col": {
+      "batch": "BATCH",
+      "product": "PRODUCT",
+      "location": "LOCATION",
+      "qty": "QTY",
+      "expiry": "EXPIRY",
+      "days": "DAYS"
+    },
+    "status": {
+      "expired": "Expired"
+    },
+    "days": "{days, plural, one {# day} other {# days}}",
+    "waiting": {
+      "title": "WAITING ON YOU",
+      "pending": "PENDING",
+      "facility": "{name}",
+      "none": "—",
+      "justNow": "41 seconds ago",
+      "dispatchClearance": "Dispatch Clearance Required",
+      "openRequisitions": "Open requisitions"
+    },
+    "audit": {
+      "title": "AUDIT LOG",
+      "live": "LIVE",
+      "by": "{who} · {when}",
+      "empty": "No entries yet."
+    },
+    "lots": {
+      "title": "ACTIVE LOT REPOSITORY · CAIRO / GIZA HUB",
+      "horizontalDrag": "Horizontal Drag"
+    },
+    "lot": {
+      "expired": "Expired",
+      "days": "days",
+      "inDate": "In Date",
+      "stock": "Stock",
+      "available": "Available: {qty} pk"
+    },
+    "footer": {
+      "license": "Cairo S.A.E. · WHO GDP Compliant · EDA License #8491/2023 · Telemetry Active: Node 04",
+      "coldChainTelemetry": "Cold-Chain Telemetry",
+      "nodeStatus": "Node Status",
+      "auditLog": "Audit Log",
+      "systemDiagnostics": "System Diagnostics",
+      "supportDispatch": "Support Dispatch"
+    }
   },
   "analytics": {
     "title": "Analytics",
