@@ -251,7 +251,29 @@
       "driver": "Driver"
     }
   },
-  "alerts": {
+  "driver": {
+      "title": "Driver Run Console",
+      "subtitle": "Your active run and stops",
+      "runConsole": {
+        "title": "Driver Run Console",
+        "arName": "وحدة والسائق",
+        "subtitle": "Your active run and stops",
+        "currentRun": "Current Run"
+      },
+      "stops": {
+        "title": "Stops",
+        "pending": "pending",
+        "completed": "completed",
+        "empty": "No stops assigned to this run yet.",
+        "stopNumber": "Stop {n}"
+      },
+      "status": {
+        "done": "Done",
+        "pending": "Pending"
+      },
+    "switchToArabic": "Switch to Arabic Interface"
+    },
+    "alerts": {
     "title": "Alerts",
     "subtitle": "Expiry, low stock, and the invariants that mean the data cannot be trusted.",
     "filter": "Filter alerts",
