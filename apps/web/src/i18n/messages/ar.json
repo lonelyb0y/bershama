@@ -542,6 +542,8 @@
     "figureQuarantinedHint": "مستلمة ولم تُفرج عنها بعد"
   },
   "deliveries": {
+    "title": "التوصيلات والطلبات",
+    "subtitle": "رحلات اليوم وكل طلب جارٍ",
     "status": {
       "trip": {
         "PLANNED": "مخطط",
@@ -668,6 +670,63 @@
       "trip_already_moved_on": "هذه الرحلة تحرّكت بالفعل",
       "trip_not_in_transit": "يمكن إغلاق رحلة في الطريق فقط",
       "unexpected": "حدث خطأ ما. أعد المحاولة."
+    },
+    "nav": {
+      "runsFleet": "الرحلات والأسطول",
+      "requisitions": "طلبات التوريد"
+    },
+    "searchOrders": "ابحث في الطلبات، أرقام الدفعات...",
+    "coldChain": "مراقبة سلسلة التبريد",
+    "notifications": "الإشعارات",
+    "help": "مساعدة",
+    "panel": {
+      "todaysRuns": "رحلات اليوم",
+      "dispatched": "أُرسلت",
+      "active": "نشيط",
+      "ordersInFlight": "طلبات في الرحلة",
+      "dispatchQueue": "قائمة الإرسال"
+    },
+    "col": {
+      "run": "الرحلة",
+      "stops": "المحطات",
+      "state": "الحالة",
+      "telemetry": "القياس عن بعد",
+      "stop": "المحطة",
+      "facility": "المنشأة",
+      "delivered": "تم التسليم",
+      "lines": "الأسطر",
+      "proof": "الإثبات"
+    },
+    "state": {
+      "inTransit": "جارٍ النقل",
+      "scheduled": "مجدول",
+      "delivered": "تم التسليم"
+    },
+    "telemetry": {
+      "temp": "{temp} °م",
+      "packing": "التغليف",
+      "archived": "مؤرشف",
+      "status": {
+        "ok": "جيد"
+      }
+    },
+    "footer": {
+      "priorityMatrix": "مصفوفة الأولوية: FIFO صارم لسلسلة التبريد",
+      "zone": "المنطقة: الجيزة والقاهرة الكبرى",
+      "auditSync": "مزامنة التدقيق: ناجحة",
+      "signedFor": "كل محطة تُوقّع عليها، والتوقيع مرفق بسجل الرحلة.",
+      "edaHash": "الرمز al-hash لهيئة الدواء"
+    },
+    "action": {
+      "newRequisition": "طلب جديد",
+      "newRun": "رحلة جديدة",
+      "inspect": "تفتيش",
+      "signature": "التوقيع →"
+    },
+    "status": {
+      "waiting": "في انتظار قرار",
+      "allocated": "مُخصَّص",
+      "staged": "مُجهز للتغليف"
     }
   },
   "dashboard": {

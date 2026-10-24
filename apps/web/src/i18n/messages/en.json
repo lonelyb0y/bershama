@@ -559,6 +559,8 @@
     "figureQuarantinedHint": "Received, not yet released"
   },
   "deliveries": {
+    "title": "Deliveries & orders",
+    "subtitle": "Today's runs and every order in flight",
     "status": {
       "trip": {
         "PLANNED": "Planned",
@@ -685,6 +687,63 @@
       "trip_already_moved_on": "This run has already moved on",
       "trip_not_in_transit": "Only a run on the road can be closed",
       "unexpected": "Something went wrong. Reload and try again."
+    },
+    "nav": {
+      "runsFleet": "Runs & Fleet",
+      "requisitions": "Requisitions"
+    },
+    "searchOrders": "Search orders, lots...",
+    "coldChain": "Cold-Chain Monitoring",
+    "notifications": "Notifications",
+    "help": "Help",
+    "panel": {
+      "todaysRuns": "TODAY'S RUNS",
+      "dispatched": "DISPATCHED",
+      "active": "ACTIVE",
+      "ordersInFlight": "ORDERS IN FLIGHT",
+      "dispatchQueue": "DISPATCH QUEUE"
+    },
+    "col": {
+      "run": "RUN",
+      "stops": "STOPS",
+      "state": "STATE",
+      "telemetry": "TELEMETRY",
+      "stop": "STOP",
+      "facility": "FACILITY",
+      "delivered": "DELIVERED",
+      "lines": "LINES",
+      "proof": "PROOF"
+    },
+    "state": {
+      "inTransit": "IN TRANSIT",
+      "scheduled": "SCHEDULED",
+      "delivered": "DELIVERED"
+    },
+    "telemetry": {
+      "temp": "{temp} °C",
+      "packing": "PACKING",
+      "archived": "ARCHIVED",
+      "status": {
+        "ok": "OK"
+      }
+    },
+    "footer": {
+      "priorityMatrix": "Priority Matrix: Strict FIFO Cold-Chain",
+      "zone": "Zone: Giza & Greater Cairo",
+      "auditSync": "AUDIT SYNC: PASSING",
+      "signedFor": "Every stop is signed for, and the signature is attached to the run record.",
+      "edaHash": "EDA-HASH"
+    },
+    "action": {
+      "newRequisition": "New requisition",
+      "newRun": "New run",
+      "inspect": "Inspect",
+      "signature": "Signature →"
+    },
+    "status": {
+      "waiting": "Waiting for a decision",
+      "allocated": "Allocated",
+      "staged": "Staged for pack"
     }
   },
   "dashboard": {
