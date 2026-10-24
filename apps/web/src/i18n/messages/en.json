@@ -334,7 +334,10 @@
     "saving": "Saving",
     "blankMeansUncounted": "A blank line is left uncounted. Enter 0 only if the shelf is genuinely empty.",
     "noLines": "There is no stock recorded at this location to count.",
-    "noLocations": "No storage locations are set up yet.",
+    "noLocations": {
+      "title": "No storage locations",
+      "body": "Set up a storage location first so you can count stock against it."
+    },
     "chooseLocation": "Choose a location",
     "uncounted": "uncounted",
     "systemShort": "System",
@@ -347,7 +350,43 @@
     "entered": "lines entered",
     "expired": "Expired",
     "expiringSoon": "Expiring soon",
-    "countPlaceholder": "Count"
+    "countPlaceholder": "Count",
+    "location": {
+      "aria": "{name} • shelf {shelf}"
+    },
+    "edaAudited": "EDA Audited",
+    "tempProfile": "TEMP PROFILE",
+    "linesRemaining": "LINES REMAINING",
+    "itemsRemaining": "items",
+    "palletId": "PALLET ID",
+    "filter": {
+      "uncounted": "{count, plural, one {# uncounted} other {# uncounted}}",
+      "discrepant": "{count, plural, one {# discrepant} other {# discrepant}}"
+    },
+    "audioBeep": "Audio Beep Feedback",
+    "col": {
+      "product": "PRODUCT / FORMULATION",
+      "expiry": "EXP",
+      "count": "COUNT",
+      "diff": "DIFF"
+    },
+    "empty": "There is no stock recorded at this location to count.",
+    "stepper": {
+      "title": "Quick Qty Stepper",
+      "target": "Target: {qty}",
+      "accept": "Accept Expected Quantity ({qty} units)"
+    },
+    "finish": "Finish",
+    "finishCount": "Finish count",
+    "edaTimestamp": "Egyptian Drug Authority (EDA) Audit Timestamp: {time}",
+    "nav": {
+      "stocktake": "Stocktake",
+      "scanner": "Scanner",
+      "discrepancies": "Discrepancies",
+      "sync": "Sync"
+    },
+    "units": "units",
+    "scanBarcode": "Trigger Barcode Scan"
   },
   "theme": {
     "label": "Theme",

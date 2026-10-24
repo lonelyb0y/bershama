@@ -334,7 +334,7 @@
     "saving": "جارٍ الحفظ",
     "blankMeansUncounted": "السطر الفارغ يُترك دون عد. أدخل 0 فقط إذا كانت الرفوف فارغة فعلاً.",
     "noLines": "لا يوجد مخزون مسجل في هذا الموقع للعد.",
-    "noLocations": "لم يتم إعداد أي مواقع تخزين بعد.",
+    "noLocations": {"title": "لم يتم إعداد أي مواقع تخزين بعد", "body": "قم بإعداد موقع تخزين أولاً حتى تتمكن من العد ضده."},
     "chooseLocation": "اختر الموقع",
     "uncounted": "دون عد",
     "systemShort": "الدفاتر",
@@ -347,7 +347,43 @@
     "entered": "سطر تم إدخاله",
     "expired": "منتهي الصلاحية",
     "expiringSoon": "قرب الانتهاء",
-    "countPlaceholder": "العدد"
+    "countPlaceholder": "العدد",
+    "location": {
+      "aria": "{name} • الرف {shelf}"
+    },
+    "edaAudited": "تم التدقيق من هيئة الدواء",
+    "tempProfile": "ملف درجة الحرارة",
+    "linesRemaining": "أسطر متبقية",
+    "itemsRemaining": "أصناف",
+    "palletId": "معرف المنصة",
+    "filter": {
+      "uncounted": "{count, plural, one {# دون عد} other {# دون عد}}",
+      "discrepant": "{count, plural, one {# بها تفاوت} other {# بها تفاوت}}"
+    },
+    "audioBeep": "تعليق صوتي للتنبيه",
+    "col": {
+      "product": "المنتج / التركيبة",
+      "expiry": "انتهاء الصلاحية",
+      "count": "العدد",
+      "diff": "الفرق"
+    },
+    "empty": "لا يوجد مخزون مسجل في هذا الموقع للعد.",
+    "stepper": {
+      "title": "عداد الكمية السريع",
+      "target": "الهدف: {qty}",
+      "accept": "قبول الكمية المتوقعة ({qty} وحدة)"
+    },
+    "finish": "إنهاء",
+    "finishCount": "إنهاء الجرد",
+    "edaTimestamp": "Timestamp تدقيق هيئة الدواء المصرية (EDA): {time}",
+    "nav": {
+      "stocktake": "جرد المخزون",
+      "scanner": "الماسح الضوئي",
+      "discrepancies": "التفاوتات",
+      "sync": "مزامنة"
+    },
+    "units": "وحدة",
+    "scanBarcode": "تشغيل مسح الباركود"
   },
   "theme": {
     "label": "المظهر",
