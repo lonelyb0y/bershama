@@ -32,7 +32,8 @@
     "capabilities": "Capabilities",
     "compliance": "Compliance",
     "network": "Network",
-    "settings": "Settings"
+    "settings": "Settings",
+    "orders": "Orders"
   },
   "auth": {
     "signIn": "Sign in",
@@ -1089,7 +1090,35 @@
       "ALLOCATED": "Allocated",
       "REJECTED": "Refused",
       "DISCARDED": "Discarded"
-    }
+    },
+    "title": "Al-Amal Clinical Pharmacy · Dokki Hub",
+    "console": {
+      "title": "Clinical Working Console",
+      "arName": "صيدلية الأمل التخصصية — مركز الدقي"
+    },
+    "panel": {
+      "onOrder": "ON ORDER",
+      "inPacking": "{count, plural, one {# requisition in packing} other {# requisitions in packing}}",
+      "inTransit": "IN TRANSIT",
+      "vanRoute": "Van-1 & Van-4 on route",
+      "arrived": "ARRIVED THIS WEEK",
+      "verified": "42 consignment lines verified",
+      "expiringSoon": "EXPIRING SOON",
+      "noCritical": "No critical short-dated batches"
+    },
+    "myOrders": {
+      "title": "My Orders",
+      "pending": "pending",
+      "empty": "No requisitions yet. Raise one from the catalogue and it arrives here, with its state."
+    },
+    "nav": {
+      "orders": "Orders"
+    },
+    "stockBuffer": "Stock Buffer",
+    "formulary": "Formulary",
+    "systemAlerts": "System alerts & batch sync",
+    "invoices": "Invoices",
+    "switchToArabic": "Switch to Arabic Interface"
   },
   "settings": {
     "title": "Account settings",
