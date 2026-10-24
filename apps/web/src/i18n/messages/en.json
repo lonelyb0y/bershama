@@ -885,7 +885,26 @@
     "unitsHeld": "{n} units held",
     "noStock": "No stock on hand.",
     "footnote": "Valued at batch cost. Cover extrapolates the last 30 days of issues linearly, so it is a prompt to reorder rather than a forecast.",
-    "showNumbers": "Show the numbers"
+    "showNumbers": "Show the numbers",
+    "stockValue": {
+      "title": "Stock Value",
+      "currentLedger": "Current Ledger",
+      "netDelta": "30d Net Delta",
+      "coldChainShare": "Cold-Chain Share",
+      "showNumbers": "Show the numbers"
+    },
+    "expiry": {
+      "title": "Expiry Analytics",
+      "subtitle": "What stock is at risk, and what is not moving.",
+      "expiringSoon": "Expiring Soon",
+      "expired": "Expired",
+      "within90Days": "within 90 days",
+      "critical": "critical stock",
+      "unitsOnHand": "Units on Hand",
+      "totalUnits": "total units across locations"
+    },
+    "range": "Range:",
+    "switchToArabic": "Switch to Arabic"
   },
   "signup": {
     "title": "Create your organisation",
