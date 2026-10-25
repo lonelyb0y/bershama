@@ -39,7 +39,7 @@ const SURFACES = [
   // from four figures and three links into four figures, a table and the lots that
   // need attention first.
   { path: '/en/admin/inventory', expect: 'hub' },
-  { path: '/en/admin/inventory/products', expect: 'table' },
+  { path: '/en/admin/inventory/products', expect: 'products' },
   { path: '/en/admin/inventory/batches', expect: 'table' },
   { path: '/en/admin/alerts', expect: 'alert-list' },
   // The dashboard. Its charts are Bklit's now, which means they are client
@@ -104,33 +104,15 @@ test.describe('the list surfaces render', () => {
 
       if (surface.expect === 'dashboard') {
         /*
-         * The panels, not the charts.
-         *
-         * The charts are CONDITIONAL -- they render when there are fulfilled
-         * deliveries, and the CI fixture has none -- so asserting them here
-         * asserted that the fixture had deliveries, which is a claim about the
-         * fixture and not about the dashboard. The chart's own mount is tested
-         * in charts.test.tsx, where the data is deterministic.
-         *
-         * What this asserts is the thing that IS always true: the panels are
-         * there, and the dashboard says what it has and what it has not.
-         */
-        /*
          * The panels, by STRUCTURE and not by copy.
          *
-         * Two earlier versions of this assertion failed, and both were testing
-         * the translation rather than the dashboard: one looked for a heading
-         * matching /ranked|realised/ when the heading says "Top products by
-         * delivered margin", and one looked for /nothing delivered/ when the
-         * empty state says "Nothing has been delivered against a requisition".
-         *
-         * A copy change should not break a smoke test, so the panels carry
-         * test ids and the assertion names those. What is being checked is
-         * that the dashboard's chart panels are there -- whether they hold a
-         * chart or an empty state depends on the data, and both are correct.
+         * The dashboard was rebuilt on the Stitch design, so the panels now
+         * carry the Stitch design's test ids. What is being checked is that
+         * the dashboard's panels are there -- whether they hold a chart or
+         * an empty state depends on the data, and both are correct.
          */
-        await expect(page.getByTestId('margin-chart-empty').or(page.getByTestId('bar-trend-chart'))).toBeVisible();
-        await expect(page.getByTestId('ranking-empty').or(page.getByTestId('ranked-bars'))).toBeVisible();
+        await expect(page.getByTestId('bar-trend-chart')).toBeVisible();
+        await expect(page.getByTestId('ranked-bars')).toBeVisible();
       }
 
       if (surface.expect === 'auth') {
@@ -179,10 +161,12 @@ test.describe('the list surfaces render', () => {
         await expect(page.getByRole('heading', { name: /security/i })).toBeVisible();
       }
 
-      if (surface.expect === 'table') {
-        await expect(page.locator('table')).toHaveCount(1);
+      if (surface.expect === 'products') {
+        await expect(page.getByTestId('product-table')).toBeVisible();
       } else if (surface.expect === 'alert-list') {
         await expect(page.getByTestId('alert-list')).toBeVisible();
+      } else if (surface.expect === 'table') {
+        await expect(page.locator('table')).toHaveCount(1);
       }
     });
   }
