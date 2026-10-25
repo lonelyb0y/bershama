@@ -73,7 +73,7 @@ export async function AuthShell({
       {/* ── the split ─────────────────────────────────────────────────────── */}
       <main className="mx-auto w-full max-w-[1400px] flex-1 px-4 py-10 sm:px-6 sm:py-14">
         <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-12">
-          <div className="max-w-xl">
+          <div className="min-w-0 max-w-xl">
             <p className="pf-mono text-[11px] tracking-[0.08em] text-[var(--text-muted)] uppercase">
               {eyebrow}
             </p>

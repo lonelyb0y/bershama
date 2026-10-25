@@ -124,12 +124,12 @@ export async function AuthenticatedShell({
           {/* Below lg: the navigation on its own row, scrollable rather than wrapped.
               The scrollbar is hidden on purpose -- a visible one on a tab strip is
               noise, and the strip's own overflow is the affordance. */}
-          <div data-testid="header-nav-strip" className="-mx-4 border-t border-[color:var(--border)]/30 lg:hidden">
+          <div data-testid="header-nav-strip" className="-mx-4 border-t border-[color:var(--border)]/30 lg:hidden overflow-x-auto scrollbar-hide">
             {/* A different name from the navigation above, not the same one.
                 They are the same destinations in two arrangements, and two
                 landmarks with the same name are a landmark list that says
                 nothing. */}
-            <nav aria-label={t('nav.sections')} className="px-4">
+            <nav aria-label={t('nav.sections')} className="px-4 min-w-0">
               <AppNav surface={surface} role={session.role} />
             </nav>
           </div>

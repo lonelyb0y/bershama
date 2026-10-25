@@ -58,7 +58,7 @@ export function HeaderCluster({
     // `header .ms-auto`, which a layout rewrite removed -- and a test that cannot
     // find its element fails as a timeout, not as "the selector is stale", so the
     // cost of that was thirty seconds per width and a message about a box.
-    <div data-testid="header-cluster" className="flex shrink-0 items-center gap-2">
+    <div data-testid="header-cluster" className="flex shrink-0 min-w-0 items-center gap-2">
       <ThemeToggle />
 
       <DropdownMenu open={open} onOpenChange={setOpen}>
