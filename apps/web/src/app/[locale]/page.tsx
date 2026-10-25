@@ -317,7 +317,7 @@ export default async function LandingPage({
           which is the difference between a person swiping and a person giving up.
           The cards are narrow enough that the fifth always has an edge showing.
         */}
-        <ul className="pf-rail mt-4 flex items-stretch gap-3 pb-2">
+        <ul className="pf-rail mt-4 flex items-stretch gap-3 pb-2 overflow-x-auto scrollbar-hide">
           {rail.map((item) => (
             <li
               key={item.sku}
