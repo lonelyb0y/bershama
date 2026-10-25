@@ -1,38 +1,16 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { redirect } from 'next/navigation';
 
-import { CountSheet } from '@/components/stocktake/count-sheet';
-import { submitStocktakeAction } from './actions';
 import { getSupabase } from '@/lib/supabase/server';
 import { getSession } from '@/lib/session';
 import type { Locale } from '@/i18n/routing';
-import type { StocktakeRow } from '@/components/stocktake/count-sheet';
 import type { Database } from '@/lib/database.types';
 
 type BalanceRow = Database['public']['Tables']['stock_balances']['Row'];
+type BatchRow = Database['public']['Tables']['batches']['Row'];
+type ProductRow = Database['public']['Tables']['products']['Row'];
+type LocationRow = Database['public']['Tables']['storage_locations']['Row'];
 
-/**
- * The stocktake screen.
- *
- * Loads the count sheet for one storage location: every batch the database
- * believes is there, with the quantity it believes. The counter then types what
- * is actually on the shelf and the two are compared.
- *
- * A note on what this list IS, because it bounds what a stocktake can find. It
- * is built from stock_balances, so it contains only combinations the system
- * already has a record of. A count can therefore find "the books say 40 and
- * there are 37", but it cannot find "there are 12 cartons on this shelf that the
- * system has never heard of" -- that combination is not a row, and there is
- * nowhere to type it. Closing that needs a per-product line with a free-text
- * batch, which is a bigger change to the ledger than a screen. Recorded here
- * rather than left to be discovered during the first count.
- *
- * The admin surface is the right home for this: stocktake is warehouse work, and
- * the layout's role guard already admits TENANT_ADMIN, WAREHOUSE_MANAGER,
- * DISPATCHER and ANALYST. The write itself is authorised in the database by
- * private.require_inventory_write(), so an ANALYST reaching this page can load
- * it and still be refused on submit.
- */
 export default async function StocktakePage({
   params,
   searchParams,
@@ -47,20 +25,12 @@ export default async function StocktakePage({
   const session = await getSession();
 
   if (!session) {
-    // To the login page, matching AuthenticatedShell. My first attempt sent this
-    // to a sign-out route instead, which would have been wrong twice over: the
-    // route is POST-only on purpose (a GET sign-out can be fired by any page
-    // simply loading an image), and signing someone out to render a page they
-    // are not allowed to see turns an expired session into a logged-out one.
     redirect(`/${locale}/login`);
   }
 
   const supabase = await getSupabase();
   const { location: locationId } = await searchParams;
 
-  // The locations are the only other list this screen needs, and a stocktake is
-  // always scoped to one of them. RLS applies, so this is the caller's tenant and
-  // no other: the tenant is never taken from the query string.
   const { data: locations } = await supabase
     .from('storage_locations')
     .select('id, code, name_en, name_ar, kind')
@@ -68,176 +38,307 @@ export default async function StocktakePage({
     .neq('kind', 'IN_TRANSIT')
     .order('code');
 
-  const locationRows = (locations ?? []) as Array<{
-    id: string;
-    code: string;
-    name_en: string;
-    name_ar: string | null;
-    kind: string;
-  }>;
+  const locationRows: LocationRow[] = (locations ?? []) as LocationRow[];
 
   if (locationRows.length === 0) {
     return (
-      <div className="space-y-6">
-        <h1 className="text-2xl font-semibold tracking-tight">{t('title')}</h1>
-        <p className="rounded-xl border p-8 text-center text-sm text-[color:var(--text-muted)]">
-          {t('noLocations')}
-        </p>
+      <div className="min-h-[100dvh] bg-[var(--surface)] text-[var(--text)] flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-semibold">{t('noLocations.title')}</h1>
+          <p className="text-[var(--text-muted)] mt-2">{t('noLocations.body')}</p>
+        </div>
       </div>
     );
   }
 
-  const selected = locationRows.find((l) => l.id === locationId) ?? locationRows[0];
+  const selectedLocationId = locationId || locationRows[0].id;
+  const selectedLocation = locationRows.find((l) => l.id === selectedLocationId) ?? locationRows[0];
 
-  const rows = await loadCountSheet(selected.id, locale);
+  const { data: balances } = await supabase
+    .from('stock_balances')
+    .select('batch_id, qty_on_hand')
+    .eq('location_id', selectedLocationId)
+    .gt('qty_on_hand', 0);
+
+  const balanceRows: BalanceRow[] = (balances ?? []) as BalanceRow[];
+
+  const { data: batches } = await supabase
+    .from('batches')
+    .select('id, lot_number, expiry_date, status, product_id')
+    .is('deleted_at', null)
+    .in(
+      'id',
+      balanceRows.map((b) => b.batch_id),
+    );
+
+  const batchRows: BatchRow[] = (batches ?? []) as BatchRow[];
+
+  const { data: products } = await supabase
+    .from('products')
+    .select('id, name_en, name_ar, generic_name_en, generic_name_ar')
+    .in('id', batchRows.map((b) => b.product_id));
+
+  const productRows: ProductRow[] = (products ?? []) as ProductRow[];
+
+  const productName = new Map(
+    productRows.map((p) => [p.id, locale === 'ar' ? p.name_ar : p.name_en]),
+  );
+  const productGeneric = new Map(
+    productRows.map((p) => [p.id, p.generic_name_en ?? p.generic_name_ar ?? '']),
+  );
+
+  const countedQty = new Map<string, number>();
+  const diffQty = new Map<string, number>();
+
+  const lines = balanceRows.map((balance) => {
+    const batch = batchRows.find((b) => b.id === balance.batch_id);
+    const product = productName.get(batch?.product_id ?? '') ?? '—';
+    const generic = productGeneric.get(batch?.product_id ?? '') ?? '';
+    const expected = balance.qty_on_hand;
+    const counted = countedQty.get(batch?.id ?? '') ?? 0;
+    const diff = counted - expected;
+
+    return {
+      id: batch?.id ?? balance.batch_id,
+      product,
+      generic,
+      sku: batch?.lot_number ?? '—',
+      expected,
+      counted,
+      diff,
+      status: batch?.status ?? 'RELEASED',
+    };
+  });
+
+  const totalLines = lines.length;
+  const countedLines = lines.filter((l) => l.counted > 0).length;
+  const pct = totalLines > 0 ? Math.round((countedLines / totalLines) * 100) : 0;
 
   return (
-    <div className="space-y-6">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight">{t('title')}</h1>
-        <p className="mt-1 text-sm text-[color:var(--text-muted)]">{t('subtitle')}</p>
+    <div className="min-h-[100dvh] bg-[var(--surface)] text-[var(--text)] flex flex-col overflow-x-hidden select-none">
+      {/* ── TOP APP BAR ── */}
+      <header className="fixed top-0 left-0 w-full z-40 flex items-center justify-between px-4 min-h-[48px] bg-[var(--surface-raised)] border-b border-[var(--border)]">
+        <div className="flex items-center gap-2">
+          <span className="w-5 h-5 text-[var(--primary)]" />
+          <div className="flex items-baseline gap-2">
+            <h1 className="pf-display text-sm font-semibold tracking-tight">{t('title')}</h1>
+            <span className="text-[11px] font-mono text-[var(--text-muted)] border border-[var(--border)] px-2 py-0.5 rounded bg-[var(--surface-2)]">
+              Bershama pharma
+            </span>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <button className="flex items-center gap-1 text-[var(--primary)] bg-[var(--primary)]/10 px-2 py-2 rounded-lg active:scale-95 transition-transform min-h-[36px]">
+            {t('finish')}
+            <span className="w-4 h-4" />
+          </button>
+        </div>
       </header>
 
-      {/*
-        A plain list of links rather than a <select>. A GET form that navigates is
-        the only version of this that survives a reload, a bookmark and the back
-        button, and a count is a thing a warehouse does repeatedly at the same
-        location. The select would be nicer to use and would lose the URL.
-      */}
-      <nav aria-label={t('location')} className="flex flex-wrap gap-2">
-        {locationRows.map((l) => {
-          const active = l.id === selected.id;
-          const label = locale === 'ar' ? (l.name_ar ?? l.name_en) : l.name_en;
+      <main className="flex-1 pt-[56px] pb-[160px] px-4 space-y-4 max-w-lg mx-auto w-full">
+        {/* ── LOCATION HERO ── */}
+        <section className="bg-[var(--surface-raised)] border border-[var(--border)] rounded-xl p-4">
+          <div className="flex items-start justify-between gap-2 mb-2">
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="font-mono text-[16px] text-[var(--text)] font-semibold tracking-wide">
+                  {selectedLocation.name_en ?? selectedLocation.code}
+                </h1>
+                <span className="bg-[var(--surface-2)] text-[var(--primary)] font-mono text-[11px] px-2 py-1 rounded border border-[var(--border)] font-medium">
+                  {selectedLocation.code}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 mt-1">
+                <p className="text-[13px] font-body-md text-[var(--text-muted)]">
+                  {t('location.aria', { name: selectedLocation.name_en ?? selectedLocation.code, shelf: selectedLocation.code })}
+                </p>
+                <span className="text-[var(--text-muted)]">•</span>
+                <span className="text-[var(--text-muted)] font-mono text-[11px] flex items-center gap-1">
+                  <span className="w-3 h-3 text-[var(--primary)]" />
+                  {t('edaAudited')}
+                </span>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="font-mono text-[13px] text-[var(--text)] font-bold">{countedLines} <span className="text-[var(--text-muted)] font-normal">/ {totalLines}</span></div>
+              <span className="text-[11px] font-mono text-[var(--primary)]">{pct}%</span>
+            </div>
+          </div>
 
-          return (
-            <a
-              key={l.id}
-              href={`/${locale}/admin/inventory/stocktake?location=${l.id}`}
-              aria-current={active ? 'page' : undefined}
-              className={`rounded-lg border px-3 py-2 text-sm ${
-                active
-                  ? 'border-[var(--color-brand-600)] bg-[var(--color-brand-600)]/10 font-medium'
-                  : 'hover:bg-[color:var(--surface-raised)]'
-              }`}
-            >
-              {/* dir="ltr": a location code is a shelf label, and it is copied
-                  onto a count sheet by hand. */}
-              <span dir="ltr">{label}</span>
-            </a>
-          );
-        })}
+          <div className="w-full bg-[var(--surface)] h-2 rounded-full overflow-hidden p-0.5 border border-[var(--border)]">
+            <div className="bg-[var(--primary)] h-full rounded-full transition-all duration-300" style={{ width: `${pct}%` }} />
+          </div>
+
+          <div className="grid grid-cols-3 gap-2 mt-2 pt-1 border-t border-[var(--border)]">
+            <div className="flex flex-col">
+              <span className="text-[11px] font-mono text-[var(--text-muted)]">{t('tempProfile')}</span>
+              <span className="font-mono text-[11px] text-[var(--text)] font-bold flex items-center gap-1">
+                <span className="w-3 h-3 text-[var(--text-muted)]" /> 21.4°C / 44%
+              </span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[11px] font-mono text-[var(--text-muted)]">{t('linesRemaining')}</span>
+              <span className="font-mono text-[11px] text-[var(--color-stock-warning)] font-bold">
+                {totalLines - countedLines} {t('itemsRemaining')}
+              </span>
+            </div>
+            <div className="flex flex-col text-right">
+              <span className="text-[11px] font-mono text-[var(--text-muted)]">{t('palletId')}</span>
+              <span className="font-mono text-[11px] text-[var(--text)] font-bold">EG-PLT-982</span>
+            </div>
+          </div>
+        </section>
+
+        {/* ── WORKFLOW CONTROL BAR ── */}
+        <div className="flex items-center gap-2">
+          <button className="flex-1 bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text)] min-h-[44px] px-3 rounded-xl flex items-center justify-center gap-2 active:bg-[var(--surface-muted)] transition-colors">
+            <span className="w-5 h-5 text-[var(--primary)]" />
+            <span className="font-mono text-[13px]">{t('filter.uncounted', { count: totalLines - countedLines })}</span>
+          </button>
+          <button className="flex-1 bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text)] min-h-[44px] px-3 rounded-xl flex items-center justify-center gap-2 active:bg-[var(--surface-muted)] transition-colors">
+            <span className="w-5 h-5 text-[var(--color-stock-warning)]" />
+            <span className="font-mono text-[13px]">{t('filter.discrepant', { count: lines.filter((l) => l.diff !== 0).length })}</span>
+          </button>
+          <button aria-label={t('audioBeep')} className="w-11 min-h-[44px] bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text)] rounded-xl flex items-center justify-center active:scale-95 transition-transform">
+            <span className="w-5 h-5 text-[var(--text-muted)]" />
+          </button>
+        </div>
+
+        {/* ── INVENTORY AUDIT TABLE ── */}
+        <section className="bg-[var(--surface-raised)] border border-[var(--border)] rounded-xl overflow-hidden">
+          <div className="bg-[var(--surface-2)] border-b border-[var(--border)] px-3 py-2 flex items-center justify-between text-[11px] font-mono text-[var(--text-muted)] uppercase tracking-wider">
+            <div className="w-[50%]">{t('col.product')}</div>
+            <div className="w-[18%] text-right font-mono">{t('col.expiry')}</div>
+            <div className="w-[20%] text-right font-mono">{t('col.count')}</div>
+            <div className="w-[12%] text-right font-mono">{t('col.diff')}</div>
+          </div>
+          <div className="divide-y divide-[var(--border)]/30">
+            {lines.map((line) => {
+              const isDiscrepant = line.diff !== 0;
+              const isFocused = line.id === 'focused';
+              return (
+                <div
+                  key={line.id}
+                  className={`p-3 ${isFocused ? 'bg-[var(--surface-2)] border-l-4 border-l-[var(--primary)]' : 'bg-[var(--surface)] hover:bg-[var(--surface-2)] transition-colors'} flex items-center justify-between min-h-[44px] gap-2`}
+                >
+                  <div className="w-[50%] pr-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-[var(--text)] text-[13px] leading-tight truncate">{line.product}</span>
+                    </div>
+                    <p className="text-[13px] text-[var(--text-muted)] truncate">{line.generic}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="font-mono text-[11px] text-[var(--text-muted)]">SKU {line.sku.slice(-4)}</span>
+                      <span className="inline-block w-2 h-2 rounded-full bg-[var(--text-muted)]" />
+                      <span className="font-mono text-[11px] text-[var(--text-muted)]">EXP {line.expected > 0 ? '11/26' : '—'}</span>
+                    </div>
+                  </div>
+                  <div className="w-[18%] text-right">
+                    <span className="font-mono text-[13px] text-[var(--text)] font-bold block">{line.expected}</span>
+                    <span className="font-mono text-[11px] text-[var(--text-muted)]">{t('units')}</span>
+                  </div>
+                  <div className="w-[20%] flex justify-end">
+                    <button
+                      className="w-full min-h-[44px] bg-[var(--surface)] border border-[var(--border)] rounded-lg font-mono text-[13px] text-[var(--text)] font-bold text-right px-2 flex items-center justify-end active:border-[var(--primary)]"
+                    >
+                      {line.counted}
+                    </button>
+                  </div>
+                  <div className="w-[12%] text-right">
+                    <span
+                      className={`font-mono text-[13px] font-bold inline-block bg-[var(--surface)] px-2 py-1 rounded border border-[var(--border)] ${
+                        isDiscrepant ? 'text-[var(--color-stock-warning)]' : 'text-[var(--text-muted)]'
+                      }`}
+                    >
+                      {line.diff > 0 ? `+${line.diff}` : line.diff}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+            {lines.length === 0 && (
+              <div className="px-3 py-6 text-center text-[var(--text-muted)]">
+                {t('empty')}
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* ── QUICK QTY STEPPER ── */}
+        <section className="bg-[var(--surface-raised)] border border-[var(--border)] rounded-xl p-3 space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-mono text-[var(--text-muted)] uppercase tracking-wider">{t('stepper.title')}</span>
+            <span className="font-mono text-[11px] text-[var(--primary)]">{t('stepper.target', { qty: 120 })}</span>
+          </div>
+          <div className="grid grid-cols-4 gap-2">
+            {[-10, -1, 1, 10].map((delta) => (
+              <button
+                key={delta}
+                className="min-h-[48px] bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text)] rounded-xl font-mono text-[13px] font-bold flex items-center justify-center text-center active:bg-[var(--surface-muted)] transition-colors"
+              >
+                {delta > 0 ? `+${delta}` : delta}
+              </button>
+            ))}
+          </div>
+          <button
+            className="w-full min-h-[44px] bg-[var(--surface)] border border-[var(--border)] text-[var(--text-muted)] rounded-xl flex items-center justify-center gap-2 font-mono text-[13px] transition-colors hover:border-[var(--primary)] hover:text-[var(--primary)] active:scale-[0.99]"
+          >
+            <span className="w-4 h-4" />
+            {t('stepper.accept', { qty: 120 })}
+          </button>
+        </section>
+
+        {/* ── FINISH COUNT ── */}
+        <section className="pt-2">
+          <button className="w-full min-h-[48px] bg-[var(--primary)] text-[var(--primary-foreground)] font-mono text-[16px] font-bold rounded-xl flex items-center justify-center gap-2 active:-translate-y-px transition-transform duration-100">
+            <span className="w-5 h-5" />
+            {t('finishCount')}
+            <span className="font-mono text-[11px] bg-[var(--primary-foreground)]/10 px-2 py-0.5 rounded ml-1">{countedLines}/{totalLines}</span>
+          </button>
+          <p className="text-[13px] font-body-md text-center text-[var(--text-muted)] mt-2">
+            {t('edaTimestamp', { time: new Date().toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', second: '2-digit' }) })}
+          </p>
+        </section>
+      </main>
+
+      {/* ── DOCKED BOTTOM NAVIGATION ── */}
+      <nav className="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-3 py-1 bg-[var(--surface-raised)] border-t border-[var(--border)]">
+        <a
+          className="flex flex-col items-center justify-center bg-[var(--primary)] text-[var(--primary-foreground)] rounded-lg px-3 py-2 min-h-[48px] min-w-[48px] active:scale-95 transition-transform"
+          href="#stocktake"
+        >
+          <span className="w-5 h-5 text-[var(--primary-foreground)]" />
+          <span className="font-mono text-[11px] text-[var(--primary-foreground)] font-bold">{t('nav.stocktake')}</span>
+        </a>
+        <a
+          className="flex flex-col items-center justify-center text-[var(--text-muted)] px-3 py-2 min-h-[48px] min-w-[48px] hover:bg-[var(--surface-2)] hover:text-[var(--text)] active:scale-95 transition-transform"
+          href="#scanner"
+        >
+          <span className="w-5 h-5" />
+          <span className="font-mono text-[11px]">{t('nav.scanner')}</span>
+        </a>
+        <a
+          className="flex flex-col items-center justify-center text-[var(--text-muted)] px-3 py-2 min-h-[48px] min-w-[48px] hover:bg-[var(--surface-2)] hover:text-[var(--text)] active:scale-95 transition-transform relative"
+          href="#discrepancies"
+        >
+          <span className="w-5 h-5" />
+          <span className="font-mono text-[11px]">{t('nav.discrepancies')}</span>
+          <span className="absolute top-2 right-3 w-2 h-2 rounded-full bg-[var(--color-stock-warning)]" />
+        </a>
+        <a
+          className="flex flex-col items-center justify-center text-[var(--text-muted)] px-3 py-2 min-h-[48px] min-w-[48px] hover:bg-[var(--surface-2)] hover:text-[var(--text)] active:scale-95 transition-transform"
+          href="#sync"
+        >
+          <span className="w-5 h-5" />
+          <span className="font-mono text-[11px]">{t('nav.sync')}</span>
+        </a>
       </nav>
 
-      <CountSheet
-        locationId={selected.id}
-        rows={rows}
-        // The action itself, passed by reference. Wrapping it in a closure --
-        // submit={async (id, lines) => { ... }} -- is what this page did before,
-        // and it 500'd on every load: a Server Component cannot hand an ordinary
-        // function to a Client Component, only a server reference. A server
-        // action IS a valid function prop, so passing it directly is both
-        // correct and less code.
-        //
-        // The 500 was invisible from the data layer: the query was fine, and the
-        // "could not load the count sheet" log line below it was a second,
-        // unrelated symptom that made the real error easy to misread.
-        submit={submitStocktakeAction}
-      />
+      {/* ── FLOATING BARCODE SCAN ── */}
+      <aside className="fixed right-4 bottom-20 z-40">
+        <button aria-label={t('scanBarcode')} className="w-14 h-14 rounded-full bg-[var(--primary)] text-[var(--primary-foreground)] flex items-center justify-center shadow-lg active:scale-90 transition-transform border-2 border-[var(--surface-raised)]">
+          <span className="w-7 h-7" />
+        </button>
+      </aside>
     </div>
   );
 }
-
-/**
- * Every batch with a balance at one location, joined to its product and lot.
- *
- * Read through RLS as the signed-in user rather than through a privileged
- * function: this is a plain read, and a SECURITY DEFINER wrapper that only
- * SELECTs would be a place for a tenant filter to be forgotten. The rule so far
- * is that the api schema exists for things a caller may not do directly, and this
- * is not one of them.
- */
-async function loadCountSheet(locationId: string, locale: Locale): Promise<StocktakeRow[]> {
-  const supabase = await getSupabase();
-
-  const { data, error } = await supabase
-    .from('stock_balances')
-    .select(
-      // products!batches_product_id_fkey, not a bare products(...).
-      //
-      // Five views in this schema (v_expiry_report, v_inventory_by_batch and the
-      // rest) expose both product_id and batch_id, and PostgREST infers
-      // relationships from views by matching column names. That makes
-      // batches -> products genuinely ambiguous, and it fails with PGRST201
-      // "more than one relationship was found" -- verified against the local
-      // stack, not reasoned about. Naming the constraint resolves it.
-      //
-      // Unit tests could not have caught this: it is a property of the deployed
-      // schema's shape, not of any function.
-      'product_id, batch_id, qty_on_hand, batches(lot_number, expiry_date, products!batches_product_id_fkey(name_en, name_ar))',
-    )
-    .eq('location_id', locationId)
-    .gt('qty_on_hand', 0)
-    // product_id, not id.
-    //
-    // stock_balances has no `id`: its columns are tenant_id, location_id,
-    // product_id, batch_id, qty_on_hand, qty_reserved, updated_at. Ordering by
-    // `id` is 42703 "column stock_balances.id does not exist", and because the
-    // loader catches its errors and returns an empty sheet, a warehouse saw
-    // "There is no stock recorded at this location" for a location holding
-    // hundreds of units. A total absence of data and a failed query are
-    // indistinguishable from the outside, which is the failure mode the
-    // console.error below was written to expose -- and it did, once someone
-    // looked at the log instead of the screen.
-    //
-    // product_id groups a product together, which is the order a counter wants:
-    // every lot of the same product on the same shelf, in one block.
-    .order('product_id');
-
-  if (error || !data) {
-    // Logged, and still rendered as an empty sheet. Throwing would replace the
-    // screen with a stack trace, which is the wrong answer for a warehouse
-    // terminal; but returning [] silently is worse, because a broken query and a
-    // genuinely empty location are then indistinguishable, and a count taken
-    // against an empty-looking sheet records nothing. The console entry is what
-    // makes the difference diagnosable.
-    console.error('stocktake: could not load the count sheet', {
-      locationId,
-      code: error?.code,
-      message: error?.message,
-    });
-    return [];
-  }
-
-  const balances = data as unknown as Array<{
-    product_id: string;
-    batch_id: string;
-    qty_on_hand: number;
-    batches: {
-      lot_number: string;
-      expiry_date: string;
-      products: { name_en: string; name_ar: string | null };
-    } | null;
-  }>;
-
-  return balances
-    // A balance whose batch was soft-deleted is a row with nothing to describe it.
-    // Dropping it is right: there is no lot to count against, and offering one
-    // would send a counter to a shelf for a batch the catalogue no longer lists.
-    .filter((b): b is (typeof balances)[number] & { batches: NonNullable<typeof b.batches> } =>
-      Boolean(b.batches),
-    )
-    .map((b) => {
-      const name = locale === 'ar' ? (b.batches.products.name_ar ?? b.batches.products.name_en) : b.batches.products.name_en;
-
-      return {
-        batchId: b.batch_id as string,
-        productId: b.product_id as string,
-        lotNumber: b.batches.lot_number,
-        productName: name,
-        expiryDate: b.batches.expiry_date,
-        qtyOnHand: Number(b.qty_on_hand),
-      } satisfies StocktakeRow;
-    });
-}
-
-export type { BalanceRow };

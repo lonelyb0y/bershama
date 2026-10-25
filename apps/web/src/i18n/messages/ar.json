@@ -32,7 +32,8 @@
     "capabilities": "الإمكانات",
     "compliance": "الامتثال",
     "network": "الشبكة",
-    "settings": "الإعدادات"
+    "settings": "الإعدادات",
+    "orders": "الطلبات"
   },
   "auth": {
     "signIn": "تسجيل الدخول",
@@ -202,7 +203,35 @@
     "emptyNeedsAction": "لا يوجد ما ينتظر قرارًا",
     "emptyNeedsActionBody": "تم تخصيص كل الطلبات أو رفضها. الطلبات الجديدة من الصيدليات تصل هنا.",
     "emptyAll": "لا توجد طلبات بعد",
-    "emptyAllBody": "ترفع الصيدلية طلبًا على مخزونك، فيصل هنا بالسبب والمنشأة."
+    "emptyAllBody": "ترفع الصيدلية طلبًا على مخزونك، يصل هنا بالسبب والمنشأة.",
+    "hub": "المحور المركزي للقاهرة",
+    "nightShift": "النوبة الليلية ٠٢:١٤ بالتوقيت المحلي",
+    "edaCompliance": "الامتثال لهيئة الدواء sec-4",
+    "batchId": "معرف الدفعة",
+    "filterView": "تصفية العرض",
+    "needsDecision": "تحتاج قرارًا",
+    "pendingDecision": "قيد الانتظار للقرار",
+    "selectAll": "تحديد الكل",
+    "exportManifest": "تصدير بيان الشحن",
+    "requestedLines": "{count, plural, zero {لا بنود مطلوبة} one {بند مطلوب واحد} two {بندان مطلوبان} few {# بنود مطلوبة} many {# بند مطلوب} other {# بند مطلوب}}",
+    "facility": "المنشأة: {name}",
+    "prioritySlot": "فتحة الأولوية في QUEUE 01",
+    "inspectTelemetry": "تفقد القياس عن بعد لسلسلة التبريد بالكامل",
+    "allocate": "تخصيص",
+    "release": "إطلاق",
+    "standardFefo": "نظام فيفو القياسي",
+    "recentlyResolved": "تم حلها مؤخرًا",
+    "audit60m": "مراجعة ٦٠ دقيقة",
+    "last60minAudit": "سجل المراجعة خلال آخر ٦٠ دقيقة",
+    "coldStorage": "وحدة التخزين البارد بالقاهرة ٣",
+    "live": "مباشر",
+    "avgRun": "متوسط التشغيل",
+    "tempRange": "الحد الأدنى {min}°م • الحد الأقصى {max}°م",
+    "target": "الهدف: {low}°م–{high}°م",
+    "sensorId": "معرف الحساس: SENS-CAI-901",
+    "calibration": "الضبط: 2026-02-15",
+    "noResolved": "لا توجد طلبات تم حلها بعد.",
+    "justNow": "منذ ٤١ ثانية"
   },
   "delivery": {
     "trips": "الرحلات",
@@ -222,7 +251,29 @@
       "driver": "السائق"
     }
   },
-  "alerts": {
+  "driver": {
+      "title": "وحدة عمل السائق",
+      "subtitle": "رحلتك النشطة ومحطاتك",
+      "runConsole": {
+        "title": "وحدة عمل السائق",
+        "arName": "وحدة السائق",
+        "subtitle": "رحلتك النشطة ومحطاتك",
+        "currentRun": "الرحلة الحالية"
+      },
+      "stops": {
+        "title": "المحطات",
+        "pending": "قيد الانتظار",
+        "completed": "مكتملة",
+        "empty": "لا توجد محطات مخصصة لهذه الرحلة بعد.",
+        "stopNumber": "المحطة {n}"
+      },
+      "status": {
+        "done": "مكتملة",
+        "pending": "قيد الانتظار"
+      },
+    "switchToArabic": "التحويل إلى واجهة عربية"
+    },
+    "alerts": {
     "title": "التنبيهات",
     "subtitle": "الانتهاء، ونقص المخزون، والثوابت التي تعني أن البيانات غير موثوقة.",
     "filter": "تصفية التنبيهات",
@@ -259,6 +310,26 @@
       "CRITICAL": "حرج",
       "WARN": "تحذير",
       "INFO": "معلومة"
+    },
+    "liveDispatchFeed": "التغذية المباشرة للإرسال",
+    "searchAlerts": "ابحث في معرف التنبيه، رقم الدفعة، المسار أو رمز المخزون...",
+    "filter": {
+      "allHubs": "تصفية: جميع المحاور"
+    },
+    "activeAlerts": "تغذية التنبيهات النشطة",
+    "chamberGateway": "قياس عن بعد بوابة الحجرة",
+    "consoleConfig": "تكوين وحدة التحكم",
+    "emergencyQuarantine": "حجر صحي طارئ",
+    "operatorBadge": "شارة مسؤول هيئة الدواء المصرية",
+    "section": {
+      "needsDecision": "يحتاج قرارًا",
+      "requiresSignoff": "يتطلب موافقة المشرف أو تجاوز فيفو",
+      "pollingActive": "جاري الاستطلاع // ٤ ثوانٍ"
+    },
+    "action": {
+      "acknowledge": "إقرار",
+      "resolve": "إغلاق",
+    "toggleArabic": "التحويل إلى واجهة عربية"
     }
   },
   "m0": {
@@ -306,7 +377,7 @@
     "saving": "جارٍ الحفظ",
     "blankMeansUncounted": "السطر الفارغ يُترك دون عد. أدخل 0 فقط إذا كانت الرفوف فارغة فعلاً.",
     "noLines": "لا يوجد مخزون مسجل في هذا الموقع للعد.",
-    "noLocations": "لم يتم إعداد أي مواقع تخزين بعد.",
+    "noLocations": {"title": "لم يتم إعداد أي مواقع تخزين بعد", "body": "قم بإعداد موقع تخزين أولاً حتى تتمكن من العد ضده."},
     "chooseLocation": "اختر الموقع",
     "uncounted": "دون عد",
     "systemShort": "الدفاتر",
@@ -319,7 +390,43 @@
     "entered": "سطر تم إدخاله",
     "expired": "منتهي الصلاحية",
     "expiringSoon": "قرب الانتهاء",
-    "countPlaceholder": "العدد"
+    "countPlaceholder": "العدد",
+    "location": {
+      "aria": "{name} • الرف {shelf}"
+    },
+    "edaAudited": "تم التدقيق من هيئة الدواء",
+    "tempProfile": "ملف درجة الحرارة",
+    "linesRemaining": "أسطر متبقية",
+    "itemsRemaining": "أصناف",
+    "palletId": "معرف المنصة",
+    "filter": {
+      "uncounted": "{count, plural, one {# دون عد} other {# دون عد}}",
+      "discrepant": "{count, plural, one {# بها تفاوت} other {# بها تفاوت}}"
+    },
+    "audioBeep": "تعليق صوتي للتنبيه",
+    "col": {
+      "product": "المنتج / التركيبة",
+      "expiry": "انتهاء الصلاحية",
+      "count": "العدد",
+      "diff": "الفرق"
+    },
+    "empty": "لا يوجد مخزون مسجل في هذا الموقع للعد.",
+    "stepper": {
+      "title": "عداد الكمية السريع",
+      "target": "الهدف: {qty}",
+      "accept": "قبول الكمية المتوقعة ({qty} وحدة)"
+    },
+    "finish": "إنهاء",
+    "finishCount": "إنهاء الجرد",
+    "edaTimestamp": "Timestamp تدقيق هيئة الدواء المصرية (EDA): {time}",
+    "nav": {
+      "stocktake": "جرد المخزون",
+      "scanner": "الماسح الضوئي",
+      "discrepancies": "التفاوتات",
+      "sync": "مزامنة"
+    },
+    "units": "وحدة",
+    "scanBarcode": "تشغيل مسح الباركود"
   },
   "theme": {
     "label": "المظهر",
@@ -328,7 +435,9 @@
   },
   "products": {
     "title": "المنتجات",
-    "subtitle": "{count, plural, zero {لا منتجات} one {منتج واحد} two {منتجان} few {# منتجات} many {# منتجًا} other {# منتج}} في هذا الكتالوج",
+    "subtitle": "{count, plural, zero {لا منتجات} one {منتج واحد} two {منتجان} few {# منتجات} many {# منتجًا} other {# منتج}} مسجلة في القائمة الدوائية",
+    "activeFormulary": "القائمة الدوائية",
+    "newProduct": "منتج جديد",
     "searchPlaceholder": "ابحث بالاسم أو الاسم العلمي أو رمز المنتج",
     "search": "بحث",
     "clear": "مسح",
@@ -392,15 +501,48 @@
     "column": {
       "product": "المنتج",
       "sku": "الرمز",
-      "form": "التركيز",
+      "form": "شكل الصيغة الصيدلانية",
+      "strength": "التركيز",
       "pack": "العبوة",
-      "flags": "العلامات"
+      "cold": "بارد",
+      "flags": "العلامات",
+      "status": "الحالة",
+      "actions": "أعمال"
+    },
+    "filter": {
+      "allForms": "جميع الأشكال (أقراص, كيس, محلول...)",
+      "tablet": "أقراص",
+      "sachet": "كيس",
+      "solution": "محلول",
+      "powder": "بودرة",
+      "syringe": "حقنة",
+      "allStrengths": "جميع مستويات التركيز",
+      "strength500": "500 ملغ",
+      "strength875": "875/125 ملغ",
+      "strength100": "100 وحدة دولية/مل",
+      "strength1g": "1 غرام",
+      "strength05": "0.5 مل",
+      "rx": "يطلب وصفة طبية",
+      "coldChain": "سلسلة التبريد",
+      "displayOptions": "خيارات العرض"
+    },
+    "coldChain": "2\u00b0C - 8\u00b0C",
+    "status": {
+      "inFormulary": "في القائمة",
+      "outOfFormulary": "خارج القائمة"
     },
     "action": {
       "edit": "تعديل {name}",
       "deactivate": "إيقاف {name}",
       "reactivate": "تنشيط {name}"
     },
+    "showing": "{count, plural, one {# منتج} other {# منتج}} من {total}",
+    "activeProducts": "تركيبة دوائية نشطة",
+    "rows": "أسطر:",
+    "rows50": "50 / الصفحة",
+    "rows100": "100 / الصفحة",
+    "rows250": "250 / الصفحة",
+    "page": "الصفحة {current} من {total}",
     "emptyBody": "المنتج هو ما ترتبط به التشغيلة. أضف أول منتج لتسجيل المخزون عليه.",
     "emptySearchBody": "لا يوجد ما يطابق «{query}». يشمل البحث الاسم والاسم العربي والرمز."
   },
@@ -443,6 +585,8 @@
     "figureQuarantinedHint": "مستلمة ولم تُفرج عنها بعد"
   },
   "deliveries": {
+    "title": "التوصيلات والطلبات",
+    "subtitle": "رحلات اليوم وكل طلب جارٍ",
     "status": {
       "trip": {
         "PLANNED": "مخطط",
@@ -569,6 +713,63 @@
       "trip_already_moved_on": "هذه الرحلة تحرّكت بالفعل",
       "trip_not_in_transit": "يمكن إغلاق رحلة في الطريق فقط",
       "unexpected": "حدث خطأ ما. أعد المحاولة."
+    },
+    "nav": {
+      "runsFleet": "الرحلات والأسطول",
+      "requisitions": "طلبات التوريد"
+    },
+    "searchOrders": "ابحث في الطلبات، أرقام الدفعات...",
+    "coldChain": "مراقبة سلسلة التبريد",
+    "notifications": "الإشعارات",
+    "help": "مساعدة",
+    "panel": {
+      "todaysRuns": "رحلات اليوم",
+      "dispatched": "أُرسلت",
+      "active": "نشيط",
+      "ordersInFlight": "طلبات في الرحلة",
+      "dispatchQueue": "قائمة الإرسال"
+    },
+    "col": {
+      "run": "الرحلة",
+      "stops": "المحطات",
+      "state": "الحالة",
+      "telemetry": "القياس عن بعد",
+      "stop": "المحطة",
+      "facility": "المنشأة",
+      "delivered": "تم التسليم",
+      "lines": "الأسطر",
+      "proof": "الإثبات"
+    },
+    "state": {
+      "inTransit": "جارٍ النقل",
+      "scheduled": "مجدول",
+      "delivered": "تم التسليم"
+    },
+    "telemetry": {
+      "temp": "{temp} °م",
+      "packing": "التغليف",
+      "archived": "مؤرشف",
+      "status": {
+        "ok": "جيد"
+      }
+    },
+    "footer": {
+      "priorityMatrix": "مصفوفة الأولوية: FIFO صارم لسلسلة التبريد",
+      "zone": "المنطقة: الجيزة والقاهرة الكبرى",
+      "auditSync": "مزامنة التدقيق: ناجحة",
+      "signedFor": "كل محطة تُوقّع عليها، والتوقيع مرفق بسجل الرحلة.",
+      "edaHash": "الرمز al-hash لهيئة الدواء"
+    },
+    "action": {
+      "newRequisition": "طلب جديد",
+      "newRun": "رحلة جديدة",
+      "inspect": "تفتيش",
+      "signature": "التوقيع →"
+    },
+    "status": {
+      "waiting": "في انتظار قرار",
+      "allocated": "مُخصَّص",
+      "staged": "مُجهز للتغليف"
     }
   },
   "dashboard": {
@@ -610,7 +811,77 @@
     "nothingDeliveredYet": "لم يتم تسليم أي بضاعة مقابل طلب في هذه الفترة بعد.",
     "marginOnStock": "الهامش لو بيع المخزون",
     "rankedByRealised": "أعلى المنتجات بهامش مُسلَّم",
-    "deliveredUnits": "{n} وحدة تم تسليمها"
+    "deliveredUnits": "{n} وحدة تم تسليمها",
+    "goodEvening": "مساء الخير",
+    "shiftInfo": "النوبة الليلية ليوم الخميس · {time} بالتوقيت المحلي للقاهرة",
+    "activeTelemetry": "القياس عن بعد نشط",
+    "runExpiryScan": "افحص الصلاحية",
+    "panel": {
+      "capital": "رأس المال في المخزون",
+      "capitalHint": "المال المجمَّد بالتكلفة",
+      "margin": "الهامش لو بيع المخزون",
+      "marginHint": "لم تُدخَل أسعار بيع بعد",
+      "expiring": "تنتهي صلاحيتها",
+      "priority": "أولوية",
+      "expiringHint": "خلال ٩٠ يوماً",
+      "units": "الوحدات في المخزون",
+      "unitsHint": "{quarantined} في الحجر الصحي"
+    },
+    "expiry": {
+      "title": "تعرض تاريخ الانتهاء",
+      "empty": "لا شيء ضمن تسعين يوماً من انتهاء صلاحيته.",
+      "footer": "{count, plural, zero {لا توجد دفعات مراقَبة} one {عرض دفعة مراقَبة واحدة تحتاج أولوية ترتيب} two {عرض دفعتين مراقَبتين تحتاجان أولوية ترتيب} few {عرض # دفعات مراقَبة تحتاج أولوية ترتيب} many {عرض # دفعة مراقَبة تحتاج أولوية ترتيب} other {عرض # دفعة مراقَبة تحتاج أولوية ترتيب}} · مزامنة تلقائية منذ ١٢ ثانية",
+      "liveSync": "مزامنة دفتر الأستاذ الحي"
+    },
+    "window90": "٩٠ يوم",
+    "window180": "١٨٠ يوم",
+    "runScan": "شغّل المسح",
+    "col": {
+      "batch": "الدفعة",
+      "product": "المنتج",
+      "location": "الموقع",
+      "qty": "الكمية",
+      "expiry": "انتهاء الصلاحية",
+      "days": "أيام"
+    },
+    "status": {
+      "expired": "منتهية الصلاحية"
+    },
+    "days": "{days, plural, zero {لا أيام} one {يوم} two {يومان} few {# أيام} many {# يومًا} other {# يوم}}",
+    "waiting": {
+      "title": "بانتظارك",
+      "pending": "معلقة",
+      "facility": "{name}",
+      "none": "—",
+      "justNow": "منذ ٤١ ثانية",
+      "dispatchClearance": "مطلوب تصريح الشحن",
+      "openRequisitions": "افتح طلبات التوريد"
+    },
+    "audit": {
+      "title": "سجل التدقيق",
+      "live": "مباشر",
+      "by": "{who} · {when}",
+      "empty": "لا توجد سجلات بعد."
+    },
+    "lots": {
+      "title": "مستودع الدفعات النشط · القاهرة / الجيزة",
+      "horizontalDrag": "سحب أفقي"
+    },
+    "lot": {
+      "expired": "منتهية",
+      "days": "أيام",
+      "inDate": "صالح",
+      "stock": "المخزون",
+      "available": "متاح: {qty} عبوة"
+    },
+    "footer": {
+      "license": "القاهرة ش.م.م · ملتزم بممارسات توزيع الأدوية الجيدة WHO GDP · رخصة هيئة الدواء المصرية #8491/2023 · القياس عن بعد نشط: العقدة ٠٤",
+      "coldChainTelemetry": "القياس عن بعد لسلسلة التبريد",
+      "nodeStatus": "حالة العقدة",
+      "auditLog": "سجل التدقيق",
+      "systemDiagnostics": "تشخيص النظام",
+      "supportDispatch": "دعم الإرسال"
+    }
   },
   "analytics": {
     "title": "التحليلات",
@@ -640,7 +911,26 @@
     "unitsHeld": "{n} وحدة محتفظ بها",
     "noStock": "لا يوجد مخزون.",
     "footnote": "مُقوَّمة بسعر تكلفة الدفعة. التغطية تقدّر خطياً صرف آخر ٣٠ يوماً، لذا فهي دعوة لإعادة الطلب وليست تنبؤاً.",
-    "showNumbers": "اعرض الأرقام"
+    "showNumbers": "اعرض الأرقام",
+    "stockValue": {
+      "title": "قيمة المخزون",
+      "currentLedger": "الدفتر الحالي",
+      "netDelta": "صافي التغيير خلال 30 يوما",
+      "coldChainShare": "حصة سلسلة التبريد",
+      "showNumbers": "اعرض الأرقام"
+    },
+    "expiry": {
+      "title": "تحليل انتهاء الصلاحية",
+      "subtitle": "ما المخزون المعرض للخطر، وما لا يتحرك.",
+      "expiringSoon": "قريب الانتهاء",
+      "expired": "منتهي الصلاحية",
+      "within90Days": "خلال 90 يوما",
+      "critical": "مخزون حرج",
+      "unitsOnHand": "الوحدات المتاحة",
+      "totalUnits": "إجمالي الوحدات عبر المواقع"
+    },
+    "range": "النطاق:",
+    "switchToArabic": "التحويل إلى العربية"
   },
   "signup": {
     "title": "أنشئ مؤسستك",
@@ -805,7 +1095,35 @@
       "ALLOCATED": "مخصصة",
       "REJECTED": "مرفوضة",
       "DISCARDED": "متروكة"
-    }
+    },
+    "title": "صيدلية الأمل التخصصية · مركز الدقي",
+    "console": {
+      "title": "وحدة العمل السريرية",
+      "arName": "صيدلية الأمل التخصصية — مركز الدقي"
+    },
+    "panel": {
+      "onOrder": "قيد الطلب",
+      "inPacking": "{count, plural, zero {لا طلبات في التغليف} one {طلب واحد في التغليف} two {طلبان في التغليف} few {# طلبات في التغليف} many {# طلبًا في التغليف} other {# طلب في التغليف}",
+      "inTransit": "قيد النقل",
+      "vanRoute": "فان-1 وفان-4 في الطريق",
+      "arrived": "وصل هذا الأسبوع",
+      "verified": "42 خط شحنة تم التحقق منها",
+      "expiringSoon": "قريب الانتهاء",
+      "noCritical": "لا توجد دفعات قصيرة الأجل حرجة"
+    },
+    "myOrders": {
+      "title": "طلباتي",
+      "pending": "قيد الانتظار",
+      "empty": "لا توجد طلبات بعد. ارفع طلبًا من الكتالوج وسيصل هنا مع حالته."
+    },
+    "nav": {
+      "orders": "الطلبات"
+    },
+    "stockBuffer": "المخزون الاحتياطي",
+    "formulary": "الصيغة الدوائية",
+    "systemAlerts": "تنبيهات النظام ومزامنة الدفعات",
+    "invoices": "الفواتير",
+    "switchToArabic": "التحويل إلى واجهة عربية"
   },
   "settings": {
     "title": "إعدادات الحساب",

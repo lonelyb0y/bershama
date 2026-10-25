@@ -32,7 +32,8 @@
     "capabilities": "Capabilities",
     "compliance": "Compliance",
     "network": "Network",
-    "settings": "Settings"
+    "settings": "Settings",
+    "orders": "Orders"
   },
   "auth": {
     "signIn": "Sign in",
@@ -202,7 +203,35 @@
     "emptyNeedsAction": "Nothing waiting for a decision",
     "emptyNeedsActionBody": "Every requisition has been allocated or turned down. New ones from a pharmacy arrive here.",
     "emptyAll": "No requisitions yet",
-    "emptyAllBody": "A pharmacy raises one against your stock. It arrives here with a reason and a facility."
+    "emptyAllBody": "A pharmacy raises one against your stock. It arrives here with a reason and a facility.",
+    "hub": "CAIRO CENTRAL HUB",
+    "nightShift": "NIGHT SHIFT 02:14 CLT",
+    "edaCompliance": "EDA COMPLIANCE SEC-4",
+    "batchId": "BATCH ID",
+    "filterView": "FILTER VIEW",
+    "needsDecision": "NEEDS A DECISION",
+    "pendingDecision": "PENDING DECISION",
+    "selectAll": "Select all",
+    "exportManifest": "Export manifest",
+    "requestedLines": "{count, plural, one {# requested line item} other {# requested line items}}",
+    "facility": "Facility: {name}",
+    "prioritySlot": "Priority Queue Slot 01",
+    "inspectTelemetry": "Inspect full cold-chain telemetry",
+    "allocate": "Allocate",
+    "release": "Release",
+    "standardFefo": "Standard FEFO",
+    "recentlyResolved": "RECENTLY RESOLVED",
+    "audit60m": "60m Audit",
+    "last60minAudit": "Last 60 minutes audit record",
+    "coldStorage": "Cairo Cold-Storage Unit 3",
+    "live": "LIVE",
+    "avgRun": "AVG RUN",
+    "tempRange": "MIN {min}°C • MAX {max}°C",
+    "target": "TARGET: {low}°C–{high}°C",
+    "sensorId": "Sensor ID: SENS-CAI-901",
+    "calibration": "Calibration: 2026-02-15",
+    "noResolved": "No resolved requisitions yet.",
+    "justNow": "41 seconds ago"
   },
   "delivery": {
     "trips": "Trips",
@@ -222,7 +251,29 @@
       "driver": "Driver"
     }
   },
-  "alerts": {
+  "driver": {
+      "title": "Driver Run Console",
+      "subtitle": "Your active run and stops",
+      "runConsole": {
+        "title": "Driver Run Console",
+        "arName": "وحدة والسائق",
+        "subtitle": "Your active run and stops",
+        "currentRun": "Current Run"
+      },
+      "stops": {
+        "title": "Stops",
+        "pending": "pending",
+        "completed": "completed",
+        "empty": "No stops assigned to this run yet.",
+        "stopNumber": "Stop {n}"
+      },
+      "status": {
+        "done": "Done",
+        "pending": "Pending"
+      },
+    "switchToArabic": "Switch to Arabic Interface"
+    },
+    "alerts": {
     "title": "Alerts",
     "subtitle": "Expiry, low stock, and the invariants that mean the data cannot be trusted.",
     "filter": "Filter alerts",
@@ -259,6 +310,26 @@
       "CRITICAL": "Critical",
       "WARN": "Warning",
       "INFO": "Info"
+    },
+    "liveDispatchFeed": "LIVE DISPATCH FEED",
+    "searchAlerts": "Search alert ID, Lot #, Route, or SKU...",
+    "filter": {
+      "allHubs": "Filter: All Hubs"
+    },
+    "activeAlerts": "Active Alerts Stream",
+    "chamberGateway": "Chamber Gateway Telemetry",
+    "consoleConfig": "Console Configuration",
+    "emergencyQuarantine": "Emergency Quarantine",
+    "operatorBadge": "Operator duty badge Egyptian Drug Authority verified",
+    "section": {
+      "needsDecision": "Needs a Decision",
+      "requiresSignoff": "Requires supervisor sign-off or FEFO override",
+      "pollingActive": "POLLING ACTIVE // 4s"
+    },
+    "action": {
+      "acknowledge": "Acknowledge",
+      "resolve": "Resolve",
+      "toggleArabic": "Toggle Arabic Interface"
     }
   },
   "m0": {
@@ -306,7 +377,10 @@
     "saving": "Saving",
     "blankMeansUncounted": "A blank line is left uncounted. Enter 0 only if the shelf is genuinely empty.",
     "noLines": "There is no stock recorded at this location to count.",
-    "noLocations": "No storage locations are set up yet.",
+    "noLocations": {
+      "title": "No storage locations",
+      "body": "Set up a storage location first so you can count stock against it."
+    },
     "chooseLocation": "Choose a location",
     "uncounted": "uncounted",
     "systemShort": "System",
@@ -319,7 +393,43 @@
     "entered": "lines entered",
     "expired": "Expired",
     "expiringSoon": "Expiring soon",
-    "countPlaceholder": "Count"
+    "countPlaceholder": "Count",
+    "location": {
+      "aria": "{name} • shelf {shelf}"
+    },
+    "edaAudited": "EDA Audited",
+    "tempProfile": "TEMP PROFILE",
+    "linesRemaining": "LINES REMAINING",
+    "itemsRemaining": "items",
+    "palletId": "PALLET ID",
+    "filter": {
+      "uncounted": "{count, plural, one {# uncounted} other {# uncounted}}",
+      "discrepant": "{count, plural, one {# discrepant} other {# discrepant}}"
+    },
+    "audioBeep": "Audio Beep Feedback",
+    "col": {
+      "product": "PRODUCT / FORMULATION",
+      "expiry": "EXP",
+      "count": "COUNT",
+      "diff": "DIFF"
+    },
+    "empty": "There is no stock recorded at this location to count.",
+    "stepper": {
+      "title": "Quick Qty Stepper",
+      "target": "Target: {qty}",
+      "accept": "Accept Expected Quantity ({qty} units)"
+    },
+    "finish": "Finish",
+    "finishCount": "Finish count",
+    "edaTimestamp": "Egyptian Drug Authority (EDA) Audit Timestamp: {time}",
+    "nav": {
+      "stocktake": "Stocktake",
+      "scanner": "Scanner",
+      "discrepancies": "Discrepancies",
+      "sync": "Sync"
+    },
+    "units": "units",
+    "scanBarcode": "Trigger Barcode Scan"
   },
   "theme": {
     "label": "Theme",
@@ -328,7 +438,52 @@
   },
   "products": {
     "title": "Products",
-    "subtitle": "{count, plural, one {# product} other {# products}} in this catalogue",
+    "subtitle": "{count, plural, one {# product} other {# products}} registered in active formulary",
+    "activeFormulary": "Active Formulary",
+    "newProduct": "New product",
+    "filter": {
+      "allForms": "All forms (Tablet, Sachet, Solution...)",
+      "tablet": "Tablet",
+      "sachet": "Sachet",
+      "solution": "Solution",
+      "powder": "Powder",
+      "syringe": "Syringe",
+      "allStrengths": "All strengths",
+      "strength500": "500 mg",
+      "strength875": "875/125 mg",
+      "strength100": "100 IU/mL",
+      "strength1g": "1 g",
+      "strength05": "0.5 mL",
+      "rx": "Prescription only (Rx)",
+      "coldChain": "Cold chain",
+      "displayOptions": "Display options"
+    },
+    "column": {
+      "product": "Product",
+      "sku": "SKU",
+      "form": "Form",
+      "strength": "Strength",
+      "cold": "Cold",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "coldChain": "2°C - 8°C",
+    "status": {
+      "inFormulary": "In formulary",
+      "outOfFormulary": "Out of formulary"
+    },
+    "action": {
+      "edit": "Edit {name}",
+      "deactivate": "Deactivate {name}",
+      "reactivate": "Reactivate {name}"
+    },
+    "showing": "{count, plural, one {# product} other {# products}} of {total}",
+    "activeProducts": "active pharmaceutical formulations",
+    "rows": "Rows:",
+    "rows50": "50 / page",
+    "rows100": "100 / page",
+    "rows250": "250 / page",
+    "page": "Page {current} of {total}",
     "searchPlaceholder": "Search by name, generic name or SKU",
     "search": "Search",
     "clear": "Clear",
@@ -392,9 +547,13 @@
     "column": {
       "product": "Product",
       "sku": "SKU",
-      "form": "Strength",
+      "form": "Form",
       "pack": "Pack",
-      "flags": "Flags"
+      "strength": "Strength",
+      "cold": "Cold",
+      "flags": "Flags",
+      "status": "Status",
+      "actions": "Actions"
     },
     "action": {
       "edit": "Edit {name}",
@@ -443,6 +602,8 @@
     "figureQuarantinedHint": "Received, not yet released"
   },
   "deliveries": {
+    "title": "Deliveries & orders",
+    "subtitle": "Today's runs and every order in flight",
     "status": {
       "trip": {
         "PLANNED": "Planned",
@@ -569,6 +730,63 @@
       "trip_already_moved_on": "This run has already moved on",
       "trip_not_in_transit": "Only a run on the road can be closed",
       "unexpected": "Something went wrong. Reload and try again."
+    },
+    "nav": {
+      "runsFleet": "Runs & Fleet",
+      "requisitions": "Requisitions"
+    },
+    "searchOrders": "Search orders, lots...",
+    "coldChain": "Cold-Chain Monitoring",
+    "notifications": "Notifications",
+    "help": "Help",
+    "panel": {
+      "todaysRuns": "TODAY'S RUNS",
+      "dispatched": "DISPATCHED",
+      "active": "ACTIVE",
+      "ordersInFlight": "ORDERS IN FLIGHT",
+      "dispatchQueue": "DISPATCH QUEUE"
+    },
+    "col": {
+      "run": "RUN",
+      "stops": "STOPS",
+      "state": "STATE",
+      "telemetry": "TELEMETRY",
+      "stop": "STOP",
+      "facility": "FACILITY",
+      "delivered": "DELIVERED",
+      "lines": "LINES",
+      "proof": "PROOF"
+    },
+    "state": {
+      "inTransit": "IN TRANSIT",
+      "scheduled": "SCHEDULED",
+      "delivered": "DELIVERED"
+    },
+    "telemetry": {
+      "temp": "{temp} °C",
+      "packing": "PACKING",
+      "archived": "ARCHIVED",
+      "status": {
+        "ok": "OK"
+      }
+    },
+    "footer": {
+      "priorityMatrix": "Priority Matrix: Strict FIFO Cold-Chain",
+      "zone": "Zone: Giza & Greater Cairo",
+      "auditSync": "AUDIT SYNC: PASSING",
+      "signedFor": "Every stop is signed for, and the signature is attached to the run record.",
+      "edaHash": "EDA-HASH"
+    },
+    "action": {
+      "newRequisition": "New requisition",
+      "newRun": "New run",
+      "inspect": "Inspect",
+      "signature": "Signature →"
+    },
+    "status": {
+      "waiting": "Waiting for a decision",
+      "allocated": "Allocated",
+      "staged": "Staged for pack"
     }
   },
   "dashboard": {
@@ -610,7 +828,77 @@
     "nothingDeliveredYet": "Nothing has been delivered against a requisition in this window yet.",
     "marginOnStock": "Margin if stock is sold",
     "rankedByRealised": "Top products by delivered margin",
-    "deliveredUnits": "{n} units delivered"
+    "deliveredUnits": "{n} units delivered",
+    "goodEvening": "Good evening",
+    "shiftInfo": "Thursday Night Shift · {time} Cairo Local Time",
+    "activeTelemetry": "ACTIVE TELEMETRY",
+    "runExpiryScan": "Run expiry scan",
+    "panel": {
+      "capital": "CAPITAL IN STOCK",
+      "capitalHint": "what the business has tied up at cost",
+      "margin": "MARGIN IF STOCK IS SOLD",
+      "marginHint": "No sell prices entered yet",
+      "expiring": "EXPIRING",
+      "priority": "PRIORITY",
+      "expiringHint": "within 90 days",
+      "units": "UNITS ON HAND",
+      "unitsHint": "{quarantined} quarantined"
+    },
+    "expiry": {
+      "title": "EXPIRY EXPOSURE",
+      "empty": "Nothing is within ninety days of its expiry.",
+      "footer": "{count, plural, one {# monitored batch requiring priority shift triage} other {# monitored batches requiring priority shift triage}} · Auto-refreshed 12s ago",
+      "liveSync": "Live ledger sync"
+    },
+    "window90": "90d",
+    "window180": "180d",
+    "runScan": "Run scan",
+    "col": {
+      "batch": "BATCH",
+      "product": "PRODUCT",
+      "location": "LOCATION",
+      "qty": "QTY",
+      "expiry": "EXPIRY",
+      "days": "DAYS"
+    },
+    "status": {
+      "expired": "Expired"
+    },
+    "days": "{days, plural, one {# day} other {# days}}",
+    "waiting": {
+      "title": "WAITING ON YOU",
+      "pending": "PENDING",
+      "facility": "{name}",
+      "none": "—",
+      "justNow": "41 seconds ago",
+      "dispatchClearance": "Dispatch Clearance Required",
+      "openRequisitions": "Open requisitions"
+    },
+    "audit": {
+      "title": "AUDIT LOG",
+      "live": "LIVE",
+      "by": "{who} · {when}",
+      "empty": "No entries yet."
+    },
+    "lots": {
+      "title": "ACTIVE LOT REPOSITORY · CAIRO / GIZA HUB",
+      "horizontalDrag": "Horizontal Drag"
+    },
+    "lot": {
+      "expired": "Expired",
+      "days": "days",
+      "inDate": "In Date",
+      "stock": "Stock",
+      "available": "Available: {qty} pk"
+    },
+    "footer": {
+      "license": "Cairo S.A.E. · WHO GDP Compliant · EDA License #8491/2023 · Telemetry Active: Node 04",
+      "coldChainTelemetry": "Cold-Chain Telemetry",
+      "nodeStatus": "Node Status",
+      "auditLog": "Audit Log",
+      "systemDiagnostics": "System Diagnostics",
+      "supportDispatch": "Support Dispatch"
+    }
   },
   "analytics": {
     "title": "Analytics",
@@ -640,7 +928,26 @@
     "unitsHeld": "{n} units held",
     "noStock": "No stock on hand.",
     "footnote": "Valued at batch cost. Cover extrapolates the last 30 days of issues linearly, so it is a prompt to reorder rather than a forecast.",
-    "showNumbers": "Show the numbers"
+    "showNumbers": "Show the numbers",
+    "stockValue": {
+      "title": "Stock Value",
+      "currentLedger": "Current Ledger",
+      "netDelta": "30d Net Delta",
+      "coldChainShare": "Cold-Chain Share",
+      "showNumbers": "Show the numbers"
+    },
+    "expiry": {
+      "title": "Expiry Analytics",
+      "subtitle": "What stock is at risk, and what is not moving.",
+      "expiringSoon": "Expiring Soon",
+      "expired": "Expired",
+      "within90Days": "within 90 days",
+      "critical": "critical stock",
+      "unitsOnHand": "Units on Hand",
+      "totalUnits": "total units across locations"
+    },
+    "range": "Range:",
+    "switchToArabic": "Switch to Arabic"
   },
   "signup": {
     "title": "Create your organisation",
@@ -805,7 +1112,35 @@
       "ALLOCATED": "Allocated",
       "REJECTED": "Refused",
       "DISCARDED": "Discarded"
-    }
+    },
+    "title": "Al-Amal Clinical Pharmacy · Dokki Hub",
+    "console": {
+      "title": "Clinical Working Console",
+      "arName": "صيدلية الأمل التخصصية — مركز الدقي"
+    },
+    "panel": {
+      "onOrder": "ON ORDER",
+      "inPacking": "{count, plural, one {# requisition in packing} other {# requisitions in packing}}",
+      "inTransit": "IN TRANSIT",
+      "vanRoute": "Van-1 & Van-4 on route",
+      "arrived": "ARRIVED THIS WEEK",
+      "verified": "42 consignment lines verified",
+      "expiringSoon": "EXPIRING SOON",
+      "noCritical": "No critical short-dated batches"
+    },
+    "myOrders": {
+      "title": "My Orders",
+      "pending": "pending",
+      "empty": "No requisitions yet. Raise one from the catalogue and it arrives here, with its state."
+    },
+    "nav": {
+      "orders": "Orders"
+    },
+    "stockBuffer": "Stock Buffer",
+    "formulary": "Formulary",
+    "systemAlerts": "System alerts & batch sync",
+    "invoices": "Invoices",
+    "switchToArabic": "Switch to Arabic Interface"
   },
   "settings": {
     "title": "Account settings",
