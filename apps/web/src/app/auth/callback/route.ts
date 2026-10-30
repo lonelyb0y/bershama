@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { homeRouteForRole } from '@/lib/roles';
+import type { Database } from '@/lib/database.types';
 
 /**
  * OAuth callback.
@@ -26,13 +28,6 @@ export async function GET(request: NextRequest) {
   // Recover the locale from a `next` of the form "/en/admin", else default.
   const match = /^\/([a-z]{2})(?:\/|$)/.exec(next);
   const locale = match ? match[1] : 'en';
-
-  const safeNext = (() => {
-    // Only same-origin, absolute paths. A protocol-relative "//evil.com" or an
-    // absolute "https://evil.com" must not survive this.
-    if (!next.startsWith('/') || next.startsWith('//')) return `/${locale}/login`;
-    return next;
-  })();
 
   if (error) {
     const url = new URL(`/${locale}/login`, origin);
@@ -66,5 +61,31 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  return NextResponse.redirect(new URL(safeNext, origin));
+  // Resolve the caller's role so a signed-in user lands on their own surface,
+  // not on the marketing page. Use the same supabase client that performed the
+  // exchange: its session is in memory, so getUser and the profiles lookup both
+  // see it. (getSession() would NOT work here -- it builds a fresh client that
+  // reads request cookies, and the session cookie was just written to this
+  // response's Set-Cookie header, not to the incoming request.)
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) {
+    return NextResponse.redirect(new URL(`/${locale}/login`, origin));
+  }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  const role = (profile as Database['public']['Tables']['profiles']['Row'] | null)?.role;
+
+  // Default: the role's home route, with the locale prefix this app requires.
+  const defaultTarget = role ? `/${locale}${homeRouteForRole(role)}` : `/${locale}/login`;
+
+  // Honor a validated `next` deep link; otherwise fall back to the role home.
+  const target =
+    next && next.startsWith('/') && !next.startsWith('//') ? next : defaultTarget;
+
+  return NextResponse.redirect(new URL(target, origin));
 }

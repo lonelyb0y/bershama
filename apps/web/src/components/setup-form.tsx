@@ -88,7 +88,7 @@ export function SetupForm({ locale }: { locale: string }) {
   return (
     <form onSubmit={onSubmit} className="space-y-4" noValidate>
       <div>
-        <h1 className="pf-display">{t('title')}</h1>
+        <h2 className="pf-display">{t('title')}</h2>
         <p className="text-sm text-[color:var(--text-muted)]">{t('subtitle')}</p>
       </div>
 

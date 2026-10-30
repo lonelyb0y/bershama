@@ -150,7 +150,7 @@ export default async function BatchesPage({
       </section>
 
       {/* ── the filters ────────────────────────────────────────────────────── */}
-      <nav aria-label={t('filterLabel')} className="flex flex-wrap gap-2">
+      <div aria-label={t('filterLabel')} className="flex flex-wrap gap-2">
         {filters.map((f) => {
           const active = (status ?? '') === f.value;
           return (
@@ -170,7 +170,7 @@ export default async function BatchesPage({
             </a>
           );
         })}
-      </nav>
+      </div>
 
       <BatchTable
         rows={rows}

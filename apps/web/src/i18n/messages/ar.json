@@ -184,7 +184,8 @@
       "duplicate": "هذا المنتج موجود في الطلب بالفعل",
       "errorSummary": "تعذّرت إضافة البند",
       "lineAdded": "تمت الإضافة إلى الطلب.",
-      "lineRemoved": "تمت إزالة البند."
+      "lineRemoved": "تمت إزالة البند.",
+      "noLines": "لا توجد بنود بعد. أضف المنتجات التي تحتاجها هذه المنشأة."
     },
     "column": {
       "code": "الرمز",
@@ -325,6 +326,10 @@
       "needsDecision": "يحتاج قرارًا",
       "requiresSignoff": "يتطلب موافقة المشرف أو تجاوز فيفو",
       "pollingActive": "جاري الاستطلاع // ٤ ثوانٍ"
+    },
+    "mode": {
+      "needsAction": "يحتاج إجراء",
+      "resolved": "تم الحل"
     },
     "action": {
       "acknowledge": "إقرار",
@@ -727,10 +732,14 @@
       "dispatched": "أُرسلت",
       "active": "نشيط",
       "ordersInFlight": "طلبات في الرحلة",
-      "dispatchQueue": "قائمة الإرسال"
+      "dispatchQueue": "قائمة الإرسال",
+      "proofsTitle": "إثباتات التسليم",
+      "proofsSubtitle": "محطات موقّع عليها على الجولة المختارة"
     },
     "col": {
       "run": "الرحلة",
+      "vehicle": "المركبة",
+      "driver": "السائق",
       "stops": "المحطات",
       "state": "الحالة",
       "telemetry": "القياس عن بعد",
@@ -770,7 +779,8 @@
       "waiting": "في انتظار قرار",
       "allocated": "مُخصَّص",
       "staged": "مُجهز للتغليف"
-    }
+    },
+    "runs": "الجولات"
   },
   "dashboard": {
     "figures": "الأرقام الأساسية",
@@ -930,7 +940,8 @@
       "totalUnits": "إجمالي الوحدات عبر المواقع"
     },
     "range": "النطاق:",
-    "switchToArabic": "التحويل إلى العربية"
+    "switchToArabic": "التحويل إلى العربية",
+    "days": "{days, plural, one {# يوم} other {# أيام}}"
   },
   "signup": {
     "title": "أنشئ مؤسستك",
@@ -1123,7 +1134,12 @@
     "formulary": "الصيغة الدوائية",
     "systemAlerts": "تنبيهات النظام ومزامنة الدفعات",
     "invoices": "الفواتير",
-    "switchToArabic": "التحويل إلى واجهة عربية"
+    "switchToArabic": "التحويل إلى واجهة عربية",
+    "emptyAll": "لا توجد طلبات حتى الآن",
+    "emptyAllBody": "ترفع المنشأة طلبًا ضد مخزونك. يصل هنا مع سبب ومنشأة.",
+    "emptyNeedsAction": "لا شيء منتظرًا قرارًا",
+    "emptyNeedsActionBody": "كل طلب تم تخصيصه أو رفضه. تصل الطلبات الجديدة من صيدلية هنا.",
+    "recentlyResolved": "تم حلها مؤخرًا"
   },
   "settings": {
     "title": "إعدادات الحساب",

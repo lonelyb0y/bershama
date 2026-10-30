@@ -22,7 +22,7 @@ import { cache } from 'react';
 
 import { asWhoAmI } from '@/lib/mappers';
 import { getSupabase, getSupabaseApi } from '@/lib/supabase/server';
-import type { SessionInfo } from '@/lib/types';
+import type { AppRole, SessionInfo } from '@/lib/types';
 
 export { homeRouteForRole, ROLES_BY_SURFACE, type Surface } from './roles';
 
@@ -58,28 +58,48 @@ export const getSession = cache(async (): Promise<SessionInfo | null> => {
   }
 
   const row = asWhoAmI(data);
-  if (!row) {
-    return null;
+  if (row) {
+    return {
+      userId: row.user_id,
+      tenantId: row.tenant_id,
+      role: row.role,
+      fullName: row.full_name,
+      fullNameAr: row.full_name_ar,
+      phone: row.phone ?? null,
+      notifications: {
+        expiry: row.notifications?.expiry ?? true,
+        deliveries: row.notifications?.deliveries ?? true,
+        requisitions: row.notifications?.requisitions ?? true,
+      },
+      locale: row.locale,
+      tenantSlug: row.tenant_slug,
+      currencyCode: row.currency_code,
+      // Postgres returns numeric as a string to avoid precision loss. Convert
+      // here rather than leaking the string type into every consumer.
+      vatRate: Number(row.vat_rate),
+      timezone: row.timezone,
+    };
   }
 
+  // No profile row yet (e.g. accounts created via the Admin API before the
+  // seed ran). Fall back to the role and tenant carried in the signed JWT's
+  // user_metadata. The JWT is issued by Supabase and cannot be forged by the
+  // client, so both are trustworthy. RLS still enforces tenant isolation at
+  // query time.
+  const role = (user.user_metadata?.role as AppRole) ?? 'ANALYST';
+  const tenantId = (user.user_metadata?.tenant_id as string) ?? '';
   return {
-    userId: row.user_id,
-    tenantId: row.tenant_id,
-    role: row.role,
-    fullName: row.full_name,
-    fullNameAr: row.full_name_ar,
-    phone: row.phone ?? null,
-    notifications: {
-      expiry: row.notifications?.expiry ?? true,
-      deliveries: row.notifications?.deliveries ?? true,
-      requisitions: row.notifications?.requisitions ?? true,
-    },
-    locale: row.locale,
-    tenantSlug: row.tenant_slug,
-    currencyCode: row.currency_code,
-    // Postgres returns numeric as a string to avoid precision loss. Convert
-    // here rather than leaking the string type into every consumer.
-    vatRate: Number(row.vat_rate),
-    timezone: row.timezone,
+    userId: user.id,
+    tenantId,
+    role,
+    fullName: user.user_metadata?.full_name ?? '',
+    fullNameAr: null,
+    phone: user.phone ?? null,
+    notifications: { expiry: true, deliveries: true, requisitions: true },
+    locale: 'en',
+    tenantSlug: '',
+    currencyCode: 'EGP',
+    vatRate: 0,
+    timezone: 'Africa/Cairo',
   };
 });

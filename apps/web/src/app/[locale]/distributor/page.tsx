@@ -1,4 +1,4 @@
-import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 
 import { getSupabase } from '@/lib/supabase/server';
@@ -7,7 +7,6 @@ import { Badge } from '@/components/ui/badge';
 import { getSession } from '@/lib/session';
 import { ROLES_BY_SURFACE } from '@/lib/roles';
 import { formatMoney, formatQuantity, daysToExpiry } from '@/lib/format';
-import { Link } from '@/i18n/routing';
 import type { Locale } from '@/i18n/routing';
 import type { Database } from '@/lib/database.types';
 
@@ -15,7 +14,6 @@ type BalanceRow = Database['public']['Tables']['stock_balances']['Row'];
 type BatchRow = Database['public']['Tables']['batches']['Row'];
 type ProductRow = Database['public']['Tables']['products']['Row'];
 type TripRow = Database['public']['Tables']['trips']['Row'];
-type LocationRow = Database['public']['Tables']['storage_locations']['Row'];
 
 async function asRows<T>(result: { data: unknown } | null): Promise<T[]> {
   return (Array.isArray(result?.data) ? result.data : []) as T[];
@@ -29,7 +27,6 @@ export default async function DistributorDashboard({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const tNav = await getTranslations('nav');
   const session = await getSession();
   if (!session) notFound();
 
@@ -40,7 +37,7 @@ export default async function DistributorDashboard({
   const todayIso = today.toISOString().slice(0, 10);
   const horizonIso = new Date(today.getTime() + 90 * 86_400_000).toISOString().slice(0, 10);
 
-  const [products, batches, expiringSoon, locations, balances, trips] =
+  const [products, batches, expiringSoon, balances, trips] =
     await Promise.all([
       supabase.from('products').select('id, name_en, name_ar').eq('is_active', true),
       supabase.from('batches').select('id, lot_number, expiry_date, status, product_id, unit_cost_minor').is('deleted_at', null),
@@ -51,7 +48,6 @@ export default async function DistributorDashboard({
         .in('status', ['RELEASED', 'QUARANTINED'])
         .gte('expiry_date', todayIso)
         .lte('expiry_date', horizonIso),
-      supabase.from('storage_locations').select('id, code, name_en').eq('is_active', true),
       supabase.from('stock_balances').select('location_id, batch_id, qty_on_hand').gt('qty_on_hand', 0),
       supabase
         .from('trips')
@@ -63,7 +59,6 @@ export default async function DistributorDashboard({
   const productList = await asRows<ProductRow>(products);
   const batchList = await asRows<BatchRow>(batches);
   const expiringList = await asRows<BatchRow>(expiringSoon);
-  const locationList = await asRows<LocationRow>(locations);
   const balanceList = await asRows<BalanceRow>(balances);
   const tripList = await asRows<TripRow>(trips);
 
@@ -108,85 +103,8 @@ export default async function DistributorDashboard({
     .slice(0, 8);
 
   return (
-    <div className="min-h-[100dvh] bg-[var(--surface)] text-[var(--text)] flex flex-col">
-      <header className="flex justify-between items-center w-full px-6 h-14 border-b border-[var(--border)] bg-[var(--surface-raised)] sticky top-0 z-50">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <span className="pf-display font-semibold text-[var(--primary)] tracking-tight">
-              Bershama Operations
-            </span>
-            <span className="text-[11px] text-[var(--text-muted)] uppercase px-2 py-0.5 rounded bg-[var(--surface-2)] border border-[var(--border)]/30">
-              DISPATCHER
-            </span>
-          </div>
-          <div className="hidden lg:flex items-center gap-4 pl-4 border-l border-[var(--border)]/25">
-            <div className="flex items-center gap-1">
-              <span className="text-[11px] text-[var(--text-muted)]">
-                Node 04 Cairo Central
-              </span>
-              <span className="px-2 py-0.5 rounded bg-[var(--primary)]/10 border border-[var(--primary)]/30">
-                <span className="inline-block w-2 h-2 rounded-full bg-[var(--primary)]" />
-                <span className="text-[11px] font-bold text-[var(--primary)] tracking-wider">
-                  NOMINAL
-                </span>
-              </span>
-            </div>
-          </div>
-        </div>
-        <nav className="hidden xl:flex items-center gap-4">
-          <Link
-            href="/distributor"
-            className="text-[var(--primary)] border-b-2 border-[var(--primary)] py-1 text-[11px] font-medium transition-colors"
-          >
-            {tNav('dashboard')}
-          </Link>
-          <Link
-            href="/admin/inventory/batches"
-            className="text-[var(--text-muted)] hover:text-[var(--text)] py-1 text-[11px] font-medium transition-colors"
-          >
-            {tNav('batches')}
-          </Link>
-          <Link
-            href="/admin/deliveries"
-            className="text-[var(--text-muted)] hover:text-[var(--text)] py-1 text-[11px] font-medium transition-colors"
-          >
-            {tNav('deliveries')}
-          </Link>
-          <Link
-            href="/admin/inventory/requisitions"
-            className="text-[var(--text-muted)] hover:text-[var(--text)] py-1 text-[11px] font-medium transition-colors"
-          >
-            {tNav('requisitions')}
-          </Link>
-        </nav>
-        <div className="flex items-center gap-3">
-          <button className="hidden md:inline-flex items-center gap-1 px-3 h-8 bg-[var(--surface-2)] hover:bg-[var(--surface-muted)] text-[var(--text)] border border-[var(--border)]/40 rounded text-[11px] font-medium transition-colors">
-            EDA Portal Sync
-          </button>
-          <button className="px-2 h-8 bg-[var(--surface-2)] hover:bg-[var(--surface-muted)] text-[var(--text)] border border-[var(--border)]/25 rounded text-[11px] font-medium transition-colors">
-            العربية
-          </button>
-          <div className="flex items-center gap-1 border-l border-[var(--border)]/25 pl-3">
-            <button className="w-8 h-8 flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] rounded transition-colors relative" aria-label="Notifications">
-              <span className="w-4 h-4" />
-              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[var(--color-stock-critical)]" />
-            </button>
-            <div className="flex items-center gap-1 pl-1">
-              <span className="w-5 h-5 text-[var(--primary)]" />
-              <div className="hidden 2xl:flex flex-col text-left">
-                <span className="text-[11px] text-[var(--text)] font-semibold leading-tight">
-                  {session.fullName}
-                </span>
-                <span className="text-[9px] text-[var(--text-muted)] leading-tight">
-                  Duty Distributor
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main className="flex-1 w-full max-w-[1720px] mx-auto px-6 py-8 flex flex-col gap-8">
+    <div className="bg-[var(--surface)] text-[var(--text)] flex flex-col">
+      <section className="flex-1 w-full max-w-[1720px] mx-auto px-6 py-8 flex flex-col gap-8">
         <section className="flex flex-col space-y-1 pb-2">
           <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-2">
             <div>
@@ -296,12 +214,9 @@ export default async function DistributorDashboard({
                 <h3 className="pf-display text-sm font-bold tracking-tight">Expiring Soon</h3>
                 <span className="text-[11px] text-[var(--text-muted)]">Real-time batch ledger</span>
               </div>
-              <Link
-                href="/admin/inventory/batches"
-                className="px-2 py-1 bg-[var(--surface-2)] hover:bg-[var(--surface-muted)] text-[var(--text)] border border-[var(--border)]/30 rounded text-[11px] font-medium transition-colors"
-              >
+              <span className="px-2 py-1 text-[11px] text-[var(--text-muted)]">
                 View Complete Ledger →
-              </Link>
+              </span>
             </div>
             <div className="w-full overflow-x-auto">
               <table className="w-full text-left border-collapse text-[11px]">
@@ -328,7 +243,7 @@ export default async function DistributorDashboard({
                         {row.product}
                       </td>
                       <td className="px-3 py-3 whitespace-nowrap text-[var(--text-muted)]">
-                        Ambient Aisle 1, Bin 04-A
+                        -
                       </td>
                       <td className="px-3 py-3 whitespace-nowrap text-end tabular-nums text-[var(--text-muted)]">
                         {row.qty} pk
@@ -388,16 +303,13 @@ export default async function DistributorDashboard({
               </div>
             </div>
             <div className="pt-2 text-right">
-              <Link
-                href="/admin/alerts"
-                className="text-[11px] text-[var(--text-muted)] hover:text-[var(--text)] transition-colors"
-              >
+              <span className="text-[11px] text-[var(--text-muted)]">
                 Export Cryptographic Log →
-              </Link>
+              </span>
             </div>
           </section>
         </div>
-      </main>
+      </section>
     </div>
   );
 }

@@ -15,9 +15,12 @@ import { getSupabaseBrowserClient } from '@/lib/supabase/client';
  */
 export function GoogleSignInButton({
   label,
+  next,
   disabled = false,
 }: {
   label: string;
+  /** Optional deep link the user was heading to; restored after sign-in. */
+  next?: string;
   disabled?: boolean;
 }) {
   const locale = useLocale();
@@ -27,7 +30,7 @@ export function GoogleSignInButton({
     setBusy(true);
     try {
       const supabase = getSupabaseBrowserClient();
-      const redirectTo = `${window.location.origin}/auth/callback?next=/${locale}`;
+      const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next ?? `/${locale}`)}`;
 
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',

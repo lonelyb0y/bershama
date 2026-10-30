@@ -44,30 +44,35 @@ require_env() {
 # Idempotent on purpose: a re-run after a crashed job must not fail on a user that is
 # already there, and must not leave a duplicate behind.
 ensure_user() {
-  local email="$1" body id
-  body="$(curl -fsS -X POST "$SUPABASE_URL/auth/v1/admin/users" \
+  local email="$1" body http_code id
+  # Create without -f so a 422 (already exists) does not abort; we fall through to lookup.
+  body="$(curl -sS -w "\n%{http_code}" -X POST "$SUPABASE_URL/auth/v1/admin/users" \
     -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" \
     -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
     -H "Content-Type: application/json" \
-    -d "{\"email\":\"$email\",\"password\":\"$FIXTURE_PASSWORD\",\"email_confirm\":true}")" \
-    || die "could not create $email"
+    -d "{\"email\":\"$email\",\"password\":\"$FIXTURE_PASSWORD\",\"email_confirm\":true}")"
+  http_code="$(printf '%s' "$body" | tail -n1)"
+  body="$(printf '%s' "$body" | sed '$d')"
 
-  id="$(printf '%s' "$body" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("id",""))')"
+  if [ "$http_code" = "200" ] || [ "$http_code" = "201" ]; then
+    id="$(printf '%s' "$body" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("id",""))')"
+    [ -n "$id" ] || die "could not parse id for $email"
+    printf '%s' "$id"
+    return
+  fi
 
-  if [ -z "$id" ]; then
-    # Already exists. Look it up rather than treating it as an error.
-    id="$(curl -fsS "$SUPABASE_URL/auth/v1/admin/users?page=1&per_page=200" \
-      -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" \
-      -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
-      | python3 -c "
+  # 422 means the user already exists. Look it up rather than treating it as an error.
+  id="$(curl -fsS "$SUPABASE_URL/auth/v1/admin/users?page=1&per_page=200" \
+    -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" \
+    -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
+    | python3 -c "
 import json, sys
 target = sys.argv[1]
 for u in json.load(sys.stdin).get('users', []):
     if (u.get('email') or '').lower() == target:
         print(u['id']); break
 " "$email")" || die "$email does not exist and could not be created"
-    [ -n "$id" ] || die "$email does not exist and could not be created"
-  fi
+  [ -n "$id" ] || die "$email does not exist and could not be created"
 
   printf '%s' "$id"
 }

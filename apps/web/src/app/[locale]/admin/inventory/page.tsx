@@ -255,7 +255,7 @@ export default async function InventoryIndex({
       </div>
 
       {/* ── the four figures ───────────────────────────────────────────────── */}
-      <section aria-label={t('figures')} className="grid gap-3 sm:grid-cols-2 xl:grid-cols4">
+      <section aria-label={t('figures')} className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatTile
           label={t('catalogue.title')}
           value={numberFormat.format(data.products)}
