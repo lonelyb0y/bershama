@@ -10,11 +10,14 @@ import type { Locale } from '@/i18n/routing';
 
 export default async function LoginPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: Locale }>;
+  searchParams: Promise<{ next?: string }>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const { next } = await searchParams;
 
   const t = await getTranslations('auth');
   const tCommon = await getTranslations('common');
@@ -60,7 +63,7 @@ export default async function LoginPage({
       </div>
 
       <div className="mt-4">
-        <GoogleSignInButton label={t('continueWithGoogle')} />
+        <GoogleSignInButton label={t('continueWithGoogle')} next={next} />
       </div>
     </AuthShell>
   );

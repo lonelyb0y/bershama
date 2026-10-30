@@ -370,6 +370,10 @@ max_frequency = "5s"
 # Use an external OAuth provider. The full list of providers are: `apple`, `azure`, `bitbucket`,
 # `discord`, `facebook`, `github`, `gitlab`, `google`, `keycloak`, `linkedin_oidc`, `notion`, `twitch`,
 # `twitter`, `x`, `slack`, `spotify`, `workos`, `zoom`.
+[auth.external.email]
+enabled = true
+client_id = "email"
+secret = "email-secret"
 [auth.external.apple]
 enabled = false
 client_id = ""

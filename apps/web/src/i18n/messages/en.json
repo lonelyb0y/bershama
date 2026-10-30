@@ -184,7 +184,8 @@
       "duplicate": "That product is already on this request",
       "errorSummary": "The line could not be added",
       "lineAdded": "Added to the request.",
-      "lineRemoved": "Line removed."
+      "lineRemoved": "Line removed.",
+      "noLines": "No lines yet. Add the products this facility needs."
     },
     "column": {
       "code": "Code",
@@ -325,6 +326,10 @@
       "needsDecision": "Needs a Decision",
       "requiresSignoff": "Requires supervisor sign-off or FEFO override",
       "pollingActive": "POLLING ACTIVE // 4s"
+    },
+    "mode": {
+      "needsAction": "Needs action",
+      "resolved": "Resolved"
     },
     "action": {
       "acknowledge": "Acknowledge",
@@ -744,10 +749,14 @@
       "dispatched": "DISPATCHED",
       "active": "ACTIVE",
       "ordersInFlight": "ORDERS IN FLIGHT",
-      "dispatchQueue": "DISPATCH QUEUE"
+      "dispatchQueue": "DISPATCH QUEUE",
+      "proofsTitle": "Proofs of delivery",
+      "proofsSubtitle": "Signed-for stops on the chosen run"
     },
     "col": {
       "run": "RUN",
+      "vehicle": "VEHICLE",
+      "driver": "DRIVER",
       "stops": "STOPS",
       "state": "STATE",
       "telemetry": "TELEMETRY",
@@ -787,7 +796,8 @@
       "waiting": "Waiting for a decision",
       "allocated": "Allocated",
       "staged": "Staged for pack"
-    }
+    },
+    "runs": "Runs"
   },
   "dashboard": {
     "figures": "Key figures",
@@ -892,7 +902,7 @@
       "available": "Available: {qty} pk"
     },
     "footer": {
-      "license": "Cairo S.A.E. · WHO GDP Compliant · EDA License #8491/2023 · Telemetry Active: Node 04",
+      "license": "Cairo S.A.E. · WHO GDP Compliant · EDA License #8491/2023",
       "coldChainTelemetry": "Cold-Chain Telemetry",
       "nodeStatus": "Node Status",
       "auditLog": "Audit Log",
@@ -947,7 +957,8 @@
       "totalUnits": "total units across locations"
     },
     "range": "Range:",
-    "switchToArabic": "Switch to Arabic"
+    "switchToArabic": "Switch to Arabic",
+    "days": "{days, plural, one {# day} other {# days}}"
   },
   "signup": {
     "title": "Create your organisation",
@@ -1113,7 +1124,7 @@
       "REJECTED": "Refused",
       "DISCARDED": "Discarded"
     },
-    "title": "Al-Amal Clinical Pharmacy · Dokki Hub",
+    "title": "Your pharmacy",
     "console": {
       "title": "Clinical Working Console",
       "arName": "صيدلية الأمل التخصصية — مركز الدقي"
@@ -1140,7 +1151,12 @@
     "formulary": "Formulary",
     "systemAlerts": "System alerts & batch sync",
     "invoices": "Invoices",
-    "switchToArabic": "Switch to Arabic Interface"
+    "switchToArabic": "Switch to Arabic Interface",
+    "emptyAll": "No requisitions yet",
+    "emptyAllBody": "A pharmacy raises one against your stock. It arrives here with a reason and a facility.",
+    "emptyNeedsAction": "Nothing waiting for a decision",
+    "emptyNeedsActionBody": "Every requisition has been allocated or turned down. New ones from a pharmacy arrive here.",
+    "recentlyResolved": "Recently resolved"
   },
   "settings": {
     "title": "Account settings",

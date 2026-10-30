@@ -4,19 +4,25 @@ import { notFound } from 'next/navigation';
 import { getSupabase } from '@/lib/supabase/server';
 import { getSession } from '@/lib/session';
 import { ROLES_BY_SURFACE } from '@/lib/roles';
-import { formatQuantity } from '@/lib/format';
+import { ProductForm } from '@/components/inventory/product-form';
+import { LocationForm } from '@/components/inventory/location-form';
 import { Link } from '@/i18n/routing';
 import type { Locale } from '@/i18n/routing';
 import type { Database } from '@/lib/database.types';
+import type { Product } from '@/lib/types';
 
 type ProductRow = Database['public']['Tables']['products']['Row'];
+type FacilityRow = Database['public']['Tables']['facilities']['Row'];
+
+const canWrite = (role: string) =>
+  role === 'TENANT_ADMIN' || role === 'WAREHOUSE_MANAGER';
 
 export default async function ProductsPage({
   params,
   searchParams,
 }: {
   params: Promise<{ locale: Locale }>;
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; edit?: string }>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
@@ -28,8 +34,9 @@ export default async function ProductsPage({
   if (!ROLES_BY_SURFACE.admin.includes(session.role)) notFound();
 
   const supabase = await getSupabase();
-  const { q } = await searchParams;
+  const { q, edit } = await searchParams;
   const query = (q ?? '').trim();
+  const editingId = edit === 'new' ? 'new' : edit ?? null;
 
   let select = supabase
     .from('products')
@@ -45,13 +52,58 @@ export default async function ProductsPage({
     );
   }
 
-  const { data } = await select.limit(200);
-  const products: ProductRow[] = (data ?? []) as ProductRow[];
+  const [productsResult, facilitiesResult] = await Promise.all([
+    select.limit(200),
+    supabase.from('facilities').select('id, code, name_en, name_ar').eq('is_active', true),
+  ]);
+
+  let editingProduct: ProductRow[] | null = null;
+  if (editingId && editingId !== 'new') {
+    const result = await supabase
+      .from('products')
+      .select(
+        'id, sku, name_en, name_ar, generic_name_en, generic_name_ar, form, strength, strength_unit, uom, is_cold_chain, requires_prescription, is_active, sell_price_minor',
+      )
+      .eq('id', editingId)
+      .limit(1);
+    editingProduct = (result.data ?? null) as ProductRow[] | null;
+  }
+
+  const products: ProductRow[] = (productsResult.data ?? []) as ProductRow[];
+  const facilities: FacilityRow[] = (facilitiesResult.data ?? []) as FacilityRow[];
+
+  const toProduct = (row: ProductRow): Product => ({
+    id: row.id,
+    tenantId: '',
+    sku: row.sku,
+    nameEn: row.name_en,
+    nameAr: row.name_ar,
+    genericNameEn: row.generic_name_en ?? null,
+    genericNameAr: row.generic_name_ar ?? null,
+    brand: row.brand ?? null,
+    form: row.form,
+    strength: row.strength,
+    strengthUnit: row.strength_unit ?? '',
+    packSize: row.pack_size ?? 1,
+    uom: row.uom,
+    atcCode: row.atc_code ?? null,
+    gtin: row.gtin ?? null,
+    edaRegNo: row.eda_reg_no ?? null,
+    requiresPrescription: row.requires_prescription,
+    isControlled: row.is_controlled,
+    isColdChain: row.is_cold_chain,
+    shelfLifeMonths: row.shelf_life_months ?? 24,
+    sellPriceMinor: row.sell_price_minor ?? 0,
+    isActive: row.is_active,
+  });
+
+  const editingRow = editingProduct?.at(0) ?? null;
+  const editing = editingRow ? toProduct(editingRow) : null;
 
   const displayName = (p: ProductRow) => (locale === 'ar' ? p.name_ar : p.name_en);
 
   return (
-    <div className="min-h-[100dvh] bg-[var(--surface)] text-[var(--text)]">
+    <div className="bg-[var(--surface)] text-[var(--text)]">
       {/* ── PAGE HEADER ── */}
       <section className="mx-auto max-w-[1720px] px-6 py-8 flex flex-col gap-4">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-3">
@@ -65,13 +117,13 @@ export default async function ProductsPage({
               </span>
             </div>
             <p className="text-[13px] text-[var(--text-muted)] mt-0.5 tracking-normal">
-              {t('subtitle', { count: products.length })} · Node 04 Central Hub
+              {t('subtitle', { count: products.length })}
             </p>
           </div>
 
           {/* ── Action Cluster ── */}
           <div className="flex items-center gap-2">
-            <div className="relative w-full sm:w-80">
+            <form action="" className="relative w-full sm:w-80 flex-shrink-0">
               <span
                 aria-hidden="true"
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-[var(--text-muted)]"
@@ -94,7 +146,7 @@ export default async function ProductsPage({
                   {t('clear')}
                 </Link>
               ) : null}
-            </div>
+            </form>
             <Link
               href="/admin/inventory/products?edit=new"
               className="h-11 px-5 rounded-xl bg-[var(--primary)] text-[var(--primary-foreground)] font-mono text-[11px] font-semibold flex items-center gap-2 hover:bg-[color:var(--primary)]/90 transition-colors active:scale-[0.98] whitespace-nowrap"
@@ -111,7 +163,7 @@ export default async function ProductsPage({
             <div className="relative">
               <select
                 defaultValue="all"
-                className="h-9 pl-3 pr-8 bg-[var(--surface-2)] border border-[var(--border)] rounded-lg text-[13px] font-body-md text-[var(--text)] focus:border-[var(--primary)] focus:ring-0 appearance-none cursor-pointer"
+                className="h-9 pl-3 pr-8 bg-[var(--surface-2)] border border-[var(--border)] rounded-lg text-[13px] text-sm text-[var(--text)] focus:border-[var(--primary)] focus:ring-0 appearance-none cursor-pointer"
               >
                 <option value="all">{t('filter.allForms')}</option>
                 <option value="tablet">{t('filter.tablet')}</option>
@@ -130,7 +182,7 @@ export default async function ProductsPage({
             <div className="relative">
               <select
                 defaultValue="all"
-                className="h-9 pl-3 pr-8 bg-[var(--surface-2)] border border-[var(--border)] rounded-lg text-[13px] font-body-md text-[var(--text)] focus:border-[var(--primary)] focus:ring-0 appearance-none cursor-pointer"
+                className="h-9 pl-3 pr-8 bg-[var(--surface-2)] border border-[var(--border)] rounded-lg text-[13px] text-sm text-[var(--text)] focus:border-[var(--primary)] focus:ring-0 appearance-none cursor-pointer"
               >
                 <option value="all">{t('filter.allStrengths')}</option>
                 <option value="500mg">{t('filter.strength500')}</option>
@@ -152,15 +204,15 @@ export default async function ProductsPage({
                 type="checkbox"
                 className="w-3 h-3 rounded border-[var(--border)] text-[var(--primary)] focus:ring-0 focus:ring-offset-0 bg-[var(--surface)]"
               />
-              <span className="text-[13px] font-body-md text-[var(--text)]">{t('filter.rx')}</span>
+              <span className="text-[13px] text-sm text-[var(--text)]">{t('filter.rx')}</span>
             </label>
             <label className="h-9 px-3 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] flex items-center gap-2 cursor-pointer hover:border-[var(--border)]/60 transition-colors select-none">
               <span className="w-4 h-4 text-[var(--primary)]" />
-              <span className="text-[13px] font-body-md text-[var(--text)]">{t('filter.coldChain')}</span>
+              <span className="text-[13px] text-sm text-[var(--text)]">{t('filter.coldChain')}</span>
             </label>
           </div>
           <button
-            className="h-9 px-3 rounded-lg bg-[var(--surface-2)] hover:bg-[var(--surface-muted)] text-[var(--text)] border border-[var(--border)] text-[11px] font-body-sm flex items-center gap-1 transition-colors duration-150"
+            className="h-9 px-3 rounded-lg bg-[var(--surface-2)] hover:bg-[var(--surface-muted)] text-[var(--text)] border border-[var(--border)] text-[11px] text-xs flex items-center gap-1 transition-colors duration-150"
           >
             <span className="w-4 h-4" /> {t('filter.displayOptions')}
           </button>
@@ -169,7 +221,7 @@ export default async function ProductsPage({
         {/* ── DENSE TABLE ── */}
         <div className="mt-4 bg-[var(--surface-raised)] border border-[var(--border)] rounded-xl overflow-hidden flex flex-col flex-1">
           <div className="overflow-x-auto w-full">
-            <table className="w-full text-left border-collapse min-w-[960px]">
+            <table data-testid="product-table" className="w-full text-left border-collapse min-w-[960px]">
               <thead>
                 <tr className="bg-[var(--surface)]/50 border-b border-[var(--border)] text-[11px] font-mono text-[var(--text-muted)] uppercase tracking-wider">
                   <th className="px-3 py-2 text-left" scope="col">
@@ -195,7 +247,7 @@ export default async function ProductsPage({
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[var(--border)]/30 text-[13px] font-body-md">
+              <tbody className="divide-y divide-[var(--border)]/30 text-[13px] text-sm">
                 {products.map((p) => {
                   const isCold = p.is_cold_chain;
                   const isActive = p.is_active;
@@ -313,6 +365,80 @@ export default async function ProductsPage({
             </div>
           </div>
         </div>
+
+        {/* ── PRODUCT / LOCATION FORM ── */}
+        <div className="mt-8 max-w-[48rem]">
+          <ProductForm
+            canWrite={canWrite(session.role)}
+            editing={editing}
+              labels={{
+                titleNew: t('form.newTitle'),
+                register: {
+                  title: t('form.register.title'),
+                  placeholder: t('form.register.placeholder'),
+                  searching: t('form.register.searching'),
+                  noResults: t('form.register.noResults'),
+                  use: t('form.register.use'),
+                  provenance: t('form.register.provenance'),
+                },
+                titleEdit: t('form.editTitle'),
+                sku: t('form.sku'),
+                nameEn: t('form.nameEn'),
+                nameAr: t('form.nameAr'),
+                genericNameEn: t('form.genericNameEn'),
+                genericNameAr: t('form.genericNameAr'),
+                brand: t('form.brand'),
+                form: t('form.form'),
+                strength: t('form.strength'),
+                strengthUnit: t('form.strengthUnit'),
+                packSize: t('form.packSize'),
+                uom: t('form.uom'),
+                atcCode: t('form.atcCode'),
+                gtin: t('form.gtin'),
+                edaRegNo: t('form.edaRegNo'),
+                requiresPrescription: t('form.requiresPrescription'),
+                isControlled: t('form.isControlled'),
+                isColdChain: t('form.isColdChain'),
+                shelfLifeMonths: t('form.shelfLifeMonths'),
+                isActive: t('form.isActive'),
+                facility: t('form.facility'),
+                code: t('form.code'),
+                kind: t('form.kind'),
+                tempMinC: t('form.tempMinC'),
+                tempMaxC: t('form.tempMaxC'),
+                submit: t('form.submit'),
+                cancel: t('form.cancel'),
+                saved: t('form.saved'),
+                created: t('form.created'),
+                titleNewLocation: t('form.newLocationTitle'),
+                locationSaved: t('form.locationSaved'),
+                submitLocation: t('form.submitLocation'),
+                sellPrice: t('form.sellPrice'),
+                sellPriceHint: t('form.sellPriceHint'),
+              }}
+            />
+            <LocationForm
+              canWrite={canWrite(session.role)}
+              facilities={facilities.map((f) => ({
+                id: f.id,
+                label: locale === 'ar' ? f.name_ar : f.name_en,
+                code: f.code,
+              }))}
+              labels={{
+                titleNewLocation: t('form.newLocationTitle'),
+                locationSaved: t('form.locationSaved'),
+                submitLocation: t('form.submitLocation'),
+                facility: t('form.facility'),
+                code: t('form.code'),
+                nameEn: t('form.nameEn'),
+                nameAr: t('form.nameAr'),
+                kind: t('form.kind'),
+                tempMinC: t('form.tempMinC'),
+                tempMaxC: t('form.tempMaxC'),
+                isActive: t('form.isActive'),
+              }}
+            />
+          </div>
       </section>
     </div>
   );

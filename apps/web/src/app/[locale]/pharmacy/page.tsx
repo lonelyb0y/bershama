@@ -4,11 +4,12 @@ import { notFound } from 'next/navigation';
 import { getSupabase } from '@/lib/supabase/server';
 import { getSession } from '@/lib/session';
 import { ROLES_BY_SURFACE } from '@/lib/roles';
-import { Link } from '@/i18n/routing';
+import { RequisitionQueue } from '@/components/inventory/requisition-queue';
 import type { Locale } from '@/i18n/routing';
 import type { Database } from '@/lib/database.types';
 
 type RequisitionRow = Database['public']['Tables']['requisitions']['Row'];
+type FacilityRow = Database['public']['Tables']['facilities']['Row'];
 
 async function asRows<T>(result: { data: unknown } | null): Promise<T[]> {
   return (Array.isArray(result?.data) ? result.data : []) as T[];
@@ -23,7 +24,6 @@ export default async function PharmacyDashboard({
   setRequestLocale(locale);
 
   const t = await getTranslations('pharmacy');
-  const tNav = await getTranslations('nav');
   const session = await getSession();
   if (!session) notFound();
 
@@ -31,91 +31,33 @@ export default async function PharmacyDashboard({
 
   const supabase = await getSupabase();
 
-  const { data } = await supabase
-    .from('requisitions')
-    .select('id, code, status, justification, requested_at, decided_at')
-    .eq('requested_by', session.userId)
-    .order('requested_at', { ascending: false })
-    .limit(50);
+  const [reqs, facilities] = await Promise.all([
+    supabase
+      .from('requisitions')
+      .select('id, code, status, justification, requested_at, decided_at, facility_id')
+      .order('requested_at', { ascending: false })
+      .limit(50),
+    supabase.from('facilities').select('id, name_en, name_ar, code').eq('is_active', true),
+  ]);
 
-  const rows: RequisitionRow[] = (data ?? []) as RequisitionRow[];
+  const rows: RequisitionRow[] = (reqs.data ?? []) as RequisitionRow[];
+  const facilityList: FacilityRow[] = (facilities.data ?? []) as FacilityRow[];
 
   const waiting = rows.filter((r) => r.status === 'SUBMITTED' || r.status === 'DRAFT').length;
   const allocated = rows.filter((r) => r.status === 'ALLOCATED').length;
   const delivered = rows.filter((r) => r.status === 'DELIVERED').length;
 
+  // The pharmacy's own facility: the first active facility in the tenant.
+  const ownFacility = facilityList[0];
+  const facilityName = ownFacility
+    ? locale === 'ar' && ownFacility.name_ar
+      ? ownFacility.name_ar
+      : ownFacility.name_en
+    : t('yourFacility');
+
   return (
-    <div className="min-h-[100dvh] bg-[var(--surface)] text-[var(--text)]">
-      {/* ── TOP SHELL ── */}
-      <header className="w-full bg-[var(--surface-raised)] border-b border-[var(--border)]/30 sticky top-0 z-50">
-        <div className="mx-auto max-w-[1400px] px-4 sm:px-6 h-14 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3 shrink-0">
-            <Link href="/" className="flex items-center gap-2">
-              <span className="inline-block w-2 h-2 rounded-full bg-[var(--primary)] ring-2 ring-[var(--primary)]/20" />
-              <span className="pf-display text-sm font-semibold text-[var(--primary)] tracking-tight">
-                Bershama
-              </span>
-            </Link>
-            <div className="hidden lg:flex items-center h-5 w-[1px] bg-[var(--border)]/40" />
-            <div className="hidden sm:flex items-center gap-2 bg-[var(--surface-2)] px-3 py-1 rounded-full border border-[var(--border)]/40">
-              <span className="inline-block w-2 h-2 rounded-full bg-[var(--primary)] animate-pulse" />
-              <span className="font-mono text-[11px] text-[var(--text)]">
-                Al-Amal Clinical Pharmacy — Dokki Branch
-              </span>
-              <span className="text-[var(--text-muted)] font-mono text-[10px]">|</span>
-              <span className="font-mono text-[11px] font-semibold text-[var(--primary)] tracking-wider">
-                DISPENSING ACTIVE
-              </span>
-              <span className="text-[var(--text-muted)] font-mono text-[10px]">|</span>
-              <span className="font-mono text-[11px] text-[var(--text-muted)] flex items-center gap-1">
-                <span className="w-3 h-3 text-[var(--primary)]" />
-                +4.1°C
-              </span>
-            </div>
-          </div>
-
-          <nav className="hidden md:flex items-center gap-4 h-full">
-            <Link href="/pharmacy" className="text-[var(--primary)] border-b-2 border-[var(--primary)] font-mono text-[11px] font-medium h-full flex items-center pt-0.5">
-              {tNav('orders')}
-            </Link>
-            <Link href="/admin/deliveries" className="text-[var(--text-muted)] hover:text-[var(--text)] font-mono text-[11px] transition-colors pt-0.5">
-              {tNav('deliveries')}
-            </Link>
-            <Link href="/admin/inventory/batches" className="text-[var(--text-muted)] hover:text-[var(--text)] font-mono text-[11px] transition-colors pt-0.5">
-              {t('stockBuffer')}
-            </Link>
-            <Link href="/admin/inventory/products" className="text-[var(--text-muted)] hover:text-[var(--text)] font-mono text-[11px] transition-colors pt-0.5">
-              {t('formulary')}
-            </Link>
-            <Link href="/admin/alerts" className="text-[var(--text-muted)] hover:text-[var(--text)] font-mono text-[11px] transition-colors pt-0.5">
-              {t('invoices')}
-            </Link>
-          </nav>
-
-          <div className="flex items-center gap-3">
-            <button className="px-2 py-1 rounded-md bg-[var(--surface-2)] hover:bg-[var(--surface-muted)] text-[var(--text-muted)] hover:text-[var(--text)] font-cairo text-[11px] font-semibold border border-[var(--border)]/30 transition-colors flex items-center gap-2" title={t('switchToArabic')}>
-              <span className="w-3 h-3" />
-              <span>العربية</span>
-            </button>
-            <button className="relative p-2 rounded-md hover:bg-[var(--surface-2)] text-[var(--text-muted)] hover:text-[var(--text)] transition-colors" title={t('systemAlerts')}>
-              <span className="w-4 h-4" />
-              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[var(--color-stock-warning)]" />
-            </button>
-            <div className="h-4 w-[1px] bg-[var(--border)]/40" />
-            <div className="flex items-center gap-2 pl-1">
-              <div className="w-7 h-7 rounded-full bg-[var(--primary)]/20 border border-[var(--primary)]/30 flex items-center justify-center text-[var(--primary)] font-mono text-[11px] font-semibold">
-                LM
-              </div>
-              <div className="hidden xl:flex flex-col text-left leading-none">
-                <span className="font-body-sm text-body-sm font-semibold text-[var(--text)]">{session.fullName}</span>
-                <span className="font-mono text-[10px] text-[var(--text-muted)] font-normal">Lead Pharmacist · #EG-PH-49102</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 py-4 flex-1 flex flex-col gap-4">
+    <div className="bg-[var(--surface)] text-[var(--text)]">
+      <section className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 py-4 flex-1 flex flex-col gap-4">
         {/* ── HEADLINE & TELEMETRY SUBHEADER ── */}
         <section className="flex flex-col gap-2">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-2 pb-3 border-b border-[var(--border)]/30">
@@ -123,23 +65,16 @@ export default async function PharmacyDashboard({
               <div className="flex items-center gap-2 mb-1">
                 <span className="font-mono text-[11px] text-[var(--text-muted)] uppercase tracking-wider">{t('console.title')}</span>
                 <span className="text-[var(--text-muted)]/50">/</span>
-                <span className="font-cairo text-[11px] text-[var(--text-muted)] font-normal">{t('console.arName')}</span>
+                <span className="font-arabic text-[11px] text-[var(--text-muted)] font-normal">{t('console.arName')}</span>
               </div>
               <h1 className="pf-display text-[1.25rem] font-semibold tracking-[-0.02em] text-[var(--text)]">
-                {t('pharmacy.title')}
+                {t('title')}
               </h1>
             </div>
             <div className="flex items-center gap-3 bg-[var(--surface-2)] px-3 py-2 rounded-lg border border-[var(--border)]/30">
               <span className="inline-flex items-center gap-2 font-mono text-[11px] text-[var(--text-muted)]">
                 <span className="inline-block w-2 h-2 rounded-full bg-[var(--primary)]" />
-                Giza Sector 02
-              </span>
-              <span className="text-[var(--text-muted)]/40 text-[10px]">|</span>
-              <span className="font-mono text-[11px] text-[var(--text-muted)]">Node #4481-B</span>
-              <span className="text-[var(--text-muted)]/40 text-[10px]">|</span>
-              <span className="font-mono text-[11px] text-[var(--primary)] font-medium flex items-center gap-1">
-                <span className="w-3 h-3" />
-                Cairo Core Gateway (18ms)
+                {facilityName}
               </span>
             </div>
           </div>
@@ -226,7 +161,7 @@ export default async function PharmacyDashboard({
                     <th className="px-3 py-2 text-right">{t('col.decided')}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[var(--border)]/30 font-body-md text-[13px]">
+                <tbody className="divide-y divide-[var(--border)]/30 text-sm text-[13px]">
                   {rows.map((row) => (
                     <tr key={row.id} className="hover:bg-[var(--surface-2)]/60 transition-colors">
                       <td className="px-3 py-2 font-mono text-[11px] font-bold text-[var(--primary)]">{row.code}</td>
@@ -263,35 +198,44 @@ export default async function PharmacyDashboard({
             </div>
           </div>
 
-          {/* RIGHT: QUICK ACTIONS ── */}
-          <div className="lg:col-span-4 bg-[var(--surface-2)] border border-[var(--border)] rounded-3xl p-3 lg:p-4 flex flex-col gap-3">
-            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-3">
-              <h3 className="font-mono text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-3">{t('quickActions.title')}</h3>
-              <Link
-                href="/admin/inventory/requisitions"
-                className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[var(--surface-2)] hover:bg-[var(--surface-muted)] text-[var(--text)] border border-[var(--border)] transition-colors text-[11px] font-mono"
-              >
-                <span className="w-3 h-3" />
-                {t('quickActions.newRequisition')}
-              </Link>
-              <Link
-                href="/admin/deliveries"
-                className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[var(--surface-2)] hover:bg-[var(--surface-muted)] text-[var(--text)] border border-[var(--border)] transition-colors text-[11px] font-mono"
-              >
-                <span className="w-3 h-3" />
-                {t('quickActions.trackDeliveries')}
-              </Link>
-              <Link
-                href="/admin/alerts"
-                className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[var(--surface-2)] hover:bg-[var(--surface-muted)] text-[var(--text)] border border-[var(--border)] transition-colors text-[11px] font-mono"
-              >
-                <span className="w-3 h-3" />
-                {t('quickActions.checkAlerts')}
-              </Link>
-            </div>
+          {/* RIGHT: REQUISITION QUEUE ── */}
+          <div className="lg:col-span-4 flex flex-col gap-4">
+            <RequisitionQueue
+              rows={rows.map((r) => ({
+                id: r.id,
+                code: r.code,
+                facility: facilityName,
+                status: r.status,
+                statusLabel: t(`status.${r.status}`) ?? r.status,
+                requestedAgo: '',
+                justification: r.justification,
+                needsDecision: r.status === 'SUBMITTED' || r.status === 'DRAFT',
+              }))}
+              labels={{
+                code: t('column.code'),
+                facility: t('column.facility'),
+                status: t('column.status'),
+                requested: t('column.requested'),
+                justification: t('column.justification'),
+                needsAction: t('filter.needsAction'),
+                canWait: t('filter.canWait'),
+                all: t('filter.all'),
+                searchPlaceholder: t('searchPlaceholder'),
+                searchLabel: t('searchLabel'),
+                emptyNeedsAction: t('emptyNeedsAction'),
+                emptyNeedsActionBody: t('emptyNeedsActionBody'),
+                emptyAll: t('emptyAll'),
+                emptyAllBody: t('emptyAllBody'),
+                caption: t('caption'),
+                needsActionTitle: t('myOrders.title'),
+                canWaitTitle: t('recentlyResolved'),
+              }}
+              locale={locale}
+              showFilters={false}
+            />
           </div>
         </section>
-      </main>
+      </section>
     </div>
   );
 }

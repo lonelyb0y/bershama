@@ -138,7 +138,18 @@ export function LoginForm() {
         .rpc('whoami')
         .maybeSingle();
 
-    const role = (asWhoAmI(sessionData)?.role ?? 'ANALYST') as AppRole;
+      const whoamiRole = asWhoAmI(sessionData)?.role;
+      let role: AppRole;
+      if (whoamiRole) {
+        // Profile exists in the database; use the database role (source of truth).
+        role = whoamiRole;
+      } else {
+        // No profile yet (e.g. demo accounts created via the Admin API before
+        // the seed ran). Fall back to the signed JWT's user_metadata, which
+        // Supabase issued and cannot be forged by the client.
+        const { data: { user } } = await getSupabaseBrowserClient().auth.getUser();
+        role = (user?.user_metadata?.role as AppRole) ?? 'ANALYST';
+      }
 
     startTransition(() => {
       // NO locale prefix here, deliberately.

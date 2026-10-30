@@ -91,7 +91,7 @@ export default async function AdminDashboard({
         lot: batch.lot_number,
         product,
         genericName: '', // not available from batch read alone
-        location: 'Ambient Aisle 1',
+        location: '-',
         qty,
         expiry: batch.expiry_date,
         days,
@@ -105,7 +105,7 @@ export default async function AdminDashboard({
   const pendingReqs = requisitionList.filter((r) => r.status === 'PENDING' || r.status === 'DRAFT').slice(0, 3);
 
   return (
-    <div className="min-h-[100dvh] bg-[var(--surface)] text-[var(--text)]">
+    <div className="bg-[var(--surface)] text-[var(--text)]">
       {/* ── HEADER AREA ── */}
       <section className="mx-auto max-w-[1400px] px-6 py-8 flex flex-col gap-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--border)]/20 pb-4">
@@ -114,7 +114,7 @@ export default async function AdminDashboard({
               {t('goodEvening')}
             </h1>
             <p className="text-[13px] text-[var(--text-muted)] mt-1 flex items-center gap-2 font-mono">
-              {t('shiftInfo', { time: today.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }) })} · Node 04 Central Hub
+              {t('shiftInfo', { time: today.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }) })}
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono border border-[var(--border)]/40 bg-[var(--surface-2)] text-[var(--text-muted)]">
                 <span className="inline-block w-2 h-2 rounded-full bg-[var(--text-muted)] animate-pulse" />
                 {t('activeTelemetry')}
@@ -138,7 +138,7 @@ export default async function AdminDashboard({
             <div className="my-2">
               <span className="font-mono text-[1.75rem] font-bold tracking-tight text-[var(--text)] block leading-none">{formatMoney(capitalMinor, { locale: 'en', compact: true })}</span>
             </div>
-            <span className="text-[13px] font-body-md text-[var(--text-muted)]">{t('panel.capitalHint')}</span>
+            <span className="text-[13px] text-sm text-[var(--text-muted)]">{t('panel.capitalHint')}</span>
           </div>
           <div className="bg-[var(--surface-raised)] border border-[var(--border)] rounded-2xl p-5 flex flex-col justify-between">
             <div className="flex items-center justify-between">
@@ -148,7 +148,7 @@ export default async function AdminDashboard({
             <div className="my-2">
               <span className="font-mono text-[1.75rem] font-bold tracking-tight text-[var(--text-muted)] block leading-none">—</span>
             </div>
-            <span className="text-[13px] font-body-md text-[var(--text-muted)]">{t('panel.marginHint')}</span>
+            <span className="text-[13px] text-sm text-[var(--text-muted)]">{t('panel.marginHint')}</span>
           </div>
           <div className="bg-[var(--surface-raised)] border border-[var(--border)] rounded-2xl p-5 flex flex-col justify-between">
             <div className="flex items-center justify-between">
@@ -162,7 +162,7 @@ export default async function AdminDashboard({
                 {expiringCount}
               </span>
             </div>
-            <span className="text-[13px] font-body-md text-[var(--text-muted)]">{t('panel.expiringHint')}</span>
+            <span className="text-[13px] text-sm text-[var(--text-muted)]">{t('panel.expiringHint')}</span>
           </div>
           <div className="bg-[var(--surface-raised)] border border-[var(--border)] rounded-2xl p-5 flex flex-col justify-between">
             <div className="flex items-center justify-between">
@@ -172,7 +172,7 @@ export default async function AdminDashboard({
             <div className="my-2">
               <span className="font-mono text-[1.75rem] font-bold tracking-tight text-[var(--text)] block leading-none">{formatQuantity(unitsOnHand)}</span>
             </div>
-            <span className="text-[13px] font-body-md text-[var(--text-muted)]">{t('panel.unitsHint', { quarantined: quarantinedCount })}</span>
+            <span className="text-[13px] text-sm text-[var(--text-muted)]">{t('panel.unitsHint', { quarantined: quarantinedCount })}</span>
           </div>
         </section>
 
@@ -215,7 +215,7 @@ export default async function AdminDashboard({
                     return (
                       <div
                         key={row.lot}
-                        className="px-3 py-2 grid grid-cols-12 items-center hover:bg-[var(--surface-2)]/50 transition-colors text-[13px] font-body-sm"
+                        className="px-3 py-2 grid grid-cols-12 items-center hover:bg-[var(--surface-2)]/50 transition-colors text-[13px] text-xs"
                       >
                         <div className="col-span-3 font-mono text-[var(--primary)]">{row.lot}</div>
                         <div className="col-span-4 pr-2">
@@ -323,7 +323,7 @@ export default async function AdminDashboard({
               <div className="divide-y divide-[var(--border)]/30 mt-1">
                 {auditList.map((entry) => (
                   <div key={entry.entity_id} className="py-2">
-                    <p className="text-[13px] font-body-md text-[var(--text)] leading-tight">
+                    <p className="text-[13px] text-sm text-[var(--text)] leading-tight">
                       {entry.action} · <span className="font-medium text-[var(--text-muted)]">{entry.entity_type}</span>
                     </p>
                     <p className="text-[11px] font-mono text-[var(--text-muted)] mt-0.5">{t('audit.by', { who: entry.user_id.slice(0, 8), when: new Date(entry.created_at).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }) })}</p>
@@ -405,23 +405,23 @@ export default async function AdminDashboard({
                 {t('footer.license')}
               </span>
             </div>
-            <nav className="flex flex-wrap items-center gap-4">
+            <div className="flex flex-wrap items-center gap-4">
               <Link href="/admin/deliveries" className="text-[var(--primary)] font-mono text-[13px] hover:text-[var(--text)] transition-colors">
                 {t('footer.coldChainTelemetry')}
               </Link>
               <Link href="/admin/alerts" className="text-[var(--text-muted)] font-mono text-[13px] hover:text-[var(--text)] transition-colors">
                 {t('footer.nodeStatus')}
               </Link>
-              <Link href="/admin/audit" className="text-[var(--text-muted)] font-mono text-[13px] hover:text-[var(--text)] transition-colors">
+              <span className="text-[var(--text-muted)] font-mono text-[13px]">
                 {t('footer.auditLog')}
-              </Link>
-              <a href="#" className="text-[var(--text-muted)] font-mono text-[13px] hover:text-[var(--text)] transition-colors">
+              </span>
+              <span className="text-[var(--text-muted)] font-mono text-[13px]">
                 {t('footer.systemDiagnostics')}
-              </a>
-              <a href="#" className="text-[var(--text-muted)] font-mono text-[13px] hover:text-[var(--text)] transition-colors">
+              </span>
+              <span className="text-[var(--text-muted)] font-mono text-[13px]">
                 {t('footer.supportDispatch')}
-              </a>
-            </nav>
+              </span>
+            </div>
           </div>
         </footer>
       </section>

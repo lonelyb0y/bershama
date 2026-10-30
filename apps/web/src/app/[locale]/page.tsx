@@ -1,9 +1,11 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { redirect } from 'next/navigation';
 import Link from 'next/link';
 
 import { Logo } from '@/components/logo';
 import { MarketingHeader } from '@/components/marketing-header';
 import { HomeBackground } from '@/components/home-background';
+import { getSession, homeRouteForRole } from '@/lib/session';
 import type { Locale } from '@/i18n/routing';
 
 /**
@@ -35,6 +37,12 @@ export default async function LandingPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+
+  // Already signed in: send the visitor to their own surface, not the marketing page.
+  const session = await getSession();
+  if (session) {
+    redirect(`/${locale}${homeRouteForRole(session.role)}`);
+  }
 
   const t = await getTranslations('landing');
 
