@@ -127,6 +127,26 @@ test.describe('signing in', () => {
       { timeout: 10_000 },
     );
 
+    // "A cookie exists" is not the same as "the whole session is there". The
+    // Supabase SSR adapter splits a large session across `auth-token.0`,
+    // `auth-token.1`, ... and the first chunk appears before the last one is
+    // written. A reload in that window sends a truncated cookie and the server
+    // bounces to /login -- the failure this test reported intermittently.
+    //
+    // Ask the server directly instead: 200 on the protected page means it read
+    // a complete session. 307 means it is still redirecting to the form.
+    await expect
+      .poll(
+        async () => {
+          const response = await page.request.get('/en/admin', {
+            maxRedirects: 0,
+          });
+          return response.status();
+        },
+        { timeout: 10_000 },
+      )
+      .toBe(200);
+
     await page.reload();
 
     // If the session lived in localStorage only, the server would see no cookie
